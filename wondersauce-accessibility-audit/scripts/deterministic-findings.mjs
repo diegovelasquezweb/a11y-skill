@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -298,8 +299,8 @@ function buildFindings(inputPayload) {
     return a._rule.localeCompare(b._rule);
   });
 
-  return findings.map((item, index) => ({
-    id: `A11Y-${String(index + 1).padStart(3, "0")}`,
+  return findings.map((item) => ({
+    id: buildStableFindingId(item._route, item._rule),
     title: item.title,
     severity: item.severity,
     wcag: item.wcag,
@@ -312,6 +313,12 @@ function buildFindings(inputPayload) {
     expected: item.expected,
     recommended_fix: item.recommended_fix
   }));
+}
+
+function buildStableFindingId(routePath, ruleKey) {
+  const base = `${routePath}|${ruleKey}`;
+  const hash = crypto.createHash("sha1").update(base).digest("hex").slice(0, 8).toUpperCase();
+  return `A11Y-${hash}`;
 }
 
 function main() {

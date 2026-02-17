@@ -4,7 +4,7 @@ Use this matrix to confirm full coverage of the Wondersauce accessibility PDF pr
 
 Execution format:
 - Fill `references/pdf-coverage-template.json` category by category.
-- Run `scripts/pdf-coverage-validate.mjs` to enforce this matrix before final HTML generation.
+- Verify the matrix gate directly in the audit output before final HTML sign-off.
 
 Mark each row as:
 - `PASS`

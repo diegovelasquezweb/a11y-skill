@@ -7,7 +7,7 @@ const SEVERITY_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 
 function parseArgs(argv) {
   const args = {
-    input: path.join("audit", "findings.json"),
+    input: "/tmp/wondersauce-a11y-findings.json",
     coverage: "/tmp/wondersauce-a11y-coverage.json",
     output: path.join("audit", "index.html"),
     title: "Accessibility Audit Report",
@@ -193,6 +193,13 @@ function buildCoverageTable(coverage) {
 </table>`;
 }
 
+function toEmbeddedJson(value) {
+  return JSON.stringify(value, null, 2)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+}
+
 function buildHtml(args, findings, coverage) {
   const totals = buildSummary(findings);
   const date = new Date().toISOString().slice(0, 10);
@@ -271,6 +278,10 @@ function buildHtml(args, findings, coverage) {
   <section>
     <h2>PDF Coverage Matrix</h2>
     ${buildCoverageTable(coverage)}
+    <details>
+      <summary>Coverage JSON</summary>
+      <pre><code>${escapeHtml(JSON.stringify(coverage, null, 2))}</code></pre>
+    </details>
   </section>
   ${findingsSection}
   <section>
@@ -281,6 +292,7 @@ function buildHtml(args, findings, coverage) {
     <h2>Retest Checklist</h2>
     ${retestChecklist}
   </section>
+  <script id="coverage-json" type="application/json">${toEmbeddedJson(coverage)}</script>
 </body>
 </html>`;
 }

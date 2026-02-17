@@ -126,22 +126,14 @@ Mandatory process coverage:
 
 Run both automated and manual tests. Do not ship results from automated tools alone.
 
-1. Automated pass.
-- Use browser audits and linting where available.
-- Capture issues as candidate findings, then verify manually.
-- Use a fixed route-check schema and deterministic finding generation.
-- Required route-check keys per route:
-  - `h1Count`
-  - `mainCount`
-  - `skipLinkCount`
-  - `unlabeledFormControls`
-  - `unnamedButtons`
-  - `unnamedLinks`
-  - `ariaHiddenFocusable`
-  - `nonSemanticClickables`
-  - `passwordAutocompleteOff`
-  - `passwordPasteBlocked`
-- Generate findings only through `scripts/deterministic-findings.mjs` to keep outputs stable between runs.
+1. Automated pass (standard tools only).
+- Use established tooling, not custom skill scripts:
+  - `axe` (`@axe-core/playwright` or axe DevTools).
+  - Lighthouse accessibility audit.
+  - `eslint-plugin-jsx-a11y` for React/JSX projects.
+  - `pa11y` (or axe in CI) for regression runs when available.
+- Auto-discover same-origin routes from navigation links when routes are not provided.
+- Capture issues as candidate findings, then verify manually before finalizing.
 
 2. Manual pass.
 - Keyboard-only walkthrough.
@@ -152,13 +144,15 @@ Run both automated and manual tests. Do not ship results from automated tools al
 - High contrast mode check when relevant.
 
 3. Coverage matrix gate (mandatory).
-- Complete coverage by category using `references/pdf-coverage-template.json` during each audit run.
+- Complete `references/pdf-coverage-template.json` during each audit run.
 - For each category row, set `status` to `PASS`, `FAIL`, or `N/A`.
 - `PASS` requires evidence.
 - `FAIL` requires evidence and linked `finding_ids`.
 - `N/A` requires a reason in `notes`.
-- Validate coverage only through `scripts/pdf-coverage-validate.mjs`.
-- Do not finalize a clean run unless coverage validation passes.
+- Before closing the audit, verify:
+  - Every required row is filled.
+  - Every `FAIL` has at least one linked finding.
+  - If findings are zero, all applicable rows are `PASS` (or `N/A` with reason).
 
 ## 4) Apply Severity and Track Debt
 
@@ -174,7 +168,7 @@ Apply consistent triage behavior:
 
 ## 5) Report Findings
 
-For each issue, include the same fields as `references/issue-template.md` in the HTML issue details section.
+For each issue, include the required issue fields in the HTML issue details section.
 
 Each finding must include:
 1. WCAG criterion and level.
@@ -188,7 +182,6 @@ Each finding must include:
 
 ## 6) Use Quick Reference
 
-Use `references/wcag-quick-map.md` as the required checklist during audits.
 Use `references/pdf-coverage-matrix.md` as the required completion gate.
 Use `references/pdf-coverage-template.json` as the machine-readable category checklist.
 
@@ -212,25 +205,17 @@ Each reported issue must include:
    - Screenshot is optional.
    - Prefer selector-level DOM/tool evidence; include screenshot only if it clearly demonstrates the exact issue.
 
-## 9) Use Bundled Scripts
+## 9) Use Standard Toolchain (No Custom Scripts)
 
-Use scripts for repeatable outputs and a single-page final artifact:
-1. `scripts/deterministic-findings.mjs`
-- Generate findings from fixed route checks.
-- Default output: `/tmp/wondersauce-a11y-findings.json` (intermediate data).
+Use only standard tools and direct evidence collection:
+1. `Playwright` for route navigation, DOM inspection, and interaction checks.
+2. `@axe-core/playwright` or axe DevTools for automated accessibility rule checks.
+3. Lighthouse accessibility for secondary signal and regression comparison.
+4. `eslint-plugin-jsx-a11y` (when applicable) for static JSX checks.
+5. `pa11y` or CI-integrated axe for repeatable automated regression scans.
 
-2. `scripts/build-audit-html.mjs`
-- Generate the final web report from findings JSON plus validated PDF coverage JSON.
-- Output: `audit/index.html`.
+Do not rely on skill-local custom scripts for finding generation or report gating.
 
-3. `scripts/pdf-coverage-validate.mjs`
-- Validate category-by-category PDF coverage and linked evidence.
-- Default output: `/tmp/wondersauce-a11y-coverage.json`.
-
-4. Optional legacy scripts (not part of default output flow):
-- `scripts/a11y-report-scaffold.mjs`
-- `scripts/issue-from-template.mjs`
-- `scripts/severity-guard.mjs`
 
 ## 10) File Output Behavior (Mandatory)
 
@@ -238,11 +223,11 @@ Use scripts for repeatable outputs and a single-page final artifact:
 - `audit/index.html`
 - Do not generate markdown report files in the default flow.
 - Do not generate per-issue markdown files in the default flow.
-- `audit/index.html` must be built with validated coverage JSON from `scripts/pdf-coverage-validate.mjs`.
+- `audit/index.html` must include the completed PDF coverage matrix with evidence and linked finding IDs.
 
 2. If findings count is 0:
 - Still generate `audit/index.html` with a clean summary (`Congratulations, no issues found.`).
-- This is allowed only after all baseline domains were checked, the deterministic finding generation returned zero findings, and the PDF coverage matrix gate is fully satisfied.
+- This is allowed only after all baseline domains were checked, automated tool results were reviewed, manual checks were completed, and the PDF coverage matrix gate is fully satisfied.
 
 3. Chat output should summarize results, but file generation is the default source of truth.
 
