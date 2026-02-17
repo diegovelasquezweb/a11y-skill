@@ -10,7 +10,7 @@ import path from "node:path";
 function parseArgs(argv) {
   const args = {
     inputDir: "audit",
-    output: "audit/index.html",
+    output: "",
     prefix: "A11Y-",
     title: "Accessibility Audit"
   };
@@ -179,7 +179,9 @@ function buildHtml(title, cards) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const inputDir = path.resolve(args.inputDir);
-  const outputPath = path.resolve(args.output);
+  const outputPath = args.output
+    ? path.resolve(args.output)
+    : path.resolve(args.inputDir, "index.html");
   const outputDir = path.dirname(outputPath);
 
   if (!fs.existsSync(inputDir)) {
@@ -193,7 +195,8 @@ function main() {
     .map((name) => path.join(inputDir, name));
 
   if (issueFiles.length === 0) {
-    throw new Error(`No issue files found in ${inputDir} with prefix ${args.prefix}`);
+    console.log("Congratulations, no issues found.");
+    return;
   }
 
   fs.mkdirSync(outputDir, { recursive: true });

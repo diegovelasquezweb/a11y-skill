@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wondersauce Accessibility Audit"
+  short_description: "Run the Wondersauce WCAG audit workflow"
+  default_prompt: "Use $wondersauce-accessibility-audit in read-only mode, start auditing immediately (auto-discover same-origin routes if not provided), and return English output in the required format (summary, findings table, issue details, remediation plan, retest checklist)."

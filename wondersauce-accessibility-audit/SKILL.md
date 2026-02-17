@@ -1,6 +1,6 @@
 ---
-name: web-accessibility-audit
-description: Create and run a practical WCAG-based accessibility audit workflow for websites, including lifecycle checks, semantic/ARIA/keyboard/contrast/reflow/form/media review, manual and automated testing, severity triage, and remediation tracking. Use when a user asks for accessibility QA, accessibility issue reports, WCAG 2.1 AA baseline reviews, audit-ready bug tickets, or process guidance aligned with agency delivery.
+name: wondersauce-accessibility-audit
+description: Run the Wondersauce WCAG 2.1 AA accessibility audit workflow in read-only mode for websites. Auto-discover same-origin routes when not provided, validate semantic/ARIA/keyboard/contrast/form/media requirements, and return structured outputs (summary, findings table, issue details, remediation plan, retest checklist). Use for accessibility QA, audit-ready issue reporting, and remediation planning.
 ---
 
 # Web Accessibility Audit
@@ -14,13 +14,15 @@ Follow this workflow to audit and report website accessibility issues with consi
 - Default behavior is read-only auditing and reporting.
 
 2. Navigation scope.
-- Audit only the URLs/routes provided by the user.
+- Audit URLs/routes provided by the user.
+- If the user does not provide routes, auto-discover same-origin routes from the current app (navigation links, key flow links, and core pages).
 - Do not open unrelated external sites (for example search engines) during the audit flow.
 
 3. Environment discipline.
-- Use the base URL provided by the user.
-- Do not switch ports or environments automatically.
-- If the target URL is unavailable, report the blocker and request the correct URL.
+- Use the base URL provided by the user when available.
+- If no base URL is provided, auto-detect a reachable local app URL using common dev ports (`3000`, `3001`, `4173`, `5173`, `8080`).
+- Do not start/stop servers or switch environments unless the user explicitly asks.
+- If no reachable target exists, report the blocker and request a URL.
 
 4. Reporting language.
 - Write all outputs in English.
@@ -29,15 +31,27 @@ Follow this workflow to audit and report website accessibility issues with consi
 - In final findings, use route paths as the primary location (`/`, `/products`, `/account/login`).
 - If local URLs are used during testing, place them under a separate `Test Environment` note, not as the canonical issue location.
 
+6. Scope questions.
+- Do not ask scope questionnaires by default.
+- Start auditing immediately with discovered scope.
+- Ask the user only when blocked (no reachable app URL, auth needed, or hard access restrictions).
+
+7. Evidence quality.
+- Do not capture generic full-page screenshots by default.
+- Use technical evidence first (DOM snippet, selector-level check, tool output).
+- Capture screenshots only when they are directly tied 1:1 to a specific issue ID.
+
 ## 1) Set Audit Scope
 
 1. Confirm target conformance level.
-- Default to WCAG 2.1 AA when the user does not specify a level.
+- Use WCAG 2.1 AA by default.
 - Adjust scope to WCAG 2.2 or AAA only when explicitly requested.
+- Do not ask the user to confirm WCAG level unless they requested a different target.
 
 2. Confirm audit surface.
-- Identify page types, key user flows, and critical components.
-- Include third-party widgets and embeds in scope.
+- If routes are provided, use them directly.
+- If routes are not provided, auto-discover routes from same-origin navigation and key flow entry points.
+- Include third-party widgets and embeds that appear within audited pages.
 
 3. Confirm expected deliverables.
 - Produce issue-level findings with clear severity and remediation guidance.
@@ -160,22 +174,24 @@ Each reported issue must include:
 2. Exact selector or component identifier when available.
 3. Reproducible steps.
 4. WCAG criterion and level.
-5. Concrete proof (screenshot, log, or tool output snippet).
+5. Concrete proof (DOM snippet, log, or tool output snippet).
+   - Screenshot is optional.
+   - Prefer selector-level DOM/tool evidence; include screenshot only if it clearly demonstrates the exact issue.
 
 ## 9) Use Bundled Scripts
 
 Use scripts for repeatable outputs and consistency:
-1. `scripts/a11y_report_scaffold.py`
+1. `scripts/a11y-report-scaffold.mjs`
 - Generate a report with required sections from findings JSON.
 - Output: a markdown report in `audit/`.
 
-2. `scripts/issue_from_template.py`
+2. `scripts/issue-from-template.mjs`
 - Generate issue files in consistent format from CLI arguments.
 - Output: one issue markdown file in `audit/`.
 
-3. `scripts/severity_guard.py`
+3. `scripts/severity-guard.mjs`
 - Validate issue severity consistency using lightweight guardrails.
-- Output: pass/fail checks for issue files in `audit/` (default pattern `A11Y-*.md`).
+- Output: pass/fail checks for issue files in `audit/` (default prefix `A11Y-`).
 
 ## Output Rules
 
