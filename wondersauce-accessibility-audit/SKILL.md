@@ -56,6 +56,7 @@ Follow this workflow to audit and report website accessibility issues with consi
 3. Confirm expected deliverables.
 - Produce issue-level findings with clear severity and remediation guidance.
 - Include both automated and manual validation results.
+- Persist outputs to files by default (not chat-only) following the file output rules below.
 
 4. Confirm lifecycle checkpoints.
 - Plan checks during discovery, design handoff, development, QA, pre-launch audit pass, and post-launch updates.
@@ -67,6 +68,10 @@ Follow this workflow to audit and report website accessibility issues with consi
 - Validate heading hierarchy and one primary `h1`.
 - Validate landmarks (`header`, `nav`, `main`, `footer`, `aside`, `section`).
 - Validate correct element choice (`button` for actions, `a` for navigation).
+- Apply deterministic landmark gate on every audited route:
+  - Count `main` and `[role="main"]`.
+  - If total is `0`, you must create a finding for missing primary main landmark (WCAG 1.3.1 A).
+  - If total is greater than `1`, you must create a finding for multiple primary main landmarks (WCAG 1.3.1 A).
 
 2. Review ARIA usage.
 - Prefer native HTML before ARIA.
@@ -119,6 +124,11 @@ Run both automated and manual tests. Do not ship results from automated tools al
 1. Automated pass.
 - Use browser audits and linting where available.
 - Capture issues as candidate findings, then verify manually.
+- Mandatory core DOM gate before finalizing:
+  - `document.querySelectorAll('main,[role="main"]').length`
+  - `document.querySelectorAll('h1').length`
+  - `document.querySelector('a[href="#main"],a[href="#main-content"],a[href^="#main-"]')`
+  - Do not finalize with zero findings if any gate result indicates a violation.
 
 2. Manual pass.
 - Keyboard-only walkthrough.
@@ -192,6 +202,25 @@ Use scripts for repeatable outputs and consistency:
 3. `scripts/severity-guard.mjs`
 - Validate issue severity consistency using lightweight guardrails.
 - Output: pass/fail checks for issue files in `audit/` (default prefix `A11Y-`).
+
+4. `scripts/build-audit-html.mjs`
+- Generate a single HTML page with all issue details and linked evidence.
+- Output: `audit/index.html`.
+
+## 10) File Output Behavior (Mandatory)
+
+1. If findings count is greater than 0, write outputs to `audit/` by default:
+- `audit/findings.json`
+- `audit/a11y-report-YYYY-MM-DD.md`
+- `audit/A11Y-*.md` (one file per issue)
+- `audit/index.html`
+
+2. If findings count is 0:
+- Do not create report/issue/html files.
+- Return only: `Congratulations, no issues found.`
+- This is allowed only after the mandatory core DOM gate has been executed on audited routes and produced no violations.
+
+3. Chat output should summarize results, but file generation is the default source of truth.
 
 ## Output Rules
 

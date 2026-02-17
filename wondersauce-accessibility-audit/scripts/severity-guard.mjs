@@ -47,6 +47,33 @@ function parseDeclaredSeverity(content) {
   return match ? match[1] : null;
 }
 
+function extractSection(text, heading) {
+  const marker = `## ${heading}`;
+  const start = text.indexOf(marker);
+  if (start === -1) return "";
+
+  const contentStart = text.indexOf("\n", start);
+  if (contentStart === -1) return "";
+
+  const nextHeading = text.indexOf("\n## ", contentStart + 1);
+  const raw = nextHeading === -1
+    ? text.slice(contentStart + 1)
+    : text.slice(contentStart + 1, nextHeading + 1);
+
+  return raw.trim();
+}
+
+function buildInferenceText(content) {
+  const sections = [
+    extractSection(content, "Issue"),
+    extractSection(content, "Actual Behavior"),
+    extractSection(content, "User Impact")
+  ].filter(Boolean);
+
+  if (sections.length === 0) return content;
+  return sections.join("\n");
+}
+
 function inferMinimum(content) {
   for (const rule of RULES) {
     if (rule.pattern.test(content)) return rule;
@@ -61,7 +88,7 @@ function checkFile(filePath) {
     return { ok: false, message: "Missing '- Severity: ...' line" };
   }
 
-  const inferred = inferMinimum(content);
+  const inferred = inferMinimum(buildInferenceText(content));
   if (!inferred) {
     return { ok: true, message: `OK: no rule trigger, declared severity '${declared}' accepted` };
   }

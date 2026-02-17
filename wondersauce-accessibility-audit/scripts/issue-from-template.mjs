@@ -7,6 +7,10 @@ const ALLOWED_SEVERITIES = new Set(["Critical", "High", "Medium", "Low"]);
 const ALLOWED_LEVELS = new Set(["A", "AA", "AAA"]);
 const ALLOWED_RELEASES = new Set(["Block now", "Fix this release", "Next release", "Backlog"]);
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function parseArgs(argv) {
   const args = {
     title: "",
@@ -79,17 +83,18 @@ function slugify(value) {
 }
 
 function nextIssueId(outDir, prefix) {
-  const files = fs
-    .readdirSync(outDir)
-    .filter((name) => name.startsWith(`${prefix}-`) && name.endsWith(".md"))
-    .sort();
+  const pattern = new RegExp(`^${escapeRegExp(prefix)}-(\\d+)(?:-|\\.md$)`);
+  let maxId = 0;
 
-  if (files.length === 0) return `${prefix}-001`;
+  for (const name of fs.readdirSync(outDir)) {
+    if (!name.endsWith(".md")) continue;
+    const match = name.match(pattern);
+    if (!match) continue;
+    const current = Number.parseInt(match[1], 10);
+    if (!Number.isNaN(current)) maxId = Math.max(maxId, current);
+  }
 
-  const last = files[files.length - 1].replace(/\.md$/, "").split("-")[1];
-  const num = Number.parseInt(last, 10);
-  const next = Number.isNaN(num) ? files.length + 1 : num + 1;
-  return `${prefix}-${String(next).padStart(3, "0")}`;
+  return `${prefix}-${String(maxId + 1).padStart(3, "0")}`;
 }
 
 function buildMarkdown(args, issueId) {

@@ -22,6 +22,7 @@ function parseArgs(argv) {
   const args = {
     input: "",
     project: "",
+    environment: "",
     scope: "In-scope pages and key user flows",
     wcagTarget: "WCAG 2.1 AA",
     auditor: "Accessibility Team",
@@ -35,6 +36,7 @@ function parseArgs(argv) {
 
     if (key === "--input") args.input = value;
     if (key === "--project") args.project = value;
+    if (key === "--environment") args.environment = value;
     if (key === "--scope") args.scope = value;
     if (key === "--wcag-target") args.wcagTarget = value;
     if (key === "--auditor") args.auditor = value;
@@ -44,6 +46,7 @@ function parseArgs(argv) {
 
   if (!args.input) throw new Error("Missing required --input");
   if (!args.project) throw new Error("Missing required --project");
+  if (!args.environment) throw new Error("Missing required --environment");
 
   return args;
 }
@@ -78,6 +81,13 @@ function loadFindings(filePath) {
   return payload.findings;
 }
 
+function escapeTableCell(value) {
+  return String(value ?? "")
+    .replace(/\r?\n/g, " ")
+    .replace(/\|/g, "\\|")
+    .trim();
+}
+
 function buildMarkdown(findings, args) {
   const severityOrder = { Critical: 0, High: 1, Medium: 2, Low: 3 };
   const sorted = [...findings].sort(
@@ -96,6 +106,7 @@ function buildMarkdown(findings, args) {
   lines.push("");
   lines.push(`- Date: ${todayIso()}`);
   lines.push(`- Auditor: ${args.auditor}`);
+  lines.push(`- Test Environment: ${args.environment}`);
   lines.push(`- Scope: ${args.scope}`);
   lines.push(`- Target: ${args.wcagTarget}`);
   lines.push(`- Total findings: ${sorted.length}`);
@@ -107,7 +118,9 @@ function buildMarkdown(findings, args) {
   lines.push("| ID | Severity | WCAG | Area | Short Impact |");
   lines.push("|---|---|---|---|---|");
   for (const finding of sorted) {
-    lines.push(`| ${finding.id} | ${finding.severity} | ${finding.wcag} | ${finding.area} | ${finding.impact} |`);
+    lines.push(
+      `| ${escapeTableCell(finding.id)} | ${escapeTableCell(finding.severity)} | ${escapeTableCell(finding.wcag)} | ${escapeTableCell(finding.area)} | ${escapeTableCell(finding.impact)} |`
+    );
   }
   lines.push("");
 

@@ -70,11 +70,23 @@ function extractReproSteps(text) {
     .map((line) => line.replace(/^\d+\.\s+/, ""));
 }
 
+function formatTextBlock(value) {
+  return escapeHtml(value).replace(/\r?\n/g, "<br>");
+}
+
+function isImageSource(value) {
+  const normalized = value.toLowerCase().split("#")[0].split("?")[0];
+  if (normalized.startsWith("data:image/")) return true;
+  return [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp", ".avif"].some((ext) =>
+    normalized.endsWith(ext)
+  );
+}
+
 function resolveEvidence(rawPath, issueFile, outputDir) {
   const raw = rawPath.trim();
-  if (!raw) return "";
+  if (!raw) return { kind: "none", value: "" };
   if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) {
-    return raw;
+    return { kind: "resolved", value: raw };
   }
 
   const candidates = [];
@@ -87,11 +99,11 @@ function resolveEvidence(rawPath, issueFile, outputDir) {
 
   for (const candidate of candidates) {
     if (fs.existsSync(candidate)) {
-      return path.relative(outputDir, candidate).split(path.sep).join("/");
+      return { kind: "resolved", value: path.relative(outputDir, candidate).split(path.sep).join("/") };
     }
   }
 
-  return raw;
+  return { kind: "missing", value: raw };
 }
 
 function buildIssueCard(issueFile, outputDir) {
@@ -114,10 +126,16 @@ function buildIssueCard(issueFile, outputDir) {
   const reproSteps = extractReproSteps(text);
 
   const issueLink = path.relative(outputDir, issueFile).split(path.sep).join("/");
-  const reproHtml = reproSteps.map((step) => `<li>${escapeHtml(step)}</li>`).join("");
-  const evidenceHtml = evidence
-    ? `<img src="${escapeHtml(evidence)}" alt="Evidence for ${escapeHtml(id)}" loading="lazy">`
-    : '<div class="no-image">No screenshot linked for this issue</div>';
+  const reproHtml = reproSteps.length > 0
+    ? reproSteps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")
+    : "<li>Reproduction steps not provided.</li>";
+  const evidenceHtml = evidence.kind === "resolved"
+    ? (isImageSource(evidence.value)
+      ? `<img src="${escapeHtml(evidence.value)}" alt="Evidence for ${escapeHtml(id)}" loading="lazy">`
+      : `<p><a href="${escapeHtml(evidence.value)}">Open evidence artifact</a></p>`)
+    : (evidence.kind === "missing"
+      ? `<div class="no-image">Evidence path not found: <code>${escapeHtml(evidence.value)}</code></div>`
+      : '<div class="no-image">No screenshot linked for this issue</div>');
 
   return `
 <article class="issue">
@@ -133,13 +151,13 @@ function buildIssueCard(issueFile, outputDir) {
       <h3>Reproduction</h3>
       <ol>${reproHtml}</ol>
       <h3>Actual</h3>
-      <p>${escapeHtml(actual)}</p>
+      <p>${formatTextBlock(actual)}</p>
       <h3>Expected</h3>
-      <p>${escapeHtml(expected)}</p>
+      <p>${formatTextBlock(expected)}</p>
       <h3>Impact</h3>
-      <p>${escapeHtml(impact)}</p>
+      <p>${formatTextBlock(impact)}</p>
       <h3>Recommended fix</h3>
-      <p>${escapeHtml(fix)}</p>
+      <p>${formatTextBlock(fix)}</p>
     </section>
     <section class="evidence">
       <h3>Evidence</h3>
