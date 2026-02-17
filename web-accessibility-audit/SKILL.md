@@ -7,6 +7,28 @@ description: Create and run a practical WCAG-based accessibility audit workflow 
 
 Follow this workflow to audit and report website accessibility issues with consistent quality.
 
+## Operating Guardrails
+
+1. Audit-only behavior.
+- Do not modify source code, config, content, or dependencies unless the user explicitly asks for fixes.
+- Default behavior is read-only auditing and reporting.
+
+2. Navigation scope.
+- Audit only the URLs/routes provided by the user.
+- Do not open unrelated external sites (for example search engines) during the audit flow.
+
+3. Environment discipline.
+- Use the base URL provided by the user.
+- Do not switch ports or environments automatically.
+- If the target URL is unavailable, report the blocker and request the correct URL.
+
+4. Reporting language.
+- Write all outputs in English.
+
+5. Shareable reporting.
+- In final findings, use route paths as the primary location (`/`, `/products`, `/account/login`).
+- If local URLs are used during testing, place them under a separate `Test Environment` note, not as the canonical issue location.
+
 ## 1) Set Audit Scope
 
 1. Confirm target conformance level.
@@ -125,7 +147,7 @@ Use `references/wcag-quick-map.md` as a fast checklist during audits.
 ## 7) Required Deliverables
 
 Always return results in this exact order:
-1. Executive summary.
+1. Executive summary (including `Test Environment` base URL used during the audit).
 2. Findings table (ID, severity, WCAG criterion, impacted area, short impact).
 3. Issue details (one section per issue using the issue template).
 4. Remediation plan (prioritized by severity and dependency).
@@ -134,7 +156,7 @@ Always return results in this exact order:
 ## 8) Minimum Evidence Per Issue
 
 Each reported issue must include:
-1. Exact URL.
+1. Route path (primary canonical location).
 2. Exact selector or component identifier when available.
 3. Reproducible steps.
 4. WCAG criterion and level.
@@ -145,15 +167,15 @@ Each reported issue must include:
 Use scripts for repeatable outputs and consistency:
 1. `scripts/a11y_report_scaffold.py`
 - Generate a report with required sections from findings JSON.
-- Output: a markdown report in `reports/`.
+- Output: a markdown report in `audit/`.
 
 2. `scripts/issue_from_template.py`
 - Generate issue files in consistent format from CLI arguments.
-- Output: one issue markdown file in `issues/`.
+- Output: one issue markdown file in `audit/`.
 
 3. `scripts/severity_guard.py`
 - Validate issue severity consistency using lightweight guardrails.
-- Output: pass/fail checks for issue files.
+- Output: pass/fail checks for issue files in `audit/` (default pattern `A11Y-*.md`).
 
 ## Output Rules
 

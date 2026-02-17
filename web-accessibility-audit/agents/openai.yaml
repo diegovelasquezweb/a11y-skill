@@ -1,4 +1,4 @@
 interface:
   display_name: "Web Accessibility Audit"
   short_description: "Audit websites against practical WCAG workflows"
-  default_prompt: "Use $web-accessibility-audit to audit these pages, confirm scope and target WCAG level, and return the required output format (summary, findings table, issue details, remediation plan, retest checklist)."
+  default_prompt: "Use $web-accessibility-audit in read-only mode to audit these pages, stay within provided URLs, and return English output in the required format (summary, findings table, issue details, remediation plan, retest checklist)."

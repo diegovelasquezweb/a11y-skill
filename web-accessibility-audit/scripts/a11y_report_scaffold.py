@@ -143,7 +143,7 @@ def main() -> int:
     findings = load_findings(Path(args.input))
     markdown = build_markdown(findings, args.project, args.scope, args.wcag_target, args.auditor)
 
-    output_path = Path(args.output) if args.output else Path("reports") / f"a11y-report-{date.today().isoformat()}.md"
+    output_path = Path(args.output) if args.output else Path("audit") / f"a11y-report-{date.today().isoformat()}.md"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(markdown, encoding="utf-8")
 

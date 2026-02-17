@@ -119,7 +119,7 @@ def main() -> int:
         choices=["Block now", "Fix this release", "Next release", "Backlog"],
     )
     parser.add_argument("--prefix", default="A11Y")
-    parser.add_argument("--out-dir", default="issues")
+    parser.add_argument("--out-dir", default="audit")
     args = parser.parse_args()
 
     out_dir = Path(args.out_dir)

@@ -2,9 +2,13 @@
 
 Codex skill for WCAG-focused web accessibility audits, based on the Wondersauce internal accessibility process, producing actionable findings and remediation-ready outputs.
 
+This skill is audit-only by default (read-only): it should not modify project code unless explicitly requested.
+
 ## Installation
 
 ```bash
+export CODEX_HOME="$HOME/.codex"
+mkdir -p "$CODEX_HOME/skills"
 cp -R web-accessibility-audit "$CODEX_HOME/skills/"
 ```
 
@@ -18,7 +22,7 @@ Use $web-accessibility-audit to audit these URLs at WCAG 2.1 AA and return: summ
 
 ## Minimum evidence per issue
 
-- Exact URL
+- Route path (canonical location, for example `/products`)
 - Selector or component
 - Reproduction steps
 - WCAG criterion and level

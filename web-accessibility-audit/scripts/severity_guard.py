@@ -61,7 +61,12 @@ def check_file(path: Path) -> tuple[bool, str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate accessibility issue severity consistency")
-    parser.add_argument("--path", default="issues", help="File or directory to validate")
+    parser.add_argument("--path", default="audit", help="Issue file or directory to validate")
+    parser.add_argument(
+        "--glob",
+        default="A11Y-*.md",
+        help="Glob pattern for issue files when --path is a directory",
+    )
     args = parser.parse_args()
 
     target = Path(args.path)
@@ -69,7 +74,7 @@ def main() -> int:
     if target.is_file():
         files = [target]
     else:
-        files = sorted(target.glob("*.md"))
+        files = sorted(target.glob(args.glob))
 
     if not files:
         print("No issue files found.")
