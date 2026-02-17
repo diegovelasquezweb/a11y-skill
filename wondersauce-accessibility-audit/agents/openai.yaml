@@ -1,4 +1,4 @@
 interface:
   display_name: "Wondersauce Accessibility Audit"
-  short_description: "Audit sites with the Wondersauce WCAG 2.1 AA workflow and actionable reports"
+  short_description: "Detect and document accessibility issues using the Wondersauce accessibility process."
   default_prompt: "Use $wondersauce-accessibility-audit in read-only mode, start auditing immediately (auto-discover same-origin routes if not provided), persist outputs to audit/ by default, and return English output in the required format (summary, findings table, issue details, remediation plan, retest checklist)."
