@@ -64,14 +64,15 @@ Follow this workflow to audit and report website accessibility issues with consi
 
 ## 2) Run Baseline Checks
 
+Mandatory process coverage:
+- Execute all baseline domains in this section for every audited route/flow.
+- Do not finalize an audit using partial checks.
+- Convert every confirmed violation into a finding.
+
 1. Review structure and semantics.
 - Validate heading hierarchy and one primary `h1`.
 - Validate landmarks (`header`, `nav`, `main`, `footer`, `aside`, `section`).
 - Validate correct element choice (`button` for actions, `a` for navigation).
-- Apply deterministic landmark gate on every audited route:
-  - Count `main` and `[role="main"]`.
-  - If total is `0`, you must create a finding for missing primary main landmark (WCAG 1.3.1 A).
-  - If total is greater than `1`, you must create a finding for multiple primary main landmarks (WCAG 1.3.1 A).
 
 2. Review ARIA usage.
 - Prefer native HTML before ARIA.
@@ -117,6 +118,10 @@ Follow this workflow to audit and report website accessibility issues with consi
 - Carousels: pause control, keyboardable prev/next, slide position announcement, swipe alternatives.
 - Skip link: first focusable element points to main content.
 
+8. Review third-party content and integrations.
+- Audit embedded forms, consent banners, chat widgets, and external overlays in scope.
+- If an inaccessible third-party component is required, create findings and document constraints/ownership.
+
 ## 3) Test and Validate
 
 Run both automated and manual tests. Do not ship results from automated tools alone.
@@ -124,11 +129,19 @@ Run both automated and manual tests. Do not ship results from automated tools al
 1. Automated pass.
 - Use browser audits and linting where available.
 - Capture issues as candidate findings, then verify manually.
-- Mandatory core DOM gate before finalizing:
-  - `document.querySelectorAll('main,[role="main"]').length`
-  - `document.querySelectorAll('h1').length`
-  - `document.querySelector('a[href="#main"],a[href="#main-content"],a[href^="#main-"]')`
-  - Do not finalize with zero findings if any gate result indicates a violation.
+- Use a fixed route-check schema and deterministic finding generation.
+- Required route-check keys per route:
+  - `h1Count`
+  - `mainCount`
+  - `skipLinkCount`
+  - `unlabeledFormControls`
+  - `unnamedButtons`
+  - `unnamedLinks`
+  - `ariaHiddenFocusable`
+  - `nonSemanticClickables`
+  - `passwordAutocompleteOff`
+  - `passwordPasteBlocked`
+- Generate findings only through `scripts/deterministic-findings.mjs` to keep outputs stable between runs.
 
 2. Manual pass.
 - Keyboard-only walkthrough.
@@ -137,6 +150,15 @@ Run both automated and manual tests. Do not ship results from automated tools al
 - Text spacing override check (WCAG 1.4.12).
 - Reduced motion check.
 - High contrast mode check when relevant.
+
+3. Coverage matrix gate (mandatory).
+- Complete coverage by category using `references/pdf-coverage-template.json` during each audit run.
+- For each category row, set `status` to `PASS`, `FAIL`, or `N/A`.
+- `PASS` requires evidence.
+- `FAIL` requires evidence and linked `finding_ids`.
+- `N/A` requires a reason in `notes`.
+- Validate coverage only through `scripts/pdf-coverage-validate.mjs`.
+- Do not finalize a clean run unless coverage validation passes.
 
 ## 4) Apply Severity and Track Debt
 
@@ -152,7 +174,7 @@ Apply consistent triage behavior:
 
 ## 5) Report Findings
 
-For each issue, use the template in `references/issue-template.md`.
+For each issue, include the same fields as `references/issue-template.md` in the HTML issue details section.
 
 Each finding must include:
 1. WCAG criterion and level.
@@ -166,7 +188,9 @@ Each finding must include:
 
 ## 6) Use Quick Reference
 
-Use `references/wcag-quick-map.md` as a fast checklist during audits.
+Use `references/wcag-quick-map.md` as the required checklist during audits.
+Use `references/pdf-coverage-matrix.md` as the required completion gate.
+Use `references/pdf-coverage-template.json` as the machine-readable category checklist.
 
 ## 7) Required Deliverables
 
@@ -190,35 +214,35 @@ Each reported issue must include:
 
 ## 9) Use Bundled Scripts
 
-Use scripts for repeatable outputs and consistency:
-1. `scripts/a11y-report-scaffold.mjs`
-- Generate a report with required sections from findings JSON.
-- Output: a markdown report in `audit/`.
+Use scripts for repeatable outputs and a single-page final artifact:
+1. `scripts/deterministic-findings.mjs`
+- Generate findings from fixed route checks.
+- Default output: `/tmp/wondersauce-a11y-findings.json` (intermediate data).
 
-2. `scripts/issue-from-template.mjs`
-- Generate issue files in consistent format from CLI arguments.
-- Output: one issue markdown file in `audit/`.
-
-3. `scripts/severity-guard.mjs`
-- Validate issue severity consistency using lightweight guardrails.
-- Output: pass/fail checks for issue files in `audit/` (default prefix `A11Y-`).
-
-4. `scripts/build-audit-html.mjs`
-- Generate a single HTML page with all issue details and linked evidence.
+2. `scripts/build-audit-html.mjs`
+- Generate the final web report from findings JSON plus validated PDF coverage JSON.
 - Output: `audit/index.html`.
+
+3. `scripts/pdf-coverage-validate.mjs`
+- Validate category-by-category PDF coverage and linked evidence.
+- Default output: `/tmp/wondersauce-a11y-coverage.json`.
+
+4. Optional legacy scripts (not part of default output flow):
+- `scripts/a11y-report-scaffold.mjs`
+- `scripts/issue-from-template.mjs`
+- `scripts/severity-guard.mjs`
 
 ## 10) File Output Behavior (Mandatory)
 
 1. If findings count is greater than 0, write outputs to `audit/` by default:
-- `audit/findings.json`
-- `audit/a11y-report-YYYY-MM-DD.md`
-- `audit/A11Y-*.md` (one file per issue)
 - `audit/index.html`
+- Do not generate markdown report files in the default flow.
+- Do not generate per-issue markdown files in the default flow.
+- `audit/index.html` must be built with validated coverage JSON from `scripts/pdf-coverage-validate.mjs`.
 
 2. If findings count is 0:
-- Do not create report/issue/html files.
-- Return only: `Congratulations, no issues found.`
-- This is allowed only after the mandatory core DOM gate has been executed on audited routes and produced no violations.
+- Still generate `audit/index.html` with a clean summary (`Congratulations, no issues found.`).
+- This is allowed only after all baseline domains were checked, the deterministic finding generation returned zero findings, and the PDF coverage matrix gate is fully satisfied.
 
 3. Chat output should summarize results, but file generation is the default source of truth.
 

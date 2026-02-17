@@ -1,28 +1,33 @@
 #!/usr/bin/env node
-/**
- * Build a single HTML view from markdown issue files.
- * No third-party dependencies.
- */
 
 import fs from "node:fs";
 import path from "node:path";
 
+const SEVERITY_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+
 function parseArgs(argv) {
   const args = {
-    inputDir: "audit",
-    output: "",
-    prefix: "A11Y-",
-    title: "Accessibility Audit"
+    input: path.join("audit", "findings.json"),
+    coverage: "/tmp/wondersauce-a11y-coverage.json",
+    output: path.join("audit", "index.html"),
+    title: "Accessibility Audit Report",
+    environment: "",
+    scope: "",
+    target: "WCAG 2.1 AA"
   };
 
   for (let i = 0; i < argv.length; i += 1) {
     const key = argv[i];
     const value = argv[i + 1];
     if (!key.startsWith("--") || value === undefined) continue;
-    if (key === "--input-dir") args.inputDir = value;
+
+    if (key === "--input") args.input = value;
+    if (key === "--coverage") args.coverage = value;
     if (key === "--output") args.output = value;
-    if (key === "--prefix") args.prefix = value;
     if (key === "--title") args.title = value;
+    if (key === "--environment") args.environment = value;
+    if (key === "--scope") args.scope = value;
+    if (key === "--target") args.target = value;
     i += 1;
   }
 
@@ -30,7 +35,7 @@ function parseArgs(argv) {
 }
 
 function escapeHtml(value) {
-  return String(value)
+  return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -38,189 +43,276 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-function extractField(text, label) {
-  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const rx = new RegExp(`^- ${escaped}:\\s*(.*)$`, "m");
-  const match = text.match(rx);
-  return match ? match[1].trim() : "";
-}
-
-function extractSection(text, heading) {
-  const marker = `## ${heading}`;
-  const start = text.indexOf(marker);
-  if (start === -1) return "";
-  const contentStart = text.indexOf("\n", start);
-  if (contentStart === -1) return "";
-
-  const nextHeading = text.indexOf("\n## ", contentStart + 1);
-  const raw = nextHeading === -1
-    ? text.slice(contentStart + 1)
-    : text.slice(contentStart + 1, nextHeading + 1);
-
-  return raw.trim();
-}
-
-function extractReproSteps(text) {
-  const section = extractSection(text, "Reproduction");
-  if (!section) return [];
-  return section
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => /^\d+\.\s+/.test(line))
-    .map((line) => line.replace(/^\d+\.\s+/, ""));
-}
-
-function formatTextBlock(value) {
+function formatMultiline(value) {
   return escapeHtml(value).replace(/\r?\n/g, "<br>");
 }
 
-function isImageSource(value) {
-  const normalized = value.toLowerCase().split("#")[0].split("?")[0];
-  if (normalized.startsWith("data:image/")) return true;
-  return [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".bmp", ".avif"].some((ext) =>
-    normalized.endsWith(ext)
-  );
+function normalizeFindings(payload) {
+  if (!payload || typeof payload !== "object" || !Array.isArray(payload.findings)) {
+    throw new Error("Input must be a JSON object with a 'findings' array.");
+  }
+
+  return payload.findings
+    .map((item, index) => {
+      if (!item || typeof item !== "object") {
+        throw new Error(`Invalid finding object at index ${index}`);
+      }
+      return {
+        id: String(item.id ?? `A11Y-${String(index + 1).padStart(3, "0")}`),
+        title: String(item.title ?? "Untitled finding"),
+        severity: String(item.severity ?? "Unknown"),
+        wcag: String(item.wcag ?? ""),
+        area: String(item.area ?? ""),
+        url: String(item.url ?? ""),
+        selector: String(item.selector ?? ""),
+        impact: String(item.impact ?? ""),
+        reproduction: Array.isArray(item.reproduction) ? item.reproduction.map((v) => String(v)) : [],
+        actual: String(item.actual ?? ""),
+        expected: String(item.expected ?? ""),
+        recommendedFix: String(item.recommended_fix ?? item.recommendedFix ?? ""),
+        evidence: String(item.evidence ?? "")
+      };
+    })
+    .sort((a, b) => {
+      const sa = SEVERITY_ORDER[a.severity] ?? 99;
+      const sb = SEVERITY_ORDER[b.severity] ?? 99;
+      if (sa !== sb) return sa - sb;
+      return a.id.localeCompare(b.id);
+    });
 }
 
-function resolveEvidence(rawPath, issueFile, outputDir) {
-  const raw = rawPath.trim();
-  if (!raw) return { kind: "none", value: "" };
-  if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) {
-    return { kind: "resolved", value: raw };
+function normalizeCoverage(payload) {
+  if (!payload || typeof payload !== "object" || !Array.isArray(payload.rows)) {
+    throw new Error("Coverage input must be a JSON object with a 'rows' array.");
   }
-
-  const candidates = [];
-  if (path.isAbsolute(raw)) {
-    candidates.push(raw);
-  } else {
-    candidates.push(path.resolve(path.dirname(issueFile), raw));
-    candidates.push(path.resolve(process.cwd(), raw));
-  }
-
-  for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
-      return { kind: "resolved", value: path.relative(outputDir, candidate).split(path.sep).join("/") };
-    }
-  }
-
-  return { kind: "missing", value: raw };
+  return {
+    gatePassed: Boolean(payload.gate_passed),
+    summary: payload.summary ?? {},
+    rows: payload.rows.map((row) => ({
+      id: String(row.id ?? ""),
+      domain: String(row.domain ?? ""),
+      status: String(row.status ?? ""),
+      evidence: String(row.evidence ?? ""),
+      notes: String(row.notes ?? ""),
+      findingIds: Array.isArray(row.finding_ids) ? row.finding_ids.map((v) => String(v)) : []
+    }))
+  };
 }
 
-function buildIssueCard(issueFile, outputDir) {
-  const text = fs.readFileSync(issueFile, "utf-8");
+function buildSummary(findings) {
+  const totals = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+  for (const finding of findings) {
+    if (finding.severity in totals) totals[finding.severity] += 1;
+  }
+  return totals;
+}
 
-  const id = extractField(text, "ID") || path.basename(issueFile, ".md");
-  const title = extractField(text, "Title") || id;
-  const severity = extractField(text, "Severity") || "Unknown";
-  const wcag = extractField(text, "WCAG Criterion");
-  const area = extractField(text, "Affected Area");
-  const issueUrl = extractField(text, "URL");
-  const selector = extractField(text, "DOM selector / component ID");
-  const evidenceRaw = extractField(text, "Screenshot / recording");
-  const evidence = resolveEvidence(evidenceRaw, issueFile, outputDir);
+function buildIssueCard(finding) {
+  const reproductionItems = finding.reproduction.length > 0
+    ? finding.reproduction.map((step) => `<li>${escapeHtml(step)}</li>`).join("")
+    : "<li>No reproduction steps provided.</li>";
 
-  const actual = extractSection(text, "Actual Behavior");
-  const expected = extractSection(text, "Expected Behavior");
-  const impact = extractSection(text, "User Impact");
-  const fix = extractSection(text, "Recommended Fix");
-  const reproSteps = extractReproSteps(text);
-
-  const issueLink = path.relative(outputDir, issueFile).split(path.sep).join("/");
-  const reproHtml = reproSteps.length > 0
-    ? reproSteps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")
-    : "<li>Reproduction steps not provided.</li>";
-  const evidenceHtml = evidence.kind === "resolved"
-    ? (isImageSource(evidence.value)
-      ? `<img src="${escapeHtml(evidence.value)}" alt="Evidence for ${escapeHtml(id)}" loading="lazy">`
-      : `<p><a href="${escapeHtml(evidence.value)}">Open evidence artifact</a></p>`)
-    : (evidence.kind === "missing"
-      ? `<div class="no-image">Evidence path not found: <code>${escapeHtml(evidence.value)}</code></div>`
-      : '<div class="no-image">No screenshot linked for this issue</div>');
+  const evidenceHtml = finding.evidence
+    ? `<p><strong>Evidence:</strong> ${escapeHtml(finding.evidence)}</p>`
+    : "";
 
   return `
 <article class="issue">
   <header>
-    <h2>${escapeHtml(id)} - ${escapeHtml(title)}</h2>
-    <p><strong>Severity:</strong> ${escapeHtml(severity)} | <strong>WCAG:</strong> ${escapeHtml(wcag)} | <strong>Area:</strong> ${escapeHtml(area)}</p>
-    <p><strong>URL:</strong> ${escapeHtml(issueUrl)}</p>
-    <p><strong>Selector:</strong> ${escapeHtml(selector)}</p>
-    <p><a href="${escapeHtml(issueLink)}">Open issue markdown</a></p>
+    <h3>${escapeHtml(finding.id)} - ${escapeHtml(finding.title)}</h3>
+    <p><strong>Severity:</strong> ${escapeHtml(finding.severity)} | <strong>WCAG:</strong> ${escapeHtml(finding.wcag)}</p>
+    <p><strong>Area:</strong> ${escapeHtml(finding.area)}</p>
+    <p><strong>URL:</strong> ${escapeHtml(finding.url)}</p>
+    <p><strong>Selector:</strong> ${escapeHtml(finding.selector)}</p>
+    ${evidenceHtml}
   </header>
-  <div class="grid">
-    <section>
-      <h3>Reproduction</h3>
-      <ol>${reproHtml}</ol>
-      <h3>Actual</h3>
-      <p>${formatTextBlock(actual)}</p>
-      <h3>Expected</h3>
-      <p>${formatTextBlock(expected)}</p>
-      <h3>Impact</h3>
-      <p>${formatTextBlock(impact)}</p>
-      <h3>Recommended fix</h3>
-      <p>${formatTextBlock(fix)}</p>
-    </section>
-    <section class="evidence">
-      <h3>Evidence</h3>
-      ${evidenceHtml}
-    </section>
-  </div>
+  <section>
+    <h4>Reproduction</h4>
+    <ol>${reproductionItems}</ol>
+    <h4>Actual</h4>
+    <p>${formatMultiline(finding.actual)}</p>
+    <h4>Expected</h4>
+    <p>${formatMultiline(finding.expected)}</p>
+    <h4>Impact</h4>
+    <p>${formatMultiline(finding.impact)}</p>
+    <h4>Recommended Fix</h4>
+    <p>${formatMultiline(finding.recommendedFix)}</p>
+  </section>
 </article>`;
 }
 
-function buildHtml(title, cards) {
+function buildFindingsTable(findings) {
+  const rows = findings
+    .map((finding) => `
+      <tr>
+        <td>${escapeHtml(finding.id)}</td>
+        <td>${escapeHtml(finding.severity)}</td>
+        <td>${escapeHtml(finding.wcag)}</td>
+        <td>${escapeHtml(finding.area)}</td>
+        <td>${escapeHtml(finding.impact)}</td>
+      </tr>`)
+    .join("");
+
+  return `
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Severity</th>
+      <th>WCAG</th>
+      <th>Area</th>
+      <th>Short Impact</th>
+    </tr>
+  </thead>
+  <tbody>${rows}</tbody>
+</table>`;
+}
+
+function buildCoverageTable(coverage) {
+  const rows = coverage.rows
+    .map((row) => `
+      <tr>
+        <td>${escapeHtml(row.domain || row.id)}</td>
+        <td>${escapeHtml(row.status)}</td>
+        <td>${formatMultiline(row.evidence || "(none)")}</td>
+        <td>${formatMultiline(row.notes || "")}</td>
+      </tr>`)
+    .join("");
+
+  return `
+<table>
+  <thead>
+    <tr>
+      <th>Coverage Domain</th>
+      <th>Status</th>
+      <th>Evidence</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>${rows}</tbody>
+</table>`;
+}
+
+function buildHtml(args, findings, coverage) {
+  const totals = buildSummary(findings);
+  const date = new Date().toISOString().slice(0, 10);
+  const hasHigh = findings.some((f) => f.severity === "Critical" || f.severity === "High");
+  const hasMedium = findings.some((f) => f.severity === "Medium");
+
+  const findingsSection = findings.length === 0
+    ? `<section class="ok"><h3>Congratulations, no issues found.</h3></section>`
+    : `
+<section>
+  <h2>Findings Table</h2>
+  ${buildFindingsTable(findings)}
+</section>
+<section>
+  <h2>Issue Details</h2>
+  ${findings.map((finding) => buildIssueCard(finding)).join("\n")}
+</section>`;
+
+  const remediationPlan = findings.length === 0
+    ? "<li>No remediation actions required for this run.</li>"
+    : [
+        hasHigh ? "<li>Fix Critical/High findings first across shared components and core flows.</li>" : "",
+        hasMedium ? "<li>Address Medium findings in the current or next release cycle.</li>" : "",
+        "<li>Retest all fixed items with keyboard and screen reader spot checks.</li>"
+      ].filter(Boolean).join("");
+
+  const retestChecklist = `
+<ul>
+  <li>Keyboard-only pass across audited routes.</li>
+  <li>Screen reader spot-check on updated components.</li>
+  <li>Confirm issue evidence no longer reproduces.</li>
+  <li>Re-run deterministic findings generation and rebuild HTML report.</li>
+</ul>`;
+
+  const coverageSummary = coverage.summary ?? {};
+  const coverageBadge = coverage.gatePassed
+    ? '<p class="gate pass"><strong>Coverage Gate:</strong> PASS</p>'
+    : '<p class="gate fail"><strong>Coverage Gate:</strong> FAIL</p>';
+
   return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(title)}</title>
+  <title>${escapeHtml(args.title)}</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif; background: #f8fafc; color: #0f172a; margin: 24px; }
-    h1 { margin: 0 0 16px; }
-    .issue { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    .issue h2 { margin: 0 0 8px; font-size: 20px; }
+    body { margin: 24px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #0f172a; }
+    h1, h2, h3, h4 { margin: 0 0 8px; }
+    section { margin: 16px 0; }
+    .summary { background: #fff; border: 1px solid #dbe3ee; border-radius: 10px; padding: 16px; }
+    .summary p { margin: 6px 0; }
+    table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #dbe3ee; }
+    th, td { border: 1px solid #dbe3ee; padding: 8px; text-align: left; vertical-align: top; }
+    th { background: #eef3f8; }
+    .issue { background: #fff; border: 1px solid #dbe3ee; border-radius: 10px; padding: 14px; margin-bottom: 14px; }
     .issue p { margin: 4px 0; }
-    .grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; margin-top: 12px; }
-    .grid h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .03em; color: #334155; margin: 12px 0 6px; }
-    .evidence img { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; }
-    .no-image { border: 1px dashed #cbd5e1; border-radius: 8px; padding: 18px; color: #64748b; }
-    @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+    .ok { background: #ecfdf5; border: 1px solid #86efac; border-radius: 10px; padding: 16px; }
+    .gate { margin-top: 8px; padding: 8px 10px; border-radius: 8px; display: inline-block; }
+    .gate.pass { background: #ecfdf5; border: 1px solid #86efac; }
+    .gate.fail { background: #fef2f2; border: 1px solid #fca5a5; }
   </style>
 </head>
 <body>
-  <h1>${escapeHtml(title)}</h1>
-  ${cards}
+  <h1>${escapeHtml(args.title)}</h1>
+  <section class="summary">
+    <h2>Executive Summary</h2>
+    <p><strong>Date:</strong> ${escapeHtml(date)}</p>
+    <p><strong>Environment:</strong> ${escapeHtml(args.environment || "Not provided")}</p>
+    <p><strong>Scope:</strong> ${escapeHtml(args.scope || "Not provided")}</p>
+    <p><strong>Target:</strong> ${escapeHtml(args.target)}</p>
+    <p><strong>Total findings:</strong> ${findings.length}</p>
+    <p><strong>Severity split:</strong> Critical ${totals.Critical}, High ${totals.High}, Medium ${totals.Medium}, Low ${totals.Low}</p>
+    <p><strong>Coverage split:</strong> PASS ${escapeHtml(coverageSummary.PASS ?? 0)}, FAIL ${escapeHtml(coverageSummary.FAIL ?? 0)}, N/A ${escapeHtml(coverageSummary["N/A"] ?? 0)}</p>
+    ${coverageBadge}
+  </section>
+  <section>
+    <h2>PDF Coverage Matrix</h2>
+    ${buildCoverageTable(coverage)}
+  </section>
+  ${findingsSection}
+  <section>
+    <h2>Remediation Plan</h2>
+    <ul>${remediationPlan}</ul>
+  </section>
+  <section>
+    <h2>Retest Checklist</h2>
+    ${retestChecklist}
+  </section>
 </body>
 </html>`;
 }
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const inputDir = path.resolve(args.inputDir);
-  const outputPath = args.output
-    ? path.resolve(args.output)
-    : path.resolve(args.inputDir, "index.html");
-  const outputDir = path.dirname(outputPath);
+  const inputPath = path.resolve(args.input);
+  const coveragePath = path.resolve(args.coverage);
+  const outputPath = path.resolve(args.output);
 
-  if (!fs.existsSync(inputDir)) {
-    throw new Error(`Input directory not found: ${inputDir}`);
+  if (!fs.existsSync(inputPath)) {
+    throw new Error(`Input findings file not found: ${inputPath}`);
+  }
+  if (!fs.existsSync(coveragePath)) {
+    throw new Error(`Coverage file not found: ${coveragePath}`);
   }
 
-  const issueFiles = fs
-    .readdirSync(inputDir)
-    .filter((name) => name.startsWith(args.prefix) && name.endsWith(".md"))
-    .sort()
-    .map((name) => path.join(inputDir, name));
+  const payload = JSON.parse(fs.readFileSync(inputPath, "utf-8"));
+  const coveragePayload = JSON.parse(fs.readFileSync(coveragePath, "utf-8"));
+  const findings = normalizeFindings(payload);
+  const coverage = normalizeCoverage(coveragePayload);
+  if (!coverage.gatePassed) {
+    throw new Error("Coverage gate is not passed. Run pdf-coverage-validate before generating HTML.");
+  }
+  const html = buildHtml(args, findings, coverage);
 
-  if (issueFiles.length === 0) {
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  fs.writeFileSync(outputPath, html, "utf-8");
+
+  if (findings.length === 0) {
     console.log("Congratulations, no issues found.");
-    return;
   }
-
-  fs.mkdirSync(outputDir, { recursive: true });
-  const cards = issueFiles.map((file) => buildIssueCard(file, outputDir)).join("\n");
-  fs.writeFileSync(outputPath, buildHtml(args.title, cards), "utf-8");
-
   console.log(`HTML report written to ${outputPath}`);
 }
 
