@@ -70,9 +70,6 @@ async function main() {
   const waitMs = getArgValue("wait-ms") || 2000;
   const timeoutMs = getArgValue("timeout-ms") || 30000;
   const headless = getArgValue("headless") !== "false";
-  const coverageInput =
-    getArgValue("coverage") ||
-    path.join(SKILL_ROOT, "references", "pdf-coverage-template.json");
   const output =
     getArgValue("output") || path.join(process.cwd(), "audit", "index.html");
 
@@ -120,7 +117,7 @@ async function main() {
     // PDF coverage validation removed for streamlined workflow
     // await runScript("pdf-coverage-validate.mjs", ["--coverage", coverageInput]);
 
-    const buildArgs = ["--output", output];
+    const buildArgs = ["--output", output, "--base-url", baseUrl];
     if (title) buildArgs.push("--title", title);
     if (environment) buildArgs.push("--environment", environment);
     if (scope) buildArgs.push("--scope", scope);
