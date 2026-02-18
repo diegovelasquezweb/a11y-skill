@@ -108,7 +108,8 @@ async function main() {
 
     await runScript("deterministic-findings.mjs");
 
-    await runScript("pdf-coverage-validate.mjs", ["--coverage", coverageInput]);
+    // PDF coverage validation removed for streamlined workflow
+    // await runScript("pdf-coverage-validate.mjs", ["--coverage", coverageInput]);
 
     const buildArgs = ["--output", output];
     if (title) buildArgs.push("--title", title);

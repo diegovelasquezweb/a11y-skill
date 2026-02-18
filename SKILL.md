@@ -1,6 +1,6 @@
 ---
-name: ws-accessibility-audit
-description: Run the WS WCAG 2.1 AA accessibility audit workflow in read-only mode for websites. Auto-discover same-origin routes when not provided, validate semantic/ARIA/keyboard/contrast/form/media requirements, and return structured outputs (summary, findings table, issue details, and coverage matrix). Use for accessibility QA and audit-ready issue reporting.
+name: a11y-skill
+description: Run the WCAG 2.1 AA accessibility audit workflow in read-only mode for websites. Auto-discover same-origin routes when not provided, validate semantic/ARIA/keyboard/contrast/form/media requirements, and return structured outputs (summary, findings table, issue details). Use for accessibility QA and audit-ready issue reporting.
 turbo: true
 ---
 
@@ -58,32 +58,7 @@ Follow this workflow to audit and report website accessibility issues with consi
 - Use technical evidence first (DOM snippet, selector-level check, tool output).
 - Capture screenshots only when they are directly tied 1:1 to a specific issue ID.
 
-## 1) Set Audit Scope
-
-1. Confirm target conformance level.
-
-- Use WCAG 2.1 AA by default.
-- Adjust scope to WCAG 2.2 or AAA only when explicitly requested.
-- Do not ask the user to confirm WCAG level unless they requested a different target.
-
-2. Confirm audit surface.
-
-- If routes are provided, use them directly.
-- If routes are not provided, auto-discover routes from same-origin navigation and key flow entry points.
-- Include third-party widgets and embeds that appear within audited pages.
-
-3. Confirm expected deliverables.
-
-- Produce issue-level findings with clear severity and remediation guidance.
-- Include automated validation results only.
-- Persist outputs to files by default (not chat-only) following the file output rules below.
-
-4. Confirm lifecycle checkpoints.
-
-- Plan checks during discovery, design handoff, development, QA, pre-launch audit pass, and post-launch updates.
-- If a client auditor exists, align report format and remediation timeline with that vendor.
-
-## 2) Run Baseline Checks
+## 1) Run Baseline Checks
 
 Mandatory process coverage:
 
@@ -152,7 +127,7 @@ Mandatory process coverage:
 - Audit embedded forms, consent banners, chat widgets, and external overlays in scope.
 - If an inaccessible third-party component is required, create findings and document constraints/ownership.
 
-## 3) Test and Validate
+## 2) Test and Validate
 
 Run automated tests using the bundled robust scanner (Playwright + Axe-Core).
 
@@ -165,19 +140,7 @@ Run automated tests using the bundled robust scanner (Playwright + Axe-Core).
 - Auto-discover same-origin routes if not provided.
 - Capture issues as candidate findings, then finalize them.
 
-2. Coverage matrix gate (mandatory).
-
-- Complete `references/pdf-coverage-template.json` during each audit run.
-- For each category row, set `status` to `PASS`, `FAIL`, or `N/A`.
-- `PASS` does not require evidence for automated runs.
-- `FAIL` requires evidence and linked `finding_ids`.
-- `N/A` does not require notes for automated runs.
-- Before closing the audit, verify:
-  - Every required row is filled.
-  - Every `FAIL` has at least one linked finding.
-  - If findings are zero, all applicable rows are `PASS` (or `N/A` with reason).
-
-## 4) Apply Severity and Track Debt
+## 3) Apply Severity and Track Debt
 
 Classify each finding using this scale:
 
@@ -191,7 +154,7 @@ Apply consistent triage behavior:
 - Critical/High: treat as release blockers or near-blockers.
 - Medium/Low: schedule, track, and retest during related work.
 
-## 5) Report Findings
+## 4) Report Findings
 
 For each issue, include the required issue fields in the HTML issue details section.
 
@@ -206,12 +169,7 @@ Each finding must include:
 7. Recommended fix.
 8. QA retest notes.
 
-## 6) Use Quick Reference
-
-Use `references/pdf-coverage-matrix.md` as the required completion gate.
-Use `references/pdf-coverage-template.json` as the machine-readable category checklist.
-
-## 7) Required Deliverables
+## 5) Required Deliverables
 
 Always return results in this exact order:
 
@@ -219,7 +177,7 @@ Always return results in this exact order:
 2. Findings table (ID, severity, WCAG criterion, impacted area, short impact).
 3. Issue details (one section per issue using the issue template).
 
-## 8) Minimum Evidence Per Issue
+## 6) Minimum Evidence Per Issue
 
 Each reported issue must include:
 
@@ -231,23 +189,21 @@ Each reported issue must include:
    - Screenshot is optional.
    - Prefer selector-level DOM/tool evidence; include screenshot only if it clearly demonstrates the exact issue.
 
-## 9) Use Standard Toolchain + Bundled Scripts
+## 7) Use Standard Toolchain + Bundled Scripts
 
 Use standard tools and bundled scripts for repeatable output:
 
 1. `scripts/check-toolchain.mjs` for preflight diagnostics of local dependencies.
 2. `scripts/generate-route-checks.mjs` for robust browser-side scanning with Axe-Core.
 3. `scripts/deterministic-findings.mjs` for stable finding generation from scan data.
-4. `scripts/pdf-coverage-validate.mjs` for coverage gate validation.
-5. `scripts/build-audit-html.mjs` for final premium HTML report generation.
+4. `scripts/build-audit-html.mjs` for final premium HTML report generation.
 
 Use this pipeline order:
 
 1. `check-toolchain.mjs`
 2. `generate-route-checks.mjs`
 3. `deterministic-findings.mjs`
-4. `pdf-coverage-validate.mjs`
-5. `build-audit-html.mjs`
+4. `build-audit-html.mjs`
 
 Execution discipline for the agent:
 
@@ -257,15 +213,14 @@ Execution discipline for the agent:
 4. Do not install dependencies to satisfy pipeline runtime requirements.
 5. If any pipeline step depends on unavailable local modules, report a blocker and stop (do not mark checks as `PASS`).
 6. Run all pipeline steps from the same project working directory.
-7. Before coverage validation, verify `audit/internal/a11y-findings.json` exists.
-8. If `audit/internal/a11y-findings.json` is missing, re-run route-check and findings steps in the same directory, then continue.
-9. If a step fails, stop and report the exact blocker.
-10. Do not continue with partial runtime tool execution for required checks.
-11. Keep intermediate pipeline artifacts encapsulated; write intermediates to `audit/internal/`.
-12. Do not run automatic cleanup commands that delete `audit/internal/` files during the audit flow.
-13. When a local dependency or browser is missing, report the `pnpm install` fix and stop.
+7. If `audit/internal/a11y-findings.json` is missing, re-run route-check and findings steps in the same directory, then continue.
+8. If a step fails, stop and report the exact blocker.
+9. Do not continue with partial runtime tool execution for required checks.
+10. Keep intermediate pipeline artifacts encapsulated; write intermediates to `audit/internal/`.
+11. Do not run automatic cleanup commands that delete `audit/internal/` files during the audit flow.
+12. When a local dependency or browser is missing, report the `pnpm install` fix and stop.
 
-## 10) File Output Behavior (Mandatory)
+## 8) File Output Behavior (Mandatory)
 
 1. Write only one final artifact in `audit/`:
 
@@ -273,15 +228,15 @@ Execution discipline for the agent:
 - Do not generate dated versions of the report (e.g., `audit/index-2026-01-01.html`).
 - Do not generate markdown report files in the default flow.
 - Do not generate per-issue markdown files in the default flow.
-- `audit/index.html` must include the completed PDF coverage matrix with evidence and linked finding IDs.
+- `audit/index.html` must include the completed findings with evidence and linked finding IDs.
 - Follow the WS Accessibility standard for issue severity (Critical, High, Medium, Low).
 - Do not keep any JSON files in `audit/`.
-- Use `audit/internal/a11y-scan-results.json`, `audit/internal/a11y-findings.json`, and `audit/internal/a11y-coverage.json` for pipeline JSON files.
+- Use `audit/internal/a11y-scan-results.json` and `audit/internal/a11y-findings.json` for pipeline JSON files.
 
 2. If findings count is 0:
 
 - Still generate `audit/index.html` with a clean summary (`Congratulations, no issues found.`).
-- This is allowed only after all baseline domains were checked, automated tool results were reviewed, and the PDF coverage matrix gate is fully satisfied.
+- This is allowed only after all baseline domains were checked, automated tool results were reviewed.
 
 3. Keep temporary pipeline files in `audit/internal/`; do not delete them automatically.
 

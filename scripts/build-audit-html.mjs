@@ -12,7 +12,6 @@ function printUsage() {
 
 Options:
   --input <path>           Findings JSON path (default: audit/internal/a11y-findings.json)
-  --coverage <path>        Coverage JSON path (default: audit/internal/a11y-coverage.json)
   --output <path>          Output HTML path (default: audit/index.html)
   --title <text>           Report title
   --environment <text>     Test environment label
@@ -30,7 +29,6 @@ function parseArgs(argv) {
 
   const args = {
     input: getInternalPath("a11y-findings.json"),
-    coverage: getInternalPath("a11y-coverage.json"),
     scanResults: getInternalPath("a11y-scan-results.json"),
     output: path.join("audit", "index.html"),
     title: "Accessibility Audit Report",
@@ -45,7 +43,6 @@ function parseArgs(argv) {
     if (!key.startsWith("--") || value === undefined) continue;
 
     if (key === "--input") args.input = value;
-    if (key === "--coverage") args.coverage = value;
     if (key === "--scan-results") args.scanResults = value;
     if (key === "--output") args.output = value;
     if (key === "--title") args.title = value;
@@ -104,28 +101,6 @@ function normalizeFindings(payload) {
       if (sa !== sb) return sa - sb;
       return a.id.localeCompare(b.id);
     });
-}
-
-function normalizeCoverage(payload) {
-  if (!payload || typeof payload !== "object" || !Array.isArray(payload.rows)) {
-    throw new Error(
-      "Coverage input must be a JSON object with a 'rows' array.",
-    );
-  }
-  return {
-    gatePassed: Boolean(payload.gate_passed),
-    summary: payload.summary ?? {},
-    rows: payload.rows.map((row) => ({
-      id: String(row.id ?? ""),
-      domain: String(row.domain ?? ""),
-      status: String(row.status ?? ""),
-      evidence: String(row.evidence ?? ""),
-      notes: String(row.notes ?? ""),
-      findingIds: Array.isArray(row.finding_ids)
-        ? row.finding_ids.map((v) => String(v))
-        : [],
-    })),
-  };
 }
 
 function buildSummary(findings) {
@@ -255,37 +230,7 @@ function buildFindingsTable(findings) {
 </div>`;
 }
 
-function buildCoverageTable(coverage) {
-  const rows = coverage.rows
-    .map((row) => {
-      const statusClass = row.status.toLowerCase();
-      return `
-      <tr>
-        <td class="domain-cell"><strong>${escapeHtml(row.domain || row.id)}</strong></td>
-        <td><span class="badge badge-status-${statusClass}">${escapeHtml(row.status)}</span></td>
-        <td class="evidence-cell">${formatMultiline(row.evidence || "(none)")}</td>
-        <td class="notes-cell">${formatMultiline(row.notes || "")}</td>
-      </tr>`;
-    })
-    .join("");
-
-  return `
-<div class="table-container">
-  <table>
-    <thead>
-      <tr>
-        <th>Coverage Domain</th>
-        <th>Status</th>
-        <th>Evidence</th>
-        <th>Notes</th>
-      </tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>
-</div>`;
-}
-
-function buildHtml(args, findings, coverage) {
+function buildHtml(args, findings) {
   const totals = buildSummary(findings);
   const dateStr = new Date().toLocaleDateString("en-US", {
     year: "numeric",
@@ -319,9 +264,9 @@ function buildHtml(args, findings, coverage) {
   </div>
 </section>`;
 
-  const coverageSummary = coverage.summary ?? {};
-  const coverageStatusClass = coverage.gatePassed ? "pass" : "fail";
-  const coverageGateIcon = coverage.gatePassed ? "✓" : "✗";
+  const hasIssues = findings.length > 0;
+  const statusClass = hasIssues ? "fail" : "pass";
+  const gateIcon = hasIssues ? "✗" : "✓";
 
   return `<!doctype html>
 <html lang="en">
@@ -517,9 +462,9 @@ function buildHtml(args, findings, coverage) {
       </div>
       
       <div class="stat-card">
-        <div class="stat-label">Coverage Gate</div>
-        <div class="stat-value">${escapeHtml(coverageSummary.PASS ?? 0)} / ${escapeHtml((coverageSummary.PASS ?? 0) + (coverageSummary.FAIL ?? 0) + (coverageSummary["N/A"] ?? 0))} Domains</div>
-        <div class="gate-badge ${coverageStatusClass}">${coverageGateIcon} Audit ${coverage.gatePassed ? "Passed" : "At Risk"}</div>
+        <div class="stat-label">Audit Status</div>
+        <div class="stat-value">${hasIssues ? "Action Required" : "Automated Pass"}</div>
+        <div class="gate-badge ${statusClass}">${gateIcon} Audit ${hasIssues ? "Found Issues" : "Passed"}</div>
       </div>
 
       <div class="stat-card">
@@ -532,13 +477,6 @@ function buildHtml(args, findings, coverage) {
       </div>
     </div>
 
-    <section id="coverage" class="report-section">
-      <div class="section-header">
-        <h2>PDF Coverage Matrix</h2>
-        <p>Manual and automated verification status across accessibility domains.</p>
-      </div>
-      ${buildCoverageTable(coverage)}
-    </section>
 
     ${findingsSection}
     
@@ -550,7 +488,7 @@ function buildHtml(args, findings, coverage) {
 </html>`;
 }
 
-function buildMarkdownSummary(args, findings, coverage) {
+function buildMarkdownSummary(args, findings) {
   const totals = buildSummary(findings);
   const criticalIssues = findings.filter(
     (f) => f.severity === "Critical" || f.severity === "High",
@@ -566,7 +504,8 @@ function buildMarkdownSummary(args, findings, coverage) {
 - **High Severity**: ${totals.High}
 - **Medium Severity**: ${totals.Medium}
 - **Low Severity**: ${totals.Low}
-- **Coverage Gate**: ${coverage.gatePassed ? "✅ PASSED" : "❌ FAILED"}
+
+- **Status**: ${findings.length === 0 ? "✅ PASS" : "❌ ISSUES FOUND"}
 
 ## 🚨 Top Priority Issues
 ${
@@ -588,29 +527,13 @@ function main() {
   if (!inputPayload)
     throw new Error(`Input findings file not found or invalid: ${args.input}`);
 
-  const coveragePayload = readJson(args.coverage);
-  if (!coveragePayload)
-    throw new Error(`Coverage file not found or invalid: ${args.coverage}`);
-
-  const scanPayload = readJson(args.scanResults);
-  if (scanPayload && scanPayload.base_url) {
-    args.baseUrl = scanPayload.base_url;
-  }
-
   const findings = normalizeFindings(inputPayload);
-  const coverage = normalizeCoverage(coveragePayload);
 
-  if (!coverage.gatePassed) {
-    throw new Error(
-      "Coverage gate is not passed. Run pdf-coverage-validate before generating HTML.",
-    );
-  }
-
-  const html = buildHtml(args, findings, coverage);
+  const html = buildHtml(args, findings);
   fs.mkdirSync(path.dirname(args.output), { recursive: true });
   fs.writeFileSync(args.output, html, "utf-8");
 
-  const md = buildMarkdownSummary(args, findings, coverage);
+  const md = buildMarkdownSummary(args, findings);
   const mdPath = path.join(path.dirname(args.output), "summary.md");
   fs.writeFileSync(mdPath, md, "utf-8");
 

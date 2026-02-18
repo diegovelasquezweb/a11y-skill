@@ -1,6 +1,6 @@
-# WS Accessibility Audit
+# Web Accessibility Audit (WCAG 2.1 AA)
 
-Internal technical skill for auditing websites and local development projects under the WS Accessibility Process. This skill introduces automated route discovery, WCAG 2.1 AA detection using a real browser, and a consolidated multi-agent workflow.
+Professional technical skill for auditing websites and local development projects. This skill introduces automated route discovery, WCAG 2.1 AA detection using a real browser, and a consolidated multi-agent workflow.
 
 ## Key Features
 
@@ -25,37 +25,15 @@ This skill follows the open [Agent Skills standard](https://agentskills.io) supp
 
 ## Installation
 
-The recommended way to use this skill is to install it specifically within your project. This ensures the tool is version-controlled with your code and available to all team members.
-
-### 1. Automated Setup (Recommended)
-
 Ask your AI Agent directly in the chat:
 
 > "Install the accessibility skill from https://github.com/diegovelasquezweb/a11y-skill"
 
 _The agent will clone and initialize it automatically._
 
-### 2. Manual Setup
-
-If you prefer manual control:
-
-```bash
-git clone https://github.com/diegovelasquezweb/a11y-skill
-cd a11y-skill
-pnpm install
-```
-
-### Uninstallation
-
-To remove the skill, simply delete the directory:
-
-```bash
-rm -rf a11y-skill
-```
-
 ## How to Use
 
-You can trigger an audit in two ways, depending on whether you want AI guidance or direct manual control:
+You can trigger an audit in three ways, depending on your preferred interface:
 
 ### 1. AI-Guided (Conversational)
 
@@ -68,7 +46,18 @@ Simply ask your agent:
 
 > "Run an accessibility audit for `http://localhost:3000`"
 
-### 2. Standalone (Non-Conversational)
+### 2. Slash Command (High-Speed Turbo)
+
+**Best for:** Superfast execution for Gemini-compatible agents (Antigravity, Gemini CLI).
+
+- **Pros:** Bypasses chat reasoning; executes commands instantly with `// turbo` speed.
+- **Cons:** Only available on specific agents.
+
+Simply type:
+
+> `/audit`
+
+### 3. Standalone (Non-Conversational)
 
 **Best for:** Continuous usage and local CI/CD without spending AI tokens.
 
@@ -76,7 +65,7 @@ Simply ask your agent:
 - **Cons:** Manual command execution; no AI summary in the chat (HTML report only).
 
 ```bash
-cd a11y-skill
+cd .agents/skills/ws-accessibility-audit
 
 # Audit local development server
 pnpm run audit -- --base-url http://localhost:3000 --max-routes 5
@@ -92,8 +81,8 @@ pnpm run audit -- --base-url https://example.com
 - **Location**: `audit/` folder.
   - `index.html`: The premium standalone live report (Primary).
   - `summary.md`: A concise markdown summary (Ideal for PRs or tickets).
-- **Format**: Executive Summary, PDF Coverage Matrix, Detailed Technical Findings (with DOM evidence).
-- **Compliance**: Validates against **WCAG 2.1 AA** standards via automated checks and enforces the **WS Coverage Matrix** (PDF requirements).
+- **Format**: Executive Summary, Detailed Technical Findings (with DOM evidence).
+- **Compliance**: Validates **WCAG 2.1 AA** standards via automated Axe-Core checks.
 
 ## Configuration & Options
 
@@ -118,8 +107,7 @@ All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
 1.  **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
 2.  **Scan**: `generate-route-checks.mjs` crawls the site and runs Axe-Core.
 3.  **Process**: `deterministic-findings.mjs` transforms raw data into structured findings.
-4.  **Validate**: `pdf-coverage-validate.mjs` enforces the WS coverage gate.
-5.  **Build**: `build-audit-html.mjs` generates the final premium HTML report.
+4.  **Build**: `build-audit-html.mjs` generates the final premium HTML report.
 
 ## Advanced Configuration
 
