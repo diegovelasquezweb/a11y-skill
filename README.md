@@ -20,7 +20,7 @@ Ask your AI Agent directly in the chat:
 
 > "Install the accessibility skill from https://github.com/diegovelasquezweb/a11y-skill"
 
-_The agent will clone it into `.agent/skills/ws-accessibility-audit` and initialize it automatically._
+_The agent will clone and initialize it automatically._
 
 ### 2. Manual Setup
 
@@ -29,7 +29,7 @@ If you prefer manual control:
 ```bash
 git clone https://github.com/diegovelasquezweb/a11y-skill
 cd a11y-skill
-pnpm install  # This installs dependencies AND the audit browser
+pnpm install
 ```
 
 ### Uninstallation
@@ -40,52 +40,37 @@ To remove the skill, simply delete the directory:
 rm -rf a11y-skill
 ```
 
-You can trigger an audit in three ways, depending on your need for speed and AI guidance:
+## How to Use
+
+You can trigger an audit in two ways, depending on whether you want AI guidance or direct manual control:
 
 ### 1. AI-Guided (Conversational)
 
 **Best for:** Getting AI-powered analysis and summaries directly in your chat.
 
-- **Pros:** natural language interface; the agent handles the entire pipeline and explains findings.
+- **Pros:** Natural language interface; the agent handles the entire pipeline and explains findings.
 - **Cons:** Consumes AI tokens/credits.
 
 Simply ask your agent:
 
 > "Run an accessibility audit for `http://localhost:3000`"
 
-### 2. Slash Command (High-Speed Turbo)
-
-**Best for:** Zero-click execution directly from your editor/terminal.
-
-- **Pros:** Maximum speed via `// turbo-all`; no confirmation needed; instant start.
-- **Cons:** Less conversational flexibility; specific to Gemini-compatible agents.
-
-In your editor or terminal, simply type:
-
-> `/audit --base-url http://localhost:3000`
-
-### 3. Standalone (Non-Conversational)
+### 2. Standalone (Non-Conversational)
 
 **Best for:** Continuous usage and local CI/CD without spending AI tokens.
 
 - **Pros:** Zero token cost; direct control over execution; works offline/without agent.
 - **Cons:** Manual command execution; no AI summary in the chat (HTML report only).
 
-1. Navigate to the skill directory:
+```bash
+cd a11y-skill
 
-   ```bash
-    cd a11y-skill
-   ```
+# Audit local development server
+pnpm run audit -- --base-url http://localhost:3000 --max-routes 5
 
-2. Run the audit command:
-
-   ```bash
-    # Audit local development server
-    pnpm run audit -- --base-url http://localhost:3000 --max-routes 5
-
-    # Audit live site
-    pnpm run audit -- --base-url https://example.com
-   ```
+# Audit live site
+pnpm run audit -- --base-url https://example.com
+```
 
 ---
 
@@ -157,12 +142,25 @@ You can customize the audit behavior by editing `a11y.config.json` in the skill 
 }
 ```
 
+## Compatibility
+
+This skill follows the open [Agent Skills standard](https://agentskills.io) (`SKILL.md`), supported by a growing number of AI agents and IDEs:
+
+| Agent / IDE        | Reads `SKILL.md`? | Conversational Audit | Standalone Audit |
+| :----------------- | :---------------: | :------------------: | :--------------: |
+| **Antigravity**    |        ✅         |          ✅          |        ✅        |
+| **Gemini CLI**     |        ✅         |          ✅          |        ✅        |
+| **Claude (Code)**  |        ✅         |          ✅          |        ✅        |
+| **Cursor**         |        ✅         |          ✅          |        ✅        |
+| **Codex (OpenAI)** |        ✅         |          ✅          |        ✅        |
+| **Any terminal**   |         —         |          —           |        ✅        |
+
 ## Reference
 
-- **Axe-Core Rules**: [Rule Descriptions](https://dequeuniversity.com/rules/axe/4.10)
-- **Playwright**: [Emulation Guide](https://playwright.dev/docs/emulation)
-- **Claude Skills**: [Agent Skills Overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/)
-- **Antigravity Skills**: [Google Antigravity Documentation](https://antigravity.google/docs/skills)
-- **Codex Skills**: [OpenAI Codex Skills](https://developers.openai.com/codex/skills/)
-- **Cursor Skills**: [Cursor Skills Documentation](https://cursor.com/docs/context/skills)
-- **Gemini CLI Skills**: [Gemini CLI Documentation](https://geminicli.com/docs/cli/skills/)
+- [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
+- [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
+- [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/)
+- [Antigravity Skills](https://antigravity.google/docs/skills)
+- [Codex Skills](https://developers.openai.com/codex/skills/)
+- [Cursor Skills](https://cursor.com/docs/context/skills)
+- [Gemini CLI Skills](https://geminicli.com/docs/cli/skills/)
