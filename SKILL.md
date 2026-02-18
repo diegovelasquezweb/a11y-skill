@@ -2,6 +2,11 @@
 name: a11y-skill
 description: Run a WCAG 2.1 AA accessibility audit on a website. Use when the user says "audit [url]", "run an accessibility audit", "check accessibility", or asks to scan a site for a11y issues, WCAG compliance, or screen reader compatibility.
 argument-hint: "[url]"
+compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL. Playwright + Chromium are installed automatically on first run.
+license: MIT
+metadata:
+  author: diegovelasquezweb
+  version: "1.0"
 ---
 
 # Web Accessibility Audit

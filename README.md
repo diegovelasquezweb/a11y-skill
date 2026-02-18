@@ -41,32 +41,9 @@ The skill installs to a per-agent directory. For standalone use, the installatio
 
 ## How to Use
 
-Once installed, the skill is available to your agent in any conversation.
-
-### 1. AI-Guided (Conversational)
-
-**Best for:** Getting AI-powered analysis and summaries directly in your chat.
-
-Simply ask your agent:
+Once installed, the skill is available to your agent in any conversation. Simply ask:
 
 > "Run an accessibility audit for `http://localhost:3000`"
-
-### 2. Standalone (Non-Conversational)
-
-**Best for:** Continuous usage and local CI/CD without spending AI tokens.
-
-Execute the audit script directly from the skill directory (ask your agent where it installed it, typically `~/.agents/skills/a11y-skill` or similar for global installs):
-
-```bash
-# Navigate to installation folder (example path)
-cd ~/.agents/skills/a11y-skill
-
-# Audit local development server
-pnpm run audit -- --base-url http://localhost:3000
-
-# Audit live site
-pnpm run audit -- --base-url https://example.com
-```
 
 ---
 
@@ -78,11 +55,25 @@ pnpm run audit -- --base-url https://example.com
 - **Format**: Executive Summary, Detailed Technical Findings (with DOM evidence).
 - **Compliance**: Validates **WCAG 2.1 AA** standards via automated Axe-Core checks.
 
-## Configuration & Options
+## Standalone CLI
+
+**Best for:** Continuous usage and local CI/CD without spending AI tokens.
+
+Execute the audit script directly from the skill directory:
+
+```bash
+# Audit local development server
+pnpm run audit -- --base-url http://localhost:3000
+
+# Audit live site
+pnpm run audit -- --base-url https://example.com
+```
+
+### Options
 
 | Flag                   | Description                                          | Default                      |
 | :--------------------- | :--------------------------------------------------- | :--------------------------- |
-| `--base-url <url>`     | The target to audit (Live URL or Localhost).         | Autodetect (local)           |
+| `--base-url <url>`     | The target to audit (Live URL or Localhost).         | Required                     |
 | `--max-routes <num>`   | Maximum number of routes to discover and scan.       | 10                           |
 | `--routes <csv>`       | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
 | `--output <path>`      | Final HTML report location.                          | `audit/index.html`           |
@@ -140,6 +131,7 @@ You can customize the audit behavior by editing `a11y.config.json` in the skill 
 
 ## Reference
 
+- [Agent Skills Standard](https://agentskills.io/) — the open format this skill follows
 - [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
 - [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
 - [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/)
