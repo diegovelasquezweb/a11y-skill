@@ -110,7 +110,6 @@ async function analyzeRoute(
   axeRules,
   excludeSelectors,
 ) {
-  log.info(`Analyzing ${routeUrl}...`);
   try {
     await page.goto(routeUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(waitMs);
@@ -202,7 +201,10 @@ async function main() {
   log.info(`Targeting ${routes.length} routes: ${routes.join(", ")}`);
 
   const results = [];
-  for (const routePath of routes) {
+  const total = routes.length;
+  for (let i = 0; i < total; i++) {
+    const routePath = routes[i];
+    log.info(`[${i + 1}/${total}] Scanning: ${routePath}`);
     const targetUrl = new URL(routePath, baseUrl).toString();
     const result = await analyzeRoute(
       page,
