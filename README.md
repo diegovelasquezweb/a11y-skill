@@ -10,6 +10,19 @@ Internal technical skill for auditing websites and local development projects un
 - **Premium Reports**: Generates professional HTML dashboards with technical evidence and remediation guidance.
 - **Autodiscovery**: Automatically finds and scans same-origin routes if none are provided.
 
+## Compatibility
+
+This skill follows the open [Agent Skills standard](https://agentskills.io) (`SKILL.md`), supported by a growing number of AI agents and IDEs:
+
+| Agent / IDE        | Reads `SKILL.md`? | Conversational Audit | Standalone Audit |
+| :----------------- | :---------------: | :------------------: | :--------------: |
+| **Antigravity**    |        ✅         |          ✅          |        ✅        |
+| **Gemini CLI**     |        ✅         |          ✅          |        ✅        |
+| **Claude (Code)**  |        ✅         |          ✅          |        ✅        |
+| **Cursor**         |        ✅         |          ✅          |        ✅        |
+| **Codex (OpenAI)** |        ✅         |          ✅          |        ✅        |
+| **Any terminal**   |         —         |          —           |        ✅        |
+
 ## Installation
 
 The recommended way to use this skill is to install it specifically within your project. This ensures the tool is version-controlled with your code and available to all team members.
@@ -74,6 +87,14 @@ pnpm run audit -- --base-url https://example.com
 
 ---
 
+## Deliverables
+
+- **Location**: `audit/` folder.
+  - `index.html`: The premium standalone live report (Primary).
+  - `summary.md`: A concise markdown summary (Ideal for PRs or tickets).
+- **Format**: Executive Summary, PDF Coverage Matrix, Detailed Technical Findings (with DOM evidence).
+- **Compliance**: Validates against **WCAG 2.1 AA** standards via automated checks and enforces the **WS Coverage Matrix** (PDF requirements).
+
 ## Configuration & Options
 
 | Flag                   | Description                                          | Default                      |
@@ -92,19 +113,13 @@ pnpm run audit -- --base-url https://example.com
 
 ## Audit Pipeline
 
+All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
+
 1.  **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
 2.  **Scan**: `generate-route-checks.mjs` crawls the site and runs Axe-Core.
 3.  **Process**: `deterministic-findings.mjs` transforms raw data into structured findings.
 4.  **Validate**: `pdf-coverage-validate.mjs` enforces the WS coverage gate.
 5.  **Build**: `build-audit-html.mjs` generates the final premium HTML report.
-
-## Deliverables
-
-- **Location**: `audit/` folder.
-  - `index.html`: The premium standalone live report (Primary).
-  - `summary.md`: A concise markdown summary (Ideal for PRs or tickets).
-- **Format**: Executive Summary, PDF Coverage Matrix, Detailed Technical Findings (with DOM evidence).
-- **Compliance**: Validates against **WCAG 2.1 AA** standards via automated checks and enforces the **WS Coverage Matrix** (PDF requirements).
 
 ## Advanced Configuration
 
@@ -141,19 +156,6 @@ You can customize the audit behavior by editing `a11y.config.json` in the skill 
   }
 }
 ```
-
-## Compatibility
-
-This skill follows the open [Agent Skills standard](https://agentskills.io) (`SKILL.md`), supported by a growing number of AI agents and IDEs:
-
-| Agent / IDE        | Reads `SKILL.md`? | Conversational Audit | Standalone Audit |
-| :----------------- | :---------------: | :------------------: | :--------------: |
-| **Antigravity**    |        ✅         |          ✅          |        ✅        |
-| **Gemini CLI**     |        ✅         |          ✅          |        ✅        |
-| **Claude (Code)**  |        ✅         |          ✅          |        ✅        |
-| **Cursor**         |        ✅         |          ✅          |        ✅        |
-| **Codex (OpenAI)** |        ✅         |          ✅          |        ✅        |
-| **Any terminal**   |         —         |          —           |        ✅        |
 
 ## Reference
 
