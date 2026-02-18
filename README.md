@@ -14,9 +14,7 @@ Internal technical skill for auditing projects under the WS Accessibility Proces
 
 The best way to install this skill is by asking your AI Agent directly in the chat:
 
-> "Install the skill from https://github.com/diegovelasquezweb/a11y-skill"
-
-This will automatically clone the repository into your project's `.agent/skills/` directory and run the setup script.
+> "Clone https://github.com/diegovelasquezweb/a11y-skill.git into `.agent/a11y-skill` and run the setup script."
 
 ## Manual Setup
 
