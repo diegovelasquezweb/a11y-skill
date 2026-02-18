@@ -1,6 +1,6 @@
 # Web Accessibility Audit (WCAG 2.1 AA)
 
-Professional technical skill for auditing websites and local development projects. This skill introduces automated route discovery, WCAG 2.1 AA detection using a real browser, and a consolidated multi-agent workflow.
+Professional technical skill for auditing websites and local development projects. It provides automated route discovery, WCAG 2.1 AA detection using a real browser, and a consistent multi-agent workflow.
 
 ## Key Features
 
@@ -29,7 +29,7 @@ Copy and paste this into your agent's chat:
 
 > "Install skill https://github.com/diegovelasquezweb/a11y-skill"
 
-The skill installs to a per-agent directory. For standalone use, the installation paths are:
+The skill installs to a per-agent directory. Installation paths by agent:
 
 | Agent / IDE        | Skill install path                          |
 | :----------------- | :------------------------------------------ |
@@ -37,15 +37,13 @@ The skill installs to a per-agent directory. For standalone use, the installatio
 | **Cursor**         | `~/.cursor/skills/a11y-skill/`              |
 | **Gemini CLI**     | `~/.gemini/skills/a11y-skill/`              |
 | **Codex (OpenAI)** | `~/.agents/skills/a11y-skill/`              |
-| **Antigravity**    | `~/.agents/skills/a11y-skill/`              |
+| **Antigravity**    | `~/.gemini/antigravity/skills/a11y-skill/`  |
 
 ## How to Use
 
 Once installed, the skill is available to your agent in any conversation. Simply ask:
 
 > "Run an accessibility audit for `http://localhost:3000`"
-
----
 
 ## Deliverables
 
@@ -57,7 +55,7 @@ Once installed, the skill is available to your agent in any conversation. Simply
 
 ## Standalone CLI
 
-**Best for:** Continuous usage and local CI/CD without spending AI tokens.
+**Best for:** CI/CD pipelines and local automation without spending AI tokens.
 
 Execute the audit script directly from the skill directory:
 
@@ -88,10 +86,10 @@ pnpm run audit -- --base-url https://example.com
 
 All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
 
-1.  **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
-2.  **Scan**: `generate-route-checks.mjs` crawls the site and runs Axe-Core.
-3.  **Process**: `deterministic-findings.mjs` transforms raw data into structured findings.
-4.  **Build**: `build-audit-html.mjs` generates the final premium HTML report.
+1. **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
+2. **Scan**: `generate-route-checks.mjs` crawls the site and runs Axe-Core.
+3. **Process**: `deterministic-findings.mjs` transforms raw data into structured findings.
+4. **Build**: `build-audit-html.mjs` generates the final premium HTML report.
 
 ## Advanced Configuration
 
