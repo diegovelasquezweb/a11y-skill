@@ -4,7 +4,7 @@ set -e
 # Get the absolute path of the skill root
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SKILL_ROOT="$(dirname "$SCRIPT_DIR")"
-SKILL_NAME=$(basename "$SKILL_ROOT")
+SKILL_NAME="ws-accessibility-audit"
 
 echo "--- 🛠️  Setting up $SKILL_NAME ---"
 
@@ -51,4 +51,4 @@ done
 
 echo ""
 echo "✨ Setup complete! The skill is now available locally and registered for your agents."
-echo "💡 You can now use \$wondersauce-accessibility-audit in any project."
+echo "💡 You can now use \$ws-accessibility-audit in any project."

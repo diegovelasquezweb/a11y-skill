@@ -29,7 +29,7 @@ Depending on where you are working, there are three ways to trigger an audit:
 
 When talking to an AI agent (Antigravity, Claude, Codex, etc.), use the skill name to trigger the automated process:
 
-> "Audit `https://example.com` with `$wondersauce-accessibility-audit`"
+> "Audit `https://example.com` with `$ws-accessibility-audit`"
 
 ### 2. Slash Command (Agent Workflow)
 
@@ -73,7 +73,7 @@ npm run audit -- --base-url http://localhost:3000 --max-routes 5
 1.  **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
 2.  **Scan**: `generate-route-checks.mjs` crawls the site and runs Axe-Core.
 3.  **Process**: `deterministic-findings.mjs` transforms raw data into structured findings.
-4.  **Validate**: `pdf-coverage-validate.mjs` enforces the Wondersauce coverage gate.
+4.  **Validate**: `pdf-coverage-validate.mjs` enforces the WS coverage gate.
 5.  **Build**: `build-audit-html.mjs` generates the final premium HTML report.
 
 ## Deliverables

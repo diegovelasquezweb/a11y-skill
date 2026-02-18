@@ -1,7 +1,7 @@
 {
-  "name": "wondersauce-accessibility-audit",
+  "name": "ws-accessibility-audit",
   "version": "2.0.0",
-  "description": "Wondersauce WCAG 2.1 AA accessibility audit skill",
+  "description": "WS WCAG 2.1 AA accessibility audit skill",
   "type": "module",
   "scripts": {
     "audit": "node scripts/run-audit.mjs"

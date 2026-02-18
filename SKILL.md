@@ -1,6 +1,6 @@
 ---
-name: wondersauce-accessibility-audit
-description: Run the Wondersauce WCAG 2.1 AA accessibility audit workflow in read-only mode for websites. Auto-discover same-origin routes when not provided, validate semantic/ARIA/keyboard/contrast/form/media requirements, and return structured outputs (summary, findings table, issue details, and coverage matrix). Use for accessibility QA and audit-ready issue reporting.
+name: ws-accessibility-audit
+description: Run the WS WCAG 2.1 AA accessibility audit workflow in read-only mode for websites. Auto-discover same-origin routes when not provided, validate semantic/ARIA/keyboard/contrast/form/media requirements, and return structured outputs (summary, findings table, issue details, and coverage matrix). Use for accessibility QA and audit-ready issue reporting.
 ---
 
 # Web Accessibility Audit
@@ -283,6 +283,7 @@ Execution discipline for the agent:
 - Do not generate markdown report files in the default flow.
 - Do not generate per-issue markdown files in the default flow.
 - `audit/index.html` must include the completed PDF coverage matrix with evidence and linked finding IDs.
+- Follow the WS Accessibility standard for issue severity (Critical, High, Medium, Low).
 - Do not keep any JSON files in `audit/`.
 - Use `audit/internal/a11y-scan-results.json`, `audit/internal/a11y-findings.json`, and `audit/internal/a11y-coverage.json` for pipeline JSON files.
 

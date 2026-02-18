@@ -86,7 +86,7 @@ async function main() {
   }
 
   try {
-    log.info("🚀 Starting full Wondersauce Accessibility Audit pipeline...");
+    log.info("🚀 Starting full WS Accessibility Audit pipeline...");
 
     // 1. Toolchain Check
     await runScript("check-toolchain.mjs");
