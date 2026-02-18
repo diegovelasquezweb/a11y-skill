@@ -65,7 +65,7 @@ If you want to run it directly from your terminal **without using AI agents or t
 1. Navigate to the skill directory:
 
    ```bash
-   cd .agent/skills/a11y-skill
+   cd .agent/a11y-skill
    ```
 
 2. Run the audit command:

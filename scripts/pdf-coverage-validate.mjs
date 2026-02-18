@@ -115,13 +115,6 @@ function validateRows(rows, findingIds) {
 
     if (!row.domain) errors.push(`Missing domain label for ${expected.id}`);
 
-    // Auto-mode relaxation: Do not fail PASS/N/A rows for missing evidence
-    // if (row.status === "PASS" && !row.evidence)
-    //   errors.push(`PASS row requires evidence: ${expected.id}`);
-
-    // if (row.status === "N/A" && !row.notes)
-    //   errors.push(`N/A row requires reason in notes: ${expected.id}`);
-
     if (row.status === "FAIL") {
       if (!row.evidence)
         errors.push(`FAIL row requires evidence: ${expected.id}`);
