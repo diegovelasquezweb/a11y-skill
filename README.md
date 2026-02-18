@@ -29,46 +29,32 @@ Ask your AI Agent directly in the chat:
 
 > "Install the accessibility skill from https://github.com/diegovelasquezweb/a11y-skill"
 
-_The agent will clone and initialize it automatically._
+_The agent will clone and initialize it automatically in its preferred skills directory._
 
 ## How to Use
 
-You can trigger an audit in three ways, depending on your preferred interface:
+Once installed, the skill is available to your agent in any conversation.
 
 ### 1. AI-Guided (Conversational)
 
 **Best for:** Getting AI-powered analysis and summaries directly in your chat.
 
-- **Pros:** Natural language interface; the agent handles the entire pipeline and explains findings.
-- **Cons:** Consumes AI tokens/credits.
-
 Simply ask your agent:
 
 > "Run an accessibility audit for `http://localhost:3000`"
 
-### 2. Slash Command (High-Speed Turbo)
-
-**Best for:** Superfast execution for Gemini-compatible agents (Antigravity, Gemini CLI).
-
-- **Pros:** Bypasses chat reasoning; executes commands instantly with `// turbo` speed.
-- **Cons:** Only available on specific agents.
-
-Simply type:
-
-> `/audit`
-
-### 3. Standalone (Non-Conversational)
+### 2. Standalone (Non-Conversational)
 
 **Best for:** Continuous usage and local CI/CD without spending AI tokens.
 
-- **Pros:** Zero token cost; direct control over execution; works offline/without agent.
-- **Cons:** Manual command execution; no AI summary in the chat (HTML report only).
+Execute the audit script directly from the skill directory (ask your agent where it installed it, typically `~/.agents/skills/a11y-skill` or similar for global installs):
 
 ```bash
-cd .agents/skills/ws-accessibility-audit
+# Navigate to installation folder (example path)
+cd ~/.agents/skills/a11y-skill
 
 # Audit local development server
-pnpm run audit -- --base-url http://localhost:3000 --max-routes 5
+pnpm run audit -- --base-url http://localhost:3000
 
 # Audit live site
 pnpm run audit -- --base-url https://example.com

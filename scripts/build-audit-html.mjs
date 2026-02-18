@@ -30,7 +30,7 @@ function parseArgs(argv) {
   const args = {
     input: getInternalPath("a11y-findings.json"),
     scanResults: getInternalPath("a11y-scan-results.json"),
-    output: path.join("audit", "index.html"),
+    output: path.join(process.cwd(), "audit", "index.html"),
     title: "Accessibility Audit Report",
     environment: "",
     scope: "",

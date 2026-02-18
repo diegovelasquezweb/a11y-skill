@@ -72,7 +72,8 @@ async function main() {
   const coverageInput =
     getArgValue("coverage") ||
     path.join(SKILL_ROOT, "references", "pdf-coverage-template.json");
-  const output = getArgValue("output") || path.join("audit", "index.html");
+  const output =
+    getArgValue("output") || path.join(process.cwd(), "audit", "index.html");
 
   const title = getArgValue("title");
   const environment = getArgValue("environment");
@@ -124,7 +125,7 @@ async function main() {
     if (!argv.includes("--no-open")) {
       const absoluteOutputPath = path.isAbsolute(output)
         ? output
-        : path.join(SKILL_ROOT, output);
+        : path.join(process.cwd(), output);
 
       log.info(`Opening report: ${absoluteOutputPath}`);
       let command;
