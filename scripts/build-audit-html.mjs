@@ -32,6 +32,7 @@ function parseArgs(argv) {
     scanResults: getInternalPath("a11y-scan-results.json"),
     output: path.join(process.cwd(), "audit", "index.html"),
     title: "Accessibility Audit Report",
+    baseUrl: "",
     environment: "",
     scope: "",
     target: "WCAG 2.1 AA",
@@ -45,6 +46,7 @@ function parseArgs(argv) {
     if (key === "--input") args.input = value;
     if (key === "--scan-results") args.scanResults = value;
     if (key === "--output") args.output = value;
+    if (key === "--base-url") args.baseUrl = value;
     if (key === "--title") args.title = value;
     if (key === "--environment") args.environment = value;
     if (key === "--scope") args.scope = value;
