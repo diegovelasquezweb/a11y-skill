@@ -14,13 +14,13 @@ Professional technical skill for auditing websites and local development project
 
 This skill follows the open [Agent Skills standard](https://agentskills.io) supported by a growing number of AI agents and IDEs:
 
-| Agent / IDE        | `SKILL.md` | Extended Workflow            | Agent Config          |
-| :----------------- | :--------: | :--------------------------- | :-------------------- |
-| **Claude (Code)**  |     ✅     | ✅ `.agent/workflows/`       | —                     |
-| **Antigravity**    |     ✅     | ✅ `.agent/workflows/`       | —                     |
+| Agent / IDE        | `SKILL.md` | Extended Workflow            | Agent Config            |
+| :----------------- | :--------: | :--------------------------- | :---------------------- |
+| **Claude (Code)**  |     ✅     | ✅ `.agent/workflows/`       | —                       |
 | **Codex (OpenAI)** |     ✅     | —                            | ✅ `agents/openai.yaml` |
-| **Cursor**         |     ✅     | —                            | —                     |
-| **Gemini CLI**     |     ✅     | —                            | —                     |
+| **Antigravity**    |     ✅     | —                            | —                       |
+| **Cursor**         |     ✅     | —                            | —                       |
+| **Gemini CLI**     |     ✅     | —                            | —                       |
 
 ## Installation
 
