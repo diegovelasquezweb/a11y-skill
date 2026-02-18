@@ -21,6 +21,9 @@ Clone this skill and run the setup script to prepare the engine and register it 
 
 _This script handles `npm install`, Playwright provisioning, and creates global symlinks for **Codex**, **Claude**, and **Antigravity/Gemini**._
 
+> **Note on Folder Structure**:
+> If you install this skill inside an existing `.agent/skills/` directory, you will see a nested `.agent/` folder (e.g., `.agent/skills/a11y-skill/.agent/`). This is **intentional** and required for the Turbo Mode workflows to function correctly. It does not cause conflicts.
+
 ### Uninstallation
 
 To remove all global symlinks and clean up local build files:
