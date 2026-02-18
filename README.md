@@ -1,6 +1,6 @@
 # WS Accessibility Audit
 
-Internal technical skill for auditing projects under the WS Accessibility Process. This version (v2.0) introduces automated route discovery, WCAG 2.1 AA detection using a real browser, and a consolidated multi-agent workflow (Antigravity, Claude, Codex).
+Internal technical skill for auditing projects under the WS Accessibility Process. This skill introduces automated route discovery, WCAG 2.1 AA detection using a real browser, and a consolidated multi-agent workflow (Antigravity, Claude, Codex).
 
 ## Key Features
 
