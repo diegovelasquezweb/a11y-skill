@@ -1,6 +1,7 @@
-import { spawn } from "node:child_process";
+import { spawn, execSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import fs from "node:fs";
 import { log, loadConfig } from "./a11y-utils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -88,6 +89,13 @@ async function main() {
 
   try {
     log.info("🚀 Starting full WS Accessibility Audit pipeline...");
+
+    const nodeModulesPath = path.join(SKILL_ROOT, "node_modules");
+    if (!fs.existsSync(nodeModulesPath)) {
+      log.info("First run detected — installing skill dependencies (one-time setup)...");
+      execSync("pnpm install", { cwd: SKILL_ROOT, stdio: "ignore" });
+      log.success("Dependencies ready.");
+    }
 
     await runScript("check-toolchain.mjs");
 
