@@ -16,9 +16,9 @@ This skill follows the open [Agent Skills standard](https://agentskills.io) supp
 
 | Agent / IDE        | `SKILL.md` | Extended Workflow            | Agent Config            |
 | :----------------- | :--------: | :--------------------------- | :---------------------- |
-| **Claude (Code)**  |     ✅     | ✅ `.agent/workflows/`       | —                       |
+| **Antigravity**    |     ✅     | ✅ `.agent/workflows/`       | —                       |
 | **Codex (OpenAI)** |     ✅     | —                            | ✅ `agents/openai.yaml` |
-| **Antigravity**    |     ✅     | —                            | —                       |
+| **Claude (Code)**  |     ✅     | —                            | —                       |
 | **Cursor**         |     ✅     | —                            | —                       |
 | **Gemini CLI**     |     ✅     | —                            | —                       |
 
