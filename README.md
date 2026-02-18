@@ -25,11 +25,9 @@ This skill follows the open [Agent Skills standard](https://agentskills.io) supp
 
 ## Installation
 
-Ask your AI Agent directly in the chat:
+Copy and paste this into your agent's chat:
 
-> "Install the accessibility skill from https://github.com/diegovelasquezweb/a11y-skill"
-
-_The agent will clone and initialize it automatically in its preferred skills directory._
+> "Install skill https://github.com/diegovelasquezweb/a11y-skill"
 
 ## How to Use
 
