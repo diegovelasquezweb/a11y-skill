@@ -128,35 +128,12 @@ async function main() {
 
     await runScript("build-audit-html.mjs", buildArgs);
 
-    log.success(`🎉 Audit complete! View the report at ${output}`);
+    const absoluteOutputPath = path.isAbsolute(output)
+      ? output
+      : path.join(process.cwd(), output);
 
-    if (!argv.includes("--no-open")) {
-      const absoluteOutputPath = path.isAbsolute(output)
-        ? output
-        : path.join(process.cwd(), output);
-
-      log.info(`Opening report: ${absoluteOutputPath}`);
-      let command;
-      switch (process.platform) {
-        case "darwin": // macOS
-          command = `open "${absoluteOutputPath}"`;
-          break;
-        case "win32": // Windows
-          command = `start "" "${absoluteOutputPath}"`;
-          break;
-        default: // Linux/Other
-          command = `xdg-open "${absoluteOutputPath}"`;
-          break;
-      }
-
-      const { exec } = await import("node:child_process");
-      exec(command, (err) => {
-        if (err) {
-          log.error(`Could not open browser automatically: ${err.message}`);
-          log.info(`Manual location: ${absoluteOutputPath}`);
-        }
-      });
-    }
+    log.success(`🎉 Audit complete!`);
+    console.log(`REPORT_PATH=${absoluteOutputPath}`);
   } catch (error) {
     log.error(error.message);
     process.exit(1);

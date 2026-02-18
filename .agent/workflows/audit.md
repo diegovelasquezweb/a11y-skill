@@ -2,8 +2,6 @@
 description: Run a full WCAG 2.1 AA accessibility audit
 ---
 
-// turbo-all
-
 1. Ask the user for the target URL if not already provided.
 
 // turbo 2. Run the audit pipeline:
@@ -12,4 +10,10 @@ description: Run a full WCAG 2.1 AA accessibility audit
 node scripts/run-audit.mjs --base-url <URL>
 ```
 
-3. After completion, summarize the findings and mention the generated HTML report location.
+3. Parse the `REPORT_PATH=<path>` line from the script output to get the absolute report path.
+
+4. Open the report in the browser using the appropriate method for the current environment:
+   - VS Code / Cursor / any IDE with shell access: run `open "<path>"` (macOS), `start "" "<path>"` (Windows), or `xdg-open "<path>"` (Linux)
+   - If the shell open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
+
+5. Summarize the findings: total issues by severity, top critical/high items, and the report location.
