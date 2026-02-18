@@ -45,6 +45,8 @@ Once installed, the skill is available to your agent in any conversation. Simply
 
 > "Run an accessibility audit for `http://localhost:3000`"
 
+> "Run an accessibility audit for `https://example.com`"
+
 ## Deliverables
 
 - **Location**: `audit/` folder.
