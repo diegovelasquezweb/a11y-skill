@@ -260,7 +260,7 @@ Execution discipline for the agent:
 10. Do not continue with partial runtime tool execution for required checks.
 11. Keep intermediate pipeline artifacts encapsulated; write intermediates to `audit/internal/`.
 12. Do not run automatic cleanup commands that delete `audit/internal/` files during the audit flow.
-13. When a local dependency or browser is missing, report the `setup.sh` fix and stop.
+13. When a local dependency or browser is missing, report the `pnpm install` fix and stop.
 
 ## 10) File Output Behavior (Mandatory)
 

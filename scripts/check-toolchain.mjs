@@ -44,7 +44,7 @@ async function main() {
     tool: "Local dependencies (node_modules)",
     required: true,
     ok: modulesOk,
-    fix: "Run './scripts/setup.sh' to initialize the skill dependencies.",
+    fix: "Run 'pnpm install' to initialize the skill dependencies.",
   });
 
   const pwOk = await checkPlaywrightBrowsers();
@@ -52,7 +52,7 @@ async function main() {
     tool: "Playwright installed",
     required: true,
     ok: pwOk,
-    fix: "Run './scripts/setup.sh' (browsers should install automatically via postinstall or verify with 'npx playwright install').",
+    fix: "Run 'pnpm install' (browsers should install automatically via postinstall or verify with 'npx playwright install').",
   });
 
   const blockers = checks.filter((c) => c.required && !c.ok);

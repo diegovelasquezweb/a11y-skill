@@ -14,7 +14,7 @@ Internal technical skill for auditing websites and local development projects un
 
 The recommended way to use this skill is to install it specifically within your project. This ensures the tool is version-controlled with your code and available to all team members.
 
-### 1. Automated Setup (Agent Chat)
+### 1. Automated Setup (Recommended)
 
 Ask your AI Agent directly in the chat:
 
@@ -29,20 +29,20 @@ If you prefer manual control:
 ```bash
 git clone https://github.com/diegovelasquezweb/a11y-skill
 cd a11y-skill
-./scripts/setup.sh
+pnpm install  # This installs dependencies AND the audit browser
 ```
 
 ### Uninstallation
 
-To remove the skill and its local artifacts:
+To remove the skill, simply delete the directory:
 
 ```bash
-./scripts/uninstall.sh
+rm -rf a11y-skill
 ```
 
 ## How to Use
 
-Depending on where you are working, there are three ways to trigger an audit:
+Depending on where you are working, there are two ways to trigger an audit:
 
 ### 1. Conversational (Agent Chat)
 
@@ -50,32 +50,24 @@ When talking to an AI agent (Antigravity, Claude, Codex, etc.), use the skill na
 
 > "Audit `http://localhost:3000` with `$ws-accessibility-audit`"
 
-### 2. Slash Command (Agent Workflow)
-
-If your project has the `/audit` workflow configured, you can trigger the full pipeline directly:
-
-```bash
-/audit --base-url https://example.com
-```
-
-### 3. Terminal CLI (Local Bash/Zsh)
+### 2. Terminal CLI (Local Bash/Zsh)
 
 If you want to run it directly from your terminal **without using AI agents or tokens**:
 
 1. Navigate to the skill directory:
 
    ```bash
-   cd .agent/a11y-skill
+    cd a11y-skill
    ```
 
 2. Run the audit command:
 
    ```bash
     # Audit local development server
-    npm run audit -- --base-url http://localhost:3000 --max-routes 5
+    pnpm run audit -- --base-url http://localhost:3000 --max-routes 5
 
     # Audit live site
-    npm run audit -- --base-url https://example.com
+    pnpm run audit -- --base-url https://example.com
    ```
 
 ### Local Environment Support
@@ -92,7 +84,7 @@ The skill is optimized for local development:
 
 | Flag                   | Description                                          | Default                      |
 | :--------------------- | :--------------------------------------------------- | :--------------------------- |
-| `--base-url <url>`     | **(Required)** The target website to audit.          | -                            |
+| `--base-url <url>`     | The target to audit (Live URL or Localhost).         | Autodetect (local)           |
 | `--max-routes <num>`   | Maximum number of routes to discover and scan.       | 10                           |
 | `--routes <csv>`       | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
 | `--output <path>`      | Final HTML report location.                          | `audit/index.html`           |
