@@ -1,7 +1,5 @@
 # WS Accessibility Audit
 
-> **Version 2.0** — _Next-gen engine with Playwright & Axe-Core._
-
 Internal technical skill for auditing projects under the WS Accessibility Process. This version (v2.0) introduces automated route discovery, WCAG 2.1 AA detection using a real browser, and a consolidated multi-agent workflow (Antigravity, Claude, Codex).
 
 ## Key Features
