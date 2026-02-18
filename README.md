@@ -130,7 +130,7 @@ You can customize the audit behavior by editing `a11y.config.json` in the skill 
 
 ## Reference
 
-- [Agent Skills Standard](https://agentskills.io/) — the open format this skill follows
+- [Agent Skills Standard](https://agentskills.io/)
 - [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
 - [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
 - [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/)
