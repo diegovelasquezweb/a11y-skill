@@ -226,12 +226,12 @@ Execution discipline for the agent:
 
 ## 8) File Output Behavior (Mandatory)
 
-1. Write only one final artifact in `audit/`:
+1. Write two final artifacts in `audit/`:
 
-- `audit/index.html`
+- `audit/index.html` — full HTML report (primary deliverable).
+- `audit/summary.md` — concise markdown summary (ideal for PRs and tickets).
 - Do not generate dated versions of the report (e.g., `audit/index-2026-01-01.html`).
-- Do not generate markdown report files in the default flow.
-- Do not generate per-issue markdown files in the default flow.
+- Do not generate per-issue markdown files.
 - `audit/index.html` must include the completed findings with evidence and linked finding IDs.
 - Follow the WS Accessibility standard for issue severity (Critical, High, Medium, Low).
 - Do not keep any JSON files in `audit/`.
