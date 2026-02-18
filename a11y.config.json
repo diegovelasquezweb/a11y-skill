@@ -2,7 +2,33 @@
   "maxRoutes": 10,
   "complianceTarget": "WCAG 2.1 AA",
   "excludeSelectors": [],
-  "axeRules": {},
   "outputDir": "audit",
-  "internalDir": "audit/internal"
+  "internalDir": "audit/internal",
+  "axeRules": {
+    "region": {
+      "enabled": true
+    },
+    "page-has-heading-one": {
+      "enabled": true
+    },
+    "landmark-one-main": {
+      "enabled": true
+    },
+    "focus-order-semantics": {
+      "enabled": true
+    },
+    "meta-viewport": {
+      "enabled": true
+    }
+  },
+  "playwright": {
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    },
+    "reducedMotion": "no-preference",
+    "colorScheme": "light",
+    "forcedColors": "none",
+    "locale": "en-US"
+  }
 }

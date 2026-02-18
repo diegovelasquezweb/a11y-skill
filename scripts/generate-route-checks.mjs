@@ -105,15 +105,29 @@ async function discoverRoutes(page, baseUrl, maxRoutes) {
   return [...routes];
 }
 
-async function analyzeRoute(page, routeUrl, waitMs) {
+async function analyzeRoute(page, routeUrl, waitMs, axeRules) {
   log.info(`Analyzing ${routeUrl}...`);
   try {
     await page.goto(routeUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(waitMs);
 
-    const axeResults = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-      .analyze();
+    const builder = new AxeBuilder({ page }).withTags([
+      "wcag2a",
+      "wcag2aa",
+      "wcag21a",
+      "wcag21aa",
+      "best-practice",
+    ]);
+
+    // Apply custom axeRules from config
+    if (axeRules && typeof axeRules === "object") {
+      for (const [ruleId, ruleConfig] of Object.entries(axeRules)) {
+        if (ruleConfig.enabled === true) builder.enable(ruleId);
+        if (ruleConfig.enabled === false) builder.disable(ruleId);
+      }
+    }
+
+    const axeResults = await builder.analyze();
 
     const metadata = await page.evaluate(() => {
       return {
@@ -146,8 +160,17 @@ async function main() {
 
   log.info(`Starting accessibility audit for ${baseUrl}`);
 
+  const config = loadConfig();
+  const pwConfig = config.playwright || {};
+
   const browser = await chromium.launch({ headless: args.headless });
-  const context = await browser.newContext();
+  const context = await browser.newContext({
+    viewport: pwConfig.viewport || { width: 1280, height: 720 },
+    reducedMotion: pwConfig.reducedMotion || "no-preference",
+    colorScheme: pwConfig.colorScheme || "light",
+    forcedColors: pwConfig.forcedColors || "none",
+    locale: pwConfig.locale || "en-US",
+  });
   const page = await context.newPage();
 
   let routes = [];
@@ -175,7 +198,12 @@ async function main() {
   const results = [];
   for (const routePath of routes) {
     const targetUrl = new URL(routePath, baseUrl).toString();
-    const result = await analyzeRoute(page, targetUrl, args.waitMs);
+    const result = await analyzeRoute(
+      page,
+      targetUrl,
+      args.waitMs,
+      config.axeRules,
+    );
     results.push({ path: routePath, ...result });
   }
 
