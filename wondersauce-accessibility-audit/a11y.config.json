@@ -1,0 +1,8 @@
+{
+  "maxRoutes": 10,
+  "complianceTarget": "WCAG 2.1 AA",
+  "excludeSelectors": [],
+  "axeRules": {},
+  "outputDir": "audit",
+  "internalDir": "audit/internal"
+}

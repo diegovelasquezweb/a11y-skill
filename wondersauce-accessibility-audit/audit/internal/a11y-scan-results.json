@@ -1,0 +1,1928 @@
+{
+  "generated_at": "2026-02-18T12:17:18.155Z",
+  "base_url": "https://frida.com/",
+  "routes": [
+    {
+      "path": "/",
+      "url": "https://frida.com/",
+      "violations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#ffffff",
+                    "bgColor": "#43c5e4",
+                    "contrastRatio": 2.02,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"promo-bar\" data-promo-bar=\"\">\n\t\t<span class=\"promo-bar__text max-width-container\">Free Shipping for Orders Over $25\n</span>\n\t</div>",
+                      "target": [
+                        ".promo-bar"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #ffffff, background color: #43c5e4, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"promo-bar__text max-width-container\">Free Shipping for Orders Over $25\n</span>",
+              "target": [
+                ".promo-bar__text"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #ffffff, background color: #43c5e4, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#919191",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.15,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<nav class=\"nav-desktop\" role=\"navigation\">",
+                      "target": [
+                        ".nav-desktop"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>Shop All</span>",
+              "target": [
+                ".nav-desktop__link[href$=\"all-products\"] > span"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#919191",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.15,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<nav class=\"nav-desktop\" role=\"navigation\">",
+                      "target": [
+                        ".nav-desktop"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>Frida Baby</span>",
+              "target": [
+                ".nav-desktop__link[href$=\"baby\"] > span"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#919191",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.15,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<nav class=\"nav-desktop\" role=\"navigation\">",
+                      "target": [
+                        ".nav-desktop"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>Frida Mom</span>",
+              "target": [
+                ".nav-desktop__link[href$=\"mom\"] > span"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#919191",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.15,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<nav class=\"nav-desktop\" role=\"navigation\">",
+                      "target": [
+                        ".nav-desktop"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>Frida Fertility</span>",
+              "target": [
+                ".nav-desktop__link[href$=\"fertility\"] > span"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#919191",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.15,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<nav class=\"nav-desktop\" role=\"navigation\">",
+                      "target": [
+                        ".nav-desktop"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>About Us</span>",
+              "target": [
+                ".nav-desktop__link[href$=\"our-story\"] > span"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#919191",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.15,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<nav class=\"nav-desktop\" role=\"navigation\">",
+                      "target": [
+                        ".nav-desktop"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>Need Help</span>",
+              "target": [
+                ".nav-desktop__link[href=\"\"] > span"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "16.9pt (22.5px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 16.9pt (22.5px), font weight: bold). Expected contrast ratio of 3:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"modular-collection-with-content__title\">Cold + Flu Essentials</h2>",
+              "target": [
+                "#shopify-section-1557949455253 > .modular-collection-with-content--inner.pepe.max-width-container > .modular-collection-with-content__grid > .modular-collection-with-content__heading--desktop.modular-collection-with-content__heading > .modular-collection-with-content__title"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 16.9pt (22.5px), font weight: bold). Expected contrast ratio of 3:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"modular-collection-with-content__text\">S'not to worry - we've got you covered from boogers to coughs and fevers</p>",
+              "target": [
+                "#shopify-section-1557949455253 > .modular-collection-with-content--inner.pepe.max-width-container > .modular-collection-with-content__grid > .modular-collection-with-content__heading--desktop.modular-collection-with-content__heading > .modular-collection-with-content__text"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"grid-item__title--fallback\">NoseFrida the SnotSucker</h2>",
+              "target": [
+                "#slick-slide10 > div > div[data-price=\"1499\"][data-title=\"NoseFrida the SnotSucker\"][data-product-id=\"3668203241520\"] > .grid-item__link.grid-item__link--hover-trigger[href$=\"nosefrida\"] > .grid-item__description > .grid-item__title--fallback"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"grid-item__price--regular \">$14.99</span>",
+              "target": [
+                "#slick-slide10 > div > div[data-price=\"1499\"][data-title=\"NoseFrida the SnotSucker\"][data-product-id=\"3668203241520\"] > .grid-item__link.grid-item__link--hover-trigger[href$=\"nosefrida\"] > .grid-item__description > .grid-item__price > .grid-item__price--regular"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"grid-item__title--fallback\">Ultra-Quiet Portable Nebulizer</h2>",
+              "target": [
+                "#slick-slide11 > div > div[data-title=\"Ultra-Quiet Portable Nebulizer\"][data-product-id=\"7270663553091\"][data-price=\"4999\"] > .grid-item__link.grid-item__link--hover-trigger > .grid-item__description > .grid-item__title--fallback"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"grid-item__price--regular \">$49.99</span>",
+              "target": [
+                "#slick-slide11 > div > div[data-title=\"Ultra-Quiet Portable Nebulizer\"][data-product-id=\"7270663553091\"][data-price=\"4999\"] > .grid-item__link.grid-item__link--hover-trigger > .grid-item__description > .grid-item__price > .grid-item__price--regular"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "16.9pt (22.5px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 16.9pt (22.5px), font weight: bold). Expected contrast ratio of 3:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"modular-collection-with-content__title\">Pregnancy Support Essentials</h2>",
+              "target": [
+                "#shopify-section-1564517380534 > .modular-collection-with-content--inner.pepe.max-width-container > .modular-collection-with-content__grid > .modular-collection-with-content__heading--desktop.modular-collection-with-content__heading > .modular-collection-with-content__title"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 16.9pt (22.5px), font weight: bold). Expected contrast ratio of 3:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"modular-collection-with-content__text\">Tackle pregnancy probs for the 9-month stretch</p>",
+              "target": [
+                "#shopify-section-1564517380534 > .modular-collection-with-content--inner.pepe.max-width-container > .modular-collection-with-content__grid > .modular-collection-with-content__heading--desktop.modular-collection-with-content__heading > .modular-collection-with-content__text"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"grid-item__title--fallback\">Prepare-to-Push Perineal Massage Wand</h2>",
+              "target": [
+                "#slick-slide20 > div > .category-vaginal-delivery[data-product-id=\"6781762306115\"][data-price=\"2999\"] > .grid-item__link.grid-item__link--hover-trigger > .grid-item__description > .grid-item__title--fallback"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"grid-item__price--regular \">$29.99</span>",
+              "target": [
+                "#slick-slide20 > div > .category-vaginal-delivery[data-product-id=\"6781762306115\"][data-price=\"2999\"] > .grid-item__link.grid-item__link--hover-trigger > .grid-item__description > .grid-item__price > .grid-item__price--regular"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"grid-item__title--fallback\">Stretch Prep Balm for Stretch Marks &amp; Perineum - 2.5 oz</h2>",
+              "target": [
+                "#slick-slide21 > div > .category-pregnancy-essentials[data-product-id=\"6699314282563\"][data-price=\"1299\"] > .grid-item__link.grid-item__link--hover-trigger > .grid-item__description > .grid-item__title--fallback"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"grid-item__price--regular \">$12.99</span>",
+              "target": [
+                "#slick-slide21 > div > .category-pregnancy-essentials[data-product-id=\"6699314282563\"][data-price=\"1299\"] > .grid-item__link.grid-item__link--hover-trigger > .grid-item__description > .grid-item__price > .grid-item__price--regular"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "16.9pt (22.5px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 16.9pt (22.5px), font weight: bold). Expected contrast ratio of 3:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"modular-collection-with-content__title\">C-Section Delivery Essentials</h2>",
+              "target": [
+                "#shopify-section-16487324270bb9227e > .modular-collection-with-content--inner.pepe.max-width-container > .modular-collection-with-content__grid > .modular-collection-with-content__heading--desktop.modular-collection-with-content__heading > .modular-collection-with-content__title"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 16.9pt (22.5px), font weight: bold). Expected contrast ratio of 3:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"modular-collection-with-content__text\">Give your post-op body the attention it deserves with our TLC-Section Care Routine</p>",
+              "target": [
+                "#shopify-section-16487324270bb9227e > .modular-collection-with-content--inner.pepe.max-width-container > .modular-collection-with-content__grid > .modular-collection-with-content__heading--desktop.modular-collection-with-content__heading > .modular-collection-with-content__text"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"grid-item__title--fallback\">Upside Down Peri Bottle</h2>",
+              "target": [
+                "#slick-slide30 > div > div[data-price=\"1399\"][data-title=\"Upside Down Peri Bottle\"][data-product-id=\"3755289378864\"] > .grid-item__link.grid-item__link--hover-trigger > .grid-item__description > .grid-item__title--fallback"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"grid-item__price--regular \">$13.99</span>",
+              "target": [
+                "#slick-slide30 > div > div[data-price=\"1399\"][data-title=\"Upside Down Peri Bottle\"][data-product-id=\"3755289378864\"] > .grid-item__link.grid-item__link--hover-trigger > .grid-item__description > .grid-item__price > .grid-item__price--regular"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"grid-item__title--fallback\">High-waist Disposable Postpartum Underwear</h2>",
+              "target": [
+                "#slick-slide31 > div > .category-c-section-delivery[data-price=\"1599\"][data-product-id=\"3736411832368\"] > .grid-item__link.grid-item__link--hover-trigger > .grid-item__description > .grid-item__title--fallback"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"grid-item__price--regular \">$15.99</span>",
+              "target": [
+                "#slick-slide31 > div > .category-c-section-delivery[data-price=\"1599\"][data-product-id=\"3736411832368\"] > .grid-item__link.grid-item__link--hover-trigger > .grid-item__description > .grid-item__price > .grid-item__price--regular"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<a href=\"https://fridababy.us10.list-manage.com/subscribe?u=551bc2cfa41fd4cc4b61d7170&amp;id=de1e0a4350\" title=\"\" class=\"modular-section__button button button--inverse\">Join our newsletter</a>",
+                      "target": [
+                        "#shopify-section-1562687039651 > .modular-section--ratio.modular-section--ratio--tall > .modular-section > .modular-section__section--center.modular-section__section.max-width-container > .modular-section__content--center.modular-section__content--middle.modular-section__content > .modular-section__content--inner > .button--inverse.modular-section__button[title=\"\"]"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a href=\"https://fridababy.us10.list-manage.com/subscribe?u=551bc2cfa41fd4cc4b61d7170&amp;id=de1e0a4350\" title=\"\" class=\"modular-section__button button button--inverse\">Join our newsletter</a>",
+              "target": [
+                "#shopify-section-1562687039651 > .modular-section--ratio.modular-section--ratio--tall > .modular-section > .modular-section__section--center.modular-section__section.max-width-container > .modular-section__content--center.modular-section__content--middle.modular-section__content > .modular-section__content--inner > .button--inverse.modular-section__button[title=\"\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<a href=\"https://www.instagram.com/fridababy/\" title=\"\" class=\"modular-section__button button button--inverse\">Follow @fridababy</a>",
+                      "target": [
+                        "#shopify-section-1562687255270 > .modular-section--ratio.modular-section--ratio--tall > .modular-section > .modular-section__section--center.modular-section__section.max-width-container > .modular-section__content--center.modular-section__content--middle.modular-section__content > .modular-section__content--inner > .button--inverse.modular-section__button[title=\"\"]"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a href=\"https://www.instagram.com/fridababy/\" title=\"\" class=\"modular-section__button button button--inverse\">Follow @fridababy</a>",
+              "target": [
+                "#shopify-section-1562687255270 > .modular-section--ratio.modular-section--ratio--tall > .modular-section > .modular-section__section--center.modular-section__section.max-width-container > .modular-section__content--center.modular-section__content--middle.modular-section__content > .modular-section__content--inner > .button--inverse.modular-section__button[title=\"\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<a href=\"https://www.instagram.com/fridamom/\" title=\"\" class=\"modular-section__button button button--inverse\">Follow @fridamom</a>",
+                      "target": [
+                        "#shopify-section-1562687394318 > .modular-section--ratio.modular-section--ratio--tall > .modular-section > .modular-section__section--center.modular-section__section.max-width-container > .modular-section__content--center.modular-section__content--middle.modular-section__content > .modular-section__content--inner > .button--inverse.modular-section__button[title=\"\"]"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a href=\"https://www.instagram.com/fridamom/\" title=\"\" class=\"modular-section__button button button--inverse\">Follow @fridamom</a>",
+              "target": [
+                "#shopify-section-1562687394318 > .modular-section--ratio.modular-section--ratio--tall > .modular-section > .modular-section__section--center.modular-section__section.max-width-container > .modular-section__content--center.modular-section__content--middle.modular-section__content > .modular-section__content--inner > .button--inverse.modular-section__button[title=\"\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"newsletter__heading\">YOUR SANITY CHECK...</h2>",
+              "target": [
+                ".newsletter__heading"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p>Catch up on what's new at Frida, including product news, parenting tips, promos + more. Information will be used as described in our&nbsp;<span style=\"text-decoration: underline;\"><strong><a href=\"https://frida.com/pages/privacy-policy-1\">Privacy Policy.</a></strong></span></p>",
+              "target": [
+                ".newsletter > p:nth-child(3)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a href=\"https://frida.com/pages/privacy-policy-1\">Privacy Policy.</a>",
+              "target": [
+                "strong > a"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<label> Email Address\n\t\t\t\t\t<input type=\"email\" value=\"\" name=\"EMAIL\" class=\"required email\" id=\"mce-EMAIL\" placeholder=\"Your Email Address\" required=\"\"> \n</label>",
+              "target": [
+                ".mc-field-group > label"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 8.3pt (11px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#ffffff",
+                    "bgColor": "#43c5e4",
+                    "contrastRatio": 2.02,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<input type=\"submit\" value=\"Subscribe\" name=\"subscribe\" id=\"mc-embedded-subscribe\" class=\"button button--primary\">",
+                      "target": [
+                        "#mc-embedded-subscribe"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #ffffff, background color: #43c5e4, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<input type=\"submit\" value=\"Subscribe\" name=\"subscribe\" id=\"mc-embedded-subscribe\" class=\"button button--primary\">",
+              "target": [
+                "#mc-embedded-subscribe"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #ffffff, background color: #43c5e4, font size: 10.5pt (14px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"footer__menu--header\">Support</h2>",
+              "target": [
+                ".footer__menu--desktop > .footer__menu--parent-links > li > .footer__menu--header"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__menu--link\" href=\"https://fridacustomersupport.zendesk.com/hc/en-us\" title=\"FAQs\">FAQs</a>",
+              "target": [
+                ".footer__menu--desktop > .footer__menu--parent-links > li > .footer__menu--child-links > li:nth-child(1) > .footer__menu--link[title=\"FAQs\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__menu--link\" href=\"https://fridacustomersupport.zendesk.com/hc/en-us/requests/new\" title=\"Contact Us\">Contact Us</a>",
+              "target": [
+                ".footer__menu--desktop > .footer__menu--parent-links > li > .footer__menu--child-links > li:nth-child(2) > .footer__menu--link[title=\"Contact Us\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__menu--link\" href=\"https://fridaproductregistration.zendesk.com/hc/en-us/requests/new\" title=\"Register Your Product\">Register Your Product</a>",
+              "target": [
+                ".footer__menu--desktop > .footer__menu--parent-links > li > .footer__menu--child-links > li:nth-child(3) > .footer__menu--link[title=\"Register Your Product\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__menu--link\" href=\"https://fridacustomersupport.zendesk.com/hc/en-us/articles/1500001343042-Frida-Baby-Return-Policy\" title=\"Refund policy\">Refund policy</a>",
+              "target": [
+                ".footer__menu--desktop > .footer__menu--parent-links > li > .footer__menu--child-links > li:nth-child(4) > .footer__menu--link[title=\"Refund policy\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__menu--link\" href=\"/pages/terms-and-conditions\" title=\"Legal\">Legal</a>",
+              "target": [
+                ".footer__menu--desktop > .footer__menu--parent-links > li > .footer__menu--child-links > li:nth-child(5) > .footer__menu--link[title=\"Legal\"][href$=\"terms-and-conditions\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h2 class=\"footer__text-block--heading\">Our Mission</h2>",
+              "target": [
+                ".footer__text-block--heading"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p class=\"footer__text-block--paragraph\">Preparing parents for the unfiltered realities of parenthood with simple-yet-genius solutions that get the job done.</p>",
+              "target": [
+                ".footer__text-block--paragraph"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>© 2019-2026 Fridababy, LLC.</span>",
+              "target": [
+                ".footer__copyright > span"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__aux-links--link\" href=\"https://frida.com/pages/privacy-policy-1\" title=\"Privacy Policy\">Privacy Policy</a>",
+              "target": [
+                "a[title=\"Privacy Policy\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__aux-links--link\" href=\"/pages/terms-and-conditions\" title=\"Terms and Conditions\">Terms and Conditions</a>",
+              "target": [
+                "a[title=\"Terms and Conditions\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__aux-links--link\" href=\"/pages/ad-and-cookie-policy\" title=\"Ad + Cookie Policy\">Ad + Cookie Policy</a>",
+              "target": [
+                "li:nth-child(3) > a[href$=\"ad-and-cookie-policy\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__aux-links--link\" href=\"https://frida.com/pages/frida-consumer-health-data-privacy-policy-for-washington-residents\" title=\"WA Health Data Privacy Policy\">WA Health Data Privacy Policy</a>",
+              "target": [
+                "a[title=\"WA Health Data Privacy Policy\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__aux-links--link\" href=\"https://frida.com/pages/california-supply-chain-website-disclosure\" title=\"CA Transparency in Supply Chains Report\">CA Transparency in Supply Chains Report</a>",
+              "target": [
+                "li:nth-child(5) > .footer__aux-links--link"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#898989",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 3.49,
+                    "fontSize": "9.8pt (13px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<html lang=\"en\" class=\"\">",
+                      "target": [
+                        "html"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a class=\"footer__aux-links--link\" href=\"https://frida.com/pages/forced-labour-and-child-labour-report\" title=\"Canadian Supply Chains Act Report\">Canadian Supply Chains Act Report</a>",
+              "target": [
+                "li:nth-child(6) > .footer__aux-links--link"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.49 (foreground color: #898989, background color: #ffffff, font size: 9.8pt (13px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "9.8pt (13.008px)",
+                    "fontWeight": "bold",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div id=\"onetrust-banner-sdk\" class=\"otFlat otRelFont bottom ot-wo-title vertical-align-content\" tabindex=\"0\" role=\"region\" aria-label=\"Cookie banner\" style=\"bottom: 0px;\">",
+                      "target": [
+                        "#onetrust-banner-sdk"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 9.8pt (13.008px), font weight: bold). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<a href=\"https://frida.com/pages/ad-and-cookie-policy\" aria-label=\"Ad and Cookie Policy\">Ad and Cookie Policy</a>",
+              "target": [
+                "a[aria-label=\"Ad and Cookie Policy\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 9.8pt (13.008px), font weight: bold). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#43c5e4",
+                    "bgColor": "#ffffff",
+                    "contrastRatio": 2.02,
+                    "fontSize": "9.8pt (13.008px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<button id=\"onetrust-pc-btn-handler\">Your Privacy Rights</button>",
+                      "target": [
+                        "#onetrust-pc-btn-handler"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 9.8pt (13.008px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"onetrust-pc-btn-handler\">Your Privacy Rights</button>",
+              "target": [
+                "#onetrust-pc-btn-handler"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #43c5e4, background color: #ffffff, font size: 9.8pt (13.008px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#ffffff",
+                    "bgColor": "#43c5e4",
+                    "contrastRatio": 2.02,
+                    "fontSize": "9.8pt (13.008px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<button id=\"onetrust-reject-all-handler\">Reject</button>",
+                      "target": [
+                        "#onetrust-reject-all-handler"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #ffffff, background color: #43c5e4, font size: 9.8pt (13.008px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"onetrust-reject-all-handler\">Reject</button>",
+              "target": [
+                "#onetrust-reject-all-handler"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #ffffff, background color: #43c5e4, font size: 9.8pt (13.008px), font weight: normal). Expected contrast ratio of 4.5:1"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fgColor": "#ffffff",
+                    "bgColor": "#43c5e4",
+                    "contrastRatio": 2.02,
+                    "fontSize": "9.8pt (13.008px)",
+                    "fontWeight": "normal",
+                    "messageKey": null,
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<button id=\"onetrust-accept-btn-handler\">Okay</button>",
+                      "target": [
+                        "#onetrust-accept-btn-handler"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element has insufficient color contrast of 2.02 (foreground color: #ffffff, background color: #43c5e4, font size: 9.8pt (13.008px), font weight: normal). Expected contrast ratio of 4.5:1"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<button id=\"onetrust-accept-btn-handler\">Okay</button>",
+              "target": [
+                "#onetrust-accept-btn-handler"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.02 (foreground color: #ffffff, background color: #43c5e4, font size: 9.8pt (13.008px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        },
+        {
+          "id": "image-alt",
+          "impact": "critical",
+          "tags": [
+            "cat.text-alternatives",
+            "wcag2a",
+            "wcag111",
+            "section508",
+            "section508.22.a",
+            "TTv5",
+            "TT7.a",
+            "TT7.b",
+            "EN-301-549",
+            "EN-9.1.1.1",
+            "ACT",
+            "RGAAv4",
+            "RGAA-1.1.1"
+          ],
+          "description": "Ensure <img> elements have alternative text or a role of none or presentation",
+          "help": "Images must have alternative text",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/image-alt?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "has-alt",
+                  "data": null,
+                  "relatedNodes": [],
+                  "impact": "critical",
+                  "message": "Element does not have an alt attribute"
+                },
+                {
+                  "id": "aria-label",
+                  "data": null,
+                  "relatedNodes": [],
+                  "impact": "critical",
+                  "message": "aria-label attribute does not exist or is empty"
+                },
+                {
+                  "id": "aria-labelledby",
+                  "data": null,
+                  "relatedNodes": [],
+                  "impact": "critical",
+                  "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty"
+                },
+                {
+                  "id": "non-empty-title",
+                  "data": {
+                    "messageKey": "noAttr"
+                  },
+                  "relatedNodes": [],
+                  "impact": "critical",
+                  "message": "Element has no title attribute"
+                },
+                {
+                  "id": "presentational-role",
+                  "data": null,
+                  "relatedNodes": [],
+                  "impact": "critical",
+                  "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "critical",
+              "html": "<img src=\"https://arttrk.com/pixel/?ad_log=referer&amp;action=lead&amp;pixid=dae4bab9-730c-4349-8dd3-d141d7917af4\" width=\"1\" height=\"1\" class=\"loading\" data-was-processed=\"true\">",
+              "target": [
+                "img[width=\"1\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            },
+            {
+              "any": [
+                {
+                  "id": "has-alt",
+                  "data": null,
+                  "relatedNodes": [],
+                  "impact": "critical",
+                  "message": "Element does not have an alt attribute"
+                },
+                {
+                  "id": "aria-label",
+                  "data": null,
+                  "relatedNodes": [],
+                  "impact": "critical",
+                  "message": "aria-label attribute does not exist or is empty"
+                },
+                {
+                  "id": "aria-labelledby",
+                  "data": null,
+                  "relatedNodes": [],
+                  "impact": "critical",
+                  "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty"
+                },
+                {
+                  "id": "non-empty-title",
+                  "data": {
+                    "messageKey": "noAttr"
+                  },
+                  "relatedNodes": [],
+                  "impact": "critical",
+                  "message": "Element has no title attribute"
+                },
+                {
+                  "id": "presentational-role",
+                  "data": null,
+                  "relatedNodes": [],
+                  "impact": "critical",
+                  "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "critical",
+              "html": "<img src=\"https://trkn.us/pixel/c?ppt=23482&amp;g=sitewide&amp;gid=56970&amp;ord=[uniqueid]\" height=\"0\" width=\"0\" class=\"loading\" data-was-processed=\"true\">",
+              "target": [
+                ".loading[height=\"0\"][width=\"0\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+            }
+          ]
+        }
+      ],
+      "metadata": {
+        "h1Count": 7,
+        "mainCount": 1,
+        "title": "Frida - The fuss stops here. – Frida | The fuss stops here."
+      }
+    }
+  ]
+}

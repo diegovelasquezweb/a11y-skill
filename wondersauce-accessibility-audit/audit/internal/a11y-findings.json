@@ -1,0 +1,58 @@
+{
+  "findings": [
+    {
+      "id": "A11Y-001",
+      "title": "Elements must meet minimum color contrast ratio thresholds",
+      "severity": "High",
+      "wcag": "WCAG 2.1 AA",
+      "area": "/",
+      "url": "https://frida.com/",
+      "selector": ".promo-bar__text, .nav-desktop__link[href$=\"all-products\"] > span, .nav-desktop__link[href$=\"baby\"] > span, .nav-desktop__link[href$=\"mom\"] > span, .nav-desktop__link[href$=\"fertility\"] > span",
+      "impact": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "reproduction": [
+        "Open https://frida.com/",
+        "Check selector: .promo-bar__text",
+        "Elements must meet minimum color contrast ratio thresholds"
+      ],
+      "actual": "Found 52 instances.",
+      "expected": "Accessibility check should pass.",
+      "recommended_fix": "See https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=playwright",
+      "evidence": "[\n {\n  \"any\": [\n   {\n    \"id\": \"color-contrast\",\n    \"data\": {\n     \"fgColor\": \"#ffffff\",\n     \"bgColor\": \"#43c5e4\",\n     \"contrastRatio\": 2.02,\n     \"fontSize\": \"11.3pt (15px)\",\n     \"fontWeight\": \"normal\",\n     \"messageKey\": null,\n     \"expectedContrastRatio\": \"4.5:1\"\n    },\n    \"relatedNodes\": [\n     {\n      \"html\": \"<div class=\\\"promo-bar\\\" data-promo-bar=\\\"\\\">\\n\\t\\t<span class=\\\"promo-bar__text max-width-container\\\">Free Shipping for Orders Over $25\\n</span>\\n\\t</div>\",\n      \"target\": [\n       \".promo-bar\"\n      ]\n     }\n    ],\n    \"impact\": \"serious\",\n    \"message\": \"Element has insufficient color contrast of 2.02 (foreground color: #ffffff, background color: #43c5e4, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1\"\n   }\n  ],\n  \"all\": [],\n  \"none\": [],\n  \"impact\": \"serious\",\n  \"html\": \"<span class=\\\"promo-bar__text max-width-container\\\">Free Shipping for Orders Over $25\\n</span>\",\n  \"target\": [\n   \".promo-bar__text\"\n  ],\n  \"failureSummary\": \"Fix any of the following:\\n  Element has insufficient color contrast of 2.02 (foreground color: #ffffff, background color: #43c5e4, font size: 11.3pt (15px), font weight: normal). Expected contrast ratio of 4.5:1\"\n },\n {\n  \"any\": [\n   {\n    \"id\": \"color-contrast\",\n    \"data\": {\n     \"fgColor\": \"#919191\",\n     \"bgColor\": \"#ffffff\",\n     \"contrastRatio\": 3.15,\n     \"fontSize\": \"12.0pt (16px)\",\n     \"fontWeight\": \"bold\",\n     \"messageKey\": null,\n     \"expectedContrastRatio\": \"4.5:1\"\n    },\n    \"relatedNodes\": [\n     {\n      \"html\": \"<nav class=\\\"nav-desktop\\\" role=\\\"navigation\\\">\",\n      \"target\": [\n       \".nav-desktop\"\n      ]\n     }\n    ],\n    \"impact\": \"serious\",\n    \"message\": \"Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1\"\n   }\n  ],\n  \"all\": [],\n  \"none\": [],\n  \"impact\": \"serious\",\n  \"html\": \"<span>Shop All</span>\",\n  \"target\": [\n   \".nav-desktop__link[href$=\\\"all-products\\\"] > span\"\n  ],\n  \"failureSummary\": \"Fix any of the following:\\n  Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1\"\n },\n {\n  \"any\": [\n   {\n    \"id\": \"color-contrast\",\n    \"data\": {\n     \"fgColor\": \"#919191\",\n     \"bgColor\": \"#ffffff\",\n     \"contrastRatio\": 3.15,\n     \"fontSize\": \"12.0pt (16px)\",\n     \"fontWeight\": \"bold\",\n     \"messageKey\": null,\n     \"expectedContrastRatio\": \"4.5:1\"\n    },\n    \"relatedNodes\": [\n     {\n      \"html\": \"<nav class=\\\"nav-desktop\\\" role=\\\"navigation\\\">\",\n      \"target\": [\n       \".nav-desktop\"\n      ]\n     }\n    ],\n    \"impact\": \"serious\",\n    \"message\": \"Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1\"\n   }\n  ],\n  \"all\": [],\n  \"none\": [],\n  \"impact\": \"serious\",\n  \"html\": \"<span>Frida Baby</span>\",\n  \"target\": [\n   \".nav-desktop__link[href$=\\\"baby\\\"] > span\"\n  ],\n  \"failureSummary\": \"Fix any of the following:\\n  Element has insufficient color contrast of 3.15 (foreground color: #919191, background color: #ffffff, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1\"\n }\n]"
+    },
+    {
+      "id": "A11Y-002",
+      "title": "Images must have alternative text",
+      "severity": "Critical",
+      "wcag": "WCAG 2.1 A",
+      "area": "/",
+      "url": "https://frida.com/",
+      "selector": "img[width=\"1\"], .loading[height=\"0\"][width=\"0\"]",
+      "impact": "Ensure <img> elements have alternative text or a role of none or presentation",
+      "reproduction": [
+        "Open https://frida.com/",
+        "Check selector: img[width=\"1\"]",
+        "Images must have alternative text"
+      ],
+      "actual": "Found 2 instances.",
+      "expected": "Accessibility check should pass.",
+      "recommended_fix": "See https://dequeuniversity.com/rules/axe/4.11/image-alt?application=playwright",
+      "evidence": "[\n {\n  \"any\": [\n   {\n    \"id\": \"has-alt\",\n    \"data\": null,\n    \"relatedNodes\": [],\n    \"impact\": \"critical\",\n    \"message\": \"Element does not have an alt attribute\"\n   },\n   {\n    \"id\": \"aria-label\",\n    \"data\": null,\n    \"relatedNodes\": [],\n    \"impact\": \"critical\",\n    \"message\": \"aria-label attribute does not exist or is empty\"\n   },\n   {\n    \"id\": \"aria-labelledby\",\n    \"data\": null,\n    \"relatedNodes\": [],\n    \"impact\": \"critical\",\n    \"message\": \"aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\"\n   },\n   {\n    \"id\": \"non-empty-title\",\n    \"data\": {\n     \"messageKey\": \"noAttr\"\n    },\n    \"relatedNodes\": [],\n    \"impact\": \"critical\",\n    \"message\": \"Element has no title attribute\"\n   },\n   {\n    \"id\": \"presentational-role\",\n    \"data\": null,\n    \"relatedNodes\": [],\n    \"impact\": \"critical\",\n    \"message\": \"Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\"\n   }\n  ],\n  \"all\": [],\n  \"none\": [],\n  \"impact\": \"critical\",\n  \"html\": \"<img src=\\\"https://arttrk.com/pixel/?ad_log=referer&amp;action=lead&amp;pixid=dae4bab9-730c-4349-8dd3-d141d7917af4\\\" width=\\\"1\\\" height=\\\"1\\\" class=\\\"loading\\\" data-was-processed=\\\"true\\\">\",\n  \"target\": [\n   \"img[width=\\\"1\\\"]\"\n  ],\n  \"failureSummary\": \"Fix any of the following:\\n  Element does not have an alt attribute\\n  aria-label attribute does not exist or is empty\\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\\n  Element has no title attribute\\n  Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\"\n },\n {\n  \"any\": [\n   {\n    \"id\": \"has-alt\",\n    \"data\": null,\n    \"relatedNodes\": [],\n    \"impact\": \"critical\",\n    \"message\": \"Element does not have an alt attribute\"\n   },\n   {\n    \"id\": \"aria-label\",\n    \"data\": null,\n    \"relatedNodes\": [],\n    \"impact\": \"critical\",\n    \"message\": \"aria-label attribute does not exist or is empty\"\n   },\n   {\n    \"id\": \"aria-labelledby\",\n    \"data\": null,\n    \"relatedNodes\": [],\n    \"impact\": \"critical\",\n    \"message\": \"aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\"\n   },\n   {\n    \"id\": \"non-empty-title\",\n    \"data\": {\n     \"messageKey\": \"noAttr\"\n    },\n    \"relatedNodes\": [],\n    \"impact\": \"critical\",\n    \"message\": \"Element has no title attribute\"\n   },\n   {\n    \"id\": \"presentational-role\",\n    \"data\": null,\n    \"relatedNodes\": [],\n    \"impact\": \"critical\",\n    \"message\": \"Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\"\n   }\n  ],\n  \"all\": [],\n  \"none\": [],\n  \"impact\": \"critical\",\n  \"html\": \"<img src=\\\"https://trkn.us/pixel/c?ppt=23482&amp;g=sitewide&amp;gid=56970&amp;ord=[uniqueid]\\\" height=\\\"0\\\" width=\\\"0\\\" class=\\\"loading\\\" data-was-processed=\\\"true\\\">\",\n  \"target\": [\n   \".loading[height=\\\"0\\\"][width=\\\"0\\\"]\"\n  ],\n  \"failureSummary\": \"Fix any of the following:\\n  Element does not have an alt attribute\\n  aria-label attribute does not exist or is empty\\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\\n  Element has no title attribute\\n  Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\"\n }\n]"
+    },
+    {
+      "id": "A11Y-003",
+      "title": "Page must have exactly one h1",
+      "severity": "Medium",
+      "wcag": "WCAG 2.1 A",
+      "area": "/",
+      "url": "https://frida.com/",
+      "selector": "h1",
+      "impact": "Heading hierarchy is broken.",
+      "reproduction": [
+        "Count h1 tags on page"
+      ],
+      "actual": "Found 7 h1 tags.",
+      "expected": "Exactly 1 h1 tag.",
+      "recommended_fix": "Ensure one unique h1 per page."
+    }
+  ]
+}

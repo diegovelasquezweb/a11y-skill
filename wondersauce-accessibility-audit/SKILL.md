@@ -244,14 +244,11 @@ Each reported issue must include:
 
 Use standard tools and bundled scripts for repeatable output:
 
-1. `scripts/check-toolchain.mjs` for preflight diagnostics.
-2. Lighthouse accessibility as a secondary baseline signal.
-3. `eslint-plugin-jsx-a11y` (when applicable) for static JSX checks.
-4. `pa11y` for automated baseline scans.
-5. `scripts/generate-route-checks.mjs` for deterministic route-check extraction.
-6. `scripts/deterministic-findings.mjs` for stable finding generation from route checks.
-7. `scripts/pdf-coverage-validate.mjs` for coverage gate validation.
-8. `scripts/build-audit-html.mjs` for final report generation.
+1. `scripts/check-toolchain.mjs` for preflight diagnostics of local dependencies.
+2. `scripts/generate-route-checks.mjs` for robust browser-side scanning with Axe-Core.
+3. `scripts/deterministic-findings.mjs` for stable finding generation from scan data.
+4. `scripts/pdf-coverage-validate.mjs` for coverage gate validation.
+5. `scripts/build-audit-html.mjs` for final premium HTML report generation.
 
 Use this pipeline order:
 
@@ -275,7 +272,7 @@ Execution discipline for the agent:
 10. Do not continue with partial runtime tool execution for required checks.
 11. Keep intermediate pipeline artifacts out of `audit/`; write intermediates to `/tmp` only.
 12. Do not run automatic cleanup commands that delete `/tmp` files during the audit flow.
-13. When a tool is missing, report blocker details and stop; do not run any install/provision command.
+13. When a local dependency or browser is missing, report the `setup.sh` fix and stop.
 
 ## 10) File Output Behavior (Mandatory)
 

@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 
-import fs from "node:fs";
+import { log, readJson, writeJson, getInternalPath } from "./a11y-utils.mjs";
 import path from "node:path";
+import fs from "node:fs";
 
 function printUsage() {
-  console.log(`Usage:
+  log.info(`Usage:
   node deterministic-findings.mjs --input <route-checks.json> [options]
 
 Options:
-  --output <path>          Output findings JSON path (default: /tmp/wondersauce-a11y-findings.json)
+  --output <path>          Output findings JSON path (default: audit/internal/a11y-findings.json)
   -h, --help               Show this help
 `);
 }
@@ -20,8 +21,8 @@ function parseArgs(argv) {
   }
 
   const args = {
-    input: "",
-    output: "/tmp/wondersauce-a11y-findings.json",
+    input: getInternalPath("a11y-scan-results.json"),
+    output: getInternalPath("a11y-findings.json"),
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -38,7 +39,6 @@ function parseArgs(argv) {
   return args;
 }
 
-// Map Axe impact to Wondersauce Severity
 const IMPACT_MAP = {
   critical: "Critical",
   serious: "High",
@@ -46,7 +46,6 @@ const IMPACT_MAP = {
   minor: "Low",
 };
 
-// Map Axe tags to WCAG string (simplistic mapping)
 function mapWcag(tags) {
   if (tags.includes("wcag2a") || tags.includes("wcag21a")) return "WCAG 2.1 A";
   if (tags.includes("wcag2aa") || tags.includes("wcag21aa"))
@@ -58,22 +57,14 @@ function buildFindings(inputPayload) {
   const routes = inputPayload.routes || [];
   const findings = [];
 
-  // Track unique violations to avoid duplicate reporting if needed,
-  // though we usually report per instance or per rule-route combo.
-  // Here we'll produce a flat list of findings.
-
   for (const route of routes) {
-    // Process Axe Violations
     if (route.violations) {
       for (const v of route.violations) {
-        // Create one finding per violation type per route,
-        // referencing the nodes in "reproduction/evidence"
-
         const nodes = v.nodes || [];
-        const selectors = nodes.map((n) => n.target.join(" ")).slice(0, 5); // top 5
+        const selectors = nodes.map((n) => n.target.join(" ")).slice(0, 5);
 
         findings.push({
-          id: "", // Will assign later
+          id: "",
           title: v.help,
           severity: IMPACT_MAP[v.impact] || "Medium",
           wcag: mapWcag(v.tags),
@@ -96,10 +87,7 @@ function buildFindings(inputPayload) {
       }
     }
 
-    // Process Metadata (Structure/Semantics manual checks backed by data)
     const meta = route.metadata || {};
-
-    // H1 Check
     if (meta.h1Count !== 1) {
       findings.push({
         id: "",
@@ -117,7 +105,6 @@ function buildFindings(inputPayload) {
       });
     }
 
-    // Main Check
     if (meta.mainCount !== 1) {
       findings.push({
         id: "",
@@ -136,13 +123,11 @@ function buildFindings(inputPayload) {
     }
   }
 
-  // Sort
   findings.sort((a, b) => {
     if (a.area !== b.area) return a.area.localeCompare(b.area);
     return a.title.localeCompare(b.title);
   });
 
-  // Assign IDs
   return findings.map((f, i) => ({
     ...f,
     id: `A11Y-${String(i + 1).padStart(3, "0")}`,
@@ -151,28 +136,21 @@ function buildFindings(inputPayload) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const inputPath = path.resolve(args.input);
-  const outputPath = path.resolve(args.output);
+  const payload = readJson(args.input);
+  if (!payload) throw new Error(`Input not found or invalid: ${args.input}`);
 
-  if (!fs.existsSync(inputPath)) {
-    throw new Error(`Input not found: ${inputPath}`);
-  }
-
-  const payload = JSON.parse(fs.readFileSync(inputPath, "utf-8"));
   const findings = buildFindings(payload);
-
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, JSON.stringify({ findings }, null, 2), "utf-8");
+  writeJson(args.output, { findings });
 
   if (findings.length === 0) {
-    console.log("Congratulations, no issues found.");
+    log.info("Congratulations, no issues found.");
   }
-  console.log(`Findings written to ${outputPath}`);
+  log.success(`Findings processed and saved to ${args.output}`);
 }
 
 try {
   main();
 } catch (error) {
-  console.error(error.message);
+  log.error(error.message);
   process.exit(1);
 }

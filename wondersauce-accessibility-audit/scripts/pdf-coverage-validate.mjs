@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
-import fs from "node:fs";
+import { log, readJson, writeJson, getInternalPath } from "./a11y-utils.mjs";
 import path from "node:path";
+import fs from "node:fs";
 
 const REQUIRED_ROWS = [
   { id: "structure_semantics", domain: "Structure and semantics" },
@@ -13,18 +14,18 @@ const REQUIRED_ROWS = [
   { id: "component_patterns", domain: "Common component patterns" },
   { id: "third_party", domain: "Third-party integrations" },
   { id: "automated_validation", domain: "Automated validation" },
-  { id: "severity_triage", domain: "Severity and triage quality" }
+  { id: "severity_triage", domain: "Severity and triage quality" },
 ];
 
 const ALLOWED_STATUS = new Set(["PASS", "FAIL", "N/A"]);
 
 function printUsage() {
-  console.log(`Usage:
+  log.info(`Usage:
   node pdf-coverage-validate.mjs --coverage <coverage-input.json> [options]
 
 Options:
-  --findings <path>        Findings JSON path (default: /tmp/wondersauce-a11y-findings.json)
-  --output <path>          Validation output path (default: /tmp/wondersauce-a11y-coverage.json)
+  --findings <path>        Findings JSON path (default: audit/internal/a11y-findings.json)
+  --output <path>          Validation output path (default: audit/internal/a11y-coverage.json)
   -h, --help               Show this help
 `);
 }
@@ -37,8 +38,8 @@ function parseArgs(argv) {
 
   const args = {
     coverage: "",
-    findings: "/tmp/wondersauce-a11y-findings.json",
-    output: "/tmp/wondersauce-a11y-coverage.json"
+    findings: getInternalPath("a11y-findings.json"),
+    output: getInternalPath("a11y-coverage.json"),
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -52,50 +53,48 @@ function parseArgs(argv) {
     i += 1;
   }
 
-  if (!args.coverage) {
-    throw new Error("Missing required --coverage");
-  }
-
+  if (!args.coverage) throw new Error("Missing required --coverage");
   return args;
 }
 
-function readJson(filePath, label) {
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`${label} not found: ${filePath}`);
-  }
-  const raw = fs.readFileSync(filePath, "utf-8");
-  return JSON.parse(raw);
-}
-
 function normalizeFindingsIds(findingsPayload) {
-  if (!findingsPayload || typeof findingsPayload !== "object" || !Array.isArray(findingsPayload.findings)) {
-    throw new Error("Findings file must be a JSON object with a 'findings' array.");
+  if (
+    !findingsPayload ||
+    typeof findingsPayload !== "object" ||
+    !Array.isArray(findingsPayload.findings)
+  ) {
+    throw new Error(
+      "Findings file must be a JSON object with a 'findings' array.",
+    );
   }
   return new Set(
     findingsPayload.findings
       .map((item) => String(item?.id ?? "").trim())
-      .filter(Boolean)
+      .filter(Boolean),
   );
 }
 
 function normalizeRows(coveragePayload) {
-  if (!coveragePayload || typeof coveragePayload !== "object" || !Array.isArray(coveragePayload.rows)) {
+  if (
+    !coveragePayload ||
+    typeof coveragePayload !== "object" ||
+    !Array.isArray(coveragePayload.rows)
+  ) {
     throw new Error("Coverage file must be a JSON object with a 'rows' array.");
   }
 
-  return coveragePayload.rows.map((row, index) => {
-    if (!row || typeof row !== "object") {
-      throw new Error(`Coverage row at index ${index} must be an object.`);
-    }
-    return {
-      id: String(row.id ?? "").trim(),
-      domain: String(row.domain ?? "").trim(),
-      status: String(row.status ?? "").trim().toUpperCase(),
-      evidence: String(row.evidence ?? "").trim(),
-      notes: String(row.notes ?? "").trim(),
-      finding_ids: Array.isArray(row.finding_ids) ? row.finding_ids.map((v) => String(v).trim()).filter(Boolean) : []
-    };
-  });
+  return coveragePayload.rows.map((row, index) => ({
+    id: String(row.id ?? "").trim(),
+    domain: String(row.domain ?? "").trim(),
+    status: String(row.status ?? "")
+      .trim()
+      .toUpperCase(),
+    evidence: String(row.evidence ?? "").trim(),
+    notes: String(row.notes ?? "").trim(),
+    finding_ids: Array.isArray(row.finding_ids)
+      ? row.finding_ids.map((v) => String(v).trim()).filter(Boolean)
+      : [],
+  }));
 }
 
 function validateRows(rows, findingIds) {
@@ -114,29 +113,26 @@ function validateRows(rows, findingIds) {
       continue;
     }
 
-    if (!row.domain) {
-      errors.push(`Missing domain label for ${expected.id}`);
-    }
-
-    if (row.status === "PASS" && !row.evidence) {
+    if (!row.domain) errors.push(`Missing domain label for ${expected.id}`);
+    if (row.status === "PASS" && !row.evidence)
       errors.push(`PASS row requires evidence: ${expected.id}`);
-    }
+    if (row.status === "N/A" && !row.notes)
+      errors.push(`N/A row requires reason in notes: ${expected.id}`);
 
     if (row.status === "FAIL") {
-      if (!row.evidence) errors.push(`FAIL row requires evidence: ${expected.id}`);
+      if (!row.evidence)
+        errors.push(`FAIL row requires evidence: ${expected.id}`);
       if (row.finding_ids.length === 0) {
         errors.push(`FAIL row requires finding_ids: ${expected.id}`);
       } else {
         for (const findingId of row.finding_ids) {
           if (!findingIds.has(findingId)) {
-            errors.push(`FAIL row ${expected.id} references unknown finding id: ${findingId}`);
+            errors.push(
+              `FAIL row ${expected.id} references unknown finding id: ${findingId}`,
+            );
           }
         }
       }
-    }
-
-    if (row.status === "N/A" && !row.notes) {
-      errors.push(`N/A row requires reason in notes: ${expected.id}`);
     }
   }
 
@@ -158,22 +154,21 @@ function buildSummary(rows) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const coveragePath = path.resolve(args.coverage);
-  const findingsPath = path.resolve(args.findings);
-  const outputPath = path.resolve(args.output);
+  const coveragePayload = readJson(args.coverage);
+  if (!coveragePayload)
+    throw new Error(`Coverage file not found or invalid: ${args.coverage}`);
 
-  const coveragePayload = readJson(coveragePath, "Coverage file");
-  const findingsPayload = readJson(findingsPath, "Findings file");
+  const findingsPayload = readJson(args.findings);
+  if (!findingsPayload)
+    throw new Error(`Findings file not found or invalid: ${args.findings}`);
 
   const rows = normalizeRows(coveragePayload);
   const findingIds = normalizeFindingsIds(findingsPayload);
   const errors = validateRows(rows, findingIds);
 
   if (errors.length > 0) {
-    console.error("PDF coverage validation failed:");
-    for (const error of errors) {
-      console.error(`- ${error}`);
-    }
+    log.error("PDF coverage validation failed:");
+    for (const error of errors) log.error(`- ${error}`);
     process.exit(1);
   }
 
@@ -181,17 +176,16 @@ function main() {
     validated_at: new Date().toISOString(),
     gate_passed: true,
     summary: buildSummary(rows),
-    rows
+    rows,
   };
 
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, `${JSON.stringify(result, null, 2)}\n`, "utf-8");
-  console.log(`Coverage validation passed. Output written to ${outputPath}`);
+  writeJson(args.output, result);
+  log.success(`Coverage validation passed. Output saved to ${args.output}`);
 }
 
 try {
   main();
 } catch (error) {
-  console.error(error.message);
+  log.error(error.message);
   process.exit(1);
 }

@@ -1,50 +1,54 @@
-# wondersauce-accessibility-audit
+# Wondersauce Accessibility Audit v2.0
 
-Codex skill for WCAG-focused web accessibility audits, based on the Wondersauce internal accessibility process, producing actionable findings and remediation-ready outputs.
+Codex skill for enterprise-grade WCAG-focused web accessibility audits. Re-engineered to use **Playwright** and **Axe-Core** for reliable, SPA-ready scanning and premium reporting.
 
-By default, the skill starts auditing immediately (read-only) and auto-discovers same-origin routes if you do not provide them.
+## Key Features
 
-This skill is audit-only by default (read-only): it should not modify project code unless explicitly requested.
+- **Modern Engine**: Uses Playwright for full browser automation and Axe-Core for high-precision detection.
+- **SPA Support**: Handles dynamic content and Single Page Applications natively.
+- **Isolated Stack**: No global dependencies or project-level pollution. All tools live within the skill.
+- **Premium Reports**: Generates professional HTML dashboards with technical evidence and remediation guidance.
+- **Autodiscovery**: Automatically finds and scans same-origin routes if none are provided.
 
-## Installation
+## Quick Setup
 
-```bash
-export CODEX_HOME="$HOME/.codex"
-mkdir -p "$CODEX_HOME/skills"
-cp -R wondersauce-accessibility-audit "$CODEX_HOME/skills/"
-
-# Install skill dependencies (REQUIRED)
-cd "$CODEX_HOME/skills/wondersauce-accessibility-audit"
-npm install
-# Install Playwright browsers
-npx playwright install
-```
-
-Reload/restart Codex after copying the skill.
-
-## Use
-
-```text
-Use $wondersauce-accessibility-audit to audit these URLs at WCAG 2.1 AA and return: summary, findings table, issue details, and coverage matrix.
-```
-
-## Tools
-
-This skill bundles **Playwright** and **axe-core** for robust testing.
-Do not install dependencies inside the audited project. The skill uses its own isolated `node_modules`.
-
-Quick check:
+Clone this skill and run the preparation script once:
 
 ```bash
 # In the skill directory:
-npm run audit -- --help
+./scripts/setup.sh
 ```
 
-## Minimum evidence per issue
+_This script handles `npm install` and Playwright browser provisioning within the skill folder._
 
-- Route path (canonical location, for example `/products`)
-- Selector or component
-- Reproduction steps
-- WCAG criterion and level
-- Concrete evidence (DOM snippet, log, or tool output)
-- Screenshot is optional and only useful when tied 1:1 to a specific issue
+## Agent Usage
+
+Use this skill with **Antigravity**, **Claude/Caluda**, or **OpenAI** agents by calling:
+
+> "Audit `https://example.com` with `$wondersauce-accessibility-audit`"
+
+## CLI Usage
+
+Run directly from your terminal:
+
+```bash
+# Basic audit
+$wondersauce-accessibility-audit --base-url https://example.com
+
+# Audit with limit and custom output
+$wondersauce-accessibility-audit --base-url https://example.com --max-routes 5 --output docs/a11y-report.html
+```
+
+## Audit Pipeline
+
+1.  **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
+2.  **Scan**: `generate-route-checks.mjs` crawls the site and runs Axe-Core.
+3.  **Process**: `deterministic-findings.mjs` transforms raw data into structured findings.
+4.  **Validate**: `pdf-coverage-validate.mjs` enforces the Wondersauce coverage gate.
+5.  **Build**: `build-audit-html.mjs` generates the final premium HTML report.
+
+## Deliverables
+
+- **Location**: `audit/index.html` (the standalone report).
+- **Format**: Executive Summary, PDF Coverage Matrix, Detailed Technical Findings (with DOM evidence).
+- **Compliance**: Default target is WCAG 2.1 AA.

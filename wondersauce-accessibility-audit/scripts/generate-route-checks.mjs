@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
-import fs from "node:fs";
-import path from "node:path";
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
+import { log, loadConfig, writeJson, getInternalPath } from "./a11y-utils.mjs";
+import path from "node:path";
+import fs from "node:fs";
 
 function printUsage() {
-  console.log(`Usage:
+  log.info(`Usage:
   node generate-route-checks.mjs --base-url <url> [options]
 
 Options:
   --routes <csv|newline>   Optional route list (same-origin paths/urls)
-  --output <path>          Output JSON path (default: /tmp/wondersauce-route-checks.json)
-  --max-routes <number>    Max routes to analyze (default: 20)
+  --output <path>          Output JSON path (default: audit/internal/a11y-scan-results.json)
+  --max-routes <number>    Max routes to analyze (default: 10)
   --wait-ms <number>       Time to wait after load (default: 2000)
   --timeout-ms <number>    Request timeout (default: 30000)
   --headless <boolean>     Run headless (default: true)
@@ -26,11 +27,13 @@ function parseArgs(argv) {
     process.exit(0);
   }
 
+  const config = loadConfig();
+
   const args = {
     baseUrl: "",
     routes: "",
-    output: "/tmp/wondersauce-route-checks.json",
-    maxRoutes: 20,
+    output: getInternalPath("a11y-scan-results.json"),
+    maxRoutes: config.maxRoutes,
     waitMs: 2000,
     timeoutMs: 30000,
     headless: true,
@@ -96,26 +99,22 @@ async function discoverRoutes(page, baseUrl, maxRoutes) {
       if (routes.size >= maxRoutes) break;
     }
   } catch (error) {
-    console.error(
-      `Warning: Autodiscovery failed on ${baseUrl}: ${error.message}`,
-    );
+    log.warn(`Autodiscovery failed on ${baseUrl}: ${error.message}`);
   }
 
   return [...routes];
 }
 
 async function analyzeRoute(page, routeUrl, waitMs) {
-  console.log(`Analyzing ${routeUrl}...`);
+  log.info(`Analyzing ${routeUrl}...`);
   try {
     await page.goto(routeUrl, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(waitMs);
 
-    // Run Axe
     const axeResults = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();
 
-    // Collect additional metadata (h1 count, main count, etc. for coverage matrix)
     const metadata = await page.evaluate(() => {
       return {
         h1Count: document.querySelectorAll("h1").length,
@@ -130,7 +129,7 @@ async function analyzeRoute(page, routeUrl, waitMs) {
       metadata,
     };
   } catch (error) {
-    console.error(`Error analyzing ${routeUrl}: ${error.message}`);
+    log.error(`Error analyzing ${routeUrl}: ${error.message}`);
     return {
       url: routeUrl,
       error: error.message,
@@ -145,7 +144,7 @@ async function main() {
   const baseUrl = new URL(args.baseUrl).toString();
   const origin = new URL(baseUrl).origin;
 
-  console.log(`Starting accessibility audit for ${baseUrl}`);
+  log.info(`Starting accessibility audit for ${baseUrl}`);
 
   const browser = await chromium.launch({ headless: args.headless });
   const context = await browser.newContext();
@@ -153,27 +152,25 @@ async function main() {
 
   let routes = [];
   try {
-    // Navigate to base URL first
     await page.goto(baseUrl, {
       waitUntil: "domcontentloaded",
       timeout: args.timeoutMs,
     });
 
-    // Discover routes if not provided
     const providedRoutes = parseRoutesArg(args.routes, origin);
     if (providedRoutes.length > 0) {
       routes = providedRoutes.slice(0, args.maxRoutes);
     } else {
-      console.log("Autodiscovering routes...");
+      log.info("Autodiscovering routes...");
       routes = await discoverRoutes(page, baseUrl, args.maxRoutes);
     }
   } catch (err) {
-    console.error(`Fatal: Could not load base URL ${baseUrl}: ${err.message}`);
+    log.error(`Fatal: Could not load base URL ${baseUrl}: ${err.message}`);
     await browser.close();
     process.exit(1);
   }
 
-  console.log(`Targeting ${routes.length} routes:`, routes);
+  log.info(`Targeting ${routes.length} routes: ${routes.join(", ")}`);
 
   const results = [];
   for (const routePath of routes) {
@@ -190,13 +187,11 @@ async function main() {
     routes: results,
   };
 
-  const outputPath = path.resolve(args.output);
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-  fs.writeFileSync(outputPath, JSON.stringify(payload, null, 2), "utf-8");
-  console.log(`Route checks written to ${outputPath}`);
+  writeJson(args.output, payload);
+  log.success(`Routes scan complete. Results saved to ${args.output}`);
 }
 
 main().catch((error) => {
-  console.error(error.message);
+  log.error(error.message);
   process.exit(1);
 });
