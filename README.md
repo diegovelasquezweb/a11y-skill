@@ -16,25 +16,40 @@ The best way to install this skill is by asking your AI Agent directly in the ch
 
 > "Install the skill from https://github.com/diegovelasquezweb/a11y-skill"
 
-This will automatically clone the repository into your project's `.agent/a11y-skill` directory.
+The agent will clone the repository into your project and install its dependencies.
 
 ## Manual Setup
 
 If you prefer to install it manually:
 
-1. Clone this skill.
-2. Run the setup script to prepare the engine and register it globally:
+1. Clone this skill into your project:
 
 ```bash
-# In the skill directory:
+mkdir -p .agent && git clone https://github.com/diegovelasquezweb/a11y-skill .agent/a11y-skill
+```
+
+2. Run the setup script to install dependencies and Playwright browsers:
+
+```bash
+cd .agent/a11y-skill
 ./scripts/setup.sh
 ```
 
-_This script handles `npm install`, Playwright provisioning, and creates global symlinks for **Codex**, **Claude**, and **Antigravity/Gemini**._
+_This script only installs local dependencies (`npm install`) and provisions the Playwright browser engine. It does **not** touch any global agent configuration._
+
+### Optional: Global Registration
+
+If you want to use this skill across **all your projects** (not just this one), run the registration script manually:
+
+```bash
+./scripts/register.sh
+```
+
+_This creates symlinks in `~/.gemini/antigravity/skills`, `~/.codex/skills`, and `~/.claude/skills` so agents can find the skill from any project._
 
 ### Uninstallation
 
-To remove all global symlinks and clean up local build files:
+To remove all global symlinks (registered via `register.sh`) and clean up local build artifacts:
 
 ```bash
 ./scripts/uninstall.sh
@@ -52,7 +67,7 @@ When talking to an AI agent (Antigravity, Claude, Codex, etc.), use the skill na
 
 ### 2. Slash Command (Agent Workflow)
 
-For a faster, "no-questions-asked" execution (**Turbo Mode**), use the slash command. This skips all confirmation prompts and runs the audit end-to-end:
+If your project has the `/audit` workflow configured, you can trigger the full pipeline directly:
 
 ```bash
 /audit --base-url https://example.com
@@ -82,19 +97,19 @@ If you want to run it directly from your terminal **without using AI agents or t
 
 ## Configuration & Options
 
-| Flag                   | Description                                          | Default                       |
-| :--------------------- | :--------------------------------------------------- | :---------------------------- |
-| `--base-url <url>`     | **(Required)** The target website to audit.          | -                             |
-| `--max-routes <num>`   | Maximum number of routes to discover and scan.       | 10                            |
-| `--routes <csv>`       | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                  |
-| `--output <path>`      | Final HTML report location.                          | `audit/index.html`            |
-| `--wait-ms <num>`      | Time to wait for dynamic content after page load.    | 2000                          |
-| `--headless <bool>`    | Run browser in background.                           | `true`                        |
-| `--timeout-ms <num>`   | Network timeout for page loads.                      | 30000                         |
-| `--title <text>`       | Custom title for the HTML report.                    | "Accessibility Audit Report"  |
-| `--environment <text>` | Test environment label (e.g., "Staging", "Local").   | "Live Site"                   |
-| `--target <text>`      | Compliance target label.                             | "WCAG 2.1 AA"                 |
-| `--no-open`            | Disable auto-opening the HTML report.                | `false` (It opens by default) |
+| Flag                   | Description                                          | Default                      |
+| :--------------------- | :--------------------------------------------------- | :--------------------------- |
+| `--base-url <url>`     | **(Required)** The target website to audit.          | -                            |
+| `--max-routes <num>`   | Maximum number of routes to discover and scan.       | 10                           |
+| `--routes <csv>`       | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
+| `--output <path>`      | Final HTML report location.                          | `audit/index.html`           |
+| `--wait-ms <num>`      | Time to wait for dynamic content after page load.    | 2000                         |
+| `--headless <bool>`    | Run browser in background.                           | `true`                       |
+| `--timeout-ms <num>`   | Network timeout for page loads.                      | 30000                        |
+| `--title <text>`       | Custom title for the HTML report.                    | "Accessibility Audit Report" |
+| `--environment <text>` | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
+| `--target <text>`      | Compliance target label.                             | "WCAG 2.1 AA"                |
+| `--no-open`            | Prevent the report from opening automatically.       | Report opens by default      |
 
 ## Audit Pipeline
 
