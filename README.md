@@ -18,7 +18,7 @@ The recommended way to use this skill is to install it specifically within your 
 
 Ask your AI Agent directly in the chat:
 
-> "Install the skill from https://github.com/diegovelasquezweb/a11y-skill"
+> "Install the accessibility skill from https://github.com/diegovelasquezweb/a11y-skill"
 
 _The agent will clone it into `.agent/skills/ws-accessibility-audit` and initialize it automatically._
 
