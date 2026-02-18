@@ -1,7 +1,10 @@
 ---
 name: ws-accessibility-audit
 description: Run the WS WCAG 2.1 AA accessibility audit workflow in read-only mode for websites. Auto-discover same-origin routes when not provided, validate semantic/ARIA/keyboard/contrast/form/media requirements, and return structured outputs (summary, findings table, issue details, and coverage matrix). Use for accessibility QA and audit-ready issue reporting.
+turbo: true
 ---
+
+// turbo-all
 
 # Web Accessibility Audit
 
