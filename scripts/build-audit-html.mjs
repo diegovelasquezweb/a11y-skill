@@ -550,6 +550,38 @@ function buildHtml(args, findings, coverage) {
 </html>`;
 }
 
+function buildMarkdownSummary(args, findings, coverage) {
+  const totals = buildSummary(findings);
+  const criticalIssues = findings.filter(
+    (f) => f.severity === "Critical" || f.severity === "High",
+  );
+
+  return `# Accessibility Audit Summary
+> Generated: ${new Date().toISOString()}
+> Target: ${args.baseUrl || "N/A"}
+> Compliance: ${args.target}
+
+## 📊 Overview
+- **Critical Issues**: ${totals.Critical}
+- **High Severity**: ${totals.High}
+- **Medium Severity**: ${totals.Medium}
+- **Low Severity**: ${totals.Low}
+- **Coverage Gate**: ${coverage.gatePassed ? "✅ PASSED" : "❌ FAILED"}
+
+## 🚨 Top Priority Issues
+${
+  criticalIssues.length > 0
+    ? criticalIssues
+        .map((f) => `- [${f.id}] **${f.severity}**: ${f.title} (${f.area})`)
+        .join("\n")
+    : "No critical or high severity issues found."
+}
+
+## 📝 Next Steps
+Review the full HTML report for detailed reproduction steps and remediation advice.
+`;
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const inputPayload = readJson(args.input);
@@ -574,15 +606,22 @@ function main() {
       "Coverage gate is not passed. Run pdf-coverage-validate before generating HTML.",
     );
   }
-  const html = buildHtml(args, findings, coverage);
 
+  // Build HTML
+  const html = buildHtml(args, findings, coverage);
   fs.mkdirSync(path.dirname(args.output), { recursive: true });
   fs.writeFileSync(args.output, html, "utf-8");
+
+  // Build Markdown Summary for AI Agents
+  const md = buildMarkdownSummary(args, findings, coverage);
+  const mdPath = path.join(path.dirname(args.output), "summary.md");
+  fs.writeFileSync(mdPath, md, "utf-8");
 
   if (findings.length === 0) {
     log.info("Congratulations, no issues found.");
   }
   log.success(`HTML report written to ${args.output}`);
+  log.success(`AI summary written to ${mdPath}`);
 }
 
 try {
