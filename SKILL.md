@@ -30,10 +30,11 @@ Follow this workflow to audit and report website accessibility issues with consi
 3. Environment discipline.
 
 - Use the base URL provided by the user when available.
-- If no base URL is provided, first search project files for URL traces (for example `localhost`, `127.0.0.1`, preview URLs, environment variables, scripts, README notes) and use that URL when it is clearly audit-target related.
-- If no reliable URL trace is found in files, auto-detect a reachable local app URL using common dev ports (`3000`, `3001`, `4173`, `5173`, `8080`).
+- If no base URL is provided in the user's message, ask for it immediately before doing anything else.
+- Only if the user explicitly says they don't know the URL or asks you to detect it: search project files for URL traces (for example `localhost`, `127.0.0.1`, preview URLs, environment variables, scripts, README notes).
+- Only if no reliable URL trace is found in files: auto-detect a reachable local app URL using common dev ports (`3000`, `3001`, `4173`, `5173`, `8080`).
 - Do not apply runtime URL fallbacks or alternate hosts automatically.
-- If no reachable target exists, report the blocker and request a URL.
+- If no reachable target exists after user-requested detection, report the blocker and request a URL.
 
 4. Reporting language.
 
@@ -247,3 +248,25 @@ Execution discipline for the agent:
 3. Include exact selectors/components when known.
 4. Distinguish compliance blockers from advisory improvements.
 5. If evidence is incomplete, mark assumptions explicitly.
+
+## Workflow
+
+Follow these steps in order when executing an audit:
+
+1. **Get the target URL.** If not provided in the user's message, ask for it immediately before proceeding. Do not auto-detect unless the user explicitly asks you to.
+
+2. **Run the audit pipeline** using the bundled orchestrator script from the skill directory:
+   ```bash
+   node scripts/run-audit.mjs --base-url <URL>
+   ```
+   This runs the full pipeline: toolchain check → route scanning → findings processing → HTML report. Dependencies install automatically on first run.
+
+3. **Parse the report path** from the `REPORT_PATH=<path>` line in the script output.
+
+4. **Open the report** in the browser using the appropriate method for the current environment:
+   - macOS: `open "<path>"`
+   - Windows: `start "" "<path>"`
+   - Linux: `xdg-open "<path>"`
+   - If the open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
+
+5. **Summarize the findings**: total issues by severity (Critical / High / Medium / Low), top Critical and High items with route and fix, and the report location.

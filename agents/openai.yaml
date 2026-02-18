@@ -1,4 +1,4 @@
 interface:
-  display_name: "WS Accessibility Audit"
-  short_description: "Detect and document accessibility issues using the WS accessibility process."
-  default_prompt: "Use $ws-accessibility-audit in read-only mode, start auditing immediately (auto-discover same-origin routes if not provided), persist outputs to audit/ by default, and return English output in the required format (summary, findings table, issue details, and coverage matrix)."
+  display_name: "Web Accessibility Audit"
+  short_description: "Run a WCAG 2.1 AA accessibility audit on any website in read-only mode."
+  default_prompt: "Ask the user for the target URL if not already provided. Then run: node scripts/run-audit.mjs --base-url <URL>. Parse the REPORT_PATH= line from the script output and share the report location with the user. Summarize findings by severity (Critical, High, Medium, Low) and list top Critical/High issues with their route and recommended fix. All output in English."

@@ -29,6 +29,16 @@ Copy and paste this into your agent's chat:
 
 > "Install skill https://github.com/diegovelasquezweb/a11y-skill"
 
+The skill installs to a per-agent directory. For standalone use, the installation paths are:
+
+| Agent / IDE        | Skill install path                          |
+| :----------------- | :------------------------------------------ |
+| **Claude (Code)**  | `~/.claude/skills/a11y-skill/`              |
+| **Cursor**         | `~/.cursor/skills/a11y-skill/`              |
+| **Gemini CLI**     | `~/.gemini/skills/a11y-skill/`              |
+| **Codex (OpenAI)** | `~/.agents/skills/a11y-skill/`              |
+| **Antigravity**    | `~/.agents/skills/a11y-skill/`              |
+
 ## How to Use
 
 Once installed, the skill is available to your agent in any conversation.
@@ -82,7 +92,6 @@ pnpm run audit -- --base-url https://example.com
 | `--title <text>`       | Custom title for the HTML report.                    | "Accessibility Audit Report" |
 | `--environment <text>` | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
 | `--target <text>`      | Compliance target label.                             | "WCAG 2.1 AA"                |
-| `--no-open`            | Prevent the report from opening automatically.       | Report opens by default      |
 
 ## Audit Pipeline
 
