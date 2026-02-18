@@ -279,6 +279,7 @@ Execution discipline for the agent:
 1. Write only one final artifact in `audit/`:
 
 - `audit/index.html`
+- Do not generate dated versions of the report (e.g., `audit/index-2026-01-01.html`).
 - Do not generate markdown report files in the default flow.
 - Do not generate per-issue markdown files in the default flow.
 - `audit/index.html` must include the completed PDF coverage matrix with evidence and linked finding IDs.

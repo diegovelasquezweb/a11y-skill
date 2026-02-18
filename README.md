@@ -70,6 +70,6 @@ Simply call the `/audit` command via any supporting agent:
 
 ## Deliverables
 
-- **Location**: `audit/index.html` (the standalone report).
+- **Location**: `audit/index.html` (the single standalone live report).
 - **Format**: Executive Summary, PDF Coverage Matrix, Detailed Technical Findings (with DOM evidence).
 - **Compliance**: Default target is WCAG 2.1 AA.
