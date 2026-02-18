@@ -12,7 +12,7 @@ Internal technical skill for auditing websites and local development projects un
 
 ## Compatibility
 
-This skill follows the open [Agent Skills standard](https://agentskills.io) (`SKILL.md`), supported by a growing number of AI agents and IDEs:
+This skill follows the open [Agent Skills standard](https://agentskills.io) supported by a growing number of AI agents and IDEs:
 
 | Agent / IDE        | Reads `SKILL.md`? | Conversational Audit | Standalone Audit |
 | :----------------- | :---------------: | :------------------: | :--------------: |
