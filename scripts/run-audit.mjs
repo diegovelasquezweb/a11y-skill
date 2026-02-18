@@ -113,7 +113,10 @@ async function main() {
     await runScript("deterministic-findings.mjs");
 
     // 4. Validate Coverage
-    await runScript("pdf-coverage-validate.mjs", ["--coverage", coverageInput]);
+    await runScript("validate-coverage-gate.mjs", [
+      "--coverage",
+      coverageInput,
+    ]);
 
     // 5. Build HTML Report
     const buildArgs = ["--output", output];
