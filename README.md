@@ -1,6 +1,6 @@
 # WS Accessibility Audit
 
-Internal technical skill for auditing projects under the WS Accessibility Process. This skill introduces automated route discovery, WCAG 2.1 AA detection using a real browser, and a consolidated multi-agent workflow (Antigravity, Claude, Codex).
+Internal technical skill for auditing projects under the WS Accessibility Process. This skill introduces automated route discovery, WCAG 2.1 AA detection using a real browser, and a consolidated multi-agent workflow.
 
 ## Key Features
 
@@ -161,7 +161,12 @@ You can customize the audit behavior by editing `a11y.config.json` in the skill 
 }
 ```
 
-### Reference
+## Reference
 
-- **Rule IDs**: See [Axe-Core Rule Descriptions](https://dequeuniversity.com/rules/axe/4.10) for valid rule IDs.
-- **Browser Options**: See [Playwright Emulation Guide](https://playwright.dev/docs/emulation) for viewport and device settings.
+- **Axe-Core Rules**: [Rule Descriptions](https://dequeuniversity.com/rules/axe/4.10)
+- **Playwright**: [Emulation Guide](https://playwright.dev/docs/emulation)
+- **Claude Skills**: [Agent Skills Overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/)
+- **Antigravity Skills**: [Google Antigravity Documentation](https://antigravity.google/docs/skills)
+- **Codex Skills**: [OpenAI Codex Skills](https://developers.openai.com/codex/skills/)
+- **Cursor Skills**: [Cursor Skills Documentation](https://cursor.com/docs/context/skills)
+- **Gemini CLI Skills**: [Gemini CLI Documentation](https://geminicli.com/docs/cli/skills/)

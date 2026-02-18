@@ -1,4 +1,0 @@
-interface:
-  display_name: "WS Accessibility Audit"
-  short_description: "Detect and document accessibility issues using the WS accessibility process."
-  default_prompt: "Use $ws-accessibility-audit in read-only mode, start auditing immediately (auto-discover same-origin routes if not provided), persist outputs to audit/ by default, and return English output in the required format (summary, findings table, issue details, and coverage matrix)."

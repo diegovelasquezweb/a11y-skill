@@ -1,36 +1,68 @@
 #!/bin/bash
 set -e
 
-# Get the absolute path of the skill root
+# Configuration
+SKILL_NAME="ws-accessibility-audit"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SKILL_ROOT="$(dirname "$SCRIPT_DIR")"
-SKILL_NAME="ws-accessibility-audit"
 
-echo "--- 🔗 Registering $SKILL_NAME globally ---"
+echo "--- 🔗 Registering $SKILL_NAME ---"
 
-AGENT_PATHS=(
+# Potential agent skill paths (Standard locations)
+# We only install to these if the parent configuration directory exists
+POSSIBLE_PATHS=(
     "$HOME/.codex/skills"
     "$HOME/.gemini/antigravity/skills"
     "$HOME/.claude/skills"
+    "$HOME/.cursor/skills"  # Cursor IDE skills
+    "$HOME/.agent/skills"   # Legacy agent skills
+    "$HOME/.agents/skills"  # Standard modern agent skills (Gemini CLI compatible)
 )
 
-for AGENT_PATH in "${AGENT_PATHS[@]}"; do
-    mkdir -p "$AGENT_PATH"
+INSTALLED_COUNT=0
 
-    TARGET_LINK="$AGENT_PATH/$SKILL_NAME"
+for AGENT_PATH in "${POSSIBLE_PATHS[@]}"; do
+    # Check if the parent agent directory exists (e.g., ~/.codex)
+    # This prevents creating ~/.codex/skills if ~/.codex doesn't even exist
+    PARENT_DIR="$(dirname "$AGENT_PATH")"
+    
+    if [ -d "$PARENT_DIR" ]; then
+        # Create the skills subdir if needed (e.g. ~/.codex exists, make ~/.codex/skills)
+        mkdir -p "$AGENT_PATH"
+        
+        TARGET_LINK="$AGENT_PATH/$SKILL_NAME"
+        
+        # Verify if it's already a correct symlink
+        if [ -L "$TARGET_LINK" ]; then
+            EXISTING_TARGET="$(readlink "$TARGET_LINK")"
+            if [ "$EXISTING_TARGET" == "$SKILL_ROOT" ]; then
+                echo "✅  Already registered in $AGENT_PATH"
+                INSTALLED_COUNT=$((INSTALLED_COUNT+1))
+                continue
+            else
+                echo "♻️  Updating symlink in $AGENT_PATH..."
+                rm "$TARGET_LINK"
+            fi
+        elif [ -d "$TARGET_LINK" ]; then
+             echo "⚠️  Directory exists at $TARGET_LINK (not a symlink). Skipping to avoid data loss."
+             continue
+        fi
 
-    if [ -L "$TARGET_LINK" ]; then
-        echo "♻️  Updating symlink in $AGENT_PATH..."
-        rm "$TARGET_LINK"
-    elif [ -d "$TARGET_LINK" ]; then
-        echo "⚠️  A directory already exists at $TARGET_LINK. Skipping."
-        continue
+        # Create Symlink
+        ln -s "$SKILL_ROOT" "$TARGET_LINK"
+        echo "🚀 Registered in $AGENT_PATH"
+        INSTALLED_COUNT=$((INSTALLED_COUNT+1))
+    else
+        # Optional: Debug log
+        # echo "Start-up skipped: $PARENT_DIR not found."
+        true
     fi
-
-    ln -s "$SKILL_ROOT" "$TARGET_LINK"
-    echo "🚀 Skill registered in $AGENT_PATH"
 done
 
 echo ""
-echo "✨ Global registration complete!"
-echo "💡 You can now use \$ws-accessibility-audit in any project."
+if [ $INSTALLED_COUNT -eq 0 ]; then
+    echo "⚠️  No compatible agent directories found (checked ~/.codex, ~/.gemini, ~/.claude, ~/.agent)."
+    echo "   Ensure you have an AI agent installed and initialized."
+else
+    echo "✨ Registration complete! ($INSTALLED_COUNT locations updated)"
+fi
