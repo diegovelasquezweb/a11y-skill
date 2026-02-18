@@ -123,7 +123,7 @@ If you want to run it directly from your terminal **without using AI agents or t
 
 - **Location**: `audit/index.html` (the single standalone live report).
 - **Format**: Executive Summary, PDF Coverage Matrix, Detailed Technical Findings (with DOM evidence).
-- **Compliance**: Default target is WCAG 2.1 AA.
+- **Compliance**: Validates against **WCAG 2.1 AA** standards via automated checks and enforces the **WS Coverage Matrix** (PDF requirements).
 
 ## Advanced Configuration
 

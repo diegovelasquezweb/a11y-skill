@@ -123,14 +123,12 @@ async function analyzeRoute(
       "best-practice",
     ]);
 
-    // Exclude selectors from scanning
     if (Array.isArray(excludeSelectors)) {
       for (const selector of excludeSelectors) {
         builder.exclude(selector);
       }
     }
 
-    // Apply custom axeRules from config using .options()
     if (axeRules && typeof axeRules === "object") {
       builder.options({ rules: axeRules });
     }

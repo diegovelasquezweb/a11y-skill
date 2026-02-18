@@ -87,7 +87,6 @@ function buildFindings(inputPayload) {
       }
     }
 
-    // Only generate manual h1/main findings if Axe didn't already catch them
     const axeRuleIds = (route.violations || []).map((v) => v.id);
 
     const meta = route.metadata || {};

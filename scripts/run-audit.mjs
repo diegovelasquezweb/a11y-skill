@@ -74,7 +74,6 @@ async function main() {
     path.join(SKILL_ROOT, "references", "pdf-coverage-template.json");
   const output = getArgValue("output") || path.join("audit", "index.html");
 
-  // Metadata for report
   const title = getArgValue("title");
   const environment = getArgValue("environment");
   const scope = getArgValue("scope");
@@ -89,10 +88,8 @@ async function main() {
   try {
     log.info("🚀 Starting full WS Accessibility Audit pipeline...");
 
-    // 1. Toolchain Check
     await runScript("check-toolchain.mjs");
 
-    // 2. Generate Scan Results
     const scanArgs = [
       "--base-url",
       baseUrl,
@@ -109,13 +106,10 @@ async function main() {
 
     await runScript("generate-route-checks.mjs", scanArgs);
 
-    // 3. Process Findings
     await runScript("deterministic-findings.mjs");
 
-    // 4. Validate Coverage
     await runScript("pdf-coverage-validate.mjs", ["--coverage", coverageInput]);
 
-    // 5. Build HTML Report
     const buildArgs = ["--output", output];
     if (title) buildArgs.push("--title", title);
     if (environment) buildArgs.push("--environment", environment);
@@ -126,7 +120,6 @@ async function main() {
 
     log.success(`🎉 Audit complete! View the report at ${output}`);
 
-    // Open report only in interactive terminals, unless --no-open is specified
     const isInteractive = process.stdout.isTTY;
     if (isInteractive && !argv.includes("--no-open")) {
       log.info("Opening report in default browser...");

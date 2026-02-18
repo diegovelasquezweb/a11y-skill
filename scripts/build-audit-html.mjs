@@ -592,7 +592,6 @@ function main() {
   if (!coveragePayload)
     throw new Error(`Coverage file not found or invalid: ${args.coverage}`);
 
-  // Extract base URL from scan results
   const scanPayload = readJson(args.scanResults);
   if (scanPayload && scanPayload.base_url) {
     args.baseUrl = scanPayload.base_url;
@@ -607,12 +606,10 @@ function main() {
     );
   }
 
-  // Build HTML
   const html = buildHtml(args, findings, coverage);
   fs.mkdirSync(path.dirname(args.output), { recursive: true });
   fs.writeFileSync(args.output, html, "utf-8");
 
-  // Build Markdown Summary for AI Agents
   const md = buildMarkdownSummary(args, findings, coverage);
   const mdPath = path.join(path.dirname(args.output), "summary.md");
   fs.writeFileSync(mdPath, md, "utf-8");
