@@ -130,12 +130,9 @@ async function analyzeRoute(
       }
     }
 
-    // Apply custom axeRules from config
+    // Apply custom axeRules from config using .options()
     if (axeRules && typeof axeRules === "object") {
-      for (const [ruleId, ruleConfig] of Object.entries(axeRules)) {
-        if (ruleConfig.enabled === true) builder.enable(ruleId);
-        if (ruleConfig.enabled === false) builder.disable(ruleId);
-      }
+      builder.options({ rules: axeRules });
     }
 
     const axeResults = await builder.analyze();
