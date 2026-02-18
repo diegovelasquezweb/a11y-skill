@@ -1,6 +1,6 @@
 # WS Accessibility Audit
 
-Internal technical skill for auditing projects under the WS Accessibility Process. This skill introduces automated route discovery, WCAG 2.1 AA detection using a real browser, and a consolidated multi-agent workflow.
+Internal technical skill for auditing websites and local development projects under the WS Accessibility Process. This skill introduces automated route discovery, WCAG 2.1 AA detection using a real browser, and a consolidated multi-agent workflow.
 
 ## Key Features
 
@@ -63,7 +63,7 @@ Depending on where you are working, there are three ways to trigger an audit:
 
 When talking to an AI agent (Antigravity, Claude, Codex, etc.), use the skill name to trigger the automated process:
 
-> "Audit `https://example.com` with `$ws-accessibility-audit`"
+> "Audit `http://localhost:3000` with `$ws-accessibility-audit`"
 
 ### 2. Slash Command (Agent Workflow)
 
@@ -86,12 +86,20 @@ If you want to run it directly from your terminal **without using AI agents or t
 2. Run the audit command:
 
    ```bash
-   # Basic audit
-   npm run audit -- --base-url https://example.com
+    # Audit local development server
+    npm run audit -- --base-url http://localhost:3000 --max-routes 5
 
-   # Audit with custom options
-   npm run audit -- --base-url http://localhost:3000 --max-routes 5
+    # Audit live site
+    npm run audit -- --base-url https://example.com
    ```
+
+### Local Environment Support
+
+The skill is optimized for local development:
+
+- **Auto-Discovery**: If no `--base-url` is provided, the agent will attempt to detect a running local server (on ports like 3000, 5173, 8080) and audit it automatically.
+- **Port Resilience**: Works with any reachable local or remote URL.
+- **Preload Validation**: Perfect for catching a11y regressions before committing code.
 
 ---
 
