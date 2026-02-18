@@ -126,8 +126,9 @@ async function main() {
 
     log.success(`🎉 Audit complete! View the report at ${output}`);
 
-    // Open report by default unless --no-open is specified
-    if (!argv.includes("--no-open")) {
+    // Open report only in interactive terminals, unless --no-open is specified
+    const isInteractive = process.stdout.isTTY;
+    if (isInteractive && !argv.includes("--no-open")) {
       log.info("Opening report in default browser...");
       let command;
       switch (process.platform) {

@@ -124,3 +124,49 @@ If you want to run it directly from your terminal **without using AI agents or t
 - **Location**: `audit/index.html` (the single standalone live report).
 - **Format**: Executive Summary, PDF Coverage Matrix, Detailed Technical Findings (with DOM evidence).
 - **Compliance**: Default target is WCAG 2.1 AA.
+
+## Advanced Configuration
+
+You can customize the audit behavior by editing `a11y.config.json` in the skill root. This file is optional; defaults are used if it's missing.
+
+### Common Use Cases
+
+**1. Ignore Third-Party Widgets (e.g., Chat, Maps):**
+
+```json
+{
+  "excludeSelectors": ["#intercom-container", ".google-map-embed"]
+}
+```
+
+**2. Test Mobile Viewports:**
+
+```json
+{
+  "playwright": {
+    "viewport": { "width": 375, "height": 667 },
+    "isMobile": true
+  }
+}
+```
+
+**3. Disable Specific Rules (Use with Caution):**
+
+```json
+{
+  "axeRules": {
+    "color-contrast": { "enabled": false },
+    "image-alt": { "enabled": true }
+  }
+}
+```
+
+**4. Test Dark Mode:**
+
+```json
+{
+  "playwright": {
+    "colorScheme": "dark"
+  }
+}
+```

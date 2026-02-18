@@ -21,13 +21,11 @@ Options:
 `);
 }
 
-function parseArgs(argv) {
+function parseArgs(argv, config) {
   if (argv.includes("--help") || argv.includes("-h")) {
     printUsage();
     process.exit(0);
   }
-
-  const config = loadConfig();
 
   const args = {
     baseUrl: "",
@@ -105,7 +103,13 @@ async function discoverRoutes(page, baseUrl, maxRoutes) {
   return [...routes];
 }
 
-async function analyzeRoute(page, routeUrl, waitMs, axeRules) {
+async function analyzeRoute(
+  page,
+  routeUrl,
+  waitMs,
+  axeRules,
+  excludeSelectors,
+) {
   log.info(`Analyzing ${routeUrl}...`);
   try {
     await page.goto(routeUrl, { waitUntil: "domcontentloaded" });
@@ -118,6 +122,13 @@ async function analyzeRoute(page, routeUrl, waitMs, axeRules) {
       "wcag21aa",
       "best-practice",
     ]);
+
+    // Exclude selectors from scanning
+    if (Array.isArray(excludeSelectors)) {
+      for (const selector of excludeSelectors) {
+        builder.exclude(selector);
+      }
+    }
 
     // Apply custom axeRules from config
     if (axeRules && typeof axeRules === "object") {
@@ -154,13 +165,13 @@ async function analyzeRoute(page, routeUrl, waitMs, axeRules) {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  const config = loadConfig();
+  const args = parseArgs(process.argv.slice(2), config);
   const baseUrl = new URL(args.baseUrl).toString();
   const origin = new URL(baseUrl).origin;
 
   log.info(`Starting accessibility audit for ${baseUrl}`);
 
-  const config = loadConfig();
   const pwConfig = config.playwright || {};
 
   const browser = await chromium.launch({ headless: args.headless });
@@ -203,6 +214,7 @@ async function main() {
       targetUrl,
       args.waitMs,
       config.axeRules,
+      config.excludeSelectors,
     );
     results.push({ path: routePath, ...result });
   }

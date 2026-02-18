@@ -31,6 +31,7 @@ function parseArgs(argv) {
   const args = {
     input: getInternalPath("a11y-findings.json"),
     coverage: getInternalPath("a11y-coverage.json"),
+    scanResults: getInternalPath("a11y-scan-results.json"),
     output: path.join("audit", "index.html"),
     title: "Accessibility Audit Report",
     environment: "",
@@ -45,6 +46,7 @@ function parseArgs(argv) {
 
     if (key === "--input") args.input = value;
     if (key === "--coverage") args.coverage = value;
+    if (key === "--scan-results") args.scanResults = value;
     if (key === "--output") args.output = value;
     if (key === "--title") args.title = value;
     if (key === "--environment") args.environment = value;
@@ -521,7 +523,9 @@ function buildHtml(args, findings, coverage) {
       </div>
 
       <div class="stat-card">
-        <div class="stat-label">Environment</div>
+        <div class="stat-label">Target URL</div>
+        <div class="stat-value" style="font-size: 1.125rem"><a href="${escapeHtml(args.baseUrl || "")}" target="_blank">${escapeHtml(args.baseUrl || "N/A")}</a></div>
+        <div class="stat-label" style="margin-top: 12px">Environment</div>
         <div class="stat-value" style="font-size: 1.25rem">${escapeHtml(args.environment || "Live Site")}</div>
         <div class="stat-label" style="margin-top: 12px">Compliance</div>
         <div class="stat-value" style="font-size: 1.25rem">${escapeHtml(args.target)}</div>
@@ -555,6 +559,12 @@ function main() {
   const coveragePayload = readJson(args.coverage);
   if (!coveragePayload)
     throw new Error(`Coverage file not found or invalid: ${args.coverage}`);
+
+  // Extract base URL from scan results
+  const scanPayload = readJson(args.scanResults);
+  if (scanPayload && scanPayload.base_url) {
+    args.baseUrl = scanPayload.base_url;
+  }
 
   const findings = normalizeFindings(inputPayload);
   const coverage = normalizeCoverage(coveragePayload);

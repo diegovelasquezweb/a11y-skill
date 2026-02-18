@@ -25,11 +25,11 @@ function checkNodeModules() {
   return fs.existsSync(nodeModulesPath);
 }
 
-function checkPlaywrightBrowsers() {
+async function checkPlaywrightBrowsers() {
   try {
-    const pwPath = path.resolve(SKILL_ROOT, "node_modules", "playwright");
-    if (!fs.existsSync(pwPath)) return false;
-    return true;
+    const { chromium } = await import("playwright");
+    const executablePath = chromium.executablePath();
+    return fs.existsSync(executablePath);
   } catch {
     return false;
   }
@@ -47,7 +47,7 @@ async function main() {
     fix: "Run './scripts/setup.sh' to initialize the skill dependencies.",
   });
 
-  const pwOk = checkPlaywrightBrowsers();
+  const pwOk = await checkPlaywrightBrowsers();
   checks.push({
     tool: "Playwright installed",
     required: true,
