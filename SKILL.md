@@ -1,6 +1,7 @@
 ---
 name: a11y-skill
-description: Run the WCAG 2.1 AA accessibility audit workflow in read-only mode for websites. Auto-discover same-origin routes when not provided, validate semantic/ARIA/keyboard/contrast/form/media requirements, and return structured outputs (summary, findings table, issue details). Use for accessibility QA and audit-ready issue reporting.
+description: Run a WCAG 2.1 AA accessibility audit on a website. Use when the user says "audit [url]", "run an accessibility audit", "check accessibility", or asks to scan a site for a11y issues, WCAG compliance, or screen reader compatibility.
+argument-hint: "[url]"
 ---
 
 # Web Accessibility Audit
