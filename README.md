@@ -43,9 +43,9 @@ The skill installs to a per-agent directory. Installation paths by agent:
 
 Once installed, the skill is available to your agent in any conversation. Simply ask:
 
-> "Run an accessibility audit for `http://localhost:3000`"
+> "Audit my local dev server at `http://localhost:3000`"
 
-> "Run an accessibility audit for `https://example.com`"
+> "Check accessibility for `https://mysite.com`"
 
 ## Deliverables
 
@@ -62,11 +62,11 @@ Once installed, the skill is available to your agent in any conversation. Simply
 Execute the audit script directly from the skill directory:
 
 ```bash
-# Audit local development server
+# Local dev server
 pnpm run audit -- --base-url http://localhost:3000
 
-# Audit live site
-pnpm run audit -- --base-url https://example.com
+# Live site
+pnpm run audit -- --base-url https://mysite.com
 ```
 
 ### Options
