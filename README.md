@@ -10,46 +10,31 @@ Internal technical skill for auditing websites and local development projects un
 - **Premium Reports**: Generates professional HTML dashboards with technical evidence and remediation guidance.
 - **Autodiscovery**: Automatically finds and scans same-origin routes if none are provided.
 
-## Installation (Recommended)
+## Installation
 
-The best way to install this skill is by asking your AI Agent directly in the chat:
+The recommended way to use this skill is to install it specifically within your project. This ensures the tool is version-controlled with your code and available to all team members.
+
+### 1. Automated Setup (Agent Chat)
+
+Ask your AI Agent directly in the chat:
 
 > "Install the skill from https://github.com/diegovelasquezweb/a11y-skill"
 
-The agent will clone the repository into your project and install its dependencies.
+_The agent will clone it into `.agent/skills/ws-accessibility-audit` and initialize it automatically._
 
-## Manual Setup
+### 2. Manual Setup
 
-If you prefer to install it manually:
-
-1. Clone this skill into your project:
+If you prefer manual control:
 
 ```bash
-mkdir -p .agent && git clone https://github.com/diegovelasquezweb/a11y-skill .agent/a11y-skill
-```
-
-2. Run the setup script to install dependencies and Playwright browsers:
-
-```bash
-cd .agent/a11y-skill
+git clone https://github.com/diegovelasquezweb/a11y-skill
+cd a11y-skill
 ./scripts/setup.sh
 ```
 
-_This script only installs local dependencies (`npm install`) and provisions the Playwright browser engine. It does **not** touch any global agent configuration._
-
-### Optional: Global Registration
-
-If you want to use this skill across **all your projects** (not just this one), run the registration script manually:
-
-```bash
-./scripts/register.sh
-```
-
-_This creates symlinks in `~/.gemini/antigravity/skills`, `~/.codex/skills`, and `~/.claude/skills` so agents can find the skill from any project._
-
 ### Uninstallation
 
-To remove all global symlinks (registered via `register.sh`) and clean up local build artifacts:
+To remove the skill and its local artifacts:
 
 ```bash
 ./scripts/uninstall.sh

@@ -23,4 +23,3 @@ npx playwright install chromium
 
 echo ""
 echo "✨ Setup complete! The skill is ready to use in this project."
-echo "💡 To make it available globally across all projects, run: ./scripts/register.sh"
