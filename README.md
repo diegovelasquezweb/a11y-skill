@@ -16,7 +16,7 @@ The best way to install this skill is by asking your AI Agent directly in the ch
 
 > "Install the skill from https://github.com/diegovelasquezweb/a11y-skill"
 
-This will automatically clone the repository into your project's `.agent/a11y-skill` directory and run the setup script.
+This will automatically clone the repository into your project's `.agent/a11y-skill` directory.
 
 ## Manual Setup
 
