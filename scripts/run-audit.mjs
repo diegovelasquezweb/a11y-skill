@@ -120,25 +120,31 @@ async function main() {
 
     log.success(`🎉 Audit complete! View the report at ${output}`);
 
-    const isInteractive = process.stdout.isTTY;
-    if (isInteractive && !argv.includes("--no-open")) {
-      log.info("Opening report in default browser...");
+    if (!argv.includes("--no-open")) {
+      const absoluteOutputPath = path.isAbsolute(output)
+        ? output
+        : path.join(SKILL_ROOT, output);
+
+      log.info(`Opening report: ${absoluteOutputPath}`);
       let command;
       switch (process.platform) {
         case "darwin": // macOS
-          command = `open "${output}"`;
+          command = `open "${absoluteOutputPath}"`;
           break;
         case "win32": // Windows
-          command = `start "" "${output}"`;
+          command = `start "" "${absoluteOutputPath}"`;
           break;
         default: // Linux/Other
-          command = `xdg-open "${output}"`;
+          command = `xdg-open "${absoluteOutputPath}"`;
           break;
       }
 
       const { exec } = await import("node:child_process");
       exec(command, (err) => {
-        if (err) log.error(`Failed to open report: ${err.message}`);
+        if (err) {
+          log.error(`Could not open browser automatically: ${err.message}`);
+          log.info(`Manual location: ${absoluteOutputPath}`);
+        }
       });
     }
   } catch (error) {

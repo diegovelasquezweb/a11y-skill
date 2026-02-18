@@ -40,19 +40,36 @@ To remove the skill, simply delete the directory:
 rm -rf a11y-skill
 ```
 
-## How to Use
+You can trigger an audit in three ways, depending on your need for speed and AI guidance:
 
-Depending on where you are working, there are two ways to trigger an audit:
+### 1. AI-Guided (Conversational)
 
-### 1. Conversational (Agent Chat)
+**Best for:** Getting AI-powered analysis and summaries directly in your chat.
 
-When talking to an AI agent (Antigravity, Claude, Codex, etc.), simply ask it to run the audit. The agent will recognize the skill based on its description:
+- **Pros:** natural language interface; the agent handles the entire pipeline and explains findings.
+- **Cons:** Consumes AI tokens/credits.
+
+Simply ask your agent:
 
 > "Run an accessibility audit for `http://localhost:3000`"
 
-### 2. Terminal CLI (Local Bash/Zsh)
+### 2. Slash Command (High-Speed Turbo)
 
-If you want to run it directly from your terminal **without using AI agents or tokens**:
+**Best for:** Zero-click execution directly from your editor/terminal.
+
+- **Pros:** Maximum speed via `// turbo-all`; no confirmation needed; instant start.
+- **Cons:** Less conversational flexibility; specific to Gemini-compatible agents.
+
+In your editor or terminal, simply type:
+
+> `/audit --base-url http://localhost:3000`
+
+### 3. Standalone (Non-Conversational)
+
+**Best for:** Continuous usage and local CI/CD without spending AI tokens.
+
+- **Pros:** Zero token cost; direct control over execution; works offline/without agent.
+- **Cons:** Manual command execution; no AI summary in the chat (HTML report only).
 
 1. Navigate to the skill directory:
 
@@ -69,14 +86,6 @@ If you want to run it directly from your terminal **without using AI agents or t
     # Audit live site
     pnpm run audit -- --base-url https://example.com
    ```
-
-### Local Environment Support
-
-The skill is optimized for local development:
-
-- **Auto-Discovery**: If no `--base-url` is provided, the agent will attempt to detect a running local server (on ports like 3000, 5173, 8080) and audit it automatically.
-- **Port Resilience**: Works with any reachable local or remote URL.
-- **Preload Validation**: Perfect for catching a11y regressions before committing code.
 
 ---
 
@@ -106,7 +115,9 @@ The skill is optimized for local development:
 
 ## Deliverables
 
-- **Location**: `audit/index.html` (the single standalone live report).
+- **Location**: `audit/` folder.
+  - `index.html`: The premium standalone live report (Primary).
+  - `summary.md`: A concise markdown summary (Ideal for PRs or tickets).
 - **Format**: Executive Summary, PDF Coverage Matrix, Detailed Technical Findings (with DOM evidence).
 - **Compliance**: Validates against **WCAG 2.1 AA** standards via automated checks and enforces the **WS Coverage Matrix** (PDF requirements).
 
