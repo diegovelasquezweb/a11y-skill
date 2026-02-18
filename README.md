@@ -161,12 +161,7 @@ You can customize the audit behavior by editing `a11y.config.json` in the skill 
 }
 ```
 
-**4. Test Dark Mode:**
+### Reference
 
-```json
-{
-  "playwright": {
-    "colorScheme": "dark"
-  }
-}
-```
+- **Rule IDs**: See [Axe-Core Rule Descriptions](https://dequeuniversity.com/rules/axe/4.10) for valid rule IDs.
+- **Browser Options**: See [Playwright Emulation Guide](https://playwright.dev/docs/emulation) for viewport and device settings.
