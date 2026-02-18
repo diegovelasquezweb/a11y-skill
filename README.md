@@ -21,6 +21,14 @@ Clone this skill and run the setup script to prepare the engine and register it 
 
 _This script handles `npm install`, Playwright provisioning, and creates global symlinks for **Codex**, **Claude**, and **Antigravity/Gemini**._
 
+### Uninstallation
+
+To remove all global symlinks and clean up local build files:
+
+```bash
+./scripts/uninstall.sh
+```
+
 ## How to Use
 
 Depending on where you are working, there are three ways to trigger an audit:
