@@ -21,44 +21,52 @@ Clone this skill and run the setup script to prepare the engine and register it 
 
 _This script handles `npm install`, Playwright provisioning, and creates global symlinks for **Codex**, **Claude**, and **Antigravity/Gemini**._
 
-Use this skill with **Antigravity**, **Claude/Caluda**, or **OpenAI** agents by calling:
+## How to Use
 
-> "Audit `https://example.com` with `$wondersauce-accessibility-audit`"  
-> "Audit `http://localhost:3000` with `$wondersauce-accessibility-audit`"
+Depending on where you are working, there are three ways to trigger an audit:
 
-## Automated Workflow (Turbo Mode)
+### 1. Conversational (Agent Chat)
 
-The skill includes a pre-configured workflow that automates the entire 5-step pipeline without requiring constant user approval for each command.
+When talking to an AI agent (Antigravity, Claude, Codex, etc.), use the skill name to trigger the automated process:
 
-### How to use it:
+> "Audit `https://example.com` with `$wondersauce-accessibility-audit`"
 
-Simply call the `/audit` command via any supporting agent:
+### 2. Slash Command (Agent Workflow)
+
+For a faster, "no-questions-asked" execution in supporting agents, use the slash command:
 
 ```bash
 /audit --base-url https://example.com
 ```
 
-### Why use Turbo Mode?
+### 3. Terminal CLI (Local Bash/Zsh)
 
-- **Zero Interruptions**: Uses the `// turbo-all` instruction to skip manual confirmation for internal file operations.
-- **End-to-End**: Automatically chains Toolchain Check → Scan → Processing → Validation → Report Generation.
-- **Smart Defaults**: Pre-configures the standard Wondersauce reporting parameters automatically.
+If you just want to run it directly from your terminal (without an AI agent):
+
+```bash
+# Basic audit
+npm run audit -- --base-url https://example.com
+
+# Audit with custom options
+npm run audit -- --base-url http://localhost:3000 --max-routes 5
+```
 
 ---
 
-## CLI Usage
+## Configuration & Options
 
-### Options
-
-| Flag                 | Description                                          | Default            |
-| :------------------- | :--------------------------------------------------- | :----------------- |
-| `--base-url <url>`   | **(Required)** The target website to audit.          | -                  |
-| `--max-routes <num>` | Maximum number of routes to discover and scan.       | 10                 |
-| `--routes <csv>`     | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover       |
-| `--output <path>`    | Final HTML report location.                          | `audit/index.html` |
-| `--wait-ms <num>`    | Time to wait for dynamic content after page load.    | 2000               |
-| `--headless <bool>`  | Run browser in background.                           | `true`             |
-| `--timeout-ms <num>` | Network timeout for page loads.                      | 30000              |
+| Flag                   | Description                                          | Default                      |
+| :--------------------- | :--------------------------------------------------- | :--------------------------- |
+| `--base-url <url>`     | **(Required)** The target website to audit.          | -                            |
+| `--max-routes <num>`   | Maximum number of routes to discover and scan.       | 10                           |
+| `--routes <csv>`       | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
+| `--output <path>`      | Final HTML report location.                          | `audit/index.html`           |
+| `--wait-ms <num>`      | Time to wait for dynamic content after page load.    | 2000                         |
+| `--headless <bool>`    | Run browser in background.                           | `true`                       |
+| `--timeout-ms <num>`   | Network timeout for page loads.                      | 30000                        |
+| `--title <text>`       | Custom title for the HTML report.                    | "Accessibility Audit Report" |
+| `--environment <text>` | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
+| `--target <text>`      | Compliance target label.                             | "WCAG 2.1 AA"                |
 
 ## Audit Pipeline
 
