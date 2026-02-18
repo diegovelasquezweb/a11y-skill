@@ -46,9 +46,9 @@ Depending on where you are working, there are two ways to trigger an audit:
 
 ### 1. Conversational (Agent Chat)
 
-When talking to an AI agent (Antigravity, Claude, Codex, etc.), use the skill name to trigger the automated process:
+When talking to an AI agent (Antigravity, Claude, Codex, etc.), simply ask it to run the audit. The agent will recognize the skill based on its description:
 
-> "Audit `http://localhost:3000` with `$ws-accessibility-audit`"
+> "Run an accessibility audit for `http://localhost:3000`"
 
 ### 2. Terminal CLI (Local Bash/Zsh)
 
