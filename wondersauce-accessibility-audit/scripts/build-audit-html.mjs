@@ -2,23 +2,13 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 const SEVERITY_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
-const ITEM_STATUS = new Set(["PASS", "FAIL", "N/A"]);
-const RUN_STATUS = new Set(["PASS", "FAIL", "SKIPPED"]);
-
-function defaultTemplatePath() {
-  const scriptPath = fileURLToPath(import.meta.url);
-  const scriptDir = path.dirname(scriptPath);
-  return path.resolve(scriptDir, "..", "references", "pdf-coverage-template.json");
-}
 
 function parseArgs(argv) {
   const args = {
-    input: "/tmp/wondersauce-a11y-findings.json",
+    input: path.join("audit", "findings.json"),
     coverage: "/tmp/wondersauce-a11y-coverage.json",
-    template: defaultTemplatePath(),
     output: path.join("audit", "index.html"),
     title: "Accessibility Audit Report",
     environment: "",
@@ -33,7 +23,6 @@ function parseArgs(argv) {
 
     if (key === "--input") args.input = value;
     if (key === "--coverage") args.coverage = value;
-    if (key === "--template") args.template = value;
     if (key === "--output") args.output = value;
     if (key === "--title") args.title = value;
     if (key === "--environment") args.environment = value;
@@ -43,18 +32,6 @@ function parseArgs(argv) {
   }
 
   return args;
-}
-
-function readJson(filePath, label) {
-  if (!fs.existsSync(filePath)) {
-    throw new Error(`${label} not found: ${filePath}`);
-  }
-  const raw = fs.readFileSync(filePath, "utf-8");
-  try {
-    return JSON.parse(raw);
-  } catch {
-    throw new Error(`${label} is not valid JSON: ${filePath}`);
-  }
 }
 
 function escapeHtml(value) {
@@ -104,197 +81,21 @@ function normalizeFindings(payload) {
     });
 }
 
-function normalizeToolUsed(value) {
-  if (Array.isArray(value)) {
-    return value.map((v) => String(v).trim()).filter(Boolean).join(", ");
+function normalizeCoverage(payload) {
+  if (!payload || typeof payload !== "object" || !Array.isArray(payload.rows)) {
+    throw new Error("Coverage input must be a JSON object with a 'rows' array.");
   }
-  return String(value ?? "").trim();
-}
-
-function normalizeStringArray(value) {
-  if (!Array.isArray(value)) return [];
-  return value.map((v) => String(v).trim()).filter(Boolean);
-}
-
-function validateTemplate(templatePayload) {
-  if (!templatePayload || typeof templatePayload !== "object") {
-    throw new Error("Template payload must be an object.");
-  }
-
-  const checklistItems = Array.isArray(templatePayload.checklist_items) ? templatePayload.checklist_items : [];
-  if (checklistItems.length === 0) {
-    throw new Error("Template must include a non-empty 'checklist_items' array.");
-  }
-
-  const requiredTools = Array.isArray(templatePayload.required_tools)
-    ? templatePayload.required_tools.map((v) => String(v).trim()).filter(Boolean)
-    : [];
-
-  if (requiredTools.length === 0) {
-    throw new Error("Template must include a non-empty 'required_tools' array.");
-  }
-
-  const ids = new Set();
-  for (const item of checklistItems) {
-    const id = String(item?.id ?? "").trim();
-    if (!id) throw new Error("Every template checklist item must include an id.");
-    if (ids.has(id)) throw new Error(`Duplicate checklist item id in template: ${id}`);
-    ids.add(id);
-  }
-
-  return { requiredTools, checklistItems };
-}
-
-function normalizeCoverage(coveragePayload, template, findings) {
-  if (!coveragePayload || typeof coveragePayload !== "object") {
-    throw new Error("Coverage input must be a JSON object.");
-  }
-
-  const sourceItems = Array.isArray(coveragePayload.checklist_items)
-    ? coveragePayload.checklist_items
-    : [];
-
-  if (sourceItems.length === 0) {
-    throw new Error("Coverage input must include a non-empty 'checklist_items' array.");
-  }
-
-  const errors = [];
-  const findingIds = new Set(findings.map((f) => f.id));
-
-  const sourceById = new Map();
-  for (const item of sourceItems) {
-    const id = String(item?.id ?? "").trim();
-    if (!id) {
-      errors.push("Coverage checklist contains an item with missing id.");
-      continue;
-    }
-    if (sourceById.has(id)) {
-      errors.push(`Coverage checklist has duplicate item id: ${id}`);
-      continue;
-    }
-    sourceById.set(id, item);
-  }
-
-  const templateIds = new Set(template.checklistItems.map((item) => String(item.id)));
-  for (const id of sourceById.keys()) {
-    if (!templateIds.has(id)) {
-      errors.push(`Coverage checklist contains unknown item id not in template: ${id}`);
-    }
-  }
-
-  const checklistItems = template.checklistItems.map((templateItem) => {
-    const id = String(templateItem.id);
-    const current = sourceById.get(id);
-
-    if (!current) {
-      errors.push(`Missing checklist item from coverage: ${id}`);
-      return {
-        id,
-        section: String(templateItem.section ?? ""),
-        check: String(templateItem.check ?? ""),
-        wcag: normalizeStringArray(templateItem.wcag),
-        status: "",
-        toolUsed: "",
-        evidence: "",
-        findingIds: [],
-        notes: ""
-      };
-    }
-
-    const status = String(current.status ?? "").trim().toUpperCase();
-    const toolUsed = normalizeToolUsed(current.tool_used);
-    const evidence = String(current.evidence ?? "").trim();
-    const itemFindingIds = normalizeStringArray(current.finding_ids);
-    const notes = String(current.notes ?? "").trim();
-
-    if (!ITEM_STATUS.has(status)) {
-      errors.push(`Invalid status for checklist item ${id}: ${status || "(empty)"}`);
-    }
-
-    if (!toolUsed) {
-      errors.push(`Missing tool_used for checklist item ${id}`);
-    }
-
-    if ((status === "PASS" || status === "FAIL") && !evidence) {
-      errors.push(`Missing evidence for checklist item ${id} with status ${status}`);
-    }
-
-    if (status === "N/A" && !notes) {
-      errors.push(`Missing notes reason for checklist item ${id} with status N/A`);
-    }
-
-    if (status === "FAIL") {
-      if (itemFindingIds.length === 0) {
-        errors.push(`Checklist item ${id} with FAIL status must include finding_ids`);
-      }
-      for (const findingId of itemFindingIds) {
-        if (!findingIds.has(findingId)) {
-          errors.push(`Checklist item ${id} references unknown finding id: ${findingId}`);
-        }
-      }
-    }
-
-    return {
-      id,
-      section: String(templateItem.section ?? ""),
-      check: String(templateItem.check ?? ""),
-      wcag: normalizeStringArray(templateItem.wcag),
-      status,
-      toolUsed,
-      evidence,
-      findingIds: itemFindingIds,
-      notes
-    };
-  });
-
-  const sourceLog = Array.isArray(coveragePayload.execution_log) ? coveragePayload.execution_log : [];
-  if (sourceLog.length === 0) {
-    errors.push("Coverage input must include a non-empty execution_log array.");
-  }
-
-  const logByTool = new Map();
-  for (const row of sourceLog) {
-    const tool = String(row?.tool ?? "").trim();
-    if (!tool) {
-      errors.push("Execution log contains an entry with missing tool name.");
-      continue;
-    }
-    if (logByTool.has(tool)) {
-      errors.push(`Execution log contains duplicate tool entry: ${tool}`);
-      continue;
-    }
-
-    const command = String(row.command ?? "").trim();
-    const status = String(row.status ?? "").trim().toUpperCase();
-    const summary = String(row.summary ?? "").trim();
-
-    if (!command) errors.push(`Execution log entry for ${tool} is missing command.`);
-    if (!RUN_STATUS.has(status)) errors.push(`Execution log entry for ${tool} has invalid status: ${status || "(empty)"}`);
-    if (!summary) errors.push(`Execution log entry for ${tool} is missing summary.`);
-
-    logByTool.set(tool, { tool, command, status, summary });
-  }
-
-  const executionLog = template.requiredTools.map((tool) => {
-    const entry = logByTool.get(tool);
-    if (!entry) {
-      errors.push(`Execution log is missing required tool entry: ${tool}`);
-      return { tool, command: "", status: "", summary: "" };
-    }
-    return entry;
-  });
-
-  const summary = { PASS: 0, FAIL: 0, "N/A": 0 };
-  for (const item of checklistItems) {
-    if (item.status in summary) summary[item.status] += 1;
-  }
-
   return {
-    gatePassed: errors.length === 0,
-    summary,
-    checklistItems,
-    executionLog,
-    errors
+    gatePassed: Boolean(payload.gate_passed),
+    summary: payload.summary ?? {},
+    rows: payload.rows.map((row) => ({
+      id: String(row.id ?? ""),
+      domain: String(row.domain ?? ""),
+      status: String(row.status ?? ""),
+      evidence: String(row.evidence ?? ""),
+      notes: String(row.notes ?? ""),
+      findingIds: Array.isArray(row.finding_ids) ? row.finding_ids.map((v) => String(v)) : []
+    }))
   };
 }
 
@@ -368,18 +169,13 @@ function buildFindingsTable(findings) {
 }
 
 function buildCoverageTable(coverage) {
-  const rows = coverage.checklistItems
-    .map((item) => `
+  const rows = coverage.rows
+    .map((row) => `
       <tr>
-        <td>${escapeHtml(item.section)}</td>
-        <td>${escapeHtml(item.id)}</td>
-        <td>${escapeHtml(item.check)}</td>
-        <td>${escapeHtml(item.wcag.join(", "))}</td>
-        <td>${escapeHtml(item.status)}</td>
-        <td>${escapeHtml(item.toolUsed)}</td>
-        <td>${formatMultiline(item.evidence || "")}</td>
-        <td>${escapeHtml(item.findingIds.join(", "))}</td>
-        <td>${formatMultiline(item.notes || "")}</td>
+        <td>${escapeHtml(row.domain || row.id)}</td>
+        <td>${escapeHtml(row.status)}</td>
+        <td>${formatMultiline(row.evidence || "(none)")}</td>
+        <td>${formatMultiline(row.notes || "")}</td>
       </tr>`)
     .join("");
 
@@ -387,51 +183,14 @@ function buildCoverageTable(coverage) {
 <table>
   <thead>
     <tr>
-      <th>Section</th>
-      <th>Item ID</th>
-      <th>Check</th>
-      <th>WCAG</th>
+      <th>Coverage Domain</th>
       <th>Status</th>
-      <th>Tool Used</th>
       <th>Evidence</th>
-      <th>Finding IDs</th>
       <th>Notes</th>
     </tr>
   </thead>
   <tbody>${rows}</tbody>
 </table>`;
-}
-
-function buildExecutionLogTable(coverage) {
-  const rows = coverage.executionLog
-    .map((entry) => `
-      <tr>
-        <td>${escapeHtml(entry.tool)}</td>
-        <td><code>${escapeHtml(entry.command)}</code></td>
-        <td>${escapeHtml(entry.status)}</td>
-        <td>${formatMultiline(entry.summary)}</td>
-      </tr>`)
-    .join("");
-
-  return `
-<table>
-  <thead>
-    <tr>
-      <th>Tool</th>
-      <th>Command</th>
-      <th>Status</th>
-      <th>Summary</th>
-    </tr>
-  </thead>
-  <tbody>${rows}</tbody>
-</table>`;
-}
-
-function toEmbeddedJson(value) {
-  return JSON.stringify(value, null, 2)
-    .replace(/</g, "\\u003c")
-    .replace(/>/g, "\\u003e")
-    .replace(/&/g, "\\u0026");
 }
 
 function buildHtml(args, findings, coverage) {
@@ -465,7 +224,7 @@ function buildHtml(args, findings, coverage) {
   <li>Keyboard-only pass across audited routes.</li>
   <li>Screen reader spot-check on updated components.</li>
   <li>Confirm issue evidence no longer reproduces.</li>
-  <li>Re-run standard tooling and rebuild HTML report.</li>
+  <li>Re-run deterministic findings generation and rebuild HTML report.</li>
 </ul>`;
 
   const coverageSummary = coverage.summary ?? {};
@@ -510,16 +269,8 @@ function buildHtml(args, findings, coverage) {
     ${coverageBadge}
   </section>
   <section>
-    <h2>PDF Item Checklist</h2>
+    <h2>PDF Coverage Matrix</h2>
     ${buildCoverageTable(coverage)}
-  </section>
-  <section>
-    <h2>Tool Execution Log</h2>
-    ${buildExecutionLogTable(coverage)}
-    <details>
-      <summary>Coverage JSON</summary>
-      <pre><code>${escapeHtml(JSON.stringify(coverage, null, 2))}</code></pre>
-    </details>
   </section>
   ${findingsSection}
   <section>
@@ -530,7 +281,6 @@ function buildHtml(args, findings, coverage) {
     <h2>Retest Checklist</h2>
     ${retestChecklist}
   </section>
-  <script id="coverage-json" type="application/json">${toEmbeddedJson(coverage)}</script>
 </body>
 </html>`;
 }
@@ -539,34 +289,31 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
   const inputPath = path.resolve(args.input);
   const coveragePath = path.resolve(args.coverage);
-  const templatePath = path.resolve(args.template);
   const outputPath = path.resolve(args.output);
 
-  const findingsPayload = readJson(inputPath, "Input findings file");
-  const coveragePayload = readJson(coveragePath, "Coverage file");
-  const templatePayload = readJson(templatePath, "Coverage template file");
-
-  const findings = normalizeFindings(findingsPayload);
-  const template = validateTemplate(templatePayload);
-  const coverage = normalizeCoverage(coveragePayload, template, findings);
-
-  if (!coverage.gatePassed) {
-    throw new Error(`Coverage gate failed:\n- ${coverage.errors.join("\n- ")}`);
+  if (!fs.existsSync(inputPath)) {
+    throw new Error(`Input findings file not found: ${inputPath}`);
+  }
+  if (!fs.existsSync(coveragePath)) {
+    throw new Error(`Coverage file not found: ${coveragePath}`);
   }
 
+  const payload = JSON.parse(fs.readFileSync(inputPath, "utf-8"));
+  const coveragePayload = JSON.parse(fs.readFileSync(coveragePath, "utf-8"));
+  const findings = normalizeFindings(payload);
+  const coverage = normalizeCoverage(coveragePayload);
+  if (!coverage.gatePassed) {
+    throw new Error("Coverage gate is not passed. Run pdf-coverage-validate before generating HTML.");
+  }
   const html = buildHtml(args, findings, coverage);
 
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, html, "utf-8");
 
-  const coverageOutputPath = path.join(path.dirname(outputPath), "coverage.json");
-  fs.writeFileSync(coverageOutputPath, `${JSON.stringify(coverage, null, 2)}\n`, "utf-8");
-
   if (findings.length === 0) {
     console.log("Congratulations, no issues found.");
   }
   console.log(`HTML report written to ${outputPath}`);
-  console.log(`Coverage copy written to ${coverageOutputPath}`);
 }
 
 try {

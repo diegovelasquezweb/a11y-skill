@@ -22,6 +22,22 @@ Reload/restart Codex after copying the skill.
 Use $wondersauce-accessibility-audit to audit these URLs at WCAG 2.1 AA and return: summary, findings table, issue details, remediation plan, retest checklist.
 ```
 
+## Global tools
+
+```bash
+npm install -g playwright @axe-core/cli lighthouse pa11y eslint eslint-plugin-jsx-a11y
+```
+
+Quick check:
+
+```bash
+playwright --version
+axe --version
+lighthouse --version
+pa11y --version
+eslint --version
+```
+
 ## Minimum evidence per issue
 
 - Route path (canonical location, for example `/products`)

@@ -126,12 +126,13 @@ Mandatory process coverage:
 
 Run both automated and manual tests. Do not ship results from automated tools alone.
 
-1. Automated pass (standard tools only).
-- Use established tooling, not custom skill scripts:
+1. Automated pass (standard tools + pipeline scripts).
+- Use established tooling plus the bundled skill scripts:
   - `axe` (`@axe-core/playwright` or axe DevTools).
   - Lighthouse accessibility audit.
   - `eslint-plugin-jsx-a11y` for React/JSX projects.
   - `pa11y` (or axe in CI) for regression runs when available.
+- If a tool is unavailable (for example network/registry restrictions), mark it as `SKIPPED` with explicit reason in evidence notes.
 - Auto-discover same-origin routes from navigation links when routes are not provided.
 - Capture issues as candidate findings, then verify manually before finalizing.
 
@@ -144,27 +145,15 @@ Run both automated and manual tests. Do not ship results from automated tools al
 - High contrast mode check when relevant.
 
 3. Coverage matrix gate (mandatory).
-- Complete `references/pdf-coverage-template.json` item by item during each audit run.
-- Do not aggregate multiple PDF requirements into a single generic row.
-- For each checklist item, `status` must be `PASS`, `FAIL`, or `N/A`.
-- Mandatory checklist fields per item:
-  - `status`
-  - `tool_used`
-  - `evidence`
-  - `finding_ids`
-  - `notes`
-- Mandatory execution log fields per tool entry:
-  - `tool`
-  - `command`
-  - `status`
-  - `summary`
+- Complete `references/pdf-coverage-template.json` during each audit run.
+- For each category row, set `status` to `PASS`, `FAIL`, or `N/A`.
+- `PASS` requires evidence.
+- `FAIL` requires evidence and linked `finding_ids`.
+- `N/A` requires a reason in `notes`.
 - Before closing the audit, verify:
-  - No checklist item from the template is missing.
-  - No checklist item is missing required fields.
-  - Every `FAIL` item has at least one linked finding.
-  - Every `N/A` item includes a specific reason.
-  - Execution log includes Playwright, axe-core, Lighthouse, pa11y, and eslint-plugin-jsx-a11y (use `SKIPPED` when not applicable, with reason).
-  - If findings are zero, all applicable checklist items are `PASS` (or `N/A` with reason).
+  - Every required row is filled.
+  - Every `FAIL` has at least one linked finding.
+  - If findings are zero, all applicable rows are `PASS` (or `N/A` with reason).
 
 ## 4) Apply Severity and Track Debt
 
@@ -195,8 +184,7 @@ Each finding must include:
 ## 6) Use Quick Reference
 
 Use `references/pdf-coverage-matrix.md` as the required completion gate.
-Use `references/pdf-coverage-template.json` as the machine-readable item-by-item checklist.
-Use `references/coverage-starter.json` as the bootstrap file to start each new run, then replace all pending values with real evidence.
+Use `references/pdf-coverage-template.json` as the machine-readable category checklist.
 
 ## 7) Required Deliverables
 
@@ -218,33 +206,39 @@ Each reported issue must include:
    - Screenshot is optional.
    - Prefer selector-level DOM/tool evidence; include screenshot only if it clearly demonstrates the exact issue.
 
-## 9) Use Standard Toolchain + HTML Renderer
+## 9) Use Standard Toolchain + Bundled Scripts
 
-Use only standard tools and direct evidence collection:
+Use standard tools and bundled scripts for repeatable output:
 1. `Playwright` for route navigation, DOM inspection, and interaction checks.
 2. `@axe-core/playwright` or axe DevTools for automated accessibility rule checks.
 3. Lighthouse accessibility for secondary signal and regression comparison.
 4. `eslint-plugin-jsx-a11y` (when applicable) for static JSX checks.
 5. `pa11y` or CI-integrated axe for repeatable automated regression scans.
-6. `scripts/build-audit-html.mjs` is allowed only to render the final `audit/index.html` report.
+6. `scripts/generate-route-checks.mjs` for deterministic route-check extraction.
+7. `scripts/deterministic-findings.mjs` for stable finding generation from route checks.
+8. `scripts/pdf-coverage-validate.mjs` for coverage gate validation.
+9. `scripts/build-audit-html.mjs` for final report generation.
 
-Do not rely on custom scripts for finding generation. Coverage gate validation is enforced by the HTML renderer.
+Use this pipeline order:
+1. `generate-route-checks.mjs`
+2. `deterministic-findings.mjs`
+3. `pdf-coverage-validate.mjs`
+4. `build-audit-html.mjs`
 
 
 ## 10) File Output Behavior (Mandatory)
 
 1. If findings count is greater than 0, write outputs to `audit/` by default:
+- `audit/findings.json`
+- `audit/coverage-input.json`
 - `audit/index.html`
-- `audit/coverage.json` (copy of completed item-by-item checklist and execution log)
 - Do not generate markdown report files in the default flow.
 - Do not generate per-issue markdown files in the default flow.
 - `audit/index.html` must include the completed PDF coverage matrix with evidence and linked finding IDs.
-- Build `audit/index.html` using `scripts/build-audit-html.mjs`.
 
 2. If findings count is 0:
 - Still generate `audit/index.html` with a clean summary (`Congratulations, no issues found.`).
-- Still generate `audit/coverage.json`.
-- This is allowed only after all baseline domains were checked, automated tool results were reviewed, manual checks were completed, required tool logs were recorded, and the PDF checklist gate is fully satisfied.
+- This is allowed only after all baseline domains were checked, automated tool results were reviewed, manual checks were completed, and the PDF coverage matrix gate is fully satisfied.
 
 3. Chat output should summarize results, but file generation is the default source of truth.
 
