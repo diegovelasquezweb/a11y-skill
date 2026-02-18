@@ -10,9 +10,20 @@ Internal technical skill for auditing projects under the WS Accessibility Proces
 - **Premium Reports**: Generates professional HTML dashboards with technical evidence and remediation guidance.
 - **Autodiscovery**: Automatically finds and scans same-origin routes if none are provided.
 
-## Quick Setup
+## Installation (Recommended)
 
-Clone this skill and run the setup script to prepare the engine and register it globally for your agents:
+The best way to install this skill is by asking your AI Agent directly in the chat:
+
+> "Install the skill from https://github.com/diegovelasquezweb/a11y-skill"
+
+This will automatically clone the repository into your project's `.agent/skills/` directory and run the setup script.
+
+## Manual Setup
+
+If you prefer to install it manually:
+
+1. Clone this skill.
+2. Run the setup script to prepare the engine and register it globally:
 
 ```bash
 # In the skill directory:
@@ -20,14 +31,6 @@ Clone this skill and run the setup script to prepare the engine and register it 
 ```
 
 _This script handles `npm install`, Playwright provisioning, and creates global symlinks for **Codex**, **Claude**, and **Antigravity/Gemini**._
-
-_This script handles `npm install`, Playwright provisioning, and creates global symlinks for **Codex**, **Claude**, and **Antigravity/Gemini**._
-
-### Installing via AI Agent
-
-You can simply ask your agent to install this skill for you:
-
-> "Clone https://github.com/diegovelasquezweb/a11y-skill and run the setup script."
 
 ### Uninstallation
 
@@ -49,7 +52,7 @@ When talking to an AI agent (Antigravity, Claude, Codex, etc.), use the skill na
 
 ### 2. Slash Command (Agent Workflow)
 
-For a faster, "no-questions-asked" execution in supporting agents, use the slash command:
+For a faster, "no-questions-asked" execution (**Turbo Mode**), use the slash command. This skips all confirmation prompts and runs the audit end-to-end:
 
 ```bash
 /audit --base-url https://example.com
@@ -57,32 +60,41 @@ For a faster, "no-questions-asked" execution in supporting agents, use the slash
 
 ### 3. Terminal CLI (Local Bash/Zsh)
 
-If you just want to run it directly from your terminal (without an AI agent):
+If you want to run it directly from your terminal **without using AI agents or tokens**:
 
-```bash
-# Basic audit
-npm run audit -- --base-url https://example.com
+1. Navigate to the skill directory:
 
-# Audit with custom options
-npm run audit -- --base-url http://localhost:3000 --max-routes 5
-```
+   ```bash
+   cd .agent/skills/a11y-skill
+   ```
+
+2. Run the audit command:
+
+   ```bash
+   # Basic audit
+   npm run audit -- --base-url https://example.com
+
+   # Audit with custom options
+   npm run audit -- --base-url http://localhost:3000 --max-routes 5
+   ```
 
 ---
 
 ## Configuration & Options
 
-| Flag                   | Description                                          | Default                      |
-| :--------------------- | :--------------------------------------------------- | :--------------------------- |
-| `--base-url <url>`     | **(Required)** The target website to audit.          | -                            |
-| `--max-routes <num>`   | Maximum number of routes to discover and scan.       | 10                           |
-| `--routes <csv>`       | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
-| `--output <path>`      | Final HTML report location.                          | `audit/index.html`           |
-| `--wait-ms <num>`      | Time to wait for dynamic content after page load.    | 2000                         |
-| `--headless <bool>`    | Run browser in background.                           | `true`                       |
-| `--timeout-ms <num>`   | Network timeout for page loads.                      | 30000                        |
-| `--title <text>`       | Custom title for the HTML report.                    | "Accessibility Audit Report" |
-| `--environment <text>` | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
-| `--target <text>`      | Compliance target label.                             | "WCAG 2.1 AA"                |
+| Flag                   | Description                                          | Default                       |
+| :--------------------- | :--------------------------------------------------- | :---------------------------- |
+| `--base-url <url>`     | **(Required)** The target website to audit.          | -                             |
+| `--max-routes <num>`   | Maximum number of routes to discover and scan.       | 10                            |
+| `--routes <csv>`       | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                  |
+| `--output <path>`      | Final HTML report location.                          | `audit/index.html`            |
+| `--wait-ms <num>`      | Time to wait for dynamic content after page load.    | 2000                          |
+| `--headless <bool>`    | Run browser in background.                           | `true`                        |
+| `--timeout-ms <num>`   | Network timeout for page loads.                      | 30000                         |
+| `--title <text>`       | Custom title for the HTML report.                    | "Accessibility Audit Report"  |
+| `--environment <text>` | Test environment label (e.g., "Staging", "Local").   | "Live Site"                   |
+| `--target <text>`      | Compliance target label.                             | "WCAG 2.1 AA"                 |
+| `--no-open`            | Disable auto-opening the HTML report.                | `false` (It opens by default) |
 
 ## Audit Pipeline
 

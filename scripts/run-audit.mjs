@@ -21,6 +21,7 @@ Options:
   --title <text>        Custom title for the HTML report.
   --environment <text>  Test environment label (e.g., "Staging").
   --target <text>       Compliance target label (default: "WCAG 2.1 AA").
+  --no-open             Do not open the report after audit.
   -h, --help            Show this help.
 `);
 }
@@ -124,6 +125,28 @@ async function main() {
     await runScript("build-audit-html.mjs", buildArgs);
 
     log.success(`🎉 Audit complete! View the report at ${output}`);
+
+    // Open report by default unless --no-open is specified
+    if (!argv.includes("--no-open")) {
+      log.info("Opening report in default browser...");
+      let command;
+      switch (process.platform) {
+        case "darwin": // macOS
+          command = `open "${output}"`;
+          break;
+        case "win32": // Windows
+          command = `start "" "${output}"`;
+          break;
+        default: // Linux/Other
+          command = `xdg-open "${output}"`;
+          break;
+      }
+
+      const { exec } = await import("node:child_process");
+      exec(command, (err) => {
+        if (err) log.error(`Failed to open report: ${err.message}`);
+      });
+    }
   } catch (error) {
     log.error(error.message);
     process.exit(1);
