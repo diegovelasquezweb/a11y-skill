@@ -12,13 +12,29 @@ const REQUIRED_ROWS = [
   { id: "forms_auth", domain: "Forms and authentication" },
   { id: "component_patterns", domain: "Common component patterns" },
   { id: "third_party", domain: "Third-party integrations" },
-  { id: "auto_manual_validation", domain: "Automated + manual validation" },
+  { id: "automated_validation", domain: "Automated validation" },
   { id: "severity_triage", domain: "Severity and triage quality" }
 ];
 
 const ALLOWED_STATUS = new Set(["PASS", "FAIL", "N/A"]);
 
+function printUsage() {
+  console.log(`Usage:
+  node pdf-coverage-validate.mjs --coverage <coverage-input.json> [options]
+
+Options:
+  --findings <path>        Findings JSON path (default: /tmp/wondersauce-a11y-findings.json)
+  --output <path>          Validation output path (default: /tmp/wondersauce-a11y-coverage.json)
+  -h, --help               Show this help
+`);
+}
+
 function parseArgs(argv) {
+  if (argv.includes("--help") || argv.includes("-h")) {
+    printUsage();
+    process.exit(0);
+  }
+
   const args = {
     coverage: "",
     findings: "/tmp/wondersauce-a11y-findings.json",

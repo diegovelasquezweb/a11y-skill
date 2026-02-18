@@ -12,6 +12,12 @@ This skill is audit-only by default (read-only): it should not modify project co
 export CODEX_HOME="$HOME/.codex"
 mkdir -p "$CODEX_HOME/skills"
 cp -R wondersauce-accessibility-audit "$CODEX_HOME/skills/"
+
+# Install skill dependencies (REQUIRED)
+cd "$CODEX_HOME/skills/wondersauce-accessibility-audit"
+npm install
+# Install Playwright browsers
+npx playwright install
 ```
 
 Reload/restart Codex after copying the skill.
@@ -19,23 +25,19 @@ Reload/restart Codex after copying the skill.
 ## Use
 
 ```text
-Use $wondersauce-accessibility-audit to audit these URLs at WCAG 2.1 AA and return: summary, findings table, issue details, remediation plan, retest checklist.
+Use $wondersauce-accessibility-audit to audit these URLs at WCAG 2.1 AA and return: summary, findings table, issue details, and coverage matrix.
 ```
 
-## Global tools
+## Tools
 
-```bash
-npm install -g playwright @axe-core/cli lighthouse pa11y eslint eslint-plugin-jsx-a11y
-```
+This skill bundles **Playwright** and **axe-core** for robust testing.
+Do not install dependencies inside the audited project. The skill uses its own isolated `node_modules`.
 
 Quick check:
 
 ```bash
-playwright --version
-axe --version
-lighthouse --version
-pa11y --version
-eslint --version
+# In the skill directory:
+npm run audit -- --help
 ```
 
 ## Minimum evidence per issue

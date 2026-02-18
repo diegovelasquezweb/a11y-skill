@@ -5,9 +5,30 @@ import path from "node:path";
 
 const SEVERITY_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 
+function printUsage() {
+  console.log(`Usage:
+  node build-audit-html.mjs [options]
+
+Options:
+  --input <path>           Findings JSON path (default: /tmp/wondersauce-a11y-findings.json)
+  --coverage <path>        Coverage JSON path (default: /tmp/wondersauce-a11y-coverage.json)
+  --output <path>          Output HTML path (default: audit/index.html)
+  --title <text>           Report title
+  --environment <text>     Test environment label
+  --scope <text>           Audit scope label
+  --target <text>          Compliance target label (default: WCAG 2.1 AA)
+  -h, --help               Show this help
+`);
+}
+
 function parseArgs(argv) {
+  if (argv.includes("--help") || argv.includes("-h")) {
+    printUsage();
+    process.exit(0);
+  }
+
   const args = {
-    input: path.join("audit", "findings.json"),
+    input: "/tmp/wondersauce-a11y-findings.json",
     coverage: "/tmp/wondersauce-a11y-coverage.json",
     output: path.join("audit", "index.html"),
     title: "Accessibility Audit Report",
@@ -196,8 +217,6 @@ function buildCoverageTable(coverage) {
 function buildHtml(args, findings, coverage) {
   const totals = buildSummary(findings);
   const date = new Date().toISOString().slice(0, 10);
-  const hasHigh = findings.some((f) => f.severity === "Critical" || f.severity === "High");
-  const hasMedium = findings.some((f) => f.severity === "Medium");
 
   const findingsSection = findings.length === 0
     ? `<section class="ok"><h3>Congratulations, no issues found.</h3></section>`
@@ -210,22 +229,6 @@ function buildHtml(args, findings, coverage) {
   <h2>Issue Details</h2>
   ${findings.map((finding) => buildIssueCard(finding)).join("\n")}
 </section>`;
-
-  const remediationPlan = findings.length === 0
-    ? "<li>No remediation actions required for this run.</li>"
-    : [
-        hasHigh ? "<li>Fix Critical/High findings first across shared components and core flows.</li>" : "",
-        hasMedium ? "<li>Address Medium findings in the current or next release cycle.</li>" : "",
-        "<li>Retest all fixed items with keyboard and screen reader spot checks.</li>"
-      ].filter(Boolean).join("");
-
-  const retestChecklist = `
-<ul>
-  <li>Keyboard-only pass across audited routes.</li>
-  <li>Screen reader spot-check on updated components.</li>
-  <li>Confirm issue evidence no longer reproduces.</li>
-  <li>Re-run deterministic findings generation and rebuild HTML report.</li>
-</ul>`;
 
   const coverageSummary = coverage.summary ?? {};
   const coverageBadge = coverage.gatePassed
@@ -273,14 +276,6 @@ function buildHtml(args, findings, coverage) {
     ${buildCoverageTable(coverage)}
   </section>
   ${findingsSection}
-  <section>
-    <h2>Remediation Plan</h2>
-    <ul>${remediationPlan}</ul>
-  </section>
-  <section>
-    <h2>Retest Checklist</h2>
-    ${retestChecklist}
-  </section>
 </body>
 </html>`;
 }
@@ -309,11 +304,15 @@ function main() {
 
   fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, html, "utf-8");
+  const reportDate = new Date().toISOString().slice(0, 10);
+  const datedOutputPath = path.join(path.dirname(outputPath), `index-${reportDate}.html`);
+  fs.writeFileSync(datedOutputPath, html, "utf-8");
 
   if (findings.length === 0) {
     console.log("Congratulations, no issues found.");
   }
   console.log(`HTML report written to ${outputPath}`);
+  console.log(`Dated HTML report written to ${datedOutputPath}`);
 }
 
 try {

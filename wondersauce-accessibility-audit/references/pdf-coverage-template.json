@@ -65,8 +65,8 @@
       "notes": ""
     },
     {
-      "id": "auto_manual_validation",
-      "domain": "Automated + manual validation",
+      "id": "automated_validation",
+      "domain": "Automated validation",
       "status": "PASS",
       "evidence": "",
       "finding_ids": [],
