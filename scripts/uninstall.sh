@@ -13,6 +13,9 @@ AGENT_PATHS=(
     "$HOME/.codex/skills"
     "$HOME/.gemini/antigravity/skills"
     "$HOME/.claude/skills"
+    "$HOME/.cursor/skills"
+    "$HOME/.agent/skills"
+    "$HOME/.agents/skills"
 )
 
 for AGENT_PATH in "${AGENT_PATHS[@]}"; do
