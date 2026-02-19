@@ -1,7 +1,7 @@
 {
-  "name": "ws-accessibility-audit",
-  "version": "0.1.0",
-  "description": "WS WCAG 2.1 AA accessibility audit skill",
+  "name": "a11y",
+  "version": "0.2.0",
+  "description": "WCAG 2.2 AA accessibility audit skill for AI coding agents",
   "type": "module",
   "scripts": {
     "audit": "node scripts/run-audit.mjs",

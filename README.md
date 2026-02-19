@@ -14,7 +14,7 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 
 To install this skill, provide the following prompt to your AI agent:
 
-> "Install skill https://github.com/diegovelasquezweb/a11y-skill"
+> "Install skill https://github.com/diegovelasquezweb/a11y"
 
 ## Compatibility & Paths
 
@@ -22,11 +22,11 @@ This skill follows the [Agent Skills standard](https://agentskills.io). Below ar
 
 | Agent / IDE        | Skill install path (Global/User)               | Extended Workflow   | Agent Config         |
 | :----------------- | :--------------------------------------------- | :------------------ | :------------------- |
-| **Antigravity**    | `~/.gemini/antigravity/skills/a11y-skill/`     | `.agent/workflows/` | —                    |
-| **Codex (OpenAI)** | `~/.codex/skills/a11y-skill/`                  | —                   | `agents/openai.yaml` |
-| **Claude (Code)**  | `~/.claude/skills/a11y-skill/`                 | —                   | —                    |
+| **Antigravity**    | `~/.gemini/antigravity/skills/a11y/`           | `.agent/workflows/` | —                    |
+| **Codex (OpenAI)** | `~/.codex/skills/a11y/`                        | —                   | `agents/openai.yaml` |
+| **Claude (Code)**  | `~/.claude/skills/a11y/`                       | —                   | —                    |
 | **Cursor**         | `~/.cursor/skills/` (or inherits Claude/Codex) | —                   | —                    |
-| **Gemini CLI**     | `~/.gemini/skills/a11y-skill/`                 | —                   | —                    |
+| **Gemini CLI**     | `~/.gemini/skills/a11y/`                       | —                   | —                    |
 
 ## How to Use
 
