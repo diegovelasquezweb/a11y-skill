@@ -1,12 +1,13 @@
 ---
 name: a11y-skill
 description: Run a WCAG 2.1 AA accessibility audit on a website. Use when the user says "audit [url]", "run an accessibility audit", "check accessibility", or asks to scan a site for a11y issues, WCAG compliance, or screen reader compatibility.
-argument-hint: "[url]"
 compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL. Playwright + Chromium are installed automatically on first run.
 license: MIT
+allowed-tools: Bash(node:*) Bash(open:*) Bash(start:*) Bash(xdg-open:*) Read
 metadata:
   author: diegovelasquezweb
   version: "1.0"
+  hint: "[url]"
 ---
 
 # Web Accessibility Audit
@@ -23,7 +24,8 @@ Follow this workflow to audit and report website accessibility issues with consi
    - **Codex**: Follow the installer prompts or ensure detection in `.agents/skills`.
    - **Cursor**: Ensure placement in `.cursor/skills/` for the agent to use it.
      The skill must be **completely ready to run** before reporting success. Do NOT execute the actual audit pipeline until explicitly requested.
-3. Audit-only behavior.
+
+3. **Audit behavior**:
 
 - Do not modify source code, config, content, or dependencies unless the user explicitly asks for fixes.
 - Do not create, update, or delete editor configuration files (for example `.vscode/settings.json`) during audits.
@@ -34,13 +36,13 @@ Follow this workflow to audit and report website accessibility issues with consi
 - Never create or modify `package.json`, lockfiles, or `node_modules` in the audited project during audit runs.
 - Never install dependencies in any directory during audits (including internal storage such as `audit/internal/`).
 
-4. Navigation scope.
+4. **Navigation scope**:
 
 - Audit URLs/routes provided by the user.
 - If the user does not provide routes, auto-discover same-origin routes from the current app (navigation links, key flow links, and core pages).
 - Do not open unrelated external sites (for example search engines) during the audit flow.
 
-5. Environment discipline.
+5. **Environment discipline**:
 
 - Use the base URL provided by the user when available.
 - If no base URL is provided in the user's message, ask for it immediately before doing anything else.
@@ -49,22 +51,21 @@ Follow this workflow to audit and report website accessibility issues with consi
 - Do not apply runtime URL fallbacks or alternate hosts automatically.
 - If no reachable target exists after user-requested detection, report the blocker and request a URL.
 
-4. Reporting language.
+6. **Reporting language**:
+   - Write all outputs in English.
 
-- Write all outputs in English.
-
-5. Shareable reporting.
+7. **Shareable reporting**:
 
 - In final findings, use route paths as the primary location (`/`, `/products`, `/account/login`).
 - If local URLs are used during testing, place them under a separate `Test Environment` note, not as the canonical issue location.
 
-6. Scope questions.
+8. **Scope questions**:
 
 - Do not ask scope questionnaires by default.
 - Start auditing immediately with discovered scope.
 - Ask the user only when blocked (no reachable app URL, auth needed, or hard access restrictions).
 
-7. Evidence quality.
+9. **Evidence quality**:
 
 - Do not capture generic full-page screenshots by default.
 - Use technical evidence first (DOM snippet, selector-level check, tool output).
@@ -152,7 +153,7 @@ Run automated tests using the bundled robust scanner (Playwright + Axe-Core).
 - Auto-discover same-origin routes if not provided.
 - Capture issues as candidate findings, then finalize them.
 
-## 3) Apply Severity and Track Debt
+## 3) Severity Triage & Debt Tracking
 
 Classify each finding using this scale:
 
@@ -166,9 +167,10 @@ Apply consistent triage behavior:
 - Critical/High: treat as release blockers or near-blockers.
 - Medium/Low: schedule, track, and retest during related work.
 
-## 4) Report Findings
+## 4) Reporting Requirements
 
-For each issue, include the required issue fields in the HTML issue details section.
+- Treat reported issues as candidate findings, then finalize them.
+- For each issue, include the required issue fields in the HTML report.
 
 Each finding must include:
 
@@ -189,7 +191,7 @@ Always return results in this exact order:
 2. Findings table (ID, severity, WCAG criterion, impacted area, short impact).
 3. Issue details (one section per issue using the issue template).
 
-## 6) Minimum Evidence Per Issue
+## 5) Minimum Evidence Standards
 
 Each reported issue must include:
 
@@ -254,7 +256,7 @@ Execution discipline for the agent:
 
 4. Chat output should summarize results, but `audit/index.html` is the default source of truth.
 
-## Output Rules
+## 6) Final Output Rules
 
 1. Keep issue titles short, specific, and component-oriented.
 2. Use plain, implementation-ready language.
@@ -262,7 +264,7 @@ Execution discipline for the agent:
 4. Distinguish compliance blockers from advisory improvements.
 5. If evidence is incomplete, mark assumptions explicitly.
 
-## Antigravity Workspace Setup
+## 7) Antigravity Workspace Setup
 
 > This section applies only to Google Antigravity.
 
@@ -299,7 +301,7 @@ node scripts/run-audit.mjs --base-url <URL>
 
 **If the file already exists:** skip this step and proceed directly to the audit.
 
-## Workflow
+## 8) Execution Workflow
 
 Follow these steps in order when executing an audit:
 
