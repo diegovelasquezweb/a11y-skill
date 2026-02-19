@@ -1,6 +1,6 @@
 {
   "name": "ws-accessibility-audit",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "WS WCAG 2.1 AA accessibility audit skill",
   "type": "module",
   "scripts": {

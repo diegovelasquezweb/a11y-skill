@@ -271,6 +271,14 @@ function buildHtml(args, findings) {
   });
   const hasIssues = findings.length > 0;
 
+  let version = "v1.0.0";
+  try {
+    const pkg = readJson(path.join(getInternalPath(".."), "package.json"));
+    if (pkg && pkg.version) version = `v${pkg.version}`;
+  } catch (e) {
+    log.warn(`Could not read package.json version: ${e.message}`);
+  }
+
   const statusColor = hasIssues
     ? "text-rose-600 bg-rose-50 border-rose-200"
     : "text-emerald-600 bg-emerald-50 border-emerald-200";
@@ -316,8 +324,8 @@ function buildHtml(args, findings) {
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center gap-3">
             <div class="flex items-center justify-center px-2 h-8 rounded-lg bg-indigo-600 text-white font-bold text-sm shadow-sm shadow-indigo-200 tracking-wide font-mono">a11y</div>
-            <h1 class="text-lg font-bold text-slate-900 tracking-tight">Accessibility <span class="text-indigo-600">Audit</span></h1>
-            <span class="hidden md:inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">v1.0</span>
+            <h1 class="text-lg font-bold text-slate-900 tracking-tight">Accessibility <span class="text-indigo-600">Report</span></h1>
+            <span class="hidden md:inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">${version}</span>
         </div>
         <div class="flex items-center gap-4 text-sm font-medium text-slate-600">
             <div class="hidden sm:block">Target: ${escapeHtml(args.target)}</div>
