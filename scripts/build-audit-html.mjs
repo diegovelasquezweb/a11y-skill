@@ -260,6 +260,14 @@ function buildIssueCard(finding) {
 </article>`;
 }
 
+function linkify(text) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  return text.replace(
+    urlRegex,
+    '<a href="$1" target="_blank" class="text-indigo-600 hover:underline font-medium break-all">$1</a>',
+  );
+}
+
 function buildHtml(args, findings) {
   const totals = buildSummary(findings);
   const dateStr = new Date().toLocaleDateString("en-US", {
@@ -277,14 +285,6 @@ function buildHtml(args, findings) {
     if (pkg && pkg.version) version = `v${pkg.version}`;
   } catch (e) {
     log.warn(`Could not read package.json version: ${e.message}`);
-  }
-
-  function linkify(text) {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    return text.replace(
-      urlRegex,
-      '<a href="$1" target="_blank" class="text-indigo-600 hover:underline font-medium break-all">$1</a>',
-    );
   }
 
   const statusColor = hasIssues
