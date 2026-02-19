@@ -1,6 +1,6 @@
-# Web Accessibility Audit (WCAG 2.1 AA)
+# Web Accessibility Audit
 
-Perform automated accessibility audits on any website. Simply ask your agent to scan a local or live URL to detect WCAG 2.1 AA violations and generate a detailed HTML report.
+Perform automated accessibility audits that empower AI agents to resolve issues with data-driven precision. This skill generates structured technical data including exact CSS selectors, code evidence, and remediation logic, allowing AI to identify and patch WCAG 2.1 AA violations directly in your codebase with precision and minimal manual oversight.
 
 ## Key Features
 
@@ -42,6 +42,9 @@ Once installed, the skill is available to your agent in any conversation. Simply
   - `index.html`: Premium standalone interactive dashboard (Primary).
   - `index.pdf`: Professional, portable report for compliance and offline sharing.
   - `summary.md`: Concise markdown summary ideal for PRs or tickets.
+  - `internal/`: Raw technical assets for data ingestion or custom processing.
+    - `a11y-findings.json`: Final normalized findings (Cleaned).
+    - `a11y-scan-results.json`: Raw automated scan data (Full).
 
 ## Standalone CLI
 
