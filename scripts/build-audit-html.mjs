@@ -252,7 +252,7 @@ function buildIssueCard(finding) {
         <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         Recommended Remediation
       </h4>
-      <p class="text-sm text-indigo-800 leading-relaxed relative z-10 whitespace-pre-line">${formatMultiline(finding.recommendedFix)}</p>
+      <p class="text-sm text-indigo-800 leading-relaxed relative z-10 whitespace-pre-line">${linkify(formatMultiline(finding.recommendedFix))}</p>
     </div>
 
     ${evidenceHtml}
@@ -279,13 +279,21 @@ function buildHtml(args, findings) {
     log.warn(`Could not read package.json version: ${e.message}`);
   }
 
+  function linkify(text) {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(
+      urlRegex,
+      '<a href="$1" target="_blank" class="text-indigo-600 hover:underline font-medium break-all">$1</a>',
+    );
+  }
+
   const statusColor = hasIssues
     ? "text-rose-600 bg-rose-50 border-rose-200"
     : "text-emerald-600 bg-emerald-50 border-emerald-200";
   const statusIcon = hasIssues
     ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`
     : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-  const statusText = hasIssues ? "Action Required" : "Audit Passed";
+  const statusText = hasIssues ? "WCAG Violations Found" : "Audit Passed";
 
   return `<!doctype html>
 <html lang="en" class="scroll-smooth">
@@ -323,8 +331,8 @@ function buildHtml(args, findings) {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center px-2 h-8 rounded-lg bg-indigo-600 text-white font-bold text-sm shadow-sm shadow-indigo-200 tracking-wide font-mono">a11y</div>
-            <h1 class="text-lg font-bold text-slate-900 tracking-tight">Accessibility <span class="text-indigo-600">Report</span></h1>
+            <div class="flex items-center justify-center px-2 h-8 rounded-lg bg-slate-800 text-white font-bold text-sm shadow-sm shadow-slate-200 tracking-wide font-mono">a11y</div>
+            <h1 class="text-lg font-bold text-slate-900 tracking-tight">Accessibility <span class="text-slate-500">Report</span></h1>
             <span class="hidden md:inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">${version}</span>
         </div>
         <div class="flex items-center gap-4 text-sm font-medium text-slate-600">
@@ -391,7 +399,7 @@ function buildHtml(args, findings) {
     </div>
 
     <!-- Filter Bar -->
-    <div class="sticky top-20 z-40 bg-slate-50/95 backdrop-blur py-4 mb-6 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
+    <div class="sticky top-16 z-40 bg-slate-50/95 backdrop-blur py-4 mb-6 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
         <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
             Detailed Findings
             <span class="bg-slate-200 text-slate-600 text-xs py-0.5 px-2 rounded-full">${findings.length}</span>
