@@ -17,7 +17,8 @@ Follow this workflow to audit and report website accessibility issues with consi
 
 1. **Environment Awareness (Gemini CLI)**: This skill relies on autonomous activation. If the agent encounters "Path not in workspace" errors while reading its own resources in a sandboxed environment, it must proceed by identifying the correct installation path and utilizing available tools to access its instructions and scripts. Use `/skills reload` if the tool registration is inconsistent.
 2. **Setup Readiness**:
-   - **Antigravity**: On first activation in any project, ensure `.agent/workflows/audit.md` exists to enable the `/audit` command.
+   - **Antigravity**: On first activation in any project, ensure `.agent/workflows/a11y.md` exists to enable the `/a11y` command.
+   - **Windsurf**: On first activation in any project, ensure `.windsurf/workflows/a11y.md` exists to enable the `/a11y` command.
    - **General**: Do not execute the actual audit pipeline until explicitly requested by the user.
 
 3. **Audit behavior**:
@@ -266,14 +267,76 @@ Execution discipline for the agent:
 
 ### [Antigravity Only] Workflow Setup
 
-> **CRITICAL**: This section applies EXCLUSIVELY to Google Antigravity. Other agents (Gemini CLI, Claude, Cursor) MUST IGNORE this section.
+> **CRITICAL**: This section applies EXCLUSIVELY to Google Antigravity. Other agents (Gemini CLI, Claude, Cursor, Windsurf) MUST IGNORE this section.
 
-When running in **Antigravity**, the agent ensures the `/audit` slash command is available by checking the project's local workspace:
+When running in **Antigravity**, the agent ensures the `/a11y` slash command is available by checking the project's local workspace:
 
-1. Check if `.agent/workflows/audit.md` exists in the current project root.
-2. **If missing**: Create the `.agent/workflows/` directory and write the `audit.md` workflow file.
+1. Check if `.agent/workflows/a11y.md` exists in the current project root.
+2. **If missing**: Create the `.agent/workflows/` directory and write the `a11y.md` workflow file with the following content:
+
+```markdown
+---
+description: Run a full WCAG 2.2 AA accessibility audit
+---
+
+1. Ask the user for the target URL if not already provided.
+
+// turbo 2. Run the audit pipeline:
+
+\`\`\`bash
+node scripts/run-audit.mjs --base-url <URL>
+\`\`\`
+
+3. Parse the `REPORT_PATH=<path>` line from the script output to get the absolute report path.
+
+4. Open the report in the browser using the appropriate method for the current environment:
+   - macOS: `open "<path>"`
+   - Windows: `start "" "<path>"`
+   - Linux: `xdg-open "<path>"`
+   - If the open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
+
+5. Summarize the findings: total issues by severity, top critical/high items, and the report location.
+```
+
 3. **If present**: Do nothing.
 4. **Other Agents**: Never attempt to list or create `.agent/workflows/` files if you are not Antigravity.
+
+### [Windsurf Only] Workflow Setup
+
+> **CRITICAL**: This section applies EXCLUSIVELY to Windsurf. Other agents (Gemini CLI, Claude, Cursor, Antigravity) MUST IGNORE this section.
+
+When running in **Windsurf**, the agent ensures the `/a11y` slash command is available by checking the project's local workspace:
+
+1. Check if `.windsurf/workflows/a11y.md` exists in the current project root.
+2. **If missing**: Create the `.windsurf/workflows/` directory and write the `a11y.md` workflow file with the following content:
+
+```markdown
+---
+description: Run a full WCAG 2.2 AA accessibility audit on the current project
+labels: accessibility, a11y, wcag
+---
+
+1. Ask the user for the target URL if not already provided.
+
+2. Run the audit pipeline:
+
+\`\`\`bash
+node scripts/run-audit.mjs --base-url <URL>
+\`\`\`
+
+3. Parse the `REPORT_PATH=<path>` line from the script output to get the absolute report path.
+
+4. Open the report in the browser using the appropriate method for the current environment:
+   - macOS: `open "<path>"`
+   - Windows: `start "" "<path>"`
+   - Linux: `xdg-open "<path>"`
+   - If the open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
+
+5. Summarize the findings: total issues by severity, top critical/high items, and the report location.
+```
+
+3. **If present**: Do nothing.
+4. **Other Agents**: Never attempt to list or create `.windsurf/workflows/` files if you are not Windsurf.
 
 ### [Gemini CLI Only] No Local Setup
 

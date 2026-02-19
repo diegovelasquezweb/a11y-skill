@@ -158,194 +158,136 @@ function buildIssueCard(finding) {
 
   const screenshotHtml = finding.screenshotPath
     ? `<div class="mt-6">
-        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-          Visual Context
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          Visual Evidence
         </h4>
-        <div class="relative group cursor-zoom-in">
-          <img src="${escapeHtml(finding.screenshotPath)}" alt="Screenshot of ${escapeHtml(finding.title)}" class="rounded-xl border border-slate-200 shadow-sm max-h-80 w-auto object-contain bg-slate-50 group-hover:border-indigo-300 transition-all">
-          <div class="absolute inset-0 bg-indigo-600/0 group-hover:bg-indigo-600/5 transition-all rounded-xl"></div>
-        </div>
+        <img src="${escapeHtml(finding.screenshotPath)}" alt="Screenshot of ${escapeHtml(finding.title)}" class="rounded-lg border border-slate-200 shadow-sm max-h-64 w-auto object-contain bg-slate-50">
       </div>`
     : "";
 
   const evidenceHtml = finding.evidence
-    ? `<div class="mt-6 bg-slate-900 rounded-xl p-5 border border-slate-800 shadow-inner">
-        <div class="flex items-center justify-between mb-4">
-          <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Technical Signature</h4>
-          <span class="text-[10px] font-mono text-slate-600 select-none">AXE-CORE DOM SNAPSHOT</span>
-        </div>
+    ? `<div class="mt-6 bg-slate-800 rounded-lg p-4 border border-slate-700 shadow-inner">
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Technical Evidence</h4>
         ${formatEvidence(finding.evidence)}
       </div>`
     : "";
 
-  // Effort logic
-  const smallEffort = [
-    "image-alt",
-    "html-has-lang",
-    "document-title",
-    "html-lang-valid",
-    "valid-lang",
-    "meta-viewport",
-    "bypass",
-  ];
-  const largeEffort = [
-    "color-contrast",
-    "tabindex",
-    "aria-hidden-focus",
-    "aria-required-attr",
-    "aria-valid-attr-value",
-  ];
-  const effortLevel = smallEffort.includes(finding.ruleId)
-    ? "Small"
-    : largeEffort.includes(finding.ruleId)
-      ? "Large"
-      : "Medium";
-  const effortColor =
-    effortLevel === "Small"
-      ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-      : effortLevel === "Large"
-        ? "bg-rose-50 text-rose-600 border-rose-100"
-        : "bg-blue-50 text-blue-600 border-blue-100";
+  let severityBadge = "";
+  let borderClass = "";
 
-  // Persona icons mapping
-  const users = finding.impactedUsers.toLowerCase();
-  let personaIcon =
-    '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  if (users.includes("screen reader"))
-    personaIcon =
-      '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  else if (users.includes("keyboard"))
-    personaIcon =
-      '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m4 0h1m-7 4h4M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  else if (users.includes("vision") || users.includes("color"))
-    personaIcon =
-      '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-
-  const severityStyles = {
-    Critical: "bg-rose-50 text-rose-700 border-rose-200",
-    High: "bg-orange-50 text-orange-700 border-orange-200",
-    Medium: "bg-amber-50 text-amber-700 border-amber-200",
-    Low: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  };
-
-  const badgeClass =
-    severityStyles[finding.severity] ||
-    "bg-slate-50 text-slate-700 border-slate-200";
+  switch (finding.severity) {
+    case "Critical":
+      severityBadge = "bg-rose-100 text-rose-800 border-rose-200";
+      borderClass = "border-rose-200 hover:border-rose-300";
+      break;
+    case "High":
+      severityBadge = "bg-orange-100 text-orange-800 border-orange-200";
+      borderClass = "border-orange-200 hover:border-orange-300";
+      break;
+    case "Medium":
+      severityBadge = "bg-amber-100 text-amber-800 border-amber-200";
+      borderClass = "border-amber-200 hover:border-amber-300";
+      break;
+    case "Low":
+      severityBadge = "bg-emerald-100 text-emerald-700 border-emerald-200";
+      borderClass = "border-emerald-200 hover:border-emerald-300";
+      break;
+    default:
+      severityBadge = "bg-slate-100 text-slate-800 border-slate-200";
+      borderClass = "border-slate-200";
+  }
 
   return `
-<article class="issue-card bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8" data-severity="${finding.severity}" data-collapsed="true" id="${escapeHtml(finding.id)}">
-  <div class="card-header p-6 cursor-pointer select-none hover:bg-slate-50/50 transition-colors" onclick="toggleCard(this)">
-    <div class="flex items-start gap-4">
-      <div class="flex-1 min-w-0">
-        <div class="flex flex-wrap items-center gap-2 mb-3">
-          <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black border uppercase tracking-wider ${badgeClass}">${escapeHtml(finding.severity)}</span>
-          <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 font-mono">${escapeHtml(finding.id)}</span>
-          <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold ${effortColor} border uppercase tracking-widest">${effortLevel} Effort</span>
-          <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100 ml-auto">WCAG ${escapeHtml(finding.wcag)}</span>
+<article class="issue-card bg-white rounded-xl border ${borderClass} shadow-sm transition-all duration-200 hover:shadow-md mb-6 overflow-hidden" data-severity="${finding.severity}" data-collapsed="true" id="${escapeHtml(finding.id)}">
+  <div class="card-header p-5 md:p-6 bg-gradient-to-r from-white to-slate-50/50 cursor-pointer select-none" onclick="toggleCard(this)">
+    <div class="flex items-start gap-3">
+    <div class="flex-1 min-w-0">
+    <div class="flex flex-wrap items-center gap-3 mb-3">
+      <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${severityBadge}">${escapeHtml(finding.severity)}</span>
+      <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 font-mono tracking-tight">${escapeHtml(finding.id)}</span>
+      ${finding.ruleId ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-200 border border-slate-700 font-mono tracking-tight">${escapeHtml(finding.ruleId)}</span>` : ""}
+      <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 ml-auto">WCAG ${escapeHtml(finding.wcag)}</span>
+    </div>
+    <h3 class="text-lg md:text-xl font-bold text-slate-900 leading-tight mb-4">${escapeHtml(finding.title)}</h3>
+    
+    <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500 font-medium">
+        <div class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+            <a href="${escapeHtml(finding.url)}" target="_blank" class="hover:text-indigo-600 hover:underline truncate max-w-[200px] md:max-w-md transition-colors">${escapeHtml(finding.url)}</a>
         </div>
-        <h3 class="text-xl font-bold text-slate-900 leading-tight mb-4">${escapeHtml(finding.title)}</h3>
-        
-        <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            <a href="${escapeHtml(finding.url)}" target="_blank" class="hover:text-indigo-600 hover:underline truncate max-w-[200px] md:max-w-md font-medium transition-colors">${escapeHtml(finding.url)}</a>
-          </div>
-          <div class="flex items-center gap-2 w-full md:w-auto mt-1 md:mt-0 min-w-0">
-            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            <code class="px-2 py-0.5 bg-slate-100 rounded text-[11px] text-slate-700 border border-slate-200 font-mono truncate min-w-0 flex-1">${escapeHtml(finding.selector)}</code>
-          </div>
+        <div class="flex items-center gap-1.5 w-full md:w-auto mt-1 md:mt-0 min-w-0">
+            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            <code class="px-1.5 py-0.5 bg-slate-100 rounded text-xs text-slate-700 border border-slate-200 font-mono truncate min-w-0 flex-1">${escapeHtml(finding.selector)}</code>
         </div>
-      </div>
-      <div class="flex flex-col items-center gap-3">
-        <svg class="card-chevron w-6 h-6 text-slate-300 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 opacity-60" title="${escapeHtml(finding.impactedUsers)}">
-          ${personaIcon}
-        </div>
-      </div>
+    </div>
+    </div>
+      <svg class="card-chevron w-5 h-5 text-slate-400 flex-shrink-0 mt-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
     </div>
   </div>
 
   <div class="card-body" style="display:none">
-    <div class="p-6 md:p-8 bg-white border-t border-slate-100">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mb-8">
-        <div>
-          <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            Diagnostic Analysis
-          </h4>
-          <div class="space-y-6">
+  <div class="p-5 md:p-6 bg-white border-t border-slate-100">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+      <div>
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            Behavior Analysis
+        </h4>
+        <div class="space-y-4">
             <div>
-              <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block mb-2">Compliance Target</span>
-              <p class="text-[13px] text-slate-700 bg-emerald-50/30 p-4 rounded-xl border border-emerald-100/50 leading-relaxed font-medium">${formatMultiline(finding.expected)}</p>
+                <span class="text-xs font-semibold text-emerald-600 uppercase block mb-1">Expected Behavior</span>
+                <p class="text-sm text-slate-700 bg-emerald-50/50 p-2.5 rounded border border-emerald-100 leading-relaxed">${formatMultiline(finding.expected)}</p>
             </div>
             <div>
-              <span class="text-[10px] font-bold text-rose-600 uppercase tracking-wider block mb-2">Actual State</span>
-              <p class="text-[13px] text-slate-700 bg-rose-50/30 p-4 rounded-xl border border-rose-100/50 leading-relaxed font-medium">${formatMultiline(finding.actual)}</p>
+                <span class="text-xs font-semibold text-rose-600 uppercase block mb-1">Actual Behavior</span>
+                <p class="text-sm text-slate-700 bg-rose-50/50 p-2.5 rounded border border-rose-100 leading-relaxed">${formatMultiline(finding.actual)}</p>
             </div>
-          </div>
-        </div>
-        
-        <div>
-          <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            Reproduction Steps
-          </h4>
-          <ul class="space-y-2.5 mb-8">
-            ${finding.reproduction
-              .map(
-                (step, i) => `
-              <li class="flex gap-3 text-sm text-slate-600">
-                <span class="flex-shrink-0 w-5 h-5 rounded-full bg-slate-100 text-[10px] font-bold flex items-center justify-center text-slate-500">${i + 1}</span>
-                <span class="leading-snug">${escapeHtml(step)}</span>
-              </li>
-            `,
-              )
-              .join("")}
-          </ul>
-          
-          <div class="pt-6 border-t border-slate-100">
-            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Primary Impacted User Persona</h4>
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-500">${personaIcon}</div>
-              <p class="text-xs font-bold text-slate-600 leading-relaxed">${formatMultiline(finding.impactedUsers)}</p>
-            </div>
-          </div>
         </div>
       </div>
       
-      <div class="bg-indigo-600 rounded-2xl p-6 md:p-8 relative overflow-hidden shadow-lg shadow-indigo-900/10">
-        <div class="absolute top-0 right-0 p-8 opacity-10">
-          <svg class="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path></svg>
-        </div>
-        <div class="relative z-10">
-          <h4 class="text-[10px] font-black text-indigo-200 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            Architectural Remediation
-          </h4>
-          ${finding.fixDescription ? `<p class="text-base font-bold text-white leading-relaxed mb-6">${escapeHtml(finding.fixDescription)}</p>` : ""}
-          ${
-            finding.fixCode
-              ? `
-            <div class="relative group">
-              <pre class="bg-slate-900/50 text-indigo-100 p-5 rounded-xl overflow-x-auto text-[13px] font-mono border border-indigo-400/20 mb-4 whitespace-pre-wrap leading-relaxed">${escapeHtml(finding.fixCode)}</pre>
-              <button onclick="copyToClipboard(\`${escapeHtml(finding.fixCode).replace(/`/g, "\\`")}\`, this)" class="absolute top-4 right-4 p-2 rounded-lg bg-indigo-500/50 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-indigo-500">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-              </button>
-            </div>
-          `
-              : ""
-          }
-          <div class="flex items-center gap-2">
-            <span class="text-[10px] font-black text-indigo-300 uppercase tracking-widest">Documentation</span>
-            <p class="text-[11px] text-indigo-200">${linkify(formatMultiline(finding.recommendedFix))}</p>
-          </div>
+      <div>
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+            Steps to Reproduce
+        </h4>
+        <ul class="list-decimal list-outside ml-4 space-y-1 text-sm text-slate-600 marker:text-slate-400 marker:font-medium">
+            ${reproductionItems}
+        </ul>
+        
+        <div class="mt-6">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Impacted Users</h4>
+            <p class="text-sm text-slate-600 leading-relaxed italic border-l-2 border-slate-200 pl-3">${formatMultiline(finding.impactedUsers)}</p>
         </div>
       </div>
-
-      ${screenshotHtml}
-      ${evidenceHtml}
     </div>
+    
+    <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-5 relative overflow-hidden">
+      <div class="absolute top-0 right-0 p-4 opacity-10">
+        <svg class="w-16 h-16 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path></svg>
+      </div>
+      <h4 class="text-sm font-bold text-indigo-900 mb-2 relative z-10 flex items-center gap-2">
+        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        Recommended Remediation
+      </h4>
+      ${finding.fixDescription ? `<p class="text-sm text-indigo-800 leading-relaxed relative z-10 mb-3">${escapeHtml(finding.fixDescription)}</p>` : ""}
+      ${
+        finding.fixCode
+          ? `
+        <div class="relative group">
+          <pre class="bg-slate-900 text-emerald-300 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700 mb-3 relative z-10 whitespace-pre-wrap">${escapeHtml(finding.fixCode)}</pre>
+          <button onclick="copyToClipboard(\`${escapeHtml(finding.fixCode).replace(/`/g, "\\`")}\`, this)" class="absolute top-2 right-2 p-1.5 rounded-lg bg-indigo-500/50 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-indigo-500">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </button>
+        </div>`
+          : ""
+      }
+      <p class="text-xs text-indigo-500 leading-relaxed relative z-10">${linkify(formatMultiline(finding.recommendedFix))}</p>
+    </div>
+
+    ${screenshotHtml}
+    ${evidenceHtml}
+  </div>
   </div>
 </article>`;
 }

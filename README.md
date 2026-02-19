@@ -20,13 +20,14 @@ To install this skill, provide the following prompt to your AI agent:
 
 This skill follows the [Agent Skills standard](https://agentskills.io). Below are the supported agents and their default installation paths:
 
-| Agent / IDE        | Skill install path (Global/User)               | Extended Workflow   | Agent Config         |
-| :----------------- | :--------------------------------------------- | :------------------ | :------------------- |
-| **Antigravity**    | `~/.gemini/antigravity/skills/a11y/`           | `.agent/workflows/` | —                    |
-| **Codex (OpenAI)** | `~/.codex/skills/a11y/`                        | —                   | `agents/openai.yaml` |
-| **Claude (Code)**  | `~/.claude/skills/a11y/`                       | —                   | —                    |
-| **Cursor**         | `~/.cursor/skills/` (or inherits Claude/Codex) | —                   | —                    |
-| **Gemini CLI**     | `~/.gemini/skills/a11y/`                       | —                   | —                    |
+| Agent / IDE        | Skill install path (Global/User)               | Extended Workflow        | Agent Config         |
+| :----------------- | :--------------------------------------------- | :----------------------- | :------------------- |
+| **Antigravity**    | `~/.gemini/antigravity/skills/a11y/`           | `.agent/workflows/`      | —                    |
+| **Codex (OpenAI)** | `~/.codex/skills/a11y/`                        | —                        | `agents/openai.yaml` |
+| **Claude (Code)**  | `~/.claude/skills/a11y/`                       | —                        | —                    |
+| **Cursor**         | `~/.cursor/skills/` (or inherits Claude/Codex) | —                        | —                    |
+| **Gemini CLI**     | `~/.gemini/skills/a11y/`                       | —                        | —                    |
+| **Windsurf**       | `~/.codeium/windsurf/skills/a11y/`             | `.windsurf/workflows/`   | —                    |
 
 ## How to Use
 
@@ -137,3 +138,4 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 - [Codex Skills](https://developers.openai.com/codex/skills/)
 - [Cursor Skills](https://cursor.com/docs/context/skills)
 - [Gemini CLI Skills](https://geminicli.com/docs/cli/skills/)
+- [Windsurf Skills](https://docs.windsurf.com/windsurf/cascade/skills)
