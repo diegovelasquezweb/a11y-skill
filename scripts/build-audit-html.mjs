@@ -199,8 +199,10 @@ function buildIssueCard(finding) {
   }
 
   return `
-<article class="issue-card bg-white rounded-xl border ${borderClass} shadow-sm transition-all duration-200 hover:shadow-md mb-6 overflow-hidden" data-severity="${finding.severity}" id="${escapeHtml(finding.id)}">
-  <div class="p-5 md:p-6 border-b border-slate-100 bg-gradient-to-r from-white to-slate-50/50">
+<article class="issue-card bg-white rounded-xl border ${borderClass} shadow-sm transition-all duration-200 hover:shadow-md mb-6 overflow-hidden" data-severity="${finding.severity}" data-collapsed="true" id="${escapeHtml(finding.id)}">
+  <div class="card-header p-5 md:p-6 bg-gradient-to-r from-white to-slate-50/50 cursor-pointer select-none" onclick="toggleCard(this)">
+    <div class="flex items-start gap-3">
+    <div class="flex-1 min-w-0">
     <div class="flex flex-wrap items-center gap-3 mb-3">
       <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${severityBadge}">${escapeHtml(finding.severity)}</span>
       <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 font-mono tracking-tight">${escapeHtml(finding.id)}</span>
@@ -219,9 +221,13 @@ function buildIssueCard(finding) {
             <code class="px-1.5 py-0.5 bg-slate-100 rounded text-xs text-slate-700 border border-slate-200 font-mono truncate min-w-0 flex-1">${escapeHtml(finding.selector)}</code>
         </div>
     </div>
+    </div>
+      <svg class="card-chevron w-5 h-5 text-slate-400 flex-shrink-0 mt-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+    </div>
   </div>
 
-  <div class="p-5 md:p-6 bg-white">
+  <div class="card-body" style="display:none">
+  <div class="p-5 md:p-6 bg-white border-t border-slate-100">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
       <div>
         <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -271,6 +277,7 @@ function buildIssueCard(finding) {
 
     ${screenshotHtml}
     ${evidenceHtml}
+  </div>
   </div>
 </article>`;
 }
@@ -1029,6 +1036,8 @@ function buildHtml(args, findings) {
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <button onclick="toggleAllCards()" id="expand-all-btn" class="text-xs text-slate-500 hover:text-slate-700 font-medium whitespace-nowrap transition-colors">Expand all</button>
+          <div class="w-px h-4 bg-slate-200"></div>
           <div id="filter-controls" class="flex gap-2">
             <button onclick="filterIssues('all')" class="filter-btn active px-3 py-1.5 rounded-md text-xs font-medium border bg-indigo-50 text-indigo-700 border-indigo-100">All</button>
             <button onclick="filterIssues('Critical')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Critical</button>
@@ -1230,6 +1239,58 @@ function buildHtml(args, findings) {
         btnSeverity.classList.remove('bg-indigo-50', 'text-indigo-700');
         btnSeverity.classList.add('text-slate-500', 'hover:text-slate-700');
       }
+      _syncExpandBtn();
+    }
+
+    function _activeCards() {
+      const sev = document.getElementById('issues-container');
+      const pg = document.getElementById('page-container');
+      const container = sev && sev.style.display !== 'none' ? sev : pg;
+      return container ? [...container.querySelectorAll('.issue-card')] : [];
+    }
+
+    function _syncExpandBtn() {
+      const btn = document.getElementById('expand-all-btn');
+      if (!btn) return;
+      const anyCollapsed = _activeCards().some(c => c.dataset.collapsed === 'true');
+      btn.textContent = anyCollapsed ? 'Expand all' : 'Collapse all';
+    }
+
+    function toggleCard(header) {
+      const card = header.closest('.issue-card');
+      const body = card.querySelector('.card-body');
+      const chevron = header.querySelector('.card-chevron');
+      const isCollapsed = card.dataset.collapsed === 'true';
+      if (isCollapsed) {
+        body.style.display = '';
+        card.dataset.collapsed = 'false';
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+      } else {
+        body.style.display = 'none';
+        card.dataset.collapsed = 'true';
+        if (chevron) chevron.style.transform = '';
+      }
+      _syncExpandBtn();
+    }
+
+    function toggleAllCards() {
+      const cards = _activeCards();
+      const anyCollapsed = cards.some(c => c.dataset.collapsed === 'true');
+      cards.forEach(card => {
+        const body = card.querySelector('.card-body');
+        const chevron = card.querySelector('.card-chevron');
+        if (anyCollapsed) {
+          body.style.display = '';
+          card.dataset.collapsed = 'false';
+          if (chevron) chevron.style.transform = 'rotate(180deg)';
+        } else {
+          body.style.display = 'none';
+          card.dataset.collapsed = 'true';
+          if (chevron) chevron.style.transform = '';
+        }
+      });
+      const btn = document.getElementById('expand-all-btn');
+      if (btn) btn.textContent = anyCollapsed ? 'Collapse all' : 'Expand all';
     }
 
     function filterByPage(page) {
