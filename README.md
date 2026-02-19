@@ -1,6 +1,6 @@
 # Web Accessibility Audit (WCAG 2.1 AA)
 
-Professional technical skill for auditing websites and local development projects. It provides automated route discovery, WCAG 2.1 AA detection using a real browser, and a consistent multi-agent workflow.
+Perform automated accessibility audits on any website. Simply ask your agent to scan a local or live URL to detect WCAG 2.1 AA violations and generate a detailed HTML report.
 
 ## Key Features
 
