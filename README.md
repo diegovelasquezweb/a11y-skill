@@ -10,33 +10,23 @@ Professional technical skill for auditing websites and local development project
 - **Premium Reports**: Generates professional HTML dashboards with technical evidence and remediation guidance.
 - **Autodiscovery**: Automatically finds and scans same-origin routes if none are provided.
 
-## Compatibility
-
-This skill follows the open [Agent Skills standard](https://agentskills.io) supported by a growing number of AI agents and IDEs:
-
-| Agent / IDE        | `SKILL.md` | Extended Workflow      | Agent Config            |
-| :----------------- | :--------: | :--------------------- | :---------------------- |
-| **Antigravity**    |     ✅     | ✅ `.agent/workflows/` | —                       |
-| **Codex (OpenAI)** |     ✅     | —                      | ✅ `agents/openai.yaml` |
-| **Claude (Code)**  |     ✅     | —                      | —                       |
-| **Cursor**         |     ✅     | —                      | —                       |
-| **Gemini CLI**     |     ✅     | —                      | —                       |
-
 ## Installation
 
 To install this skill, provide the following prompt to your AI agent:
 
 > "Install skill https://github.com/diegovelasquezweb/a11y-skill"
 
-### Installation Paths
+## Compatibility & Paths
 
-| Agent / IDE        | Skill install path                         |
-| :----------------- | :----------------------------------------- |
-| **Claude (Code)**  | `~/.claude/skills/a11y-skill/`             |
-| **Cursor**         | `~/.cursor/skills/a11y-skill/`             |
-| **Gemini CLI**     | `~/.gemini/skills/a11y-skill/`             |
-| **Codex (OpenAI)** | `~/.agents/skills/a11y-skill/`             |
-| **Antigravity**    | `~/.gemini/antigravity/skills/a11y-skill/` |
+This skill follows the [Agent Skills standard](https://agentskills.io). Below are the supported agents and their default installation paths:
+
+| Agent / IDE        | Skill install path (Global/User)           | Extended Workflow      | Agent Config            |
+| :----------------- | :----------------------------------------- | :--------------------- | :---------------------- |
+| **Antigravity**    | `~/.gemini/antigravity/skills/a11y-skill/` | ✅ `.agent/workflows/` | —                       |
+| **Codex (OpenAI)** | `~/.agents/skills/a11y-skill/`             | —                      | ✅ `agents/openai.yaml` |
+| **Claude (Code)**  | `~/.claude/skills/a11y-skill/`             | —                      | —                       |
+| **Cursor**         | `~/.cursor/skills/a11y-skill/`             | —                      | —                       |
+| **Gemini CLI**     | `~/.gemini/skills/a11y-skill/`             | —                      | —                       |
 
 ## How to Use
 

@@ -1,4 +1,14 @@
 interface:
-  display_name: "Web Accessibility Audit"
-  short_description: "Run a WCAG 2.1 AA accessibility audit on any website in read-only mode."
-  default_prompt: "Ask the user for the target URL if not already provided. Then run: node scripts/run-audit.mjs --base-url <URL>. Parse the REPORT_PATH= line from the script output and share the report location with the user. Summarize findings by severity (Critical, High, Medium, Low) and list top Critical/High issues with their route and recommended fix. All output in English."
+  display_name: "Web Accessibility Audit (WCAG 2.1 AA)"
+  short_description: "Professional accessibility auditing engine using Playwright and Axe-Core."
+  icon_small: "check_circle"
+  invocation_policy: "implicit"
+  default_prompt: |
+    Help the user perform a technical accessibility audit:
+    1. Identify the target URL. If not provided, ask the user.
+    2. Execute the audit pipeline using: `node scripts/run-audit.mjs --base-url <URL>`.
+    3. Monitor stdout for the `REPORT_PATH=<path>` indicator.
+    4. Provide the absolute path of the report to the user.
+    5. Summarize findings by severity (Critical, High, Medium, Low).
+    6. For Critical and High issues, provide the specific route and the recommended technical fix.
+    7. Maintain a professional, technical tone in English.
