@@ -42,13 +42,10 @@ Once installed, the skill is available to your agent in any conversation. Simply
   - `index.html`: Premium standalone interactive dashboard (Primary).
   - `index.pdf`: Professional, portable report for compliance and offline sharing.
   - `summary.md`: Concise markdown summary ideal for PRs or tickets.
-  - `internal/`: Raw technical assets for data ingestion or custom processing.
-    - `a11y-findings.json`: Final normalized findings (Cleaned).
-    - `a11y-scan-results.json`: Raw automated scan data (Full).
 
 ## Standalone CLI
 
-**Best for:** CI/CD pipelines and local automation without spending AI tokens.
+**Best for:** CI/CD pipelines and local automation without spending AI tokens or agent intervention.
 
 Execute the audit script directly from the skill directory:
 
