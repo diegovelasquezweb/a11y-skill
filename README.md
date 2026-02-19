@@ -1,6 +1,6 @@
-# Web Accessibility Audit
+# Web Accessibility Audit Agent Skill
 
-Perform automated accessibility audits that empower AI agents to resolve issues with data-driven precision. This skill generates structured technical data including selectors, code evidence, and remediation logic, allowing AI to identify and patch WCAG 2.1 AA violations directly in your codebase with targeted remediation and minimal manual oversight.
+Perform automated accessibility audits that empower AI agents to resolve issues with data-driven precision. This skill generates structured technical data including selectors, code evidence, and remediation logic, allowing AI to identify and patch WCAG 2.2 AA violations directly in your codebase with targeted remediation and minimal manual oversight.
 
 ## Key Features
 
@@ -74,7 +74,7 @@ pnpm run audit -- --base-url https://mysite.com
 | `--color-scheme <value>` | Emulate `light` or `dark` color scheme.              | `"light"`                    |
 | `--title <text>`         | Custom title for the HTML report.                    | "Accessibility Audit Report" |
 | `--environment <text>`   | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
-| `--target <text>`        | Compliance target label.                             | "WCAG 2.1 AA"                |
+| `--target <text>`        | Compliance target label.                             | "WCAG 2.2 AA"                |
 
 ## Audit Pipeline
 
@@ -95,7 +95,7 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 ```json
 {
   "maxRoutes": 10,
-  "complianceTarget": "WCAG 2.1 AA",
+  "complianceTarget": "WCAG 2.2 AA",
   "routes": [],
   "ignoreFindings": [],
   "excludeSelectors": [],
@@ -129,6 +129,7 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 ## Reference
 
 - [Agent Skills Standard](https://agentskills.io/)
+- [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
 - [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
 - [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
 - [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/)

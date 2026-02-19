@@ -122,6 +122,8 @@ async function analyzeRoute(
       "wcag2aa",
       "wcag21a",
       "wcag21aa",
+      "wcag22a",
+      "wcag22aa",
       "best-practice",
     ]);
 

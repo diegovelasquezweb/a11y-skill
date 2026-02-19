@@ -133,6 +133,32 @@ const FIX_TEMPLATES = {
     description: 'Remove user-scalable=no from the viewport meta tag to allow users to zoom.',
     code: '<meta name="viewport" content="width=device-width, initial-scale=1">',
   },
+
+  // WCAG 2.2 rules
+  "target-size": {
+    description: "Interactive elements must have a minimum target size of 24×24 CSS pixels (WCAG 2.5.8). Larger targets (44×44 px) are recommended for touch interfaces.",
+    code: '/* Minimum WCAG 2.2 AA target size */\n.btn, a, [role="button"] {\n  min-width: 24px;\n  min-height: 24px;\n}\n\n/* Recommended for touch: */\n.btn {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 0.5rem 1rem;\n}',
+  },
+  "focus-appearance": {
+    description: "The focus indicator must cover a minimum area (perimeter × 2 CSS px) and maintain a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
+    code: ":focus-visible {\n  outline: 3px solid #005FCC;\n  outline-offset: 2px;\n  /* Ensure contrast ratio ≥ 3:1 vs adjacent background */\n}\n\n/* Remove browser default only when providing a custom style */\n:focus:not(:focus-visible) {\n  outline: none;\n}",
+  },
+  "dragging-movements": {
+    description: "All drag-and-drop functionality must have a single-pointer alternative (e.g., click-to-select then click-to-drop, or arrow buttons) for users who cannot perform drag gestures (WCAG 2.5.7).",
+    code: '<!-- Provide non-drag alternative with arrow buttons: -->\n<ul role="listbox" aria-label="Sortable items">\n  <li role="option" tabindex="0">\n    Item 1\n    <button aria-label="Move item up">↑</button>\n    <button aria-label="Move item down">↓</button>\n  </li>\n</ul>',
+  },
+  "redundant-entry": {
+    description: "Do not require users to re-enter information already provided in the same session (WCAG 3.3.7). Pre-populate fields or provide a copy option.",
+    code: '<!-- Pre-populate from session data: -->\n<label for="ship-address">Shipping address</label>\n<input id="ship-address" type="text" autocomplete="shipping street-address"\n  value="{{ session.billing_address }}">\n\n<!-- Or offer a checkbox: -->\n<label>\n  <input type="checkbox" id="same-as-billing">\n  Same as billing address\n</label>',
+  },
+  "accessible-auth-minimum": {
+    description: "Authentication must not require solving a cognitive test (CAPTCHA, puzzle, memorization) without providing an accessible alternative (WCAG 3.3.8).",
+    code: '<!-- Option 1: Offer an audio CAPTCHA alternative -->\n<div class="captcha-group">\n  <img src="captcha.png" alt="Enter the characters shown">\n  <a href="/audio-captcha">Use audio CAPTCHA instead</a>\n</div>\n\n<!-- Option 2: Use passkeys (no cognitive test required) -->\n<button type="button" onclick="authenticateWithPasskey()">\n  Sign in with passkey\n</button>',
+  },
+  "consistent-help": {
+    description: "Help mechanisms (support link, chat, contact info, self-help tool) must appear in the same relative order on every page where they appear (WCAG 3.2.6).",
+    code: '<!-- Place help in a consistent location across all pages (e.g., persistent header or footer): -->\n<header>\n  <nav aria-label="Support">\n    <a href="/help">Help centre</a>\n    <a href="/contact">Contact support</a>\n  </nav>\n</header>',
+  },
 };
 
 const IMPACTED_USERS = {
@@ -164,6 +190,14 @@ const IMPACTED_USERS = {
   "bypass": "Keyboard-only users and screen reader users",
   "meta-refresh": "Users with cognitive disabilities and screen reader users",
   "meta-viewport": "Users who need to zoom (low vision, motor disabilities)",
+
+  // WCAG 2.2
+  "target-size": "Mobile/touch users and users with motor disabilities",
+  "focus-appearance": "Keyboard-only users and users with low vision",
+  "dragging-movements": "Users with motor disabilities who cannot perform drag gestures",
+  "redundant-entry": "Users with cognitive disabilities and motor disabilities",
+  "accessible-auth-minimum": "Users with cognitive disabilities (dyslexia, memory impairments)",
+  "consistent-help": "Users with cognitive disabilities who rely on consistent page layouts",
 };
 
 const EXPECTED_BEHAVIOR = {
@@ -186,6 +220,14 @@ const EXPECTED_BEHAVIOR = {
   "html-has-lang": "The <html> element must have a lang attribute.",
   "html-lang-valid": "The lang attribute on <html> must be a valid BCP 47 language tag.",
   "meta-viewport": "Viewport meta must not disable user scaling (user-scalable=no is forbidden).",
+
+  // WCAG 2.2
+  "target-size": "All interactive targets must be at least 24×24 CSS pixels (WCAG 2.5.8). Spacing or a larger equivalent target is an acceptable alternative.",
+  "focus-appearance": "Focus indicators must be clearly visible, with a minimum area of the component perimeter × 2 CSS px and a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
+  "dragging-movements": "All drag-and-drop functionality must have an equivalent single-pointer alternative operable without dragging (WCAG 2.5.7).",
+  "redundant-entry": "Information already submitted during the same session must be auto-populated or selectable without requiring re-entry (WCAG 3.3.7).",
+  "accessible-auth-minimum": "Authentication processes must not require solving a cognitive function test without providing an accessible alternative method (WCAG 3.3.8).",
+  "consistent-help": "Help mechanisms must appear in the same relative order on every page where they are provided (WCAG 3.2.6).",
 };
 
 function getImpactedUsers(ruleId, tags) {
@@ -247,9 +289,10 @@ const IMPACT_MAP = {
 };
 
 function mapWcag(tags) {
-  if (tags.includes("wcag2a") || tags.includes("wcag21a")) return "WCAG 2.1 A";
-  if (tags.includes("wcag2aa") || tags.includes("wcag21aa"))
-    return "WCAG 2.1 AA";
+  if (tags.includes("wcag22aa")) return "WCAG 2.2 AA";
+  if (tags.includes("wcag22a")) return "WCAG 2.2 A";
+  if (tags.includes("wcag21aa") || tags.includes("wcag2aa")) return "WCAG 2.1 AA";
+  if (tags.includes("wcag21a") || tags.includes("wcag2a")) return "WCAG 2.1 A";
   return "WCAG";
 }
 

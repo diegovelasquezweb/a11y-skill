@@ -1,6 +1,6 @@
 ---
 name: a11y-skill
-description: Run a WCAG 2.1 AA accessibility audit on a website. Use when the user says "audit [url]", "run an accessibility audit", "check accessibility", or asks to scan a site for a11y issues, WCAG compliance, or screen reader compatibility.
+description: Run a WCAG 2.2 AA accessibility audit on a website. Use when the user says "audit [url]", "run an accessibility audit", "check accessibility", or asks to scan a site for a11y issues, WCAG compliance, or screen reader compatibility.
 compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL. Playwright + Chromium are installed automatically on first run.
 license: MIT
 allowed-tools: Bash(node:*) Bash(open:*) Bash(start:*) Bash(xdg-open:*) Read
@@ -96,6 +96,7 @@ Mandatory process coverage:
 - Confirm logical focus order and visible focus styles.
 - Confirm no positive `tabindex` values.
 - Validate focus management for dialogs and dynamic UI.
+- Confirm focus indicators meet minimum appearance: minimum area of perimeter × 2 CSS px and 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).
 
 4. Review perceivable content requirements.
 
@@ -110,7 +111,8 @@ Mandatory process coverage:
 - Confirm captions/transcripts where applicable.
 - Confirm reduced motion behavior with `prefers-reduced-motion`.
 - Confirm gesture alternatives for path/multi-point interactions (WCAG 2.5.1).
-- Confirm minimum touch target size (44x44 CSS px where applicable).
+- Confirm drag-and-drop functionality has a single-pointer alternative (WCAG 2.5.7).
+- Confirm minimum touch target size: 24×24 CSS px minimum (WCAG 2.5.8 AA); 44×44 CSS px recommended for touch-primary interfaces.
 
 6. Review forms and authentication.
 
@@ -121,6 +123,7 @@ Mandatory process coverage:
 - Confirm redundant-entry avoidance for multi-step flows (WCAG 3.3.7).
 - Confirm authentication does not rely only on cognitive tests and supports assistive flows (WCAG 3.3.8).
 - Confirm CAPTCHAs provide accessible alternatives when used.
+- Confirm help mechanisms (support links, chat, contact info) appear in the same relative order on every page where they are present (WCAG 3.2.6).
 
 7. Review common component patterns.
 
@@ -143,7 +146,7 @@ Run automated tests using the bundled robust scanner (Playwright + Axe-Core).
 1. Automated pass (bundled scanner).
 
 - The skill uses `scripts/generate-route-checks.mjs` which launches a headless browser.
-- It scans the DOM using Axe-Core for WCAG 2.0/2.1 A/AA compliance.
+- It scans the DOM using Axe-Core for WCAG 2.0/2.1/2.2 A/AA compliance.
 - It supports SPAs (Single Page Applications) and complex JS-driven UIs.
 - Dependencies are isolated in the skill directory; **NO** installation occurs in the target project.
 - Auto-discover same-origin routes if not provided.
