@@ -254,6 +254,43 @@ Execution discipline for the agent:
 4. Distinguish compliance blockers from advisory improvements.
 5. If evidence is incomplete, mark assumptions explicitly.
 
+## Antigravity Workspace Setup
+
+> This section applies only to Google Antigravity.
+
+Workflows in Antigravity are workspace-scoped. On first activation in any project, check whether `.agent/workflows/audit.md` exists in the project root.
+
+**If the file does not exist:**
+
+1. Create `.agent/workflows/` in the project root if it doesn't already exist.
+2. Write the following content to `.agent/workflows/audit.md`:
+
+```markdown
+---
+description: Run a full WCAG 2.1 AA accessibility audit
+---
+
+1. Ask the user for the target URL if not already provided.
+
+// turbo 2. Run the audit pipeline:
+
+\```bash
+node scripts/run-audit.mjs --base-url <URL>
+\```
+
+3. Parse the `REPORT_PATH=<path>` line from the script output to get the absolute report path.
+
+4. Open the report in the browser using the appropriate method for the current environment:
+   - VS Code / Cursor / any IDE with shell access: run `open "<path>"` (macOS), `start "" "<path>"` (Windows), or `xdg-open "<path>"` (Linux)
+   - If the shell open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
+
+5. Summarize the findings: total issues by severity, top critical/high items, and the report location.
+```
+
+3. Tell the user: "I've set up the `/audit` workflow for this project. You can now invoke it directly with `/audit`."
+
+**If the file already exists:** skip this step and proceed directly to the audit.
+
 ## Workflow
 
 Follow these steps in order when executing an audit:
