@@ -397,8 +397,8 @@ function buildHtml(args, findings) {
     <div class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-slate-200/80 shadow-sm" id="navbar">
       <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
         <div class="flex items-center gap-3">
-          <div class="px-2 h-8 rounded bg-slate-800 text-white font-bold text-sm font-mono">a11y</div>
-          <h1 class="text-lg font-bold">Accessibility <span class="text-slate-500">Report</span></h1>
+          <div class="px-3 h-10 rounded-lg bg-slate-900 text-white font-bold text-base font-mono flex items-center justify-center shadow-md">a11y</div>
+          <h1 class="text-xl font-bold">Accessibility <span class="text-slate-500">Report</span></h1>
         </div>
         <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border ${statusColor}">
           ${statusIcon} <span>${statusText}</span>
@@ -423,9 +423,9 @@ function buildHtml(args, findings) {
       <div class="sticky top-16 z-40 bg-slate-50/95 backdrop-blur py-4 border-b border-slate-200 mb-6 flex justify-between items-center">
         <h3 class="text-lg font-bold">Detailed Findings (${findings.length})</h3>
         <div class="flex gap-2">
-          <button onclick="filterIssues('all')" class="filter-btn active px-3 py-1.5 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">All</button>
-          <button onclick="filterIssues('Critical')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium">Critical</button>
-          <button onclick="filterIssues('High')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium">High</button>
+          <button onclick="filterIssues('all')" class="filter-btn active px-3 py-1.5 rounded-md text-xs font-medium border bg-indigo-50 text-indigo-700 border-indigo-100">All</button>
+          <button onclick="filterIssues('Critical')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Critical</button>
+          <button onclick="filterIssues('High')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">High</button>
         </div>
       </div>
 
@@ -505,11 +505,17 @@ function buildHtml(args, findings) {
     function filterIssues(severity) {
         // Reset buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('bg-indigo-50', 'text-indigo-700', 'border', 'border-indigo-100');
-            btn.classList.add('text-slate-600');
+            // Remove active styles
+            btn.classList.remove('bg-indigo-50', 'text-indigo-700', 'border-indigo-100');
+            // Remove inactive styles
+            btn.classList.remove('bg-white', 'text-slate-600', 'border-slate-200', 'hover:bg-slate-50');
+            
             if(btn.textContent.includes(severity) || (severity === 'all' && btn.textContent.includes('All'))) {
-                btn.classList.add('bg-indigo-50', 'text-indigo-700', 'border', 'border-indigo-100');
-                btn.classList.remove('text-slate-600');
+                // Add Active
+                btn.classList.add('bg-indigo-50', 'text-indigo-700', 'border-indigo-100');
+            } else {
+                // Add Inactive
+                btn.classList.add('bg-white', 'text-slate-600', 'border-slate-200', 'hover:bg-slate-50');
             }
         });
 

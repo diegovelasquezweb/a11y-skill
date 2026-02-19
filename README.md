@@ -1,6 +1,6 @@
 # Web Accessibility Audit
 
-Perform automated accessibility audits that empower AI agents to resolve issues with data-driven precision. This skill generates structured technical data including exact CSS selectors, code evidence, and remediation logic, allowing AI to identify and patch WCAG 2.1 AA violations directly in your codebase with targeted remediation and minimal manual oversight.
+Perform automated accessibility audits that empower AI agents to resolve issues with data-driven precision. This skill generates structured technical data including selectors, code evidence, and remediation logic, allowing AI to identify and patch WCAG 2.1 AA violations directly in your codebase with targeted remediation and minimal manual oversight.
 
 ## Key Features
 
