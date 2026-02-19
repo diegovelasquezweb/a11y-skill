@@ -345,17 +345,26 @@ const MANUAL_CHECKS = [
 ];
 
 function buildManualCheckCard(check) {
+  const id = `manual-${check.criterion.replace(".", "-")}`;
   const steps = check.steps
     .map((s) => `<li class="mb-1.5 text-slate-600 text-sm">${escapeHtml(s)}</li>`)
     .join("");
   return `
-<div class="bg-white rounded-xl border border-amber-200 shadow-sm mb-4 overflow-hidden">
-  <div class="p-5 border-b border-amber-100 bg-gradient-to-r from-amber-50/60 to-white flex flex-wrap items-center gap-3">
-    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border bg-amber-100 text-amber-800 border-amber-200">Manual</span>
-    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 font-mono">${escapeHtml(check.criterion)}</span>
-    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 ml-auto">WCAG 2.2 ${escapeHtml(check.level)}</span>
-    <h3 class="text-base font-bold text-slate-900 w-full mt-1">${escapeHtml(check.title)}</h3>
-  </div>
+<div class="manual-card bg-white rounded-xl border border-amber-200 shadow-sm mb-4 overflow-hidden transition-all duration-200" id="${id}" data-criterion="${escapeHtml(check.criterion)}">
+  <label class="flex items-start gap-4 p-5 border-b border-amber-100 bg-gradient-to-r from-amber-50/60 to-white cursor-pointer select-none hover:from-amber-50 transition-colors">
+    <div class="flex-shrink-0 mt-0.5">
+      <input type="checkbox" class="manual-checkbox w-5 h-5 rounded border-2 border-amber-300 text-emerald-600 cursor-pointer accent-emerald-500" data-criterion="${escapeHtml(check.criterion)}">
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="flex flex-wrap items-center gap-2 mb-2">
+        <span class="manual-badge px-2.5 py-0.5 rounded-full text-xs font-bold border bg-amber-100 text-amber-800 border-amber-200">Manual</span>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 font-mono">${escapeHtml(check.criterion)}</span>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">WCAG 2.2 ${escapeHtml(check.level)}</span>
+        <span class="verified-label hidden ml-auto px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">✓ Verified</span>
+      </div>
+      <h3 class="text-base font-bold text-slate-900">${escapeHtml(check.title)}</h3>
+    </div>
+  </label>
   <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
     <div>
       <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">What to verify</h4>
@@ -375,14 +384,29 @@ function buildManualCheckCard(check) {
 }
 
 function buildManualChecksSection() {
+  const total = MANUAL_CHECKS.length;
   const cards = MANUAL_CHECKS.map((c) => buildManualCheckCard(c)).join("\n");
   return `
 <div class="mt-16">
   <div class="flex items-center gap-3 mb-2">
     <h3 class="text-lg font-bold text-slate-900">Manual Verification Required</h3>
-    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">${MANUAL_CHECKS.length} checks</span>
+    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">${total} checks</span>
   </div>
-  <p class="text-sm text-slate-500 mb-6">These WCAG 2.2 criteria cannot be detected automatically by axe-core. Review each one manually before certifying compliance.</p>
+  <p class="text-sm text-slate-500 mb-4">These WCAG 2.2 criteria cannot be detected automatically by axe-core. Check each one off as you verify it — progress is saved in your browser.</p>
+
+  <div class="bg-white rounded-xl border border-slate-200 p-4 mb-6 flex items-center gap-4">
+    <div class="flex-1">
+      <div class="flex justify-between text-xs font-medium text-slate-500 mb-1.5">
+        <span>Verification progress</span>
+        <span id="manual-progress-label">0 / ${total} verified</span>
+      </div>
+      <div class="w-full bg-slate-100 rounded-full h-2">
+        <div id="manual-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+      </div>
+    </div>
+    <button onclick="resetManualChecks()" class="text-xs text-slate-400 hover:text-rose-500 transition-colors font-medium whitespace-nowrap">Reset all</button>
+  </div>
+
   ${cards}
 </div>`;
 }
@@ -408,7 +432,17 @@ function buildManualChecksPdfSection() {
   return `
 <div style="page-break-before: always;">
   <h2>3. Manual Verification Required (WCAG 2.2)</h2>
-  <p style="font-size: 10pt;">The following criteria cannot be detected by automated tools. Each must be verified manually before declaring WCAG 2.2 AA compliance.</p>
+  <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 6pt;">
+    Automated scanners such as axe-core can reliably detect approximately 30–40% of WCAG violations.
+    The remaining criteria require human judgement to evaluate — they depend on context, design intent,
+    and real interaction patterns that no tool can fully assess.
+  </p>
+  <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 6pt;">
+    The six criteria listed below are specific to WCAG 2.2 and fall outside the scope of automated detection.
+    Each entry describes what must be true, and provides step-by-step instructions for a manual tester or
+    developer to verify conformance. These checks must be completed before this audit can be considered
+    a full WCAG 2.2 AA assessment.
+  </p>
   ${entries}
 </div>`;
 }
@@ -678,6 +712,83 @@ function buildHtml(args, findings) {
   </div>
 
   <script>
+    // ── Manual checks — localStorage persistence ──────────────────────────
+    const STORAGE_KEY = 'a11y-manual:${escapeHtml(args.baseUrl)}:${dateStr}';
+    const TOTAL_CHECKS = ${MANUAL_CHECKS.length};
+
+    function getState() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+      catch { return {}; }
+    }
+
+    function saveState(state) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+    }
+
+    function updateProgress() {
+      const checked = document.querySelectorAll('.manual-checkbox:checked').length;
+      const pct = TOTAL_CHECKS > 0 ? Math.round((checked / TOTAL_CHECKS) * 100) : 0;
+      document.getElementById('manual-progress-label').textContent = checked + ' / ' + TOTAL_CHECKS + ' verified';
+      document.getElementById('manual-progress-bar').style.width = pct + '%';
+    }
+
+    function applyCardState(card, checked) {
+      const badge = card.querySelector('.manual-badge');
+      const verifiedLabel = card.querySelector('.verified-label');
+      if (checked) {
+        card.classList.remove('border-amber-200');
+        card.classList.add('border-emerald-200');
+        card.querySelector('label').classList.remove('from-amber-50\\/60', 'hover:from-amber-50');
+        card.querySelector('label').classList.add('from-emerald-50\\/60', 'hover:from-emerald-50');
+        badge.textContent = '✓ Verified';
+        badge.classList.replace('bg-amber-100', 'bg-emerald-100');
+        badge.classList.replace('text-amber-800', 'text-emerald-700');
+        badge.classList.replace('border-amber-200', 'border-emerald-200');
+        verifiedLabel.classList.remove('hidden');
+      } else {
+        card.classList.add('border-amber-200');
+        card.classList.remove('border-emerald-200');
+        card.querySelector('label').classList.add('from-amber-50\\/60', 'hover:from-amber-50');
+        card.querySelector('label').classList.remove('from-emerald-50\\/60', 'hover:from-emerald-50');
+        badge.textContent = 'Manual';
+        badge.classList.replace('bg-emerald-100', 'bg-amber-100');
+        badge.classList.replace('text-emerald-700', 'text-amber-800');
+        badge.classList.replace('border-emerald-200', 'border-amber-200');
+        verifiedLabel.classList.add('hidden');
+      }
+    }
+
+    function initManualChecks() {
+      const state = getState();
+      document.querySelectorAll('.manual-checkbox').forEach(cb => {
+        const criterion = cb.dataset.criterion;
+        const card = document.getElementById('manual-' + criterion.replace('.', '-'));
+        cb.checked = !!state[criterion];
+        if (card) applyCardState(card, cb.checked);
+        cb.addEventListener('change', () => {
+          const s = getState();
+          s[criterion] = cb.checked;
+          saveState(s);
+          if (card) applyCardState(card, cb.checked);
+          updateProgress();
+        });
+      });
+      updateProgress();
+    }
+
+    function resetManualChecks() {
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+      document.querySelectorAll('.manual-checkbox').forEach(cb => {
+        cb.checked = false;
+        const card = document.getElementById('manual-' + cb.dataset.criterion.replace('.', '-'));
+        if (card) applyCardState(card, false);
+      });
+      updateProgress();
+    }
+
+    document.addEventListener('DOMContentLoaded', initManualChecks);
+    // ─────────────────────────────────────────────────────────────────────
+
     function filterIssues(severity) {
         // Reset buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
