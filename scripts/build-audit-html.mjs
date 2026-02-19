@@ -402,28 +402,28 @@ function buildManualChecksSection() {
   const total = MANUAL_CHECKS.length;
   const cards = MANUAL_CHECKS.map((c) => buildManualCheckCard(c)).join("\n");
   return `
-<div class="mt-16">
+<div class="mt-16 mb-4">
   <div class="flex items-center gap-3 mb-2">
     <h3 class="text-lg font-bold text-slate-900">Manual Verification Required</h3>
     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">${total} checks</span>
   </div>
-  <p class="text-sm text-slate-500 mb-4">These WCAG 2.2 criteria cannot be detected automatically by axe-core. Check each one off as you verify it — progress is saved in your browser.</p>
+  <p class="text-sm text-slate-500">These WCAG 2.2 criteria cannot be detected automatically by axe-core. Check each one off as you verify it — progress is saved in your browser.</p>
+</div>
 
-  <div class="bg-white rounded-xl border border-slate-200 p-4 mb-6 flex items-center gap-4">
-    <div class="flex-1">
-      <div class="flex justify-between text-xs font-medium text-slate-500 mb-1.5">
-        <span>Verification progress</span>
-        <span id="manual-progress-label">0 / ${total} verified</span>
-      </div>
-      <div class="w-full bg-slate-100 rounded-full h-2">
-        <div id="manual-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-      </div>
+<div id="manual-progress-sticky" class="sticky top-16 z-30 bg-white rounded-xl border border-slate-200 p-4 mb-6 flex items-center gap-4 shadow-sm">
+  <div class="flex-1">
+    <div class="flex justify-between text-xs font-medium text-slate-500 mb-1.5">
+      <span>Verification progress</span>
+      <span id="manual-progress-label">0 / ${total} verified</span>
     </div>
-    <button onclick="resetManualChecks()" class="text-xs text-slate-400 hover:text-rose-500 transition-colors font-medium whitespace-nowrap">Reset all</button>
+    <div class="w-full bg-slate-100 rounded-full h-2">
+      <div id="manual-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+    </div>
   </div>
+  <button onclick="resetManualChecks()" class="text-xs text-slate-400 hover:text-rose-500 transition-colors font-medium whitespace-nowrap">Reset all</button>
+</div>
 
-  ${cards}
-</div>`;
+${cards}`;
 }
 
 
@@ -1027,7 +1027,7 @@ function buildHtml(args, findings) {
         })() : ""}
       </div>
 
-      <div class="sticky top-16 z-40 bg-slate-50/95 backdrop-blur py-4 border-b border-slate-200 mb-6 flex justify-between items-center">
+      <div id="findings-toolbar" class="sticky top-16 z-40 bg-slate-50/95 backdrop-blur py-4 border-b border-slate-200 mb-6 flex justify-between items-center">
         <div class="flex items-center gap-3">
           <h3 class="text-lg font-bold">Detailed Findings (${findings.length})</h3>
           <div class="flex gap-1 bg-white border border-slate-200 rounded-lg p-1">
@@ -1205,7 +1205,15 @@ function buildHtml(args, findings) {
       updateProgress();
     }
 
-    document.addEventListener('DOMContentLoaded', initManualChecks);
+    document.addEventListener('DOMContentLoaded', function() {
+      initManualChecks();
+      // Offset manual progress bar below the findings toolbar
+      const toolbar = document.getElementById('findings-toolbar');
+      const manualBar = document.getElementById('manual-progress-sticky');
+      if (toolbar && manualBar) {
+        manualBar.style.top = (64 + toolbar.offsetHeight + 10) + 'px';
+      }
+    });
     // ─────────────────────────────────────────────────────────────────────
 
     function setView(view) {
