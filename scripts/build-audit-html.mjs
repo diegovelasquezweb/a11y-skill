@@ -267,6 +267,176 @@ function buildIssueCard(finding) {
 </article>`;
 }
 
+const MANUAL_CHECKS = [
+  {
+    criterion: "2.4.11",
+    title: "Focus Appearance",
+    level: "AA",
+    description: "Focus indicators must be clearly visible with a minimum area (perimeter × 2 CSS px) and 3:1 contrast ratio between focused and unfocused states.",
+    steps: [
+      "Tab through every interactive element on the page",
+      "Verify each focused element has a clearly visible outline or indicator",
+      "Check the focus indicator has at least 3:1 contrast vs adjacent colors",
+      "Confirm the indicator area is at least: component perimeter × 2 CSS pixels",
+    ],
+    ref: "https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance.html",
+  },
+  {
+    criterion: "2.5.7",
+    title: "Dragging Movements",
+    level: "AA",
+    description: "All drag-and-drop functionality must have a single-pointer alternative (click-to-select + click-to-drop, arrow buttons, etc.).",
+    steps: [
+      "Identify all drag-and-drop interactions: sortable lists, sliders, file upload zones",
+      "Verify each can be operated without dragging (arrow keys, click alternatives)",
+      "Test using only pointer clicks — no drag gestures allowed as the sole method",
+    ],
+    ref: "https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html",
+  },
+  {
+    criterion: "2.5.8",
+    title: "Target Size (Minimum)",
+    level: "AA",
+    description: "Interactive targets must be at least 24×24 CSS pixels, or have sufficient spacing to offset a smaller size.",
+    steps: [
+      "Inspect computed size of small buttons, links, and icon controls",
+      "Use DevTools: select element → Computed → check width/height",
+      "For targets under 24×24 px, verify at least (24 − size) px of non-interactive spacing surrounds it",
+    ],
+    ref: "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+  },
+  {
+    criterion: "3.2.6",
+    title: "Consistent Help",
+    level: "A",
+    description: "Help mechanisms (support link, chat widget, contact info) must appear in the same relative order on every page where they appear.",
+    steps: [
+      "Navigate to at least 3 different pages that contain help links or contact info",
+      "Verify the help mechanism is always in the same location (e.g., always in the footer)",
+      "Check that its order relative to surrounding elements is consistent across pages",
+    ],
+    ref: "https://www.w3.org/WAI/WCAG22/Understanding/consistent-help.html",
+  },
+  {
+    criterion: "3.3.7",
+    title: "Redundant Entry",
+    level: "A",
+    description: "Information already provided by the user in the same session must not be required again unless essential or for security.",
+    steps: [
+      "Complete multi-step forms that span multiple pages (checkout, registration, surveys)",
+      "Verify that data entered earlier (name, address, email) is pre-populated or selectable in later steps",
+      "Check that users are never asked to re-type the same information twice",
+    ],
+    ref: "https://www.w3.org/WAI/WCAG22/Understanding/redundant-entry.html",
+  },
+  {
+    criterion: "3.3.8",
+    title: "Accessible Authentication (Minimum)",
+    level: "AA",
+    description: "Authentication must not rely solely on cognitive function tests (CAPTCHA, puzzles, memorization) — an accessible alternative must be available.",
+    steps: [
+      "Test the login and signup flow end-to-end",
+      "If a CAPTCHA is present, verify an audio alternative or another accessible option exists",
+      "Confirm copy-paste is allowed in password fields",
+      "Check whether passkeys or email magic links are offered as alternatives",
+    ],
+    ref: "https://www.w3.org/WAI/WCAG22/Understanding/accessible-authentication-minimum.html",
+  },
+];
+
+function buildManualCheckCard(check) {
+  const steps = check.steps
+    .map((s) => `<li class="mb-1.5 text-slate-600 text-sm">${escapeHtml(s)}</li>`)
+    .join("");
+  return `
+<div class="bg-white rounded-xl border border-amber-200 shadow-sm mb-4 overflow-hidden">
+  <div class="p-5 border-b border-amber-100 bg-gradient-to-r from-amber-50/60 to-white flex flex-wrap items-center gap-3">
+    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border bg-amber-100 text-amber-800 border-amber-200">Manual</span>
+    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 font-mono">${escapeHtml(check.criterion)}</span>
+    <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 ml-auto">WCAG 2.2 ${escapeHtml(check.level)}</span>
+    <h3 class="text-base font-bold text-slate-900 w-full mt-1">${escapeHtml(check.title)}</h3>
+  </div>
+  <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">What to verify</h4>
+      <p class="text-sm text-slate-600 leading-relaxed">${escapeHtml(check.description)}</p>
+    </div>
+    <div>
+      <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">How to test</h4>
+      <ol class="list-decimal list-outside ml-4 space-y-1 marker:text-slate-400 marker:font-medium">
+        ${steps}
+      </ol>
+    </div>
+  </div>
+  <div class="px-5 pb-4">
+    <a href="${escapeHtml(check.ref)}" target="_blank" class="text-xs text-indigo-600 hover:underline font-medium">WCAG 2.2 Understanding — ${escapeHtml(check.criterion)} ${escapeHtml(check.title)} →</a>
+  </div>
+</div>`;
+}
+
+function buildManualChecksSection() {
+  const cards = MANUAL_CHECKS.map((c) => buildManualCheckCard(c)).join("\n");
+  return `
+<div class="mt-16">
+  <div class="flex items-center gap-3 mb-2">
+    <h3 class="text-lg font-bold text-slate-900">Manual Verification Required</h3>
+    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">${MANUAL_CHECKS.length} checks</span>
+  </div>
+  <p class="text-sm text-slate-500 mb-6">These WCAG 2.2 criteria cannot be detected automatically by axe-core. Review each one manually before certifying compliance.</p>
+  ${cards}
+</div>`;
+}
+
+function buildManualChecksPdfSection() {
+  const entries = MANUAL_CHECKS.map((check) => {
+    const steps = check.steps
+      .map((s, i) => `<p style="margin: 4pt 0 4pt 16pt; font-size: 9pt;">${i + 1}. ${escapeHtml(s)}</p>`)
+      .join("");
+    return `
+<div style="border-top: 1pt solid #d1d5db; padding-top: 1rem; margin-top: 1.5rem; page-break-inside: avoid;">
+  <p style="font-family: sans-serif; font-size: 9pt; font-weight: 800; text-transform: uppercase; margin-bottom: 4pt;">
+    Manual · ${escapeHtml(check.criterion)} · WCAG 2.2 ${escapeHtml(check.level)}
+  </p>
+  <h4 style="margin: 0 0 6pt 0; border: none; font-size: 12pt;">${escapeHtml(check.title)}</h4>
+  <p style="font-size: 9pt; color: #374151; margin-bottom: 6pt;">${escapeHtml(check.description)}</p>
+  <p style="font-size: 9pt; font-weight: 700; margin-bottom: 2pt;">How to verify:</p>
+  ${steps}
+  <p style="font-size: 8pt; color: #6366f1; margin-top: 6pt;">Ref: ${escapeHtml(check.ref)}</p>
+</div>`;
+  }).join("");
+
+  return `
+<div style="page-break-before: always;">
+  <h2>3. Manual Verification Required (WCAG 2.2)</h2>
+  <p style="font-size: 10pt;">The following criteria cannot be detected by automated tools. Each must be verified manually before declaring WCAG 2.2 AA compliance.</p>
+  ${entries}
+</div>`;
+}
+
+function buildManualChecksMd() {
+  const entries = MANUAL_CHECKS.map((check) => {
+    const steps = check.steps.map((s, i) => `${i + 1}. ${s}`).join("\n");
+    return [
+      `---`,
+      `### ${check.criterion} — ${check.title} (WCAG 2.2 ${check.level})`,
+      ``,
+      `${check.description}`,
+      ``,
+      `**How to verify:**`,
+      steps,
+      ``,
+      `**Reference:** ${check.ref}`,
+    ].join("\n");
+  }).join("\n\n");
+
+  return `## Manual Verification Required (WCAG 2.2)
+
+> These criteria cannot be detected automatically. Verify each one manually before certifying compliance.
+
+${entries}
+`;
+}
+
 function linkify(text) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;
   return text.replace(
@@ -285,14 +455,6 @@ function buildHtml(args, findings) {
     minute: "2-digit",
   });
   const hasIssues = findings.length > 0;
-
-  let version = "v1.0.0";
-  try {
-    const pkg = readJson(path.join(getInternalPath(".."), "package.json"));
-    if (pkg && pkg.version) version = `v${pkg.version}`;
-  } catch (e) {
-    log.warn(`Could not read package.json version: ${e.message}`);
-  }
 
   const statusColor = hasIssues
     ? "text-rose-600 bg-rose-50 border-rose-200"
@@ -439,6 +601,8 @@ function buildHtml(args, findings) {
       <div id="issues-container" class="space-y-6">
         ${findings.length === 0 ? "No issues found." : findings.map((f) => buildIssueCard(f)).join("\n")}
       </div>
+
+      ${buildManualChecksSection()}
     </div>
   </div>
 
@@ -503,10 +667,12 @@ function buildHtml(args, findings) {
         )
         .join("")}
     </div>
+
+    ${buildManualChecksPdfSection()}
   </div>
 
     <footer class="mt-20 pt-10 border-t border-slate-200 text-center">
-        <p class="text-slate-400 text-sm font-medium">Generated by Automated Accessibility Pipeline &bull; <span class="text-slate-500">WCAG 2.1 AA Standards</span></p>
+        <p class="text-slate-400 text-sm font-medium">Generated by Automated Accessibility Pipeline &bull; <span class="text-slate-500">${escapeHtml(args.target)}</span></p>
     </footer>
 
   </div>
@@ -673,7 +839,8 @@ URL are also available to narrow the search.
 ${blockers ? `## Priority Fixes (Critical & High)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or high severity issues found."}
 
 ${deferred ? `## Deferred Issues (Medium & Low)\n\n${deferred}` : ""}
-`.trimEnd() + "\n";
+
+${buildManualChecksMd()}`.trimEnd() + "\n";
 }
 
 function main() {
