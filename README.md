@@ -83,7 +83,7 @@ All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
 1. **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
 2. **Scan**: `generate-route-checks.mjs` crawls the site and runs Axe-Core.
 3. **Process**: `deterministic-findings.mjs` transforms raw data into structured findings.
-4. **Build**: `build-audit-html.mjs` generates the final premium HTML report.
+4. **Build**: `build-audit-html.mjs` generates the final detailed HTML report.
 5. **Export**: `generate-pdf.mjs` creates a portable PDF version of the report.
 
 ## Advanced Configuration
