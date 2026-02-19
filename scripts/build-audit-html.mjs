@@ -214,9 +214,9 @@ function buildIssueCard(finding) {
             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
             <a href="${escapeHtml(finding.url)}" target="_blank" class="hover:text-indigo-600 hover:underline truncate max-w-[200px] md:max-w-md transition-colors">${escapeHtml(finding.url)}</a>
         </div>
-        <div class="flex items-center gap-1.5 w-full md:w-auto mt-1 md:mt-0">
-            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-            <code class="px-1.5 py-0.5 bg-slate-100 rounded text-xs text-slate-700 border border-slate-200 font-mono truncate max-w-full">${escapeHtml(finding.selector)}</code>
+        <div class="flex items-center gap-1.5 w-full md:w-auto mt-1 md:mt-0 min-w-0">
+            <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            <code class="px-1.5 py-0.5 bg-slate-100 rounded text-xs text-slate-700 border border-slate-200 font-mono truncate min-w-0 flex-1">${escapeHtml(finding.selector)}</code>
         </div>
     </div>
   </div>
@@ -870,6 +870,14 @@ function buildHtml(args, findings) {
     : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
   const statusText = hasIssues ? "WCAG Violations Found" : "Audit Passed";
 
+  // Page select for "By Page" view
+  const _pageCounts = {};
+  for (const f of findings) { _pageCounts[f.area] = (_pageCounts[f.area] || 0) + 1; }
+  const _sortedPages = Object.entries(_pageCounts).sort((a, b) => b[1] - a[1]);
+  const pageSelectHtml = _sortedPages.length > 1
+    ? `<select id="page-select" onchange="filterByPage(this.value)" style="display:none" class="px-3 py-1.5 rounded-md text-xs font-medium border border-slate-200 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-300 cursor-pointer"><option value="all">All pages (${_sortedPages.length})</option>${_sortedPages.map(([pg, cnt]) => `<option value="${escapeHtml(pg)}">${escapeHtml(pg)} (${cnt})</option>`).join("")}</select>`
+    : "";
+
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -1020,10 +1028,13 @@ function buildHtml(args, findings) {
             <button onclick="setView('page')" id="view-page" class="view-btn px-3 py-1 rounded text-xs font-medium text-slate-500 hover:text-slate-700">By Page</button>
           </div>
         </div>
-        <div id="filter-controls" class="flex gap-2">
-          <button onclick="filterIssues('all')" class="filter-btn active px-3 py-1.5 rounded-md text-xs font-medium border bg-indigo-50 text-indigo-700 border-indigo-100">All</button>
-          <button onclick="filterIssues('Critical')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Critical</button>
-          <button onclick="filterIssues('High')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">High</button>
+        <div class="flex items-center gap-2">
+          <div id="filter-controls" class="flex gap-2">
+            <button onclick="filterIssues('all')" class="filter-btn active px-3 py-1.5 rounded-md text-xs font-medium border bg-indigo-50 text-indigo-700 border-indigo-100">All</button>
+            <button onclick="filterIssues('Critical')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Critical</button>
+            <button onclick="filterIssues('High')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">High</button>
+          </div>
+          ${pageSelectHtml}
         </div>
       </div>
 
@@ -1192,6 +1203,7 @@ function buildHtml(args, findings) {
       const severityContainer = document.getElementById('issues-container');
       const pageContainer = document.getElementById('page-container');
       const filterControls = document.getElementById('filter-controls');
+      const pageSelect = document.getElementById('page-select');
       const btnSeverity = document.getElementById('view-severity');
       const btnPage = document.getElementById('view-page');
 
@@ -1199,6 +1211,7 @@ function buildHtml(args, findings) {
         severityContainer.style.display = '';
         pageContainer.style.display = 'none';
         filterControls.style.display = '';
+        if (pageSelect) pageSelect.style.display = 'none';
         btnSeverity.classList.add('bg-indigo-50', 'text-indigo-700');
         btnSeverity.classList.remove('text-slate-500', 'hover:text-slate-700');
         btnPage.classList.remove('bg-indigo-50', 'text-indigo-700');
@@ -1206,12 +1219,23 @@ function buildHtml(args, findings) {
       } else {
         severityContainer.style.display = 'none';
         pageContainer.style.display = '';
-        filterControls.style.display = '';
+        filterControls.style.display = 'none';
+        if (pageSelect) {
+          pageSelect.style.display = '';
+          pageSelect.value = 'all';
+          filterByPage('all');
+        }
         btnPage.classList.add('bg-indigo-50', 'text-indigo-700');
         btnPage.classList.remove('text-slate-500', 'hover:text-slate-700');
         btnSeverity.classList.remove('bg-indigo-50', 'text-indigo-700');
         btnSeverity.classList.add('text-slate-500', 'hover:text-slate-700');
       }
+    }
+
+    function filterByPage(page) {
+      document.querySelectorAll('.page-group').forEach(group => {
+        group.style.display = (page === 'all' || group.dataset.page === page) ? '' : 'none';
+      });
     }
 
     function filterIssues(severity) {
