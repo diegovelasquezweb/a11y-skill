@@ -16,14 +16,10 @@ Follow this workflow to audit and report website accessibility issues with consi
 
 ## Operating Guardrails
 
-1. **Installation Scope**: Always use `--scope workspace` during installation.
-2. **Platform Setup & Installation**: When asked to install, the agent must complete all platform-specific setup beyond copying files:
-   - **Antigravity**: Create/Update `.agent/workflows/` files.
-   - **Gemini CLI**: Complete the specific **Activation** process required to load instructions into context.
-   - **Claude Code/SDK**: Ensure files are in the correct path and enabled via `allowed_tools` if applicable.
-   - **Codex**: Follow the installer prompts or ensure detection in `.agents/skills`.
-   - **Cursor**: Ensure placement in `.cursor/skills/` for the agent to use it.
-     The skill must be **completely ready to run** before reporting success. Do NOT execute the actual audit pipeline until explicitly requested.
+1. **Environment Awareness (Gemini CLI)**: This skill relies on autonomous activation. If the agent encounters "Path not in workspace" errors while reading its own resources in a sandboxed environment, it must proceed by identifying the correct installation path and utilizing available tools to access its instructions and scripts. Use `/skills reload` if the tool registration is inconsistent.
+2. **Setup Readiness**:
+   - **Antigravity**: On first activation in any project, ensure `.agent/workflows/audit.md` exists to enable the `/audit` command.
+   - **General**: Do not execute the actual audit pipeline until explicitly requested by the user.
 
 3. **Audit behavior**:
 
@@ -266,8 +262,6 @@ Execution discipline for the agent:
 
 ## 7) Antigravity Workspace Setup
 
-> This section applies only to Google Antigravity.
-
 Workflows in Antigravity are workspace-scoped. On first activation in any project, check whether `.agent/workflows/audit.md` exists in the project root.
 
 **If the file does not exist:**
@@ -284,12 +278,11 @@ description: Run a full WCAG 2.1 AA accessibility audit
 
 // turbo 2. Run the audit pipeline:
 
-\```bash
+```bash
 node scripts/run-audit.mjs --base-url <URL>
-\```
+```
 
 3. Parse the `REPORT_PATH=<path>` line from the script output to get the absolute report path.
-
 4. Open the report in the browser using the appropriate method for the current environment:
    - VS Code / Cursor / any IDE with shell access: run `open "<path>"` (macOS), `start "" "<path>"` (Windows), or `xdg-open "<path>"` (Linux)
    - If the shell open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
