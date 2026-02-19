@@ -22,11 +22,11 @@ This skill follows the [Agent Skills standard](https://agentskills.io). Below ar
 
 | Agent / IDE     | Skill install path (Global/User)               | Extended Workflow      | Agent Config            |
 | :-------------- | :--------------------------------------------- | :--------------------- | :---------------------- |
-| **Antigravity** | `~/.gemini/antigravity/skills/a11y-skill/`     | ✅ `.agent/workflows/` | —                       |
-| **Codex**       | `~/.codex/skills/a11y-skill/`                  | —                      | ✅ `agents/openai.yaml` |
-| **Claude**      | `~/.claude/skills/a11y-skill/`                 | —                      | —                       |
+| **Antigravity** | `~/.gemini/antigravity/skills/`                | ✅ `.agent/workflows/` | —                       |
+| **Codex**       | `~/.codex/skills/`                             | —                      | ✅ `agents/openai.yaml` |
+| **Claude**      | `~/.claude/skills/`                            | —                      | —                       |
 | **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex) | —                      | —                       |
-| **Gemini CLI**  | `~/.gemini/skills/a11y-skill/`                 | —                      | —                       |
+| **Gemini CLI**  | `~/.gemini/skills/`                            | —                      | —                       |
 
 ## How to Use
 
