@@ -24,10 +24,11 @@ This skill follows the open [Agent Skills standard](https://agentskills.io) supp
 
 ## Installation
 
-To install this technical skill, simply provide the following prompt to your AI agent:
+To install this skill, provide the following prompt to your AI agent:
 
 > "Install skill https://github.com/diegovelasquezweb/a11y-skill"
 
+### Installation Paths
 
 | Agent / IDE        | Skill install path                         |
 | :----------------- | :----------------------------------------- |
