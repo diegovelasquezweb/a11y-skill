@@ -7,7 +7,7 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 - **Modern Engine**: Uses Playwright for full browser automation and Axe-Core for high-precision detection.
 - **SPA Support**: Handles dynamic content and Single Page Applications natively.
 - **Isolated Stack**: No global dependencies or project-level pollution. All tools live within the skill.
-- **Premium Reports**: Generates professional HTML dashboards with technical evidence and remediation guidance.
+- **Detailed Reports**: Generates a professional HTML report and PDF export with technical evidence and remediation guidance.
 - **Autodiscovery**: Automatically finds and scans same-origin routes if none are provided.
 
 ## Installation
