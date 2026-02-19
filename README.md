@@ -39,10 +39,12 @@ Once installed, the skill is available to your agent in any conversation. Simply
 ## Deliverables
 
 - **Location**: `audit/` folder.
-  - `index.html`: The premium standalone live report (Primary).
-  - `summary.md`: A concise markdown summary (Ideal for PRs or tickets).
-- **Format**: Executive Summary, Detailed Technical Findings (with DOM evidence).
-- **Compliance**: Validates **WCAG 2.1 AA** standards via automated Axe-Core checks.
+  - `index.html`: Premium standalone interactive dashboard (Primary).
+  - `index.pdf`: Professional, portable report for compliance and offline sharing.
+  - `summary.md`: Concise markdown summary ideal for PRs or tickets.
+  - `internal/`: Raw technical assets for data ingestion or custom processing.
+    - `a11y-findings.json`: Final normalized findings (Cleaned).
+    - `a11y-scan-results.json`: Raw automated scan data (Full).
 
 ## Standalone CLI
 
@@ -81,6 +83,7 @@ All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
 2. **Scan**: `generate-route-checks.mjs` crawls the site and runs Axe-Core.
 3. **Process**: `deterministic-findings.mjs` transforms raw data into structured findings.
 4. **Build**: `build-audit-html.mjs` generates the final premium HTML report.
+5. **Export**: `generate-pdf.mjs` creates a portable PDF version of the report.
 
 ## Advanced Configuration
 

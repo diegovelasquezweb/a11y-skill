@@ -296,7 +296,7 @@ function buildHtml(args, findings) {
   const statusText = hasIssues ? "WCAG Violations Found" : "Audit Passed";
 
   return `<!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -304,131 +304,196 @@ function buildHtml(args, findings) {
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            slate: { 850: '#151e2e' }
-          }
-        }
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    /* WEB STYLES (Screen) */
+    @media screen {
+      .pdf-only { display: none !important; }
+      body { background-color: #f8fafc; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+      .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); }
+    }
+
+    /* PDF STYLES (Print) */
+    @media print {
+      .web-only { display: none !important; }
+      .pdf-only { display: block !important; }
+      
+      @page {
+        size: A4;
+        margin: 2cm;
+      }
+
+      body {
+        background: white !important;
+        color: black !important;
+        font-family: 'Libre Baskerville', serif !important;
+        font-size: 11pt !important;
+        line-height: 1.6;
+      }
+
+      h1, h2, h3, h4 { font-family: 'Inter', sans-serif !important; color: black !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
+      
+      .cover-page {
+        height: 25cm;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border-bottom: 2pt solid black;
+        margin-bottom: 3cm;
+        page-break-after: always;
+      }
+
+      .finding-entry {
+        border-top: 1pt solid black;
+        padding-top: 1.5rem;
+        margin-top: 2rem;
+        page-break-inside: avoid;
+      }
+
+      .severity-tag {
+        font-weight: 800;
+        text-transform: uppercase;
+        border: 1.5pt solid black;
+        padding: 2pt 6pt;
+        font-size: 9pt;
+        margin-bottom: 1rem;
+        display: inline-block;
+      }
+
+      .remediation-box {
+        background-color: #f3f4f6 !important;
+        border-left: 4pt solid black;
+        padding: 1rem;
+        margin: 1rem 0;
+        font-style: italic;
+      }
+
+      pre {
+        background: #f9fafb !important;
+        border: 1pt solid #ddd !important;
+        padding: 10pt !important;
+        font-size: 8pt !important;
+        overflow: hidden !important;
+        white-space: pre-wrap !important;
+      }
+
+      .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 2rem 0;
+      }
+      .stats-table th, .stats-table td {
+        border: 1pt solid black;
+        padding: 10pt;
+        text-align: left;
       }
     }
-  </script>
-  <style>
-    body { -webkit-font-smoothing: antialiased; }
-    .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen">
+<body class="text-slate-900 min-h-screen">
   
-  <div class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-slate-200/80 shadow-sm transition-all duration-300" id="navbar">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
+  <!-- WEB VERSION -->
+  <div class="web-only">
+    <div class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-slate-200/80 shadow-sm" id="navbar">
+      <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
         <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center px-2 h-8 rounded-lg bg-slate-800 text-white font-bold text-sm shadow-sm shadow-slate-200 tracking-wide font-mono">a11y</div>
-            <h1 class="text-lg font-bold text-slate-900 tracking-tight">Accessibility <span class="text-slate-500">Report</span></h1>
-            <span class="hidden md:inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">${version}</span>
+          <div class="px-2 h-8 rounded bg-slate-800 text-white font-bold text-sm font-mono">a11y</div>
+          <h1 class="text-lg font-bold">Accessibility <span class="text-slate-500">Report</span></h1>
         </div>
-        <div class="flex items-center gap-4 text-sm font-medium text-slate-600">
-            <div class="hidden sm:block">Target: ${escapeHtml(args.target)}</div>
-            <div class="hidden sm:block h-4 w-px bg-slate-300"></div>
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border ${statusColor}">
-                ${statusIcon}
-                <span>${statusText}</span>
-            </div>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border ${statusColor}">
+          ${statusIcon} <span>${statusText}</span>
         </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 pt-24 pb-20">
+      <div class="mb-10">
+        <h2 class="text-3xl font-extrabold mb-2">${escapeHtml(args.title)}</h2>
+        <p class="text-slate-500">${dateStr} &bull; ${escapeHtml(args.baseUrl)}</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-12">
+        <div class="bg-white p-5 rounded-xl border border-rose-100"><p class="text-xs font-bold text-rose-600 uppercase">Critical</p><div class="text-4xl font-bold">${totals.Critical}</div></div>
+        <div class="bg-white p-5 rounded-xl border border-orange-100"><p class="text-xs font-bold text-orange-600 uppercase">High</p><div class="text-4xl font-bold">${totals.High}</div></div>
+        <div class="bg-white p-5 rounded-xl border border-amber-100"><p class="text-xs font-bold text-amber-600 uppercase">Medium</p><div class="text-4xl font-bold">${totals.Medium}</div></div>
+        <div class="bg-white p-5 rounded-xl border border-emerald-100"><p class="text-xs font-bold text-emerald-600 uppercase">Low</p><div class="text-4xl font-bold">${totals.Low}</div></div>
+      </div>
+
+      <div class="sticky top-16 z-40 bg-slate-50/95 backdrop-blur py-4 border-b border-slate-200 mb-6 flex justify-between items-center">
+        <h3 class="text-lg font-bold">Detailed Findings (${findings.length})</h3>
+        <div class="flex gap-2">
+          <button onclick="filterIssues('all')" class="filter-btn active px-3 py-1.5 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">All</button>
+          <button onclick="filterIssues('Critical')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium">Critical</button>
+          <button onclick="filterIssues('High')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium">High</button>
+        </div>
+      </div>
+
+      <div id="issues-container" class="space-y-6">
+        ${findings.length === 0 ? "No issues found." : findings.map((f) => buildIssueCard(f)).join("\n")}
       </div>
     </div>
   </div>
 
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+  <!-- PDF VERSION (Pure Document Design) -->
+  <div class="pdf-only">
+    <div class="cover-page">
+      <p style="font-family: sans-serif; font-weight: 900; letter-spacing: 2pt; font-size: 14pt; margin-bottom: 4cm;">ACCESSIBILITY AUDIT REPORT</p>
+      <h1 style="font-size: 42pt !important; line-height: 1.1; border: none; margin: 0;">${escapeHtml(args.title)}</h1>
+      <div style="margin-top: 5cm; font-family: sans-serif;">
+        <p><strong>Target:</strong> ${escapeHtml(args.baseUrl)}</p>
+        <p><strong>Environment:</strong> ${escapeHtml(args.environment)}</p>
+        <p><strong>Standards:</strong> ${escapeHtml(args.target)}</p>
+        <p><strong>Date:</strong> ${dateStr}</p>
+      </div>
+    </div>
+
+    <h2>1. Executive Summary</h2>
+    <p>This document provides a comprehensive analysis of the accessibility compliance for the targeted routes. Below is a summary of the violations detected during the automated scan.</p>
     
-    <!-- Hero Summary -->
-    <div class="mb-10">
-        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">${escapeHtml(args.title)}</h2>
-        <p class="text-slate-500 text-lg max-w-3xl">Comprehensive accessibility analysis executed on <span class="font-medium text-slate-700">${dateStr}</span> against <a href="${escapeHtml(args.baseUrl)}" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline font-medium">${escapeHtml(args.baseUrl || "Target Environment")}</a>.</p>
+    <table class="stats-table">
+      <thead>
+        <tr><th>Severity</th><th>Issue Count</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Critical</td><td>${totals.Critical}</td><td>Immediate barriers for users with disabilities.</td></tr>
+        <tr><td>High</td><td>${totals.High}</td><td>Serious impediments to core task completion.</td></tr>
+        <tr><td>Medium</td><td>${totals.Medium}</td><td>Usability friction and partial WCAG violations.</td></tr>
+        <tr><td>Low</td><td>${totals.Low}</td><td>Best practice improvements and minor defects.</td></tr>
+      </tbody>
+    </table>
+
+    <div style="page-break-after: always;"></div>
+
+    <h2>2. Detailed Technical Findings</h2>
+    <div id="pdf-findings">
+      ${findings
+        .map(
+          (f) => `
+        <div class="finding-entry">
+          <div class="severity-tag">${f.severity}</div>
+          <h3 style="margin-top: 0 !important; border: none;">${f.id}: ${f.title}</h3>
+          
+          <p><strong>Location:</strong> ${escapeHtml(f.area)} at <a href="${f.url}">${f.url}</a></p>
+          <p><strong>Selector:</strong> <code>${escapeHtml(f.selector)}</code></p>
+          
+          <h4>Issue Discovery</h4>
+          <p><strong>Expected:</strong> ${f.expected}</p>
+          <p><strong>Actual:</strong> ${f.actual}</p>
+          <p><strong>Impact:</strong> ${f.impact}</p>
+
+          <div class="remediation-box">
+            <h4 style="margin: 0; border: none;">Remediation Advice</h4>
+            <p style="margin-bottom: 0;">${f.recommendedFix}</p>
+          </div>
+
+          ${f.evidence ? `<h4>Evidence</h4>${formatEvidence(f.evidence)}` : ""}
+        </div>
+      `,
+        )
+        .join("")}
     </div>
-
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
-        <!-- Critical -->
-        <div class="bg-white rounded-xl shadow-sm border border-rose-100 p-5 relative overflow-hidden group hover:border-rose-200 transition-all">
-            <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <svg class="w-24 h-24 text-rose-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-            </div>
-            <p class="text-xs font-bold text-rose-600 uppercase tracking-wider mb-1">Critical Issues</p>
-            <div class="text-4xl font-extrabold text-rose-900 mb-2">${totals.Critical}</div>
-            <p class="text-xs text-rose-700/80 font-medium">Blocking barriers requiring immediate fix</p>
-        </div>
-
-        <!-- High -->
-        <div class="bg-white rounded-xl shadow-sm border border-orange-100 p-5 relative overflow-hidden group hover:border-orange-200 transition-all">
-            <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <svg class="w-24 h-24 text-orange-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-            </div>
-            <p class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-1">High Severity</p>
-            <div class="text-4xl font-extrabold text-orange-900 mb-2">${totals.High}</div>
-            <p class="text-xs text-orange-700/80 font-medium">Core task impediments</p>
-        </div>
-
-        <!-- Medium -->
-        <div class="bg-white rounded-xl shadow-sm border border-amber-100 p-5 relative overflow-hidden group hover:border-amber-200 transition-all">
-            <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <svg class="w-24 h-24 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
-            </div>
-            <p class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Medium Severity</p>
-            <div class="text-4xl font-extrabold text-amber-900 mb-2">${totals.Medium}</div>
-            <p class="text-xs text-amber-700/80 font-medium">Usability friction points</p>
-        </div>
-
-        <!-- Low -->
-        <div class="bg-white rounded-xl shadow-sm border border-emerald-100 p-5 relative overflow-hidden group hover:border-emerald-200 transition-all">
-            <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <svg class="w-24 h-24 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
-            </div>
-            <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Low Severity</p>
-            <div class="text-4xl font-extrabold text-emerald-900 mb-2">${totals.Low}</div>
-            <p class="text-xs text-emerald-700/80 font-medium">Best practice improvements</p>
-        </div>
-    </div>
-
-    <!-- Filter Bar -->
-    <div class="sticky top-16 z-40 bg-slate-50/95 backdrop-blur py-4 mb-6 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
-        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-            Detailed Findings
-            <span class="bg-slate-200 text-slate-600 text-xs py-0.5 px-2 rounded-full">${findings.length}</span>
-        </h3>
-        
-        <div class="flex items-center gap-2 bg-white p-1 rounded-lg border border-slate-200 shadow-sm overflow-x-auto">
-            <button onclick="filterIssues('all')" class="filter-btn active px-3 py-1.5 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 transition-colors">All Issues</button>
-            <button onclick="filterIssues('Critical')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">Critical</button>
-            <button onclick="filterIssues('High')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">High</button>
-            <button onclick="filterIssues('Medium')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">Medium</button>
-            <button onclick="filterIssues('Low')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">Low</button>
-        </div>
-    </div>
-
-    <!-- Issues List -->
-    <div id="issues-container" class="space-y-6">
-        ${
-          findings.length === 0
-            ? `
-        <div class="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200 shadow-sm">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-50 mb-6">
-                <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-2">No Accessibility Issues Found!</h3>
-            <p class="text-slate-500 max-w-md mx-auto">Great job! The automated scan detected zero violations across the targeted routes based on WCAG 2.1 AA standards.</p>
-        </div>`
-            : findings.map((finding) => buildIssueCard(finding)).join("\n")
-        }
-    </div>
+  </div>
 
     <footer class="mt-20 pt-10 border-t border-slate-200 text-center">
         <p class="text-slate-400 text-sm font-medium">Generated by Automated Accessibility Pipeline &bull; <span class="text-slate-500">WCAG 2.1 AA Standards</span></p>

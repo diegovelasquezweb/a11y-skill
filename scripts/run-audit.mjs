@@ -89,7 +89,9 @@ async function main() {
 
     const nodeModulesPath = path.join(SKILL_ROOT, "node_modules");
     if (!fs.existsSync(nodeModulesPath)) {
-      log.info("First run detected — installing skill dependencies (one-time setup)...");
+      log.info(
+        "First run detected — installing skill dependencies (one-time setup)...",
+      );
       execSync("pnpm install", { cwd: SKILL_ROOT, stdio: "ignore" });
       log.success("Dependencies ready.");
     }
@@ -121,6 +123,9 @@ async function main() {
     if (target) buildArgs.push("--target", target);
 
     await runScript("build-audit-html.mjs", buildArgs);
+
+    const pdfOutput = output.replace(".html", ".pdf");
+    await runScript("generate-pdf.mjs", [output, pdfOutput]);
 
     const absoluteOutputPath = path.isAbsolute(output)
       ? output
