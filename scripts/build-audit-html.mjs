@@ -33,8 +33,8 @@ function parseArgs(argv) {
     output: path.join(process.cwd(), "audit", "index.html"),
     title: "Accessibility Audit Report",
     baseUrl: "",
-    environment: "",
-    scope: "",
+    environment: "Local Development",
+    scope: "Full Site Scan",
     target: "WCAG 2.1 AA",
   };
 
@@ -118,25 +118,25 @@ function formatEvidence(evidence) {
   try {
     const data = JSON.parse(evidence);
     if (!Array.isArray(data))
-      return `<pre class="raw-evidence"><code>${escapeHtml(evidence)}</code></pre>`;
+      return `<pre class="bg-slate-900 text-slate-50 p-4 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(evidence)}</code></pre>`;
 
     return data
       .map((item) => {
         const failureSummary = item.failureSummary
-          ? `<div class="failure-summary">${formatMultiline(item.failureSummary)}</div>`
+          ? `<div class="mt-2 p-3 bg-rose-50 border-l-4 border-rose-500 text-rose-700 text-xs font-mono whitespace-pre-wrap">${formatMultiline(item.failureSummary)}</div>`
           : "";
         const htmlSnippet = item.html
-          ? `<pre class="code-snippet"><code>${escapeHtml(item.html)}</code></pre>`
+          ? `<div class="mb-2"><span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Source</span><pre class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(item.html)}</code></pre></div>`
           : "";
         return `
-        <div class="evidence-item">
+        <div class="mb-4 last:mb-0">
           ${htmlSnippet}
           ${failureSummary}
         </div>`;
       })
       .join("");
   } catch (e) {
-    return `<pre class="raw-evidence"><code>${escapeHtml(evidence)}</code></pre>`;
+    return `<pre class="bg-slate-900 text-slate-50 p-4 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(evidence)}</code></pre>`;
   }
 }
 
@@ -144,92 +144,120 @@ function buildIssueCard(finding) {
   const reproductionItems =
     finding.reproduction.length > 0
       ? finding.reproduction
-          .map((step) => `<li>${escapeHtml(step)}</li>`)
+          .map(
+            (step) =>
+              `<li class="mb-1 text-slate-600">${escapeHtml(step)}</li>`,
+          )
           .join("")
-      : "<li>No reproduction steps provided.</li>";
+      : "<li class='text-slate-400 italic'>No specific steps provided.</li>";
 
   const evidenceHtml = finding.evidence
-    ? `<div class="evidence-section">
-        <h4 class="evidence-title">Technical Evidence</h4>
+    ? `<div class="mt-6 bg-slate-800 rounded-lg p-4 border border-slate-700 shadow-inner">
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Technical Evidence</h4>
         ${formatEvidence(finding.evidence)}
       </div>`
     : "";
 
-  const severityClass = finding.severity.toLowerCase();
+  let severityBadge = "";
+  let borderClass = "";
+
+  switch (finding.severity) {
+    case "Critical":
+      severityBadge = "bg-rose-100 text-rose-800 border-rose-200";
+      borderClass = "border-rose-200 hover:border-rose-300";
+      break;
+    case "High":
+      severityBadge = "bg-orange-100 text-orange-800 border-orange-200";
+      borderClass = "border-orange-200 hover:border-orange-300";
+      break;
+    case "Medium":
+      severityBadge = "bg-amber-100 text-amber-800 border-amber-200";
+      borderClass = "border-amber-200 hover:border-amber-300";
+      break;
+    case "Low":
+      severityBadge = "bg-emerald-100 text-emerald-800 border-emerald-200";
+      borderClass = "border-emerald-200 hover:border-emerald-300";
+      break;
+    default:
+      severityBadge = "bg-slate-100 text-slate-800 border-slate-200";
+      borderClass = "border-slate-200";
+  }
 
   return `
-<article class="issue-card" id="${escapeHtml(finding.id)}">
-  <div class="issue-header">
-    <div class="issue-meta">
-      <span class="badge badge-severity-${severityClass}">${escapeHtml(finding.severity)}</span>
-      <span class="badge badge-wcag">${escapeHtml(finding.wcag)}</span>
-      <span class="issue-id">${escapeHtml(finding.id)}</span>
+<article class="issue-card bg-white rounded-xl border ${borderClass} shadow-sm transition-all duration-200 hover:shadow-md mb-6 overflow-hidden" data-severity="${finding.severity}" id="${escapeHtml(finding.id)}">
+  <div class="p-5 md:p-6 border-b border-slate-100 bg-gradient-to-r from-white to-slate-50/50">
+    <div class="flex flex-wrap items-center gap-3 mb-3">
+      <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${severityBadge}">${escapeHtml(finding.severity)}</span>
+      <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 font-mono tracking-tight">${escapeHtml(finding.id)}</span>
+      <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 ml-auto">WCAG ${escapeHtml(finding.wcag)}</span>
     </div>
-    <h3 class="issue-title">${escapeHtml(finding.title)}</h3>
-    <div class="issue-location">
-      <div class="location-item"><strong>Area:</strong> ${escapeHtml(finding.area)}</div>
-      <div class="location-item"><strong>URL:</strong> <a href="${escapeHtml(finding.url)}" target="_blank">${escapeHtml(finding.url)}</a></div>
-      <div class="location-item"><strong>Selector:</strong> <code>${escapeHtml(finding.selector)}</code></div>
+    <h3 class="text-lg md:text-xl font-bold text-slate-900 leading-tight mb-4">${escapeHtml(finding.title)}</h3>
+    
+    <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500 font-medium">
+        <div class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            ${escapeHtml(finding.area)}
+        </div>
+        <div class="flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+            <a href="${escapeHtml(finding.url)}" target="_blank" class="hover:text-indigo-600 hover:underline truncate max-w-[200px] md:max-w-md transition-colors">${escapeHtml(finding.url)}</a>
+        </div>
+        <div class="flex items-center gap-1.5 w-full md:w-auto mt-1 md:mt-0">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            <code class="px-1.5 py-0.5 bg-slate-100 rounded text-xs text-slate-700 border border-slate-200 font-mono truncate max-w-full">${escapeHtml(finding.selector)}</code>
+        </div>
     </div>
   </div>
-  <div class="issue-body">
-    <div class="issue-grid">
-      <div class="grid-col">
-        <h4>Reproduction Steps</h4>
-        <ul class="steps-list">${reproductionItems}</ul>
-        
-        <h4>Expected Results</h4>
-        <p class="text-block">${formatMultiline(finding.expected)}</p>
-      </div>
-      <div class="grid-col">
-        <h4>Actual Results</h4>
-        <p class="text-block">${formatMultiline(finding.actual)}</p>
 
-        <h4>Impact</h4>
-        <p class="text-block impact-text">${formatMultiline(finding.impact)}</p>
+  <div class="p-5 md:p-6 bg-white">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+      <div>
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+            Behavior Analysis
+        </h4>
+        <div class="space-y-4">
+            <div>
+                <span class="text-xs font-semibold text-emerald-600 uppercase block mb-1">Expected Behavior</span>
+                <p class="text-sm text-slate-700 bg-emerald-50/50 p-2.5 rounded border border-emerald-100 leading-relaxed">${formatMultiline(finding.expected)}</p>
+            </div>
+            <div>
+                <span class="text-xs font-semibold text-rose-600 uppercase block mb-1">Actual Behavior</span>
+                <p class="text-sm text-slate-700 bg-rose-50/50 p-2.5 rounded border border-rose-100 leading-relaxed">${formatMultiline(finding.actual)}</p>
+            </div>
+        </div>
+      </div>
+      
+      <div>
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+            Steps to Reproduce
+        </h4>
+        <ul class="list-decimal list-outside ml-4 space-y-1 text-sm text-slate-600 marker:text-slate-400 marker:font-medium">
+            ${reproductionItems}
+        </ul>
+        
+        <div class="mt-6">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">User Impact</h4>
+            <p class="text-sm text-slate-600 leading-relaxed italic border-l-2 border-slate-200 pl-3">${formatMultiline(finding.impact)}</p>
+        </div>
       </div>
     </div>
     
-    <div class="recommendation">
-      <h4>Recommended Fix</h4>
-      <p>${formatMultiline(finding.recommendedFix)}</p>
+    <div class="bg-indigo-50 border border-indigo-100 rounded-lg p-5 relative overflow-hidden">
+      <div class="absolute top-0 right-0 p-4 opacity-10">
+        <svg class="w-16 h-16 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"></path></svg>
+      </div>
+      <h4 class="text-sm font-bold text-indigo-900 mb-2 relative z-10 flex items-center gap-2">
+        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        Recommended Remediation
+      </h4>
+      <p class="text-sm text-indigo-800 leading-relaxed relative z-10 whitespace-pre-line">${formatMultiline(finding.recommendedFix)}</p>
     </div>
 
     ${evidenceHtml}
   </div>
 </article>`;
-}
-
-function buildFindingsTable(findings) {
-  const rows = findings
-    .map((finding) => {
-      const severityClass = finding.severity.toLowerCase();
-      return `
-      <tr>
-        <td class="id-cell"><a href="#${escapeHtml(finding.id)}">${escapeHtml(finding.id)}</a></td>
-        <td><span class="badge badge-severity-${severityClass}">${escapeHtml(finding.severity)}</span></td>
-        <td><span class="badge badge-wcag-small">${escapeHtml(finding.wcag)}</span></td>
-        <td class="area-cell">${escapeHtml(finding.area)}</td>
-        <td class="impact-cell">${escapeHtml(finding.impact)}</td>
-      </tr>`;
-    })
-    .join("");
-
-  return `
-<div class="table-container">
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Severity</th>
-        <th>WCAG</th>
-        <th>Area</th>
-        <th>Impact</th>
-      </tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>
-</div>`;
 }
 
 function buildHtml(args, findings) {
@@ -238,281 +266,193 @@ function buildHtml(args, findings) {
     year: "numeric",
     month: "long",
     day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
-
-  const findingsSection =
-    findings.length === 0
-      ? `<div class="empty-state">
-         <div class="empty-icon">✓</div>
-         <h3>No accessibility issues found</h3>
-         <p>The automated scan did not detect any violations for the selected routes.</p>
-       </div>`
-      : `
-<section id="findings-summary" class="report-section">
-  <div class="section-header">
-    <h2>Findings Overview</h2>
-    <p>A high-level summary of all detected violations.</p>
-  </div>
-  ${buildFindingsTable(findings)}
-</section>
-
-<section id="issue-details" class="report-section">
-  <div class="section-header">
-    <h2>Detailed Findings</h2>
-    <p>Technical details, evidence, and remediation steps for each issue.</p>
-  </div>
-  <div class="issues-list">
-    ${findings.map((finding) => buildIssueCard(finding)).join("\n")}
-  </div>
-</section>`;
-
   const hasIssues = findings.length > 0;
-  const statusClass = hasIssues ? "fail" : "pass";
-  const gateIcon = hasIssues ? "✗" : "✓";
+
+  const statusColor = hasIssues
+    ? "text-rose-600 bg-rose-50 border-rose-200"
+    : "text-emerald-600 bg-emerald-50 border-emerald-200";
+  const statusIcon = hasIssues
+    ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`
+    : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+  const statusText = hasIssues ? "Action Required" : "Audit Passed";
 
   return `<!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(args.title)}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <title>${escapeHtml(args.title)}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            slate: { 850: '#151e2e' }
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    :root {
-      --primary: #2563eb;
-      --bg: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      
-      --critical: #ef4444;
-      --high: #f97316;
-      --medium: #f59e0b;
-      --low: #10b981;
-      
-      --pass: #10b981;
-      --fail: #ef4444;
-    }
-
-    * { box-sizing: border-box; }
-    body { 
-      margin: 0; 
-      font-family: 'Inter', system-ui, sans-serif; 
-      background: var(--bg); 
-      color: var(--text-main); 
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
-    
-    header.report-header {
-      margin-bottom: 40px;
-      padding-bottom: 30px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-    }
-
-    .header-main h1 { margin: 0; font-size: 2.5rem; letter-spacing: -0.025em; font-weight: 800; }
-    .header-main p { margin: 8px 0 0; color: var(--text-muted); font-size: 1.1rem; }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-      margin-bottom: 40px;
-    }
-
-    .stat-card {
-      background: var(--card-bg);
-      padding: 24px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .stat-label { font-size: 0.875rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
-    .stat-value { font-size: 1.875rem; font-weight: 700; margin-top: 8px; }
-    
-    .gate-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 16px;
-      border-radius: 30px;
-      font-weight: 600;
-      font-size: 0.875rem;
-      margin-top: 12px;
-    }
-    .gate-badge.pass { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
-    .gate-badge.fail { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-
-    .severity-split { display: flex; gap: 12px; margin-top: 12px; }
-    .sev-dot { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; }
-
-    .report-section { margin-bottom: 60px; }
-    .section-header { margin-bottom: 24px; }
-    .section-header h2 { font-size: 1.75rem; font-weight: 700; margin: 0; }
-    .section-header p { margin: 8px 0 0; color: var(--text-muted); }
-
-    .table-container { 
-      background: var(--card-bg);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      overflow: hidden;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-    }
-    table { width: 100%; border-collapse: collapse; text-align: left; }
-    th { background: #f1f5f9; padding: 12px 20px; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-    td { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 0.9375rem; }
-    tr:last-child td { border-bottom: none; }
-    
-    .badge {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-    .badge-severity-critical { background: #fee2e2; color: #991b1b; }
-    .badge-severity-high { background: #ffedd5; color: #9a3412; }
-    .badge-severity-medium { background: #fef3c7; color: #92400e; }
-    .badge-severity-low { background: #dcfce7; color: #166534; }
-    
-    .badge-wcag { background: #e0f2fe; color: #075985; }
-    .badge-wcag-small { background: #f1f5f9; color: #475569; border: 1px solid var(--border); }
-    
-    .badge-status-pass { background: #d1fae5; color: #065f46; }
-    .badge-status-fail { background: #fee2e2; color: #991b1b; }
-    .badge-status-na { background: #f1f5f9; color: #475569; }
-
-    .issue-card {
-      background: var(--card-bg);
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      margin-bottom: 30px;
-      overflow: hidden;
-      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-      scroll-margin-top: 40px;
-    }
-    .issue-header { padding: 24px 30px; border-bottom: 1px solid var(--border); background: #fafafa; }
-    .issue-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .issue-id { font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-muted); }
-    .issue-title { margin: 0; font-size: 1.5rem; font-weight: 700; }
-    .issue-location { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 20px; font-size: 0.875rem; color: var(--text-muted); }
-    .issue-location code { font-family: 'JetBrains Mono', monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: var(--text-main); }
-    
-    .issue-body { padding: 30px; }
-    .issue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px; }
-    .issue-body h4 { font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 0 0 12px; }
-    
-    .steps-list { margin: 0; padding-left: 20px; }
-    .steps-list li { margin-bottom: 6px; }
-    .text-block { margin: 0; font-size: 1rem; }
-    .impact-text { color: #475569; font-weight: 500; }
-    
-    .recommendation { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 20px; margin-bottom: 30px; }
-    .recommendation h4 { color: #1e40af; }
-    .recommendation p { margin: 0; color: #1e3a8a; }
-
-    .evidence-section { background: #1e293b; border-radius: 12px; padding: 24px; color: #e2e8f0; }
-    .evidence-title { color: #94a3b8 !important; }
-    .evidence-item { margin-bottom: 20px; }
-    .evidence-item:last-child { margin-bottom: 0; }
-    .code-snippet { background: #0f172a; padding: 16px; border-radius: 8px; margin: 0 0 12px; overflow-x: auto; border: 1px solid #334155; }
-    .code-snippet code { font-family: 'JetBrains Mono', monospace; color: #f8fafc; font-size: 0.875rem; }
-    .failure-summary { font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; color: #fb7185; border-left: 3px solid #e11d48; padding-left: 12px; }
-
-    .empty-state { text-align: center; padding: 80px 40px; background: #fff; border-radius: 20px; border: 2px dashed var(--border); }
-    .empty-icon { font-size: 48px; color: var(--pass); margin-bottom: 16px; }
-    
-    a { color: var(--primary); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    .skip-link {
-      position: absolute;
-      left: -9999px;
-      top: auto;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-    }
-    .skip-link:focus {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: auto;
-      height: auto;
-      padding: 8px 16px;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 600;
-      font-size: 0.9rem;
-      z-index: 9999;
-      border-radius: 0 0 8px 0;
-      outline: 3px solid #fff;
-    }
-
-    @media (max-width: 768px) {
-      .issue-grid { grid-template-columns: 1fr; gap: 24px; }
-      header.report-header { flex-direction: column; align-items: flex-start; gap: 20px; }
-    }
+    body { -webkit-font-smoothing: antialiased; }
+    .glass-header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); }
   </style>
 </head>
-<body>
-  <a href="#main-content" class="skip-link">Skip to main content</a>
-  <div class="container">
-    <header class="report-header">
-      <div class="header-main">
-        <h1>${escapeHtml(args.title)}</h1>
-        <p>Executed on ${dateStr}</p>
-      </div>
-      <div class="header-compliance">
-        <span class="badge badge-wcag">Focus: ${escapeHtml(args.target)}</span>
-      </div>
-    </header>
-
-    <main id="main-content">
-    <div class="summary-grid">
-      <div class="stat-card">
-        <div class="stat-label">Critical Issues</div>
-        <div class="stat-value" style="color: var(--critical)">${totals.Critical}</div>
-        <div class="severity-split">
-          <div class="sev-dot"><span class="dot" style="background: var(--high)"></span> ${totals.High} High</div>
-          <div class="sev-dot"><span class="dot" style="background: var(--medium)"></span> ${totals.Medium} Med</div>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+  
+  <div class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-slate-200/80 shadow-sm transition-all duration-300" id="navbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-lg shadow-sm shadow-indigo-200">A</div>
+            <h1 class="text-lg font-bold text-slate-900 tracking-tight">Accessibility<span class="text-indigo-600">Audit</span></h1>
+            <span class="hidden md:inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">v1.0</span>
+        </div>
+        <div class="flex items-center gap-4 text-sm font-medium text-slate-600">
+            <div class="hidden sm:block">Target: ${escapeHtml(args.target)}</div>
+            <div class="hidden sm:block h-4 w-px bg-slate-300"></div>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border ${statusColor}">
+                ${statusIcon}
+                <span>${statusText}</span>
+            </div>
         </div>
       </div>
-      
-      <div class="stat-card">
-        <div class="stat-label">Audit Status</div>
-        <div class="stat-value">${hasIssues ? "Action Required" : "Automated Pass"}</div>
-        <div class="gate-badge ${statusClass}">${gateIcon} Audit ${hasIssues ? "Found Issues" : "Passed"}</div>
-      </div>
+    </div>
+  </div>
 
-      <div class="stat-card">
-        <div class="stat-label">Target URL</div>
-        <div class="stat-value" style="font-size: 1.125rem"><a href="${escapeHtml(args.baseUrl || "")}" target="_blank">${escapeHtml(args.baseUrl || "N/A")}</a></div>
-        <div class="stat-label" style="margin-top: 12px">Environment</div>
-        <div class="stat-value" style="font-size: 1.25rem">${escapeHtml(args.environment || "Live Site")}</div>
-        <div class="stat-label" style="margin-top: 12px">Compliance</div>
-        <div class="stat-value" style="font-size: 1.25rem">${escapeHtml(args.target)}</div>
-      </div>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
+    
+    <!-- Hero Summary -->
+    <div class="mb-10">
+        <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">${escapeHtml(args.title)}</h2>
+        <p class="text-slate-500 text-lg max-w-3xl">Comprehensive accessibility analysis executed on <span class="font-medium text-slate-700">${dateStr}</span> against <a href="${escapeHtml(args.baseUrl)}" target="_blank" class="text-indigo-600 hover:text-indigo-700 hover:underline font-medium">${escapeHtml(args.baseUrl || "Target Environment")}</a>.</p>
     </div>
 
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-12">
+        <!-- Critical -->
+        <div class="bg-white rounded-xl shadow-sm border border-rose-100 p-5 relative overflow-hidden group hover:border-rose-200 transition-all">
+            <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <svg class="w-24 h-24 text-rose-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+            </div>
+            <p class="text-xs font-bold text-rose-600 uppercase tracking-wider mb-1">Critical Issues</p>
+            <div class="text-4xl font-extrabold text-rose-900 mb-2">${totals.Critical}</div>
+            <p class="text-xs text-rose-700/80 font-medium">Blocking barriers requiring immediate fix</p>
+        </div>
 
-    ${findingsSection}
-    </main>
+        <!-- High -->
+        <div class="bg-white rounded-xl shadow-sm border border-orange-100 p-5 relative overflow-hidden group hover:border-orange-200 transition-all">
+            <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <svg class="w-24 h-24 text-orange-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+            </div>
+            <p class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-1">High Severity</p>
+            <div class="text-4xl font-extrabold text-orange-900 mb-2">${totals.High}</div>
+            <p class="text-xs text-orange-700/80 font-medium">Core task impediments</p>
+        </div>
 
-    <footer style="margin-top: 80px; text-align: center; color: var(--text-muted); font-size: 0.875rem;">
-      <p>Generated by the WS Accessibility Audit Pipeline — Automated Engine & Internal Quality Gates</p>
+        <!-- Medium -->
+        <div class="bg-white rounded-xl shadow-sm border border-amber-100 p-5 relative overflow-hidden group hover:border-amber-200 transition-all">
+            <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <svg class="w-24 h-24 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>
+            </div>
+            <p class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Medium Severity</p>
+            <div class="text-4xl font-extrabold text-amber-900 mb-2">${totals.Medium}</div>
+            <p class="text-xs text-amber-700/80 font-medium">Usability friction points</p>
+        </div>
+
+        <!-- Low -->
+        <div class="bg-white rounded-xl shadow-sm border border-emerald-100 p-5 relative overflow-hidden group hover:border-emerald-200 transition-all">
+            <div class="absolute right-0 top-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <svg class="w-24 h-24 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path></svg>
+            </div>
+            <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Low Severity</p>
+            <div class="text-4xl font-extrabold text-emerald-900 mb-2">${totals.Low}</div>
+            <p class="text-xs text-emerald-700/80 font-medium">Best practice improvements</p>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="sticky top-20 z-40 bg-slate-50/95 backdrop-blur py-4 mb-6 border-b border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+            Detailed Findings
+            <span class="bg-slate-200 text-slate-600 text-xs py-0.5 px-2 rounded-full">${findings.length}</span>
+        </h3>
+        
+        <div class="flex items-center gap-2 bg-white p-1 rounded-lg border border-slate-200 shadow-sm overflow-x-auto">
+            <button onclick="filterIssues('all')" class="filter-btn active px-3 py-1.5 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 transition-colors">All Issues</button>
+            <button onclick="filterIssues('Critical')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">Critical</button>
+            <button onclick="filterIssues('High')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">High</button>
+            <button onclick="filterIssues('Medium')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">Medium</button>
+            <button onclick="filterIssues('Low')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors">Low</button>
+        </div>
+    </div>
+
+    <!-- Issues List -->
+    <div id="issues-container" class="space-y-6">
+        ${
+          findings.length === 0
+            ? `
+        <div class="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200 shadow-sm">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-50 mb-6">
+                <svg class="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 mb-2">No Accessibility Issues Found!</h3>
+            <p class="text-slate-500 max-w-md mx-auto">Great job! The automated scan detected zero violations across the targeted routes based on WCAG 2.1 AA standards.</p>
+        </div>`
+            : findings.map((finding) => buildIssueCard(finding)).join("\n")
+        }
+    </div>
+
+    <footer class="mt-20 pt-10 border-t border-slate-200 text-center">
+        <p class="text-slate-400 text-sm font-medium">Generated by Automated Accessibility Pipeline &bull; <span class="text-slate-500">WCAG 2.1 AA Standards</span></p>
     </footer>
+
   </div>
+
+  <script>
+    function filterIssues(severity) {
+        // Reset buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('bg-indigo-50', 'text-indigo-700', 'border', 'border-indigo-100');
+            btn.classList.add('text-slate-600');
+            if(btn.textContent.includes(severity) || (severity === 'all' && btn.textContent.includes('All'))) {
+                btn.classList.add('bg-indigo-50', 'text-indigo-700', 'border', 'border-indigo-100');
+                btn.classList.remove('text-slate-600');
+            }
+        });
+
+        // Filter cards
+        const cards = document.querySelectorAll('.issue-card');
+        cards.forEach(card => {
+            if (severity === 'all' || card.dataset.severity === severity) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('navbar');
+        if (window.scrollY > 20) {
+            nav.classList.add('shadow-md');
+        } else {
+            nav.classList.remove('shadow-md');
+        }
+    });
+  </script>
 </body>
 </html>`;
 }
