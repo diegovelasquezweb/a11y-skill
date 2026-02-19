@@ -315,8 +315,8 @@ function buildHtml(args, findings) {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-lg shadow-sm shadow-indigo-200">A</div>
-            <h1 class="text-lg font-bold text-slate-900 tracking-tight">Accessibility<span class="text-indigo-600">Audit</span></h1>
+            <div class="flex items-center justify-center px-2 h-8 rounded-lg bg-indigo-600 text-white font-bold text-sm shadow-sm shadow-indigo-200 tracking-wide font-mono">a11y</div>
+            <h1 class="text-lg font-bold text-slate-900 tracking-tight">Accessibility <span class="text-indigo-600">Audit</span></h1>
             <span class="hidden md:inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-500 border border-slate-200">v1.0</span>
         </div>
         <div class="flex items-center gap-4 text-sm font-medium text-slate-600">
@@ -434,13 +434,39 @@ function buildHtml(args, findings) {
 
         // Filter cards
         const cards = document.querySelectorAll('.issue-card');
+        let visibleCount = 0;
+        
         cards.forEach(card => {
             if (severity === 'all' || card.dataset.severity === severity) {
                 card.style.display = 'block';
+                visibleCount++;
             } else {
                 card.style.display = 'none';
             }
         });
+
+        // Handle empty state
+        const container = document.getElementById('issues-container');
+        let emptyMsg = document.getElementById('dynamic-empty-state');
+        
+        if (visibleCount === 0) {
+            if (!emptyMsg) {
+                emptyMsg = document.createElement('div');
+                emptyMsg.id = 'dynamic-empty-state';
+                emptyMsg.className = 'text-center py-12 bg-slate-50 rounded-xl border border-slate-100 border-dashed';
+                emptyMsg.innerHTML = \`
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-100 mb-4 text-slate-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-900">No matching issues</h3>
+                    <p class="text-xs text-slate-500 mt-1">There are no \${severity === 'all' ? '' : severity.toLowerCase()} issues in this report.</p>
+                \`;
+                container.appendChild(emptyMsg);
+            }
+            emptyMsg.style.display = 'block';
+        } else {
+            if (emptyMsg) emptyMsg.style.display = 'none';
+        }
     }
 
     // Header scroll effect
