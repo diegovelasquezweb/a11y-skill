@@ -108,7 +108,7 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 
 ### Common Use Cases
 
-**1. Ignore Third-Party Widgets (e.g., Chat, Maps):**
+**1. Ignore Third-Party Widgets:**
 
 ```json
 {
@@ -116,24 +116,12 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 }
 ```
 
-**2. Test Mobile Viewport:**
-
-```json
-{
-  "playwright": {
-    "viewport": { "width": 375, "height": 667 },
-    "isMobile": true
-  }
-}
-```
-
-**3. Disable Specific Rules (Use with Caution):**
+**2. Disable Specific Rules:**
 
 ```json
 {
   "axeRules": {
     "color-contrast": { "enabled": false },
-    "image-alt": { "enabled": true }
   }
 }
 ```
