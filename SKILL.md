@@ -15,7 +15,15 @@ Follow this workflow to audit and report website accessibility issues with consi
 
 ## Operating Guardrails
 
-1. Audit-only behavior.
+1. **Installation Scope**: Always use `--scope workspace` during installation.
+2. **Platform Setup & Installation**: When asked to install, the agent must complete all platform-specific setup beyond copying files:
+   - **Antigravity**: Create/Update `.agent/workflows/` files.
+   - **Gemini CLI**: Complete the specific **Activation** process required to load instructions into context.
+   - **Claude Code/SDK**: Ensure files are in the correct path and enabled via `allowed_tools` if applicable.
+   - **Codex**: Follow the installer prompts or ensure detection in `.agents/skills`.
+   - **Cursor**: Ensure placement in `.cursor/skills/` for the agent to use it.
+     The skill must be **completely ready to run** before reporting success. Do NOT execute the actual audit pipeline until explicitly requested.
+3. Audit-only behavior.
 
 - Do not modify source code, config, content, or dependencies unless the user explicitly asks for fixes.
 - Do not create, update, or delete editor configuration files (for example `.vscode/settings.json`) during audits.
@@ -26,13 +34,13 @@ Follow this workflow to audit and report website accessibility issues with consi
 - Never create or modify `package.json`, lockfiles, or `node_modules` in the audited project during audit runs.
 - Never install dependencies in any directory during audits (including internal storage such as `audit/internal/`).
 
-2. Navigation scope.
+4. Navigation scope.
 
 - Audit URLs/routes provided by the user.
 - If the user does not provide routes, auto-discover same-origin routes from the current app (navigation links, key flow links, and core pages).
 - Do not open unrelated external sites (for example search engines) during the audit flow.
 
-3. Environment discipline.
+5. Environment discipline.
 
 - Use the base URL provided by the user when available.
 - If no base URL is provided in the user's message, ask for it immediately before doing anything else.
@@ -265,7 +273,7 @@ Workflows in Antigravity are workspace-scoped. On first activation in any projec
 1. Create `.agent/workflows/` in the project root if it doesn't already exist.
 2. Write the following content to `.agent/workflows/audit.md`:
 
-```markdown
+````markdown
 ---
 description: Run a full WCAG 2.1 AA accessibility audit
 ---
@@ -285,7 +293,7 @@ node scripts/run-audit.mjs --base-url <URL>
    - If the shell open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
 
 5. Summarize the findings: total issues by severity, top critical/high items, and the report location.
-```
+````
 
 3. Tell the user: "I've set up the `/audit` workflow for this project. You can now invoke it directly with `/audit`."
 
@@ -298,9 +306,11 @@ Follow these steps in order when executing an audit:
 1. **Get the target URL.** If not provided in the user's message, ask for it immediately before proceeding. Do not auto-detect unless the user explicitly asks you to.
 
 2. **Run the audit pipeline** using the bundled orchestrator script from the skill directory:
+
    ```bash
    node scripts/run-audit.mjs --base-url <URL>
    ```
+
    This runs the full pipeline: toolchain check → route scanning → findings processing → HTML report. Dependencies install automatically on first run.
 
 3. **Parse the report path** from the `REPORT_PATH=<path>` line in the script output.

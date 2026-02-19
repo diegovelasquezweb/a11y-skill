@@ -24,11 +24,7 @@ This skill follows the open [Agent Skills standard](https://agentskills.io) supp
 
 ## Installation
 
-Copy and paste this into your agent's chat:
-
 > "Install skill https://github.com/diegovelasquezweb/a11y-skill"
-
-The skill installs to a per-agent directory. Installation paths by agent:
 
 | Agent / IDE        | Skill install path                         |
 | :----------------- | :----------------------------------------- |
