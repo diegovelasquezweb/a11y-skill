@@ -275,7 +275,7 @@ When running in **Antigravity**, the agent ensures the `/audit` slash command is
 
 ### [Gemini CLI Only] No Local Setup
 
-Gemini CLI utilizes autonomous activation based on this `SKILL.md`. No project-level files or workflows are required or allowed to be created by the agent during Gemini CLI sessions.
+Gemini CLI utilizes autonomous activation based on this `SKILL.md`. No project-level files or workflows are required or allowed to be created by the agent during Gemini CLI sessions. After activation, the agent should suggest the user to refresh the console by pressing `R` or running `/skills reload` if the skill is not immediately available.
 
 ## 8) Execution Workflow
 
