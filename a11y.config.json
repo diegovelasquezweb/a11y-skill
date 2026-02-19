@@ -1,6 +1,8 @@
 {
   "maxRoutes": 10,
   "complianceTarget": "WCAG 2.1 AA",
+  "routes": [],
+  "ignoreFindings": [],
   "excludeSelectors": [],
   "outputDir": "audit",
   "internalDir": "audit/internal",
@@ -28,7 +30,6 @@
     },
     "reducedMotion": "no-preference",
     "colorScheme": "light",
-    "forcedColors": "none",
-    "locale": "en-US"
+    "forcedColors": "none"
   }
 }

@@ -62,18 +62,19 @@ pnpm run audit -- --base-url https://mysite.com
 
 ### Options
 
-| Flag                   | Description                                          | Default                      |
-| :--------------------- | :--------------------------------------------------- | :--------------------------- |
-| `--base-url <url>`     | The target to audit (Live URL or Localhost).         | Required                     |
-| `--max-routes <num>`   | Maximum number of routes to discover and scan.       | 10                           |
-| `--routes <csv>`       | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
-| `--output <path>`      | Final HTML report location.                          | `audit/index.html`           |
-| `--wait-ms <num>`      | Time to wait for dynamic content after page load.    | 2000                         |
-| `--headless <bool>`    | Run browser in background.                           | `true`                       |
-| `--timeout-ms <num>`   | Network timeout for page loads.                      | 30000                        |
-| `--title <text>`       | Custom title for the HTML report.                    | "Accessibility Audit Report" |
-| `--environment <text>` | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
-| `--target <text>`      | Compliance target label.                             | "WCAG 2.1 AA"                |
+| Flag                     | Description                                          | Default                      |
+| :----------------------- | :--------------------------------------------------- | :--------------------------- |
+| `--base-url <url>`       | The target to audit (Live URL or Localhost).         | Required                     |
+| `--max-routes <num>`     | Maximum number of routes to discover and scan.       | `10`                         |
+| `--routes <csv>`         | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
+| `--output <path>`        | Final HTML report location.                          | `audit/index.html`           |
+| `--wait-ms <num>`        | Time to wait for dynamic content after page load.    | `2000`                       |
+| `--headless <bool>`      | Run browser in background.                           | `true`                       |
+| `--timeout-ms <num>`     | Network timeout for page loads.                      | `30000`                      |
+| `--color-scheme <value>` | Emulate `light` or `dark` color scheme.              | `"light"`                    |
+| `--title <text>`         | Custom title for the HTML report.                    | "Accessibility Audit Report" |
+| `--environment <text>`   | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
+| `--target <text>`        | Compliance target label.                             | "WCAG 2.1 AA"                |
 
 ## Audit Pipeline
 
@@ -87,7 +88,23 @@ All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
 
 ## Advanced Configuration
 
-You can customize the audit behavior by editing `a11y.config.json` in the skill root. This file is optional; defaults are used if it's missing.
+Customize the audit by editing `a11y.config.json` in the skill root.
+
+### Full Reference
+
+```json
+{
+  "maxRoutes": 10,
+  "complianceTarget": "WCAG 2.1 AA",
+  "routes": [],
+  "ignoreFindings": [],
+  "excludeSelectors": [],
+  "outputDir": "audit",
+  "internalDir": "audit/internal",
+  "axeRules": {},
+  "playwright": {}
+}
+```
 
 ### Common Use Cases
 
@@ -95,11 +112,11 @@ You can customize the audit behavior by editing `a11y.config.json` in the skill 
 
 ```json
 {
-  "excludeSelectors": ["#intercom-container", ".google-map-embed"]
+  "excludeSelectors": [".google-map-embed"]
 }
 ```
 
-**2. Test Mobile Viewports:**
+**2. Test Mobile Viewport:**
 
 ```json
 {

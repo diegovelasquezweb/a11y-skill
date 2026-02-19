@@ -82,18 +82,22 @@ function normalizeFindings(payload) {
   return payload.findings
     .map((item, index) => ({
       id: String(item.id ?? `A11Y-${String(index + 1).padStart(3, "0")}`),
+      ruleId: String(item.rule_id ?? ""),
       title: String(item.title ?? "Untitled finding"),
       severity: String(item.severity ?? "Unknown"),
       wcag: String(item.wcag ?? ""),
       area: String(item.area ?? ""),
       url: String(item.url ?? ""),
       selector: String(item.selector ?? ""),
+      impactedUsers: String(item.impacted_users ?? item.impact ?? ""),
       impact: String(item.impact ?? ""),
       reproduction: Array.isArray(item.reproduction)
         ? item.reproduction.map((v) => String(v))
         : [],
       actual: String(item.actual ?? ""),
       expected: String(item.expected ?? ""),
+      fixDescription: item.fix_description ?? null,
+      fixCode: item.fix_code ?? null,
       recommendedFix: String(item.recommended_fix ?? item.recommendedFix ?? ""),
       evidence: String(item.evidence ?? ""),
     }))
@@ -189,6 +193,7 @@ function buildIssueCard(finding) {
     <div class="flex flex-wrap items-center gap-3 mb-3">
       <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${severityBadge}">${escapeHtml(finding.severity)}</span>
       <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 font-mono tracking-tight">${escapeHtml(finding.id)}</span>
+      ${finding.ruleId ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-200 border border-slate-700 font-mono tracking-tight">${escapeHtml(finding.ruleId)}</span>` : ""}
       <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 ml-auto">WCAG ${escapeHtml(finding.wcag)}</span>
     </div>
     <h3 class="text-lg md:text-xl font-bold text-slate-900 leading-tight mb-4">${escapeHtml(finding.title)}</h3>
@@ -238,8 +243,8 @@ function buildIssueCard(finding) {
         </ul>
         
         <div class="mt-6">
-            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">User Impact</h4>
-            <p class="text-sm text-slate-600 leading-relaxed italic border-l-2 border-slate-200 pl-3">${formatMultiline(finding.impact)}</p>
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Impacted Users</h4>
+            <p class="text-sm text-slate-600 leading-relaxed italic border-l-2 border-slate-200 pl-3">${formatMultiline(finding.impactedUsers)}</p>
         </div>
       </div>
     </div>
@@ -252,7 +257,9 @@ function buildIssueCard(finding) {
         <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         Recommended Remediation
       </h4>
-      <p class="text-sm text-indigo-800 leading-relaxed relative z-10 whitespace-pre-line">${linkify(formatMultiline(finding.recommendedFix))}</p>
+      ${finding.fixDescription ? `<p class="text-sm text-indigo-800 leading-relaxed relative z-10 mb-3">${escapeHtml(finding.fixDescription)}</p>` : ""}
+      ${finding.fixCode ? `<pre class="bg-slate-900 text-emerald-300 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700 mb-3 relative z-10 whitespace-pre-wrap">${escapeHtml(finding.fixCode)}</pre>` : ""}
+      <p class="text-xs text-indigo-500 leading-relaxed relative z-10">${linkify(formatMultiline(finding.recommendedFix))}</p>
     </div>
 
     ${evidenceHtml}
@@ -473,21 +480,24 @@ function buildHtml(args, findings) {
         <div class="finding-entry">
           <div class="severity-tag">${f.severity}</div>
           <h3 style="margin-top: 0 !important; border: none;">${f.id}: ${f.title}</h3>
-          
+          ${f.ruleId ? `<p style="font-family: monospace; font-size: 9pt; color: #555;">Rule: ${escapeHtml(f.ruleId)} &bull; ${escapeHtml(f.wcag)}</p>` : ""}
+
           <p><strong>Location:</strong> ${escapeHtml(f.area)} at <a href="${f.url}">${f.url}</a></p>
           <p><strong>Selector:</strong> <code>${escapeHtml(f.selector)}</code></p>
-          
+          <p><strong>Impacted Users:</strong> ${escapeHtml(f.impactedUsers)}</p>
+
           <h4>Issue Discovery</h4>
-          <p><strong>Expected:</strong> ${f.expected}</p>
-          <p><strong>Actual:</strong> ${f.actual}</p>
-          <p><strong>Impact:</strong> ${f.impact}</p>
+          <p><strong>Expected:</strong> ${escapeHtml(f.expected)}</p>
+          <p><strong>Actual:</strong> ${escapeHtml(f.actual)}</p>
 
           <div class="remediation-box">
-            <h4 style="margin: 0; border: none;">Remediation Advice</h4>
-            <p style="margin-bottom: 0;">${f.recommendedFix}</p>
+            <h4 style="margin: 0 0 0.5rem 0; border: none;">Remediation</h4>
+            ${f.fixDescription ? `<p style="margin: 0 0 0.5rem 0; font-size: 9pt;">${escapeHtml(f.fixDescription)}</p>` : ""}
+            ${f.fixCode ? `<pre style="margin: 0 0 0.5rem 0; font-size: 8pt;">${escapeHtml(f.fixCode)}</pre>` : ""}
+            <p style="margin-bottom: 0; font-size: 9pt;">${linkify(escapeHtml(f.recommendedFix))}</p>
           </div>
 
-          ${f.evidence ? `<h4>Evidence</h4>${formatEvidence(f.evidence)}` : ""}
+          ${f.evidence ? `<h4>Technical Evidence</h4>${formatEvidence(f.evidence)}` : ""}
         </div>
       `,
         )
@@ -572,35 +582,98 @@ function buildHtml(args, findings) {
 
 function buildMarkdownSummary(args, findings) {
   const totals = buildSummary(findings);
-  const criticalIssues = findings.filter(
-    (f) => f.severity === "Critical" || f.severity === "High",
-  );
+  const status = findings.length === 0 ? "PASS" : "ISSUES FOUND";
 
-  return `# Accessibility Audit Summary
-> Generated: ${new Date().toISOString()}
-> Target: ${args.baseUrl || "N/A"}
-> Compliance: ${args.target}
+  const findingsBySection = (severities) =>
+    findings
+      .filter((f) => severities.includes(f.severity))
+      .map((f) => {
+        const evidenceHtml = (() => {
+          if (!f.evidence) return "";
+          try {
+            const nodes = JSON.parse(f.evidence);
+            if (!Array.isArray(nodes) || nodes.length === 0) return "";
+            return nodes
+              .map((n) =>
+                n.html
+                  ? `\`\`\`html\n${n.html}\n\`\`\``
+                  : "",
+              )
+              .filter(Boolean)
+              .join("\n");
+          } catch {
+            return "";
+          }
+        })();
 
-## 📊 Overview
-- **Critical Issues**: ${totals.Critical}
-- **High Severity**: ${totals.High}
-- **Medium Severity**: ${totals.Medium}
-- **Low Severity**: ${totals.Low}
+        return [
+          `---`,
+          `### ${f.id} · ${f.severity} · \`${f.ruleId || f.title}\``,
+          ``,
+          `| Field | Value |`,
+          `|---|---|`,
+          `| **Page** | \`${f.area}\` |`,
+          `| **Selector** | \`${f.selector}\` |`,
+          `| **WCAG** | ${f.wcag} |`,
+          `| **Impacted users** | ${f.impactedUsers} |`,
+          ``,
+          `**Expected:** ${f.expected}`,
+          ``,
+          `**Actual:** ${f.actual}`,
+          ``,
+          f.fixDescription || f.fixCode
+            ? [
+                f.fixDescription ? `**Fix:** ${f.fixDescription}` : null,
+                f.fixCode ? `\`\`\`html\n${f.fixCode}\n\`\`\`` : null,
+              ].filter(Boolean).join("\n\n")
+            : `**Fix:** ${f.recommendedFix}`,
+          ``,
+          evidenceHtml ? `**Affected HTML:**\n${evidenceHtml}` : "",
+          ``,
+          `**Reference:** ${f.recommendedFix}`,
+        ]
+          .filter((line) => line !== null)
+          .join("\n");
+      })
+      .join("\n\n");
 
-- **Status**: ${findings.length === 0 ? "✅ PASS" : "❌ ISSUES FOUND"}
+  const blockers = findingsBySection(["Critical", "High"]);
+  const deferred = findingsBySection(["Medium", "Low"]);
 
-## 🚨 Top Priority Issues
-${
-  criticalIssues.length > 0
-    ? criticalIssues
-        .map((f) => `- [${f.id}] **${f.severity}**: ${f.title} (${f.area})`)
-        .join("\n")
-    : "No critical or high severity issues found."
-}
+  return `# Accessibility Audit — Remediation Guide
 
-## 📝 Next Steps
-Review the full HTML report for detailed reproduction steps and remediation advice.
-`;
+> **Generated:** ${new Date().toISOString()}
+> **Target:** ${args.baseUrl || "N/A"}
+> **Standard:** ${args.target}
+> **Status:** ${status}
+
+## Overview
+
+| Severity | Count |
+|---|---|
+| Critical | ${totals.Critical} |
+| High | ${totals.High} |
+| Medium | ${totals.Medium} |
+| Low | ${totals.Low} |
+| **Total** | **${findings.length}** |
+
+${findings.length === 0 ? "> No accessibility violations found. All checks passed." : ""}
+
+## Agent Instructions
+
+When asked to fix accessibility issues, use this file as your primary reference.
+Each finding includes the affected selector, a code fix template, and the exact HTML evidence from the page.
+Apply fixes in the source code — do not modify this file or the audit output.
+Prioritize Critical and High issues first.
+
+If you have access to the source code, locate the file to edit by searching for
+the HTML snippet shown under **Affected HTML** in each finding. The selector and
+URL are also available to narrow the search.
+
+${blockers ? `## Priority Fixes (Critical & High)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or high severity issues found."}
+
+${deferred ? `## Deferred Issues (Medium & Low)\n\n${deferred}` : ""}
+`.trimEnd() + "\n";
 }
 
 function main() {

@@ -12,18 +12,19 @@ function printUsage() {
   node scripts/run-audit.mjs --base-url <url> [options]
 
 Options:
-  --base-url <url>      (Required) The target website to audit.
-  --max-routes <num>    Max routes to discover and scan (default: 10).
-  --routes <csv>        Custom list of paths to scan.
-  --output <path>       Final HTML report location (default: audit/index.html).
-  --wait-ms <num>       Time to wait after page load (default: 2000).
-  --timeout-ms <num>    Network timeout (default: 30000).
-  --headless <bool>     Run browser in background (default: true).
-  --title <text>        Custom title for the HTML report.
-  --environment <text>  Test environment label (e.g., "Staging").
-  --target <text>       Compliance target label (default: "WCAG 2.1 AA").
-  --no-open             Do not open the report after audit.
-  -h, --help            Show this help.
+  --base-url <url>        (Required) The target website to audit.
+  --max-routes <num>      Max routes to discover and scan (default: 10).
+  --routes <csv>          Custom list of paths to scan.
+  --output <path>         Final HTML report location (default: audit/index.html).
+  --wait-ms <num>         Time to wait after page load (default: 2000).
+  --timeout-ms <num>      Network timeout (default: 30000).
+  --headless <bool>       Run browser in background (default: true).
+  --color-scheme <value>  Emulate color scheme: "light" or "dark" (default: "light").
+  --title <text>          Custom title for the HTML report.
+  --environment <text>    Test environment label (e.g., "Staging").
+  --target <text>         Compliance target label (default: "WCAG 2.1 AA").
+  --no-open               Do not open the report after audit.
+  -h, --help              Show this help.
 `);
 }
 
@@ -73,6 +74,7 @@ async function main() {
   const output =
     getArgValue("output") || path.join(process.cwd(), "audit", "index.html");
 
+  const colorScheme = getArgValue("color-scheme");
   const title = getArgValue("title");
   const environment = getArgValue("environment");
   const scope = getArgValue("scope");
@@ -111,6 +113,7 @@ async function main() {
       headless.toString(),
     ];
     if (routes) scanArgs.push("--routes", routes);
+    if (colorScheme) scanArgs.push("--color-scheme", colorScheme);
 
     await runScript("generate-route-checks.mjs", scanArgs);
 

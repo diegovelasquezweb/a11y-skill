@@ -11,13 +11,14 @@ function printUsage() {
   node generate-route-checks.mjs --base-url <url> [options]
 
 Options:
-  --routes <csv|newline>   Optional route list (same-origin paths/urls)
-  --output <path>          Output JSON path (default: audit/internal/a11y-scan-results.json)
-  --max-routes <number>    Max routes to analyze (default: 10)
-  --wait-ms <number>       Time to wait after load (default: 2000)
-  --timeout-ms <number>    Request timeout (default: 30000)
-  --headless <boolean>     Run headless (default: true)
-  -h, --help               Show this help
+  --routes <csv|newline>      Optional route list (same-origin paths/urls)
+  --output <path>             Output JSON path (default: audit/internal/a11y-scan-results.json)
+  --max-routes <number>       Max routes to analyze (default: 10)
+  --wait-ms <number>          Time to wait after load (default: 2000)
+  --timeout-ms <number>       Request timeout (default: 30000)
+  --headless <boolean>        Run headless (default: true)
+  --color-scheme <value>      Emulate color scheme: "light" or "dark" (default: "light")
+  -h, --help                  Show this help
 `);
 }
 
@@ -35,6 +36,7 @@ function parseArgs(argv, config) {
     waitMs: 2000,
     timeoutMs: 30000,
     headless: true,
+    colorScheme: null,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -49,6 +51,7 @@ function parseArgs(argv, config) {
     if (key === "--wait-ms") args.waitMs = Number.parseInt(value, 10);
     if (key === "--timeout-ms") args.timeoutMs = Number.parseInt(value, 10);
     if (key === "--headless") args.headless = value !== "false";
+    if (key === "--color-scheme") args.colorScheme = value;
     i += 1;
   }
 
@@ -172,7 +175,7 @@ async function main() {
   const context = await browser.newContext({
     viewport: pwConfig.viewport || { width: 1280, height: 720 },
     reducedMotion: pwConfig.reducedMotion || "no-preference",
-    colorScheme: pwConfig.colorScheme || "light",
+    colorScheme: args.colorScheme || pwConfig.colorScheme || "light",
     forcedColors: pwConfig.forcedColors || "none",
     locale: pwConfig.locale || "en-US",
   });
@@ -185,7 +188,12 @@ async function main() {
       timeout: args.timeoutMs,
     });
 
-    const providedRoutes = parseRoutesArg(args.routes, origin);
+    const cliRoutes = parseRoutesArg(args.routes, origin);
+    const configRoutes = Array.isArray(config.routes) && config.routes.length > 0
+      ? config.routes.map((r) => normalizePath(r, origin)).filter(Boolean)
+      : [];
+    const providedRoutes = cliRoutes.length > 0 ? cliRoutes : configRoutes;
+
     if (providedRoutes.length > 0) {
       routes = providedRoutes.slice(0, args.maxRoutes);
     } else {
