@@ -339,6 +339,7 @@ function buildFindings(inputPayload) {
             null,
             1,
           ),
+          screenshot_path: v.screenshot_path || null,
         });
       }
     }

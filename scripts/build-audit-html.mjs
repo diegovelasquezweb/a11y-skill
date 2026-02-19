@@ -100,6 +100,7 @@ function normalizeFindings(payload) {
       fixCode: item.fix_code ?? null,
       recommendedFix: String(item.recommended_fix ?? item.recommendedFix ?? ""),
       evidence: String(item.evidence ?? ""),
+      screenshotPath: item.screenshot_path ?? null,
     }))
     .sort((a, b) => {
       const sa = SEVERITY_ORDER[a.severity] ?? 99;
@@ -155,6 +156,16 @@ function buildIssueCard(finding) {
           .join("")
       : "<li class='text-slate-400 italic'>No specific steps provided.</li>";
 
+  const screenshotHtml = finding.screenshotPath
+    ? `<div class="mt-6">
+        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          Visual Evidence
+        </h4>
+        <img src="${escapeHtml(finding.screenshotPath)}" alt="Screenshot of ${escapeHtml(finding.title)}" class="rounded-lg border border-slate-200 shadow-sm max-h-64 w-auto object-contain bg-slate-50">
+      </div>`
+    : "";
+
   const evidenceHtml = finding.evidence
     ? `<div class="mt-6 bg-slate-800 rounded-lg p-4 border border-slate-700 shadow-inner">
         <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Technical Evidence</h4>
@@ -199,10 +210,6 @@ function buildIssueCard(finding) {
     <h3 class="text-lg md:text-xl font-bold text-slate-900 leading-tight mb-4">${escapeHtml(finding.title)}</h3>
     
     <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500 font-medium">
-        <div class="flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-            ${escapeHtml(finding.area)}
-        </div>
         <div class="flex items-center gap-1.5">
             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
             <a href="${escapeHtml(finding.url)}" target="_blank" class="hover:text-indigo-600 hover:underline truncate max-w-[200px] md:max-w-md transition-colors">${escapeHtml(finding.url)}</a>
@@ -262,6 +269,7 @@ function buildIssueCard(finding) {
       <p class="text-xs text-indigo-500 leading-relaxed relative z-10">${linkify(formatMultiline(finding.recommendedFix))}</p>
     </div>
 
+    ${screenshotHtml}
     ${evidenceHtml}
   </div>
 </article>`;
@@ -747,6 +755,92 @@ function buildPdfAuditLimitations() {
 </div>`;
 }
 
+// ── Dashboard helpers ─────────────────────────────────────────────────────────
+
+const WCAG_PRINCIPLE_MAP = {
+  // Perceivable (1.x)
+  "image-alt": "Perceivable",
+  "input-image-alt": "Perceivable",
+  "object-alt": "Perceivable",
+  "label": "Perceivable",
+  "select-name": "Perceivable",
+  "color-contrast": "Perceivable",
+  "landmark-one-main": "Perceivable",
+  "region": "Perceivable",
+  "list": "Perceivable",
+  "listitem": "Perceivable",
+  "definition-list": "Perceivable",
+  "dlitem": "Perceivable",
+  // Operable (2.x)
+  "bypass": "Operable",
+  "link-name": "Operable",
+  "heading-order": "Operable",
+  "page-has-heading-one": "Operable",
+  "tabindex": "Operable",
+  "scrollable-region-focusable": "Operable",
+  "target-size": "Operable",
+  "focus-appearance": "Operable",
+  "dragging-movements": "Operable",
+  "meta-viewport": "Operable",
+  // Understandable (3.x)
+  "html-has-lang": "Understandable",
+  "html-lang-valid": "Understandable",
+  "valid-lang": "Understandable",
+  "document-title": "Understandable",
+  "meta-refresh": "Understandable",
+  "redundant-entry": "Understandable",
+  "autocomplete-valid": "Understandable",
+  "consistent-help": "Understandable",
+  "form-field-multiple-labels": "Understandable",
+  "accessible-auth-minimum": "Understandable",
+  // Robust (4.x)
+  "button-name": "Robust",
+  "aria-required-attr": "Robust",
+  "aria-valid-attr-value": "Robust",
+  "aria-hidden-focus": "Robust",
+  "frame-title": "Robust",
+  "duplicate-id": "Robust",
+};
+
+function wcagPrinciple(ruleId) {
+  return WCAG_PRINCIPLE_MAP[ruleId] || "Robust";
+}
+
+
+function buildPageGroupedSection(findings) {
+  if (findings.length === 0) return "";
+
+  const pageGroups = {};
+  for (const f of findings) {
+    if (!pageGroups[f.area]) pageGroups[f.area] = [];
+    pageGroups[f.area].push(f);
+  }
+
+  const SEVERITY_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+  const sorted = Object.entries(pageGroups).sort((a, b) => b[1].length - a[1].length);
+
+  return sorted.map(([page, pageFinding]) => {
+    const worstSeverity = pageFinding.reduce((worst, f) => {
+      return (SEVERITY_ORDER[f.severity] ?? 99) < (SEVERITY_ORDER[worst] ?? 99) ? f.severity : worst;
+    }, "Low");
+    const badgeColor = {
+      Critical: "bg-rose-100 text-rose-700 border-rose-200",
+      High: "bg-orange-100 text-orange-700 border-orange-200",
+      Medium: "bg-amber-100 text-amber-700 border-amber-200",
+      Low: "bg-emerald-100 text-emerald-700 border-emerald-200",
+    }[worstSeverity] || "bg-slate-100 text-slate-700 border-slate-200";
+
+    const cards = pageFinding
+      .sort((a, b) => (SEVERITY_ORDER[a.severity] ?? 99) - (SEVERITY_ORDER[b.severity] ?? 99))
+      .map((f) => buildIssueCard(f))
+      .join("\n");
+
+    return `<div class="page-group mb-10" data-page="${escapeHtml(page)}">
+      ${cards}
+    </div>`;
+  }).join("");
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 function linkify(text) {
@@ -893,17 +987,40 @@ function buildHtml(args, findings) {
         <p class="text-slate-500">${dateStr} &bull; ${escapeHtml(args.baseUrl)}</p>
       </div>
 
-      <!-- Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mb-12">
-        <div class="bg-white p-5 rounded-xl border border-rose-100"><p class="text-xs font-bold text-rose-600 uppercase">Critical</p><div class="text-4xl font-bold">${totals.Critical}</div></div>
-        <div class="bg-white p-5 rounded-xl border border-orange-100"><p class="text-xs font-bold text-orange-600 uppercase">High</p><div class="text-4xl font-bold">${totals.High}</div></div>
-        <div class="bg-white p-5 rounded-xl border border-amber-100"><p class="text-xs font-bold text-amber-600 uppercase">Medium</p><div class="text-4xl font-bold">${totals.Medium}</div></div>
-        <div class="bg-white p-5 rounded-xl border border-emerald-100"><p class="text-xs font-bold text-emerald-600 uppercase">Low</p><div class="text-4xl font-bold">${totals.Low}</div></div>
+      <!-- Stats + WCAG Principles row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-10">
+        <!-- Severity cards (original style) -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-white p-4 rounded-xl border border-rose-100 text-center"><p class="text-xs font-bold text-rose-600 uppercase mb-1">Critical</p><div class="text-3xl font-extrabold">${totals.Critical}</div></div>
+          <div class="bg-white p-4 rounded-xl border border-orange-100 text-center"><p class="text-xs font-bold text-orange-600 uppercase mb-1">High</p><div class="text-3xl font-extrabold">${totals.High}</div></div>
+          <div class="bg-white p-4 rounded-xl border border-amber-100 text-center"><p class="text-xs font-bold text-amber-600 uppercase mb-1">Medium</p><div class="text-3xl font-extrabold">${totals.Medium}</div></div>
+          <div class="bg-white p-4 rounded-xl border border-emerald-100 text-center"><p class="text-xs font-bold text-emerald-600 uppercase mb-1">Low</p><div class="text-3xl font-extrabold">${totals.Low}</div></div>
+        </div>
+        <!-- WCAG Principles -->
+        ${findings.length > 0 ? (() => {
+          const pc = { Perceivable: 0, Operable: 0, Understandable: 0, Robust: 0 };
+          for (const f of findings) pc[wcagPrinciple(f.ruleId)]++;
+          return `<div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Issues by WCAG Principle</p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3 rounded-lg border border-blue-100 bg-blue-50/50 text-center"><p class="text-xs font-bold text-blue-600 uppercase mb-1">Perceivable</p><div class="text-2xl font-extrabold text-blue-900">${pc.Perceivable}</div></div>
+              <div class="p-3 rounded-lg border border-violet-100 bg-violet-50/50 text-center"><p class="text-xs font-bold text-violet-600 uppercase mb-1">Operable</p><div class="text-2xl font-extrabold text-violet-900">${pc.Operable}</div></div>
+              <div class="p-3 rounded-lg border border-amber-100 bg-amber-50/50 text-center"><p class="text-xs font-bold text-amber-600 uppercase mb-1">Understandable</p><div class="text-2xl font-extrabold text-amber-900">${pc.Understandable}</div></div>
+              <div class="p-3 rounded-lg border border-teal-100 bg-teal-50/50 text-center"><p class="text-xs font-bold text-teal-600 uppercase mb-1">Robust</p><div class="text-2xl font-extrabold text-teal-900">${pc.Robust}</div></div>
+            </div>
+          </div>`;
+        })() : ""}
       </div>
 
       <div class="sticky top-16 z-40 bg-slate-50/95 backdrop-blur py-4 border-b border-slate-200 mb-6 flex justify-between items-center">
-        <h3 class="text-lg font-bold">Detailed Findings (${findings.length})</h3>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-3">
+          <h3 class="text-lg font-bold">Detailed Findings (${findings.length})</h3>
+          <div class="flex gap-1 bg-white border border-slate-200 rounded-lg p-1">
+            <button onclick="setView('severity')" id="view-severity" class="view-btn px-3 py-1 rounded text-xs font-medium bg-indigo-50 text-indigo-700">By Severity</button>
+            <button onclick="setView('page')" id="view-page" class="view-btn px-3 py-1 rounded text-xs font-medium text-slate-500 hover:text-slate-700">By Page</button>
+          </div>
+        </div>
+        <div id="filter-controls" class="flex gap-2">
           <button onclick="filterIssues('all')" class="filter-btn active px-3 py-1.5 rounded-md text-xs font-medium border bg-indigo-50 text-indigo-700 border-indigo-100">All</button>
           <button onclick="filterIssues('Critical')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">Critical</button>
           <button onclick="filterIssues('High')" class="filter-btn px-3 py-1.5 rounded-md text-xs font-medium border bg-white text-slate-600 border-slate-200 hover:bg-slate-50">High</button>
@@ -912,6 +1029,10 @@ function buildHtml(args, findings) {
 
       <div id="issues-container" class="space-y-6">
         ${findings.length === 0 ? "No issues found." : findings.map((f) => buildIssueCard(f)).join("\n")}
+      </div>
+
+      <div id="page-container" style="display:none">
+        ${buildPageGroupedSection(findings)}
       </div>
 
       ${buildManualChecksSection()}
@@ -983,7 +1104,7 @@ function buildHtml(args, findings) {
 
   </div>
 
-    <footer class="mt-20 pt-10 border-t border-slate-200 text-center">
+    <footer class="mt-10 py-6 border-t border-slate-200 text-center">
         <p class="text-slate-400 text-sm font-medium">Generated by <a href="https://github.com/diegovelasquezweb/a11y" target="_blank" class="text-slate-500 hover:text-indigo-600 font-semibold transition-colors">a11y</a> &bull; <span class="text-slate-500">${escapeHtml(args.target)}</span></p>
     </footer>
 
@@ -1067,6 +1188,32 @@ function buildHtml(args, findings) {
     document.addEventListener('DOMContentLoaded', initManualChecks);
     // ─────────────────────────────────────────────────────────────────────
 
+    function setView(view) {
+      const severityContainer = document.getElementById('issues-container');
+      const pageContainer = document.getElementById('page-container');
+      const filterControls = document.getElementById('filter-controls');
+      const btnSeverity = document.getElementById('view-severity');
+      const btnPage = document.getElementById('view-page');
+
+      if (view === 'severity') {
+        severityContainer.style.display = '';
+        pageContainer.style.display = 'none';
+        filterControls.style.display = '';
+        btnSeverity.classList.add('bg-indigo-50', 'text-indigo-700');
+        btnSeverity.classList.remove('text-slate-500', 'hover:text-slate-700');
+        btnPage.classList.remove('bg-indigo-50', 'text-indigo-700');
+        btnPage.classList.add('text-slate-500', 'hover:text-slate-700');
+      } else {
+        severityContainer.style.display = 'none';
+        pageContainer.style.display = '';
+        filterControls.style.display = '';
+        btnPage.classList.add('bg-indigo-50', 'text-indigo-700');
+        btnPage.classList.remove('text-slate-500', 'hover:text-slate-700');
+        btnSeverity.classList.remove('bg-indigo-50', 'text-indigo-700');
+        btnSeverity.classList.add('text-slate-500', 'hover:text-slate-700');
+      }
+    }
+
     function filterIssues(severity) {
         // Reset buttons
         document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -1139,61 +1286,68 @@ function buildMarkdownSummary(args, findings) {
   const totals = buildSummary(findings);
   const status = findings.length === 0 ? "PASS" : "ISSUES FOUND";
 
-  const findingsBySection = (severities) =>
-    findings
-      .filter((f) => severities.includes(f.severity))
-      .map((f) => {
-        const evidenceHtml = (() => {
-          if (!f.evidence) return "";
-          try {
-            const nodes = JSON.parse(f.evidence);
-            if (!Array.isArray(nodes) || nodes.length === 0) return "";
-            return nodes
-              .map((n) =>
-                n.html
-                  ? `\`\`\`html\n${n.html}\n\`\`\``
-                  : "",
-              )
-              .filter(Boolean)
-              .join("\n");
-          } catch {
-            return "";
-          }
-        })();
-
-        return [
-          `---`,
-          `### ${f.id} · ${f.severity} · \`${f.ruleId || f.title}\``,
-          ``,
-          `| Field | Value |`,
-          `|---|---|`,
-          `| **Page** | \`${f.area}\` |`,
-          `| **Selector** | \`${f.selector}\` |`,
-          `| **WCAG** | ${f.wcag} |`,
-          `| **Impacted users** | ${f.impactedUsers} |`,
-          ``,
-          `**Expected:** ${f.expected}`,
-          ``,
-          `**Actual:** ${f.actual}`,
-          ``,
-          f.fixDescription || f.fixCode
-            ? [
-                f.fixDescription ? `**Fix:** ${f.fixDescription}` : null,
-                f.fixCode ? `\`\`\`html\n${f.fixCode}\n\`\`\`` : null,
-              ].filter(Boolean).join("\n\n")
-            : `**Fix:** ${f.recommendedFix}`,
-          ``,
-          evidenceHtml ? `**Affected HTML:**\n${evidenceHtml}` : "",
-          ``,
-          `**Reference:** ${f.recommendedFix}`,
-        ]
-          .filter((line) => line !== null)
+  function findingToMd(f) {
+    const evidenceHtml = (() => {
+      if (!f.evidence) return "";
+      try {
+        const nodes = JSON.parse(f.evidence);
+        if (!Array.isArray(nodes) || nodes.length === 0) return "";
+        return nodes
+          .map((n) => (n.html ? `\`\`\`html\n${n.html}\n\`\`\`` : ""))
+          .filter(Boolean)
           .join("\n");
-      })
-      .join("\n\n");
+      } catch {
+        return "";
+      }
+    })();
 
-  const blockers = findingsBySection(["Critical", "High"]);
-  const deferred = findingsBySection(["Medium", "Low"]);
+    return [
+      `---`,
+      `### ${f.id} · ${f.severity} · \`${f.ruleId || f.title}\``,
+      ``,
+      `| Field | Value |`,
+      `|---|---|`,
+      `| **Page** | \`${f.area}\` |`,
+      `| **Selector** | \`${f.selector}\` |`,
+      `| **WCAG** | ${f.wcag} |`,
+      `| **Impacted users** | ${f.impactedUsers} |`,
+      f.screenshotPath ? `| **Screenshot** | ![${f.id}](${f.screenshotPath}) |` : null,
+      ``,
+      `**Expected:** ${f.expected}`,
+      ``,
+      `**Actual:** ${f.actual}`,
+      ``,
+      f.fixDescription || f.fixCode
+        ? [
+            f.fixDescription ? `**Fix:** ${f.fixDescription}` : null,
+            f.fixCode ? `\`\`\`html\n${f.fixCode}\n\`\`\`` : null,
+          ].filter(Boolean).join("\n\n")
+        : `**Fix:** ${f.recommendedFix}`,
+      ``,
+      evidenceHtml ? `**Affected HTML:**\n${evidenceHtml}` : "",
+      ``,
+      `**Reference:** ${f.recommendedFix}`,
+    ]
+      .filter((line) => line !== null)
+      .join("\n");
+  }
+
+  function findingsByPrinciple(severities) {
+    const filtered = findings.filter((f) => severities.includes(f.severity));
+    if (filtered.length === 0) return "";
+
+    const PRINCIPLES = ["Perceivable", "Operable", "Understandable", "Robust"];
+    const groups = {};
+    for (const p of PRINCIPLES) groups[p] = [];
+    for (const f of filtered) groups[wcagPrinciple(f.ruleId)].push(f);
+
+    return PRINCIPLES.filter((p) => groups[p].length > 0)
+      .map((p) => `### ${p} (WCAG ${["1","2","3","4"][PRINCIPLES.indexOf(p)]}.x)\n\n${groups[p].map(findingToMd).join("\n\n")}`)
+      .join("\n\n");
+  }
+
+  const blockers = findingsByPrinciple(["Critical", "High"]);
+  const deferred = findingsByPrinciple(["Medium", "Low"]);
 
   return `# Accessibility Audit — Remediation Guide
 
@@ -1227,7 +1381,7 @@ URL are also available to narrow the search.
 
 ${blockers ? `## Priority Fixes (Critical & High)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or high severity issues found."}
 
-${deferred ? `## Deferred Issues (Medium & Low)\n\n${deferred}` : ""}
+${deferred ? `## Deferred Issues (Medium & Low)\n\n${deferred}` : "## Deferred Issues\n\nNo medium or low severity issues found."}
 
 ${buildManualChecksMd()}`.trimEnd() + "\n";
 }

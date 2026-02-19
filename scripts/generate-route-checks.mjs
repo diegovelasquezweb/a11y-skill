@@ -18,6 +18,7 @@ Options:
   --timeout-ms <number>       Request timeout (default: 30000)
   --headless <boolean>        Run headless (default: true)
   --color-scheme <value>      Emulate color scheme: "light" or "dark" (default: "light")
+  --screenshots-dir <path>    Directory to save element screenshots (optional)
   -h, --help                  Show this help
 `);
 }
@@ -37,6 +38,7 @@ function parseArgs(argv, config) {
     timeoutMs: 30000,
     headless: true,
     colorScheme: null,
+    screenshotsDir: null,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -52,6 +54,7 @@ function parseArgs(argv, config) {
     if (key === "--timeout-ms") args.timeoutMs = Number.parseInt(value, 10);
     if (key === "--headless") args.headless = value !== "false";
     if (key === "--color-scheme") args.colorScheme = value;
+    if (key === "--screenshots-dir") args.screenshotsDir = value;
     i += 1;
   }
 
@@ -210,6 +213,26 @@ async function main() {
 
   log.info(`Targeting ${routes.length} routes: ${routes.join(", ")}`);
 
+  const SKIP_SELECTORS = new Set(["html", "body", "head", ":root", "document"]);
+
+  async function captureElementScreenshot(violation, routeIndex) {
+    if (!args.screenshotsDir) return;
+    const firstNode = violation.nodes?.[0];
+    if (!firstNode || firstNode.target.length > 1) return;
+    const selector = firstNode.target[0];
+    if (!selector || SKIP_SELECTORS.has(selector.toLowerCase())) return;
+    try {
+      fs.mkdirSync(args.screenshotsDir, { recursive: true });
+      const safeRuleId = violation.id.replace(/[^a-z0-9-]/g, "-");
+      const filename = `${routeIndex}-${safeRuleId}.png`;
+      const screenshotPath = path.join(args.screenshotsDir, filename);
+      await page.locator(selector).first().screenshot({ path: screenshotPath, timeout: 3000 });
+      violation.screenshot_path = `screenshots/${filename}`;
+    } catch {
+      // skip silently — element may be hidden or off-screen
+    }
+  }
+
   const results = [];
   const total = routes.length;
   for (let i = 0; i < total; i++) {
@@ -223,6 +246,11 @@ async function main() {
       config.axeRules,
       config.excludeSelectors,
     );
+    if (args.screenshotsDir && result.violations) {
+      for (const violation of result.violations) {
+        await captureElementScreenshot(violation, i);
+      }
+    }
     results.push({ path: routePath, ...result });
   }
 

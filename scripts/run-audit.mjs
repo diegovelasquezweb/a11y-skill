@@ -100,6 +100,11 @@ async function main() {
 
     await runScript("check-toolchain.mjs");
 
+    const absoluteOutputPath = path.isAbsolute(output)
+      ? output
+      : path.join(process.cwd(), output);
+    const screenshotsDir = path.join(path.dirname(absoluteOutputPath), "screenshots");
+
     const scanArgs = [
       "--base-url",
       baseUrl,
@@ -111,6 +116,8 @@ async function main() {
       timeoutMs.toString(),
       "--headless",
       headless.toString(),
+      "--screenshots-dir",
+      screenshotsDir,
     ];
     if (routes) scanArgs.push("--routes", routes);
     if (colorScheme) scanArgs.push("--color-scheme", colorScheme);
@@ -129,10 +136,6 @@ async function main() {
 
     const pdfOutput = output.replace(".html", ".pdf");
     await runScript("generate-pdf.mjs", [output, pdfOutput]);
-
-    const absoluteOutputPath = path.isAbsolute(output)
-      ? output
-      : path.join(process.cwd(), output);
 
     log.success(`🎉 Audit complete!`);
     console.log(`REPORT_PATH=${absoluteOutputPath}`);
