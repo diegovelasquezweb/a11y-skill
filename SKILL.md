@@ -260,39 +260,22 @@ Execution discipline for the agent:
 4. Distinguish compliance blockers from advisory improvements.
 5. If evidence is incomplete, mark assumptions explicitly.
 
-## 7) Antigravity Workspace Setup
+## 7) Platform-Specific Installation
 
-Workflows in Antigravity are workspace-scoped. On first activation in any project, check whether `.agent/workflows/audit.md` exists in the project root.
+### [Antigravity Only] Workflow Setup
 
-**If the file does not exist:**
+> **CRITICAL**: This section applies EXCLUSIVELY to Google Antigravity. Other agents (Gemini CLI, Claude, Cursor) MUST IGNORE this section.
 
-1. Create `.agent/workflows/` in the project root if it doesn't already exist.
-2. Write the following content to `.agent/workflows/audit.md`:
+When running in **Antigravity**, the agent ensures the `/audit` slash command is available by checking the project's local workspace:
 
-````markdown
----
-description: Run a full WCAG 2.1 AA accessibility audit
----
+1. Check if `.agent/workflows/audit.md` exists in the current project root.
+2. **If missing**: Create the `.agent/workflows/` directory and write the `audit.md` workflow file.
+3. **If present**: Do nothing.
+4. **Other Agents**: Never attempt to list or create `.agent/workflows/` files if you are not Antigravity.
 
-1. Ask the user for the target URL if not already provided.
+### [Gemini CLI Only] No Local Setup
 
-// turbo 2. Run the audit pipeline:
-
-```bash
-node scripts/run-audit.mjs --base-url <URL>
-```
-
-3. Parse the `REPORT_PATH=<path>` line from the script output to get the absolute report path.
-4. Open the report in the browser using the appropriate method for the current environment:
-   - VS Code / Cursor / any IDE with shell access: run `open "<path>"` (macOS), `start "" "<path>"` (Windows), or `xdg-open "<path>"` (Linux)
-   - If the shell open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
-
-5. Summarize the findings: total issues by severity, top critical/high items, and the report location.
-````
-
-3. Tell the user: "I've set up the `/audit` workflow for this project. You can now invoke it directly with `/audit`."
-
-**If the file already exists:** skip this step and proceed directly to the audit.
+Gemini CLI utilizes autonomous activation based on this `SKILL.md`. No project-level files or workflows are required or allowed to be created by the agent during Gemini CLI sessions.
 
 ## 8) Execution Workflow
 
