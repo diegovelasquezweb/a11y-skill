@@ -3,9 +3,16 @@
 import { log, readJson, getInternalPath } from "./a11y-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeFindings, buildSummary, escapeHtml } from "./report/utils.mjs";
+import {
+  normalizeFindings,
+  buildSummary,
+  escapeHtml,
+} from "./report/utils.mjs";
 import { buildIssueCard } from "./report/issue-card.mjs";
-import { MANUAL_CHECKS, buildManualChecksSection } from "./report/manual-checks.mjs";
+import {
+  MANUAL_CHECKS,
+  buildManualChecksSection,
+} from "./report/manual-checks.mjs";
 import {
   computeComplianceScore,
   scoreLabel,
@@ -93,9 +100,18 @@ function buildHtml(args, findings) {
     _pageCounts[f.area] = (_pageCounts[f.area] || 0) + 1;
   }
   const _sortedPages = Object.entries(_pageCounts).sort((a, b) => b[1] - a[1]);
+  const selectClasses =
+    "pl-4 pr-10 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 shadow-sm transition-all appearance-none cursor-pointer relative bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.5rem_center] bg-no-repeat";
+
   const pageSelectHtml =
     _sortedPages.length > 1
-      ? `<select id="page-select" onchange="filterByPage(this.value)" style="display:none" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-200 bg-white shadow-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer transition-all"><option value="all">All pages (${_sortedPages.length})</option>${_sortedPages.map(([pg, cnt]) => `<option value="${escapeHtml(pg)}">${escapeHtml(pg)} (${cnt})</option>`).join("")}</select>`
+      ? `<div id="page-select-container" style="display:none" class="flex items-center gap-2 shrink-0">
+          <label for="page-select" class="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:block">Page:</label>
+          <select id="page-select" onchange="filterByPage(this.value)" class="${selectClasses}">
+            <option value="all">All pages (${_sortedPages.length})</option>
+            ${_sortedPages.map(([pg, cnt]) => `<option value="${escapeHtml(pg)}">${escapeHtml(pg)} (${cnt})</option>`).join("")}
+          </select>
+        </div>`
       : "";
 
   const score = computeComplianceScore(totals);
@@ -408,37 +424,51 @@ function buildHtml(args, findings) {
           : ""
       }
 
-      <div id="findings-toolbar" class="sticky top-16 z-40 bg-slate-50/95 backdrop-blur py-4 border-b border-slate-200 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div class="flex items-center gap-3">
-          <h3 class="text-lg font-bold">Findings (${findings.length})</h3>
-          <div class="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-            <button onclick="setView('severity')" id="view-severity" class="view-btn px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700 transition-all">By Severity</button>
-            <button onclick="setView('page')" id="view-page" class="view-btn px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-700 transition-all">By Page</button>
+      <div id="findings-toolbar" class="sticky top-16 z-40 bg-slate-50/95 backdrop-blur-md py-5 border-b border-slate-200/80 mb-8 flex flex-col gap-5">
+        <!-- Row 1: Title, View Toggle & Expand All -->
+        <div class="flex items-center justify-between w-full">
+          <div class="flex items-center gap-4">
+            <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Findings <span class="text-slate-400 font-bold ml-1">${findings.length}</span></h3>
+            <div class="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
+              <button onclick="setView('severity')" id="view-severity" class="view-btn px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest bg-indigo-50 text-indigo-700 transition-all">By Severity</button>
+              ${
+                Object.keys(_pageCounts).length > 1
+                  ? `<button onclick="setView('page')" id="view-page" class="view-btn px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-slate-700 transition-all">By Page</button>`
+                  : ""
+              }
+            </div>
           </div>
+          <button onclick="toggleAllCards()" id="expand-all-btn" class="px-5 py-2 rounded-xl border border-slate-200 bg-white text-xs font-bold uppercase tracking-widest text-slate-600 hover:border-slate-300 hover:text-slate-800 shadow-sm transition-all">Expand all</button>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          <div class="relative flex-1 md:w-64">
-            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search violations..." class="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all [&:not(:placeholder-shown)]:bg-indigo-50/20">
-            <svg class="absolute left-3 top-2.5 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <!-- Row 2: Search & Filter Select -->
+        <div class="flex items-center gap-4 w-full">
+          <div class="relative flex-1">
+            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search violations..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm">
+            <svg class="absolute left-4 top-3.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-
-          <div id="filter-controls" class="flex flex-wrap gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-            <button onclick="filterIssues('all')" class="filter-btn active px-3 py-1.5 rounded-lg text-[10px] font-black border-transparent uppercase tracking-widest bg-indigo-50 text-indigo-700 transition-all">All</button>
-            <div class="w-px h-4 bg-slate-200 self-center mx-1"></div>
-            <button onclick="filterIssues('Critical')" class="filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black border-transparent uppercase tracking-widest text-slate-500 hover:text-slate-700 transition-all">Critical</button>
-            <button onclick="filterIssues('High')" class="filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black border-transparent uppercase tracking-widest text-slate-500 hover:text-slate-700 transition-all">High</button>
-            <div class="w-px h-4 bg-slate-200 self-center mx-1"></div>
-            <button onclick="filterIssues('Perceivable')" class="filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black border-transparent uppercase tracking-widest text-slate-500 hover:text-slate-700 transition-all">Perceivable</button>
-            <button onclick="filterIssues('Operable')" class="filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black border-transparent uppercase tracking-widest text-slate-500 hover:text-slate-700 transition-all">Operable</button>
-            <button onclick="filterIssues('Understandable')" class="filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black border-transparent uppercase tracking-widest text-slate-500 hover:text-slate-700 transition-all">Understandable</button>
-            <button onclick="filterIssues('Robust')" class="filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black border-transparent uppercase tracking-widest text-slate-500 hover:text-slate-700 transition-all">Robust</button>
+          
+          <div id="filter-controls" class="flex items-center gap-2 shrink-0">
+            <label for="filter-select" class="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:block">Filter by:</label>
+            <select id="filter-select" onchange="filterIssues(this.value)" class="${selectClasses}">
+              <optgroup label="General">
+                <option value="all">All Issues</option>
+              </optgroup>
+              <optgroup label="Severity">
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </optgroup>
+              <optgroup label="WCAG Principle">
+                <option value="Perceivable">Perceivable</option>
+                <option value="Operable">Operable</option>
+                <option value="Understandable">Understandable</option>
+                <option value="Robust">Robust</option>
+              </optgroup>
+            </select>
           </div>
-
-          <div class="flex items-center gap-2">
-            <button onclick="toggleAllCards()" id="expand-all-btn" class="px-3 py-2 rounded-xl border border-slate-200 bg-white text-[10px] font-black uppercase tracking-widest text-slate-500 hover:border-slate-300 hover:text-slate-700 shadow-sm transition-all">Expand all</button>
-            ${pageSelectHtml}
-          </div>
+          ${pageSelectHtml.replace("display:none", "display:block")}
         </div>
       </div>
 
@@ -634,32 +664,42 @@ function buildHtml(args, findings) {
       const severityContainer = document.getElementById('issues-container');
       const pageContainer = document.getElementById('page-container');
       const filterControls = document.getElementById('filter-controls');
-      const pageSelect = document.getElementById('page-select');
+      const pageSelectCont = document.getElementById('page-select-container');
       const btnSeverity = document.getElementById('view-severity');
       const btnPage = document.getElementById('view-page');
 
       if (view === 'severity') {
         severityContainer.style.display = '';
         pageContainer.style.display = 'none';
-        filterControls.style.display = '';
-        if (pageSelect) pageSelect.style.display = 'none';
-        btnSeverity.classList.add('bg-indigo-50', 'text-indigo-700');
-        btnSeverity.classList.remove('text-slate-500', 'hover:text-slate-700');
-        btnPage.classList.remove('bg-indigo-50', 'text-indigo-700');
-        btnPage.classList.add('text-slate-500', 'hover:text-slate-700');
+        if (filterControls) filterControls.style.display = '';
+        if (pageSelectCont) pageSelectCont.style.display = 'none';
+        
+        if (btnSeverity) {
+          btnSeverity.classList.add('bg-indigo-50', 'text-indigo-700');
+          btnSeverity.classList.remove('text-slate-500', 'hover:text-slate-700');
+        }
+        if (btnPage) {
+          btnPage.classList.remove('bg-indigo-50', 'text-indigo-700');
+          btnPage.classList.add('text-slate-500', 'hover:text-slate-700');
+        }
       } else {
         severityContainer.style.display = 'none';
         pageContainer.style.display = '';
-        filterControls.style.display = 'none';
-        if (pageSelect) {
-          pageSelect.style.display = '';
-          pageSelect.value = 'all';
-          filterByPage('all');
+        if (filterControls) filterControls.style.display = 'none';
+        if (pageSelectCont) {
+          pageSelectCont.style.display = '';
+          const ps = document.getElementById('page-select');
+          if (ps) { ps.value = 'all'; filterByPage('all'); }
         }
-        btnPage.classList.add('bg-indigo-50', 'text-indigo-700');
-        btnPage.classList.remove('text-slate-500', 'hover:text-slate-700');
-        btnSeverity.classList.remove('bg-indigo-50', 'text-indigo-700');
-        btnSeverity.classList.add('text-slate-500', 'hover:text-slate-700');
+        
+        if (btnPage) {
+          btnPage.classList.add('bg-indigo-50', 'text-indigo-700');
+          btnPage.classList.remove('text-slate-500', 'hover:text-slate-700');
+        }
+        if (btnSeverity) {
+          btnSeverity.classList.remove('bg-indigo-50', 'text-indigo-700');
+          btnSeverity.classList.add('text-slate-500', 'hover:text-slate-700');
+        }
       }
       _syncExpandBtn();
     }
@@ -722,17 +762,8 @@ function buildHtml(args, findings) {
     }
 
     function filterIssues(type) {
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.remove('bg-indigo-50', 'text-indigo-700', 'border-indigo-100');
-            btn.classList.add('bg-white', 'text-slate-500', 'hover:text-slate-700');
-
-            if(btn.textContent.toLowerCase() === type.toLowerCase() || (type === 'all' && btn.textContent.toLowerCase() === 'all')) {
-                btn.classList.add('bg-indigo-50', 'text-indigo-700', 'border-indigo-100');
-                btn.classList.remove('bg-white', 'text-slate-500', 'hover:text-slate-700');
-            }
-        });
-
         const cards = document.querySelectorAll('.issue-card');
+        const q = document.getElementById('search-input')?.value.toLowerCase().trim() || '';
         let visibleCount = 0;
         const principles = ['Perceivable', 'Operable', 'Understandable', 'Robust'];
         let emptyMsg = document.getElementById('dynamic-empty-state');
@@ -752,8 +783,11 @@ function buildHtml(args, findings) {
                 if (type === 'Robust' && wcagText.includes(' 4.')) match = true;
             }
 
-            if (match) {
-                card.style.display = 'block';
+            // Cross-match with search
+            const textMatch = !q || card.textContent.toLowerCase().includes(q);
+
+            if (match && textMatch) {
+                card.style.display = '';
                 visibleCount++;
             } else {
                 card.style.display = 'none';
@@ -811,31 +845,8 @@ function buildHtml(args, findings) {
     }
 
     function handleSearch(query) {
-        const q = query.toLowerCase().trim();
-        const cards = document.querySelectorAll('.issue-card');
-        let visibleCount = 0;
-
-        cards.forEach(card => {
-            const text = card.textContent.toLowerCase();
-            const visible = !q || text.includes(q);
-            card.style.display = visible ? '' : 'none';
-            if (visible) visibleCount++;
-        });
-
-        const container = document.getElementById('issues-container');
-        let emptyMsg = document.getElementById('dynamic-empty-state');
-        if (visibleCount === 0) {
-            if (!emptyMsg) {
-                emptyMsg = document.createElement('div');
-                emptyMsg.id = 'dynamic-empty-state';
-                emptyMsg.className = 'text-center py-12 bg-white rounded-2xl border border-slate-200 border-dashed transition-all';
-                emptyMsg.innerHTML = '<div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-slate-50 mb-4 text-slate-300"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h3 class="text-sm font-bold text-slate-900">No matching violations found</h3><p class="text-xs text-slate-400 mt-1 uppercase tracking-widest font-bold">Try a different search term</p>';
-                container.appendChild(emptyMsg);
-            }
-            emptyMsg.style.display = '';
-        } else if (emptyMsg) {
-            emptyMsg.style.display = 'none';
-        }
+        const filterType = document.getElementById('filter-select')?.value || 'all';
+        filterIssues(filterType);
     }
 
     async function copyToClipboard(text, btn) {
