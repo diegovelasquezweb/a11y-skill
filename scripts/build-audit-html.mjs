@@ -484,7 +484,8 @@ function buildHtml(args, findings) {
                 <span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 text-[9px] font-bold uppercase tracking-tight line-clamp-1">${w.severity}</span>
                 <span class="text-slate-500 text-[9px] font-mono">${w.id}</span>
               </div>
-              <h4 class="text-sm font-bold text-slate-200 mb-3 line-clamp-1">${w.title}</h4>
+              <h4 class="text-sm font-bold text-slate-200 mb-1 line-clamp-1">${w.title}</h4>
+              <p class="text-[10px] text-slate-500 font-mono mb-3 truncate">Page: ${w.area}</p>
               <button onclick="scrollToIssue('${w.id}')" class="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 transition-colors uppercase tracking-widest flex items-center gap-1">
                 View Solution
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
