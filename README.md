@@ -7,7 +7,7 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 - **Modern Engine**: Uses Playwright for full browser automation and Axe-Core for high-precision detection.
 - **SPA Support**: Handles dynamic content and Single Page Applications natively.
 - **Isolated Stack**: No global dependencies or project-level pollution. All tools live within the skill.
-- **Detailed Reports**: Generates a professional HTML report and PDF export with technical evidence and remediation guidance.
+- **Detailed Reports**: Generates an interactive HTML dashboard for developers and a formal PDF summary for compliance evidence.
 - **Autodiscovery**: Automatically finds and scans same-origin routes if none are provided.
 
 ## Installation
@@ -39,13 +39,24 @@ Once installed, the skill is available to your agent in any conversation. Simply
 
 ## Deliverables
 
-- **Location**: `audit/` folder.
-  - `index.html`: Premium standalone interactive dashboard (Primary).
-  - `index.pdf`: Professional, portable report for compliance and offline sharing.
-  - `summary.md`: Concise markdown summary ideal for PRs or tickets.
-  - `internal/`: Raw technical assets for data ingestion or custom processing.
-    - `a11y-findings.json`: Final normalized findings (Cleaned).
-    - `a11y-scan-results.json`: Raw automated scan data (Full).
+- **Location**: All reports are generated in the `audit/` directory.
+
+### For Clients & Stakeholders
+
+- `index.pdf`: A professional, formal document designed for offline sharing and compliance evidence.
+
+### For Developers & PMs
+
+- `index.html`: A premium, interactive React-like dashboard that features:
+  - Persona impact mapping (Screen Readers, Cognitive, Motor) to help prioritize UX improvements.
+  - Critical issue isolation with ready-to-use code solutions for fast remediation.
+
+### For AI Agents & Automation
+
+- `summary.md`: A highly concise markdown summary ideal for PR comments or GitHub/Jira tickets.
+- `internal/`: Raw technical assets for data ingestion.
+  - `a11y-findings.json`: Final normalized findings (Cleaned).
+  - `a11y-scan-results.json`: Raw automated scan data (Full).
 
 ## Standalone CLI
 
