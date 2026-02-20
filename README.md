@@ -9,6 +9,19 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 - **WCAG 2.2 Manual Check Coverage** — Six criteria axe-core can't detect are covered with step-by-step verification instructions built into the report.
 - **Multi-Source a11y Intelligence** — Automatically links findings to W3C Patterns (Implementation), Deque University (Rule Logic), A11ySupport.io (Browser Support), and Inclusive Components (Design).
 
+## Feature Comparison
+
+While traditional tools are excellent for visual learning or broad metrics, this skill is purpose-built to automate the remediation workflow using AI agents.
+
+| Feature / Capability              | `a11y`                                                   | Google Lighthouse                             | WebAIM WAVE                              |
+| :-------------------------------- | :------------------------------------------------------- | :-------------------------------------------- | :--------------------------------------- |
+| **Native AI Agent Integration**   | <small>✅ (Optimized Markdown remediation guide)</small> | <small>❌ (Massive JSON/HTML only)</small>    | <small>❌ (Visual-only GUI)</small>      |
+| **Headless / CI-Ready Execution** | <small>✅ (Playwright included)</small>                  | <small>✅ (CLI available)</small>             | <small>⚠️ (Paid API/Runner only)</small> |
+| **Multi-Route Discovery**         | <small>✅ (Automated site crawling)</small>              | <small>❌ (Single URL per run)</small>        | <small>❌ (Single URL per run)</small>   |
+| **Premium Executive Reports**     | <small>✅ (Custom branding & PDF Export)</small>         | <small>❌ (Standard technical report)</small> | <small>❌ (Visual overlays only)</small> |
+| **Direct Code Remediation**       | <small>✅ (AI-ready code evidence)</small>               | <small>❌ (Diagnostic only)</small>           | <small>❌ (Diagnostic only)</small>      |
+| **Depth of Standard**             | <small>WCAG 2.2 AA (Axe-Core 4.10+)</small>              | <small>WCAG 2.1 AA (Axe subset)</small>       | <small>WCAG 2.2 AA</small>               |
+
 ## Installation
 
 To install this skill, provide the following prompt to your AI agent:
@@ -33,7 +46,7 @@ This skill follows the [Agent Skills standard](https://agentskills.io). Below ar
 Once installed, the skill is available to your agent in any conversation:
 
 ```bash
-"Audit my local dev server at http://localhost:3000"
+"Audit my local dev server at localhost:3000"
 ```
 
 ```bash
@@ -58,11 +71,8 @@ All generated assets are stored in the `audit/` directory.
 Execute the audit script directly from the skill directory:
 
 ```bash
-# Local dev server
-pnpm run audit -- --base-url http://localhost:3000
-
-# Live site
-pnpm run audit -- --base-url https://mysite.com
+# Example: Audit a specific URL with custom limit and visible browser
+pnpm run audit -- --base-url https://mysite.com --max-routes 20 --headed
 ```
 
 ### Options
@@ -179,19 +189,6 @@ pnpm test
 | `buildSummary` / `scoreLabel` | Severity totals and grade labels                                                          |
 | `escapeHtml` / `linkify`      | HTML escaping and URL linkification                                                       |
 | `loadConfig`                  | Config parsing, unknown key warnings, hex color validation                                |
-
-## Feature Comparison
-
-While traditional tools are excellent for visual learning or broad metrics, this skill is purpose-built to automate the remediation workflow using AI agents.
-
-| Feature / Capability              | `a11y`                                                 | Google Lighthouse                            | WebAIM WAVE                           |
-| :-------------------------------- | :----------------------------------------------------- | :------------------------------------------- | :------------------------------------ |
-| **Native AI Agent Integration**   | <small>✅ (Outputs clean JSON & DOM evidence)</small>  | <small>❌ (Requires complex parsing)</small> | <small>❌ (Visual only)</small>       |
-| **Headless / CI-Ready Execution** | <small>✅ (Playwright)</small>                         | <small>✅ (CLI available)</small>            | <small>❌ (Browser Extension)</small> |
-| **Zero-Config SPA Support**       | <small>✅ (Waits for hydration & JS rendering)</small> | <small>⚠️ (Requires config)</small>          | <small>✅ (Manual click)</small>      |
-| **Premium Executive Reports**     | <small>✅ (HTML Dashboard & PDF Export)</small>        | <small>❌ (Basic HTML/JSON)</small>          | <small>❌</small>                     |
-| **Direct Code Remediation**       | <small>✅ (AI uses findings to fix code)</small>       | <small>❌ (Only reports)</small>             | <small>❌ (Only reports)</small>      |
-| **Depth of Standard**             | <small>WCAG 2.2 AA (Axe-Core Engine)</small>           | <small>Basic A11y + Web Vitals</small>       | <small>WCAG 2.1 AA</small>            |
 
 ## Reference
 
