@@ -78,20 +78,20 @@ export function buildIssueCard(finding) {
     <div class="flex-1 min-w-0">
     <div class="flex flex-wrap items-center gap-2.5 mb-3.5">
       <span class="px-3 py-1 rounded-full text-[11px] font-bold border ${severityBadge} shadow-sm backdrop-blur-sm uppercase tracking-wider">${escapeHtml(finding.severity)}</span>
-      <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200/60 font-mono tracking-tight shadow-sm">${escapeHtml(finding.id)}</span>
-      ${finding.ruleId ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-200 border border-slate-700/60 font-mono tracking-tight shadow-sm">${escapeHtml(finding.ruleId)}</span>` : ""}
+      <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200/60 font-mono tracking-tight shadow-sm searchable-field">${escapeHtml(finding.id)}</span>
+      ${finding.ruleId ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-200 border border-slate-700/60 font-mono tracking-tight shadow-sm searchable-field">${escapeHtml(finding.ruleId)}</span>` : ""}
       <span class="wcag-label px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-100/80 ml-auto shadow-sm backdrop-blur-sm">WCAG ${escapeHtml(finding.wcag)}</span>
     </div>
-    <h3 class="text-lg md:text-xl font-extrabold text-slate-900 leading-tight mb-3 group-hover:text-indigo-900 transition-colors">${escapeHtml(finding.title)}</h3>
+    <h3 class="text-lg md:text-xl font-extrabold text-slate-900 leading-tight mb-3 group-hover:text-indigo-900 transition-colors searchable-field issue-title">${escapeHtml(finding.title)}</h3>
 
     <div class="flex flex-wrap gap-x-6 gap-y-2 text-[13px] text-slate-500 font-medium">
         <div class="flex items-center gap-1.5 bg-slate-50/50 px-2 py-1 rounded-md border border-slate-100">
             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-            <a href="${escapeHtml(finding.url)}" target="_blank" class="hover:text-indigo-600 hover:underline truncate max-w-[200px] md:max-w-md transition-colors">${escapeHtml(finding.url)}</a>
+            <a href="${escapeHtml(finding.url)}" target="_blank" class="hover:text-indigo-600 hover:underline truncate max-w-[200px] md:max-w-md transition-colors searchable-field issue-url">${escapeHtml(finding.url)}</a>
         </div>
         <div class="flex items-center gap-1.5 w-full md:w-auto mt-1 md:mt-0 min-w-0 bg-slate-50/50 px-2 py-1 rounded-md border border-slate-100">
             <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-            <code class="text-[12px] text-slate-700 font-mono truncate min-w-0 flex-1">${escapeHtml(finding.selector)}</code>
+            <code class="text-[12px] text-slate-700 font-mono truncate min-w-0 flex-1 searchable-field issue-selector">${escapeHtml(finding.selector)}</code>
         </div>
     </div>
     </div>

@@ -859,8 +859,12 @@ function buildHtml(args, findings) {
                 if (type === 'Robust' && wcagText.includes(' 4.')) match = true;
             }
 
-            // Cross-match with search
-            const textMatch = !q || card.textContent.toLowerCase().includes(q);
+            // Surgical search: only search in Title, ID, Selector, etc.
+            const searchableText = [...card.querySelectorAll('.searchable-field')]
+              .map(el => el.textContent)
+              .join(' ')
+              .toLowerCase();
+            const textMatch = !q || searchableText.includes(q);
 
             if (match && textMatch) {
                 card.style.display = '';
