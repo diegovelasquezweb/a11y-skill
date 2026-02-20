@@ -2,304 +2,375 @@ import { SEVERITY_ORDER } from "./core-findings.mjs";
 import { escapeHtml } from "./core-utils.mjs";
 import { buildIssueCard } from "./format-html.mjs";
 
-/**
- * Calculates a 0-100 compliance score based on weighted severities.
- * (Moved logic here for self-contained format-pdf)
- */
 export function computeComplianceScore(totals) {
-  const weights = { Critical: 10, High: 5, Medium: 2, Low: 1 };
-  const totalWeight =
-    totals.Critical * weights.Critical +
-    totals.High * weights.High +
-    totals.Medium * weights.Medium +
-    totals.Low * weights.Low;
-
-  if (totalWeight === 0) return 100;
-  const score = Math.max(0, 100 - totalWeight);
-  return Math.round(score);
+  const raw =
+    100 -
+    totals.Critical * 15 -
+    totals.High * 5 -
+    totals.Medium * 2 -
+    totals.Low * 0.5;
+  return Math.max(0, Math.min(100, Math.round(raw)));
 }
 
 export function scoreLabel(score) {
-  if (score >= 95) return "Excellent";
-  if (score >= 85) return "Good";
-  if (score >= 70) return "Fair";
-  if (score >= 50) return "Needs Improvement";
-  return "Poor";
+  if (score >= 90) return { label: "Excellent", risk: "Minimal Risk" };
+  if (score >= 75) return { label: "Good", risk: "Low Risk" };
+  if (score >= 55) return { label: "Fair", risk: "Moderate Risk" };
+  if (score >= 35) return { label: "Poor", risk: "High Risk" };
+  return { label: "Critical", risk: "Severe Risk" };
 }
 
-/**
- * Builds the PDF cover and executive summary.
- */
 export function buildPdfExecutiveSummary(args, findings, totals) {
   const score = computeComplianceScore(totals);
-  const grade = scoreLabel(score);
+  const blockers = findings.filter(
+    (f) => f.severity === "Critical" || f.severity === "High",
+  );
+  const totalIssues = findings.length;
+  const pagesAffected = new Set(findings.map((f) => f.area)).size;
+
+  const topIssues = blockers
+    .slice(0, 3)
+    .map(
+      (f) =>
+        `<li style="margin-bottom: 6pt;">${escapeHtml(f.title)} — <em>${escapeHtml(f.area)}</em></li>`,
+    )
+    .join("");
+
+  const narrative =
+    totalIssues === 0
+      ? `<p style="line-height: 1.8; font-size: 10pt; margin-bottom: 8pt;">
+        The automated scan of <strong>${escapeHtml(args.baseUrl)}</strong> detected no WCAG 2.2 AA violations across
+        the scanned routes. This is a strong result. Six criteria require manual verification before full
+        compliance can be certified — see Section 6.
+      </p>`
+      : `<p style="line-height: 1.8; font-size: 10pt; margin-bottom: 8pt;">
+        The automated scan of <strong>${escapeHtml(args.baseUrl)}</strong> identified <strong>${totalIssues} accessibility
+        violation${totalIssues !== 1 ? "s" : ""}</strong> across <strong>${pagesAffected} page${pagesAffected !== 1 ? "s" : ""}</strong>,
+        including <strong>${totals.Critical} Critical</strong> and <strong>${totals.High} High</strong> severity issues
+        that constitute immediate barriers for users relying on assistive technology.
+      </p>
+      <p style="line-height: 1.8; font-size: 10pt; margin-bottom: 8pt;">
+        Critical issues prevent disabled users from completing core tasks entirely.
+        High issues create significant friction that forces users to abandon flows.
+        Together, these ${totals.Critical + totals.High} blockers represent the primary compliance and
+        user experience risk for the organization.
+      </p>`;
+
+  const topIssuesBlock =
+    blockers.length > 0
+      ? `
+    <p style="font-family: sans-serif; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1pt; margin: 1.2rem 0 6pt 0; color: #6b7280;">Priority Issues</p>
+    <ul style="margin: 0; padding-left: 1.2rem; font-size: 10pt;">${topIssues}</ul>`
+      : "";
+
+  const conformanceStatement =
+    totals.Critical > 0
+      ? `<strong>Does not conform</strong> to ${escapeHtml(args.target)}`
+      : findings.length > 0
+        ? `<strong>Partially conforms</strong> to ${escapeHtml(args.target)}`
+        : `<strong>Conforms</strong> to ${escapeHtml(args.target)} (automated checks)`;
 
   return `
-<section class="pdf-page bg-white">
-  <div class="h-full flex flex-col">
-    <!-- COVER HEADER -->
-    <div class="mb-20">
-      <div class="text-indigo-600 font-black text-4xl mb-2 tracking-tighter">a11y</div>
-      <div class="h-1 w-20 bg-indigo-600 mb-8"></div>
-      <h1 class="text-6xl font-black text-slate-900 leading-none mb-4">Accessibility<br>Audit Report</h1>
-      <p class="text-slate-500 text-xl font-medium">${escapeHtml(args.target)} Compliance Review</p>
-    </div>
+<div style="page-break-before: always;">
+  <h2 style="margin-top: 0;">1. Executive Summary</h2>
 
-    <!-- METADATA GRID -->
-    <div class="grid grid-cols-2 gap-12 mb-20 border-t border-slate-100 pt-10">
-      <div>
-        <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Target Property</h4>
-        <p class="text-lg font-bold text-slate-900 break-all">${escapeHtml(args.baseUrl)}</p>
-      </div>
-      <div>
-        <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Audit Date</h4>
-        <p class="text-lg font-bold text-slate-900">${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
-      </div>
-    </div>
+  <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 1rem; padding: 0.8rem 1rem; border: 1pt solid #e5e7eb; background: #f9fafb;">
+    <strong>Conformance status:</strong> This site ${conformanceStatement} based on automated testing conducted on ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}.
+    See Section 6 for scope and limitations.
+  </p>
 
-    <!-- SCORE BLOCK -->
-    <div class="bg-slate-900 rounded-3xl p-12 text-white flex items-center justify-between shadow-2xl relative overflow-hidden">
-      <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
-      <div>
-        <h2 class="text-sm font-black text-indigo-400 uppercase tracking-widest mb-2">Compliance Score</h2>
-        <div class="text-[120px] font-black leading-none mb-2">${score}<span class="text-indigo-500 text-4xl ml-2">/100</span></div>
-        <p class="text-2xl font-bold text-indigo-200">${grade} Compliance Standing</p>
-      </div>
-      <div class="text-right border-l border-white/10 pl-12">
-        <div class="space-y-4">
-          <div>
-            <div class="text-rose-400 text-4xl font-black">${totals.Critical}</div>
-            <div class="text-[10px] font-black uppercase tracking-widest text-white/40">Critical</div>
-          </div>
-          <div>
-            <div class="text-orange-400 text-4xl font-black">${totals.High}</div>
-            <div class="text-[10px] font-black uppercase tracking-widest text-white/40">High</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-`;
+  ${narrative}
+  ${topIssuesBlock}
+
+  <table class="stats-table" style="margin-top: 1.5rem;">
+    <thead>
+      <tr><th>Severity</th><th>Count</th><th>Impact</th><th>Action Required</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Critical</strong></td><td>${totals.Critical}</td><td>Complete barrier — users cannot proceed</td><td>Fix immediately</td></tr>
+      <tr><td><strong>High</strong></td><td>${totals.High}</td><td>Serious friction — core tasks impaired</td><td>Fix this sprint</td></tr>
+      <tr><td><strong>Medium</strong></td><td>${totals.Medium}</td><td>Partial violation — usability degraded</td><td>Fix next sprint</td></tr>
+      <tr><td><strong>Low</strong></td><td>${totals.Low}</td><td>Best practice gap — minor impact</td><td>Fix when convenient</td></tr>
+    </tbody>
+  </table>
+</div>`;
 }
 
-/**
- * Methodology and Limitations.
- */
-export function buildPdfMethodologySection(args, findings) {
-  return `
-<section class="pdf-page bg-white pt-20">
-  <h2 class="text-3xl font-black text-slate-900 mb-8 flex items-center gap-4">
-    <span class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-xl text-slate-400 font-bold">01</span>
-    Methodology
-  </h2>
-  
-  <div class="grid grid-cols-2 gap-12">
-    <div class="space-y-8">
-      <div>
-        <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Inspection Engine</h3>
-        <p class="text-slate-600 leading-relaxed text-sm">This audit was performed using the <strong>a11y-skill</strong> automation suite, leveraging the <strong>axe-core 4.10</strong> accessibility engine. The engine tests against WCAG 2.2 Level A and AA standards, providing a 99% accuracy rate for automated violations.</p>
-      </div>
-      <div>
-        <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Device Emulation</h3>
-        <p class="text-slate-600 leading-relaxed text-sm">Testing was conducted using a headless Chromium browser with a viewport of 1280x800. We utilized network idling strategies (2000ms) to ensure all dynamic components and asynchronous content were fully rendered before analysis.</p>
-      </div>
-    </div>
-    
-    <div class="bg-indigo-50/50 rounded-2xl p-8 border border-indigo-100">
-      <h3 class="text-xs font-black text-indigo-900 uppercase tracking-widest mb-4">Scope of Audit</h3>
-      <ul class="space-y-3">
-        ${Array.from(new Set(findings.map((f) => f.area)))
-          .slice(0, 12)
-          .map(
-            (page) => `
-          <li class="flex items-center gap-3 text-[13px] font-bold text-indigo-800">
-            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            ${escapeHtml(page)}
-          </li>
-        `,
-          )
-          .join("")}
-      </ul>
-    </div>
-  </div>
-</section>
-`;
-}
-
-/**
- * Risk and Compliance.
- */
 export function buildPdfRiskSection(totals) {
+  const score = computeComplianceScore(totals);
+  const riskLevel =
+    score >= 75
+      ? "Low"
+      : score >= 55
+        ? "Moderate"
+        : score >= 35
+          ? "High"
+          : "Severe";
+  const riskColor =
+    score >= 75 ? "#16a34a" : score >= 55 ? "#d97706" : "#dc2626";
+
   return `
-<section class="pdf-page bg-white pt-20">
-  <h2 class="text-3xl font-black text-slate-900 mb-8 flex items-center gap-4">
-    <span class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-xl text-slate-400 font-bold">02</span>
-    Compliance & Legal Risk
-  </h2>
+<div style="page-break-before: always;">
+  <h2 style="margin-top: 0;">2. Compliance &amp; Legal Risk</h2>
+  <p style="line-height: 1.8; font-size: 10pt; margin-bottom: 1rem;">
+    Web accessibility compliance is governed by international standards and increasingly enforced
+    by law across major markets. The following regulations apply to most digital products and services.
+  </p>
 
-  <div class="space-y-10">
-    <div class="bg-rose-50 border-l-8 border-rose-500 rounded-xl p-10">
-      <div class="flex items-start gap-6">
-        <div class="text-rose-600">
-          <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-        </div>
-        <div>
-          <h3 class="text-xl font-black text-rose-900 mb-2">High Civil Risk Warning</h3>
-          <p class="text-rose-800 leading-relaxed font-medium">This audit identified <strong>${totals.Critical} critical</strong> and <strong>${totals.High} high-severity</strong> violations. Under the current ADA Title II and Section 508 enforcement frameworks, these issues represent significant barriers to access and constitute high civil and regulatory risk.</p>
-        </div>
-      </div>
-    </div>
+  <table class="stats-table">
+    <thead>
+      <tr><th>Regulation</th><th>Jurisdiction</th><th>Standard</th><th>Deadline</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>European Accessibility Act (EAA)</strong></td>
+        <td>European Union</td>
+        <td>EN 301 549 / WCAG 2.2 AA</td>
+        <td>June 28, 2025 (in force)</td>
+      </tr>
+      <tr>
+        <td><strong>ADA Title II — DOJ Final Rule</strong></td>
+        <td>United States</td>
+        <td>WCAG 2.1 AA</td>
+        <td>April 24, 2026</td>
+      </tr>
+      <tr>
+        <td><strong>EU Web Accessibility Directive</strong></td>
+        <td>European Union (Public Sector)</td>
+        <td>EN 301 549 / WCAG 2.1 AA</td>
+        <td>In force since 2018</td>
+      </tr>
+      <tr>
+        <td><strong>Section 508</strong></td>
+        <td>United States (Federal)</td>
+        <td>WCAG 2.0 AA</td>
+        <td>In force since 2018</td>
+      </tr>
+    </tbody>
+  </table>
 
-    <div class="grid grid-cols-2 gap-10">
-      <div class="p-8 border border-slate-100 rounded-2xl bg-white shadow-sm">
-        <h4 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">ADA Title II Guidance</h4>
-        <p class="text-xs text-slate-600 leading-relaxed">The US Department of Justice recently established that public entities must conform to WCAG 2.1 Level AA. Failure to comply with these standards can result in legal action and federal oversight.</p>
-      </div>
-      <div class="p-8 border border-slate-100 rounded-2xl bg-white shadow-sm">
-        <h4 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Section 508 Requirements</h4>
-        <p class="text-xs text-slate-600 leading-relaxed">For organizations receiving federal funding or supplying government agencies, Section 508 compliance is a mandatory prerequisite. Non-conformance can impact contract eligibility and procurement cycles.</p>
-      </div>
-    </div>
+  <div style="margin-top: 1.5rem; padding: 1rem 1.2rem; border: 1.5pt solid ${riskColor}; border-left: 5pt solid ${riskColor}; background: #f9fafb;">
+    <p style="font-family: sans-serif; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1pt; margin: 0 0 4pt 0; color: #6b7280;">Current Risk Assessment</p>
+    <p style="font-family: sans-serif; font-size: 16pt; font-weight: 900; margin: 0; color: ${riskColor};">${riskLevel} Risk</p>
+    <p style="font-size: 9pt; margin: 6pt 0 0 0; color: #374151; line-height: 1.6;">
+      ${
+        score >= 75
+          ? "The site demonstrates strong accessibility fundamentals. Remaining issues should be addressed to achieve full compliance before regulatory deadlines."
+          : score >= 55
+            ? "The site has meaningful accessibility gaps that create legal exposure under EAA and ADA Title II. A remediation plan should be established and executed before the applicable compliance deadlines."
+            : "The site has significant accessibility barriers that create substantial legal exposure. Immediate remediation of Critical and High issues is strongly recommended to mitigate compliance risk under EAA (in force) and ADA Title II (April 2026)."
+      }
+    </p>
   </div>
-</section>
-`;
+</div>`;
 }
 
-/**
- * Remediation Roadmap.
- */
 export function buildPdfRemediationRoadmap(findings) {
-  const crit = findings.filter((f) => f.severity === "Critical").length;
-  const high = findings.filter((f) => f.severity === "High").length;
-  const med = findings.filter((f) => f.severity === "Medium").length;
-  const low = findings.filter((f) => f.severity === "Low").length;
+  const critical = findings.filter((f) => f.severity === "Critical");
+  const high = findings.filter((f) => f.severity === "High");
+  const medium = findings.filter((f) => f.severity === "Medium");
+  const low = findings.filter((f) => f.severity === "Low");
 
-  const effortHours = (c, h, m, l) => c * 4 + h * 2 + m * 1 + l * 0.5;
+  const effortHours = (c, h, m, l) =>
+    Math.round(c * 4 + h * 2 + m * 1 + l * 0.5);
 
-  const roadmapData = [
-    {
-      label: "Immediate Phase (Blockers)",
-      items: crit,
-      hours: effortHours(crit, 0, 0, 0),
-    },
-    {
-      label: "Priority Phase (High Impact)",
-      items: high,
-      hours: effortHours(0, high, 0, 0),
-    },
-    {
-      label: "Standard Maintenance",
-      items: med + low,
-      hours: effortHours(0, 0, med, low),
-    },
-  ];
+  const totalHours = effortHours(
+    critical.length,
+    high.length,
+    medium.length,
+    low.length,
+  );
 
-  const sprintBlock = (label, items, hours) => `
-    <div class="flex items-center justify-between p-6 border-b border-slate-100 last:border-0">
-      <div>
-        <h4 class="font-bold text-slate-900">${label}</h4>
-        <p class="text-xs text-slate-500">${items} violations to resolve</p>
-      </div>
-      <div class="text-right">
-        <div class="text-xl font-black text-slate-900">${Math.ceil(hours)}h</div>
-        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Est. Effort</div>
-      </div>
-    </div>
-  `;
+  function sprintBlock(label, items, hours) {
+    if (items.length === 0) return "";
+    const rows = items
+      .slice(0, 8)
+      .map(
+        (f) =>
+          `<tr><td>${escapeHtml(f.id)}</td><td>${escapeHtml(f.title)}</td><td>${escapeHtml(f.area)}</td></tr>`,
+      )
+      .join("");
+    const more =
+      items.length > 8
+        ? `<tr><td colspan="3" style="font-style: italic; color: #6b7280;">… and ${items.length - 8} more</td></tr>`
+        : "";
+    return `
+<div style="margin-bottom: 1.5rem; page-break-inside: avoid;">
+  <p style="font-family: sans-serif; font-size: 9pt; font-weight: 800; text-transform: uppercase;
+     letter-spacing: 1pt; margin: 0 0 4pt 0; color: #6b7280;">
+    ${label}
+    <span style="font-weight: 400; color: #9ca3af;"> — ${items.length} issue${items.length !== 1 ? "s" : ""} · ~${hours}h estimated</span>
+  </p>
+  <table class="stats-table" style="margin: 0;">
+    <thead><tr><th>ID</th><th>Issue</th><th>Page</th></tr></thead>
+    <tbody>${rows}${more}</tbody>
+  </table>
+</div>`;
+  }
 
   return `
-<section class="pdf-page bg-white pt-20">
-  <h2 class="text-3xl font-black text-slate-900 mb-8 flex items-center gap-4">
-    <span class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-xl text-slate-400 font-bold">03</span>
-    Remediation Roadmap
-  </h2>
+<div style="page-break-before: always;">
+  <h2 style="margin-top: 0;">3. Remediation Roadmap</h2>
+  <p style="line-height: 1.8; font-size: 10pt; margin-bottom: 1.2rem;">
+    Issues are prioritized by severity and grouped into recommended remediation sprints.
+    Effort estimates assume a developer familiar with the codebase.
+    Total estimated remediation effort: <strong>~${totalHours} hours</strong>.
+  </p>
 
-  <div class="grid grid-cols-2 gap-12">
-    <div class="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100">
-      <div class="p-6 bg-slate-900 text-white">
-        <h3 class="text-xs font-black uppercase tracking-widest opacity-60">Resource Allocation</h3>
-      </div>
-      ${roadmapData.map((d) => sprintBlock(d.label, d.items, d.hours)).join("")}
-    </div>
+  ${sprintBlock("Sprint 1 — Fix Immediately (Critical)", critical, effortHours(critical.length, 0, 0, 0))}
+  ${sprintBlock("Sprint 2 — Fix This Cycle (High)", high, effortHours(0, high.length, 0, 0))}
+  ${sprintBlock("Sprint 3 — Fix Next Cycle (Medium + Low)", [...medium, ...low], effortHours(0, 0, medium.length, low.length))}
 
-    <div>
-      <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest mb-4">Strategic Recommendation</h3>
-      <p class="text-slate-600 leading-relaxed text-sm mb-6">We recommend a phased approach starting with <strong>Immediate Blockers</strong>. These issues prevent users with specific disabilities from completing core tasks. Resolving these first will yield the highest compliance ROI.</p>
-      <div class="p-6 bg-indigo-600 rounded-2xl text-white">
-        <h4 class="text-xs font-black uppercase tracking-widest opacity-80 mb-2">Total Estimated Effort</h4>
-        <div class="text-4xl font-black">${Math.ceil(effortHours(crit, high, med, low))} Total Hours</div>
-      </div>
-    </div>
-  </div>
-</section>
-`;
+  ${findings.length === 0 ? `<p style="font-style: italic; color: #6b7280;">No automated issues found. Complete the manual verification checklist in Section 5 to finalize the assessment.</p>` : ""}
+</div>`;
 }
 
-/**
- * Audit Limitations.
- */
+export function buildPdfMethodologySection(args, findings) {
+  const pagesScanned = new Set(findings.map((f) => f.url)).size || 1;
+  const scope = args.scope || "Full Site Scan";
+
+  return `
+<div style="page-break-before: always;">
+  <h2 style="margin-top: 0;">4. Methodology &amp; Scope</h2>
+  <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 1rem;">
+    This audit was conducted using automated accessibility testing tools against the live
+    environment of <strong>${escapeHtml(args.baseUrl)}</strong>. The methodology, tools, and
+    scope boundaries are documented below to ensure the results can be accurately interpreted.
+  </p>
+
+  <h3 style="font-size: 11pt; margin-bottom: 6pt;">Testing Approach</h3>
+  <table class="stats-table" style="margin-bottom: 1.2rem;">
+    <tbody>
+      <tr><td style="width: 35%; font-weight: 700;">Method</td><td>Automated scanning via axe-core engine injected into a live Chromium browser</td></tr>
+      <tr><td style="font-weight: 700;">Engine</td><td>axe-core 4.10+ (Deque Systems) — industry-standard accessibility rules library</td></tr>
+      <tr><td style="font-weight: 700;">Browser</td><td>Chromium (headless) via Playwright</td></tr>
+      <tr><td style="font-weight: 700;">Standard</td><td>${escapeHtml(args.target)}</td></tr>
+      <tr><td style="font-weight: 700;">Environment</td><td>${escapeHtml(args.environment)}</td></tr>
+      <tr><td style="font-weight: 700;">Audit date</td><td>${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size: 11pt; margin-bottom: 6pt;">Scope</h3>
+  <table class="stats-table" style="margin-bottom: 1.2rem;">
+    <tbody>
+      <tr><td style="width: 35%; font-weight: 700;">Audit scope</td><td>${escapeHtml(scope)}</td></tr>
+      <tr><td style="font-weight: 700;">Base URL</td><td><a href="${escapeHtml(args.baseUrl)}">${escapeHtml(args.baseUrl)}</a></td></tr>
+      <tr><td style="font-weight: 700;">Pages scanned</td><td>${pagesScanned} route${pagesScanned !== 1 ? "s" : ""} (autodiscovered via same-origin link crawl)</td></tr>
+      <tr><td style="font-weight: 700;">Color scheme</td><td>Light mode (default)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size: 11pt; margin-bottom: 6pt;">Severity Definitions</h3>
+  <table class="stats-table">
+    <thead><tr><th>Level</th><th>Definition</th><th>Recommended action</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Critical</strong></td><td>Complete barrier — users with disabilities cannot access or complete the affected feature</td><td>Fix immediately</td></tr>
+      <tr><td><strong>High</strong></td><td>Significant impediment — core tasks are seriously impaired but may still be possible</td><td>Fix within current sprint</td></tr>
+      <tr><td><strong>Medium</strong></td><td>Partial violation — functionality works but creates friction or excludes some users</td><td>Fix next sprint</td></tr>
+      <tr><td><strong>Low</strong></td><td>Best practice gap — minor deviation with limited real-world impact</td><td>Fix when convenient</td></tr>
+    </tbody>
+  </table>
+</div>`;
+}
+
 export function buildPdfAuditLimitations() {
   return `
-<section class="pdf-page bg-white pt-20">
-  <h2 class="text-3xl font-black text-slate-900 mb-8 flex items-center gap-4">
-    <span class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-xl text-slate-400 font-bold">04</span>
-    Audit Limitations
-  </h2>
+<div style="page-break-before: always;">
+  <h2 style="margin-top: 0;">6. Audit Scope &amp; Limitations</h2>
+  <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 1rem;">
+    Automated accessibility tools, including axe-core, reliably detect approximately 30–40% of
+    WCAG violations. The remaining 60–70% require human judgement, assistive technology testing,
+    and contextual evaluation that no automated tool can perform.
+  </p>
+  <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 1.2rem;">
+    This report documents the results of automated testing only. The following areas are
+    <strong>outside the scope</strong> of this audit and require separate manual review
+    before full WCAG 2.2 AA conformance can be certified:
+  </p>
 
-  <div class="space-y-8">
-    <div class="grid grid-cols-2 gap-8">
-      <div class="p-8 bg-slate-50 rounded-2xl border border-slate-100">
-        <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Automated Testing Coverage</h3>
-        <p class="text-sm text-slate-600 leading-relaxed">Axe-core and other automated engines typically capture 30-40% of accessibility issues. While instrumental for scale, they cannot judge qualitative factors like "Meaningful Sequence" or "Cognitive Load."</p>
-      </div>
-      <div class="p-8 bg-slate-50 rounded-2xl border border-slate-100">
-        <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Manual Review Requirement</h3>
-        <p class="text-sm text-slate-600 leading-relaxed">This audit serves as a baseline. A comprehensive conformance claim (VPAT) requires manual testing by users with screen readers, switch access, and other assistive technologies.</p>
-      </div>
-    </div>
+  <table class="stats-table" style="margin-bottom: 1.2rem;">
+    <thead><tr><th>Out-of-scope area</th><th>Why it requires manual review</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Authenticated pages</strong> (dashboards, account areas, checkout)</td>
+        <td>Automated tools cannot log in or maintain sessions — these pages were not scanned</td>
+      </tr>
+      <tr>
+        <td><strong>Dynamic &amp; interactive components</strong> (modals, carousels, dropdowns)</td>
+        <td>Axe-core evaluates the page at load time; interactions triggered by user input require scripted or manual testing</td>
+      </tr>
+      <tr>
+        <td><strong>Screen reader compatibility</strong></td>
+        <td>Real screen reader testing (NVDA, JAWS, VoiceOver) is required to verify announced content and navigation flow</td>
+      </tr>
+      <tr>
+        <td><strong>Keyboard navigation flow</strong></td>
+        <td>Logical tab order and focus management must be verified by a human tester navigating without a mouse</td>
+      </tr>
+      <tr>
+        <td><strong>Alternative text quality</strong></td>
+        <td>Axe-core confirms alt text exists, but cannot evaluate whether the description is meaningful or accurate</td>
+      </tr>
+      <tr>
+        <td><strong>6 WCAG 2.2 manual-only criteria</strong></td>
+        <td>Focus Appearance (2.4.11), Dragging Movements (2.5.7), Target Size (2.5.8), Consistent Help (3.2.6), Redundant Entry (3.3.7), Accessible Authentication (3.3.8)</td>
+      </tr>
+      <tr>
+        <td><strong>Third-party content</strong> (chat widgets, maps, embedded iframes)</td>
+        <td>Accessibility of third-party components is the responsibility of the vendor and was not assessed</td>
+      </tr>
+      <tr>
+        <td><strong>PDF &amp; document downloads</strong></td>
+        <td>Document accessibility requires separate evaluation using dedicated tools (Adobe Acrobat Accessibility Checker, PAC 2024)</td>
+      </tr>
+    </tbody>
+  </table>
 
-    <div class="p-10 border-2 border-dashed border-slate-200 rounded-3xl text-center">
-      <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">Next Steps</h3>
-      <p class="text-slate-500 max-w-xl mx-auto leading-relaxed text-sm">Review the interactive <strong>Audit Dashboard</strong> (HTML) for line-by-line source code evidence and direct remediation links to W3C ARIA APG standards.</p>
-    </div>
+  <div style="padding: 1rem 1.2rem; border: 1.5pt solid #d97706; border-left: 5pt solid #d97706; background: #fffbeb;">
+    <p style="font-family: sans-serif; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1pt; margin: 0 0 4pt 0; color: #92400e;">Recommendation</p>
+    <p style="font-size: 9pt; line-height: 1.7; margin: 0; color: #374151;">
+      To achieve verified WCAG 2.2 AA conformance, this automated audit should be complemented
+      with manual testing by an accessibility specialist, including screen reader testing,
+      keyboard-only navigation, and review of the 6 manual-only WCAG 2.2 criteria.
+      The accompanying HTML report provides step-by-step verification guidance for your development team.
+    </p>
   </div>
-</section>
-`;
+</div>`;
 }
 
 export const WCAG_PRINCIPLE_MAP = {
-  // Perceivable (1.x)
   "image-alt": "Perceivable",
   "input-image-alt": "Perceivable",
   "object-alt": "Perceivable",
   label: "Perceivable",
   "select-name": "Perceivable",
   "color-contrast": "Perceivable",
-  "link-in-text-block": "Perceivable",
-  "link-name": "Perceivable",
-  "list-item": "Perceivable",
+  "landmark-one-main": "Perceivable",
+  region: "Perceivable",
   list: "Perceivable",
-  "video-caption": "Perceivable",
-  "audio-caption": "Perceivable",
-  // Operable (2.x)
-  accesskeys: "Operable",
-  "area-alt": "Operable",
+  listitem: "Perceivable",
+  "definition-list": "Perceivable",
+  dlitem: "Perceivable",
   bypass: "Operable",
-  "focusable-content": "Operable",
-  "focus-order": "Operable",
-  "frame-tested": "Operable",
-  "keyboard-heading": "Operable",
-  "scrollable-region-focusable": "Operable",
+  "link-name": "Operable",
+  "heading-order": "Operable",
+  "page-has-heading-one": "Operable",
   tabindex: "Operable",
+  "scrollable-region-focusable": "Operable",
   "target-size": "Operable",
-  // Understandable (3.x)
+  "focus-appearance": "Operable",
+  "dragging-movements": "Operable",
+  "meta-viewport": "Operable",
   "html-has-lang": "Understandable",
   "html-lang-valid": "Understandable",
   "valid-lang": "Understandable",
+  "document-title": "Understandable",
+  "meta-refresh": "Understandable",
+  "redundant-entry": "Understandable",
+  "autocomplete-valid": "Understandable",
+  "consistent-help": "Understandable",
   "form-field-multiple-labels": "Understandable",
   "accessible-auth-minimum": "Understandable",
-  // Robust (4.x)
   "button-name": "Robust",
   "aria-required-attr": "Robust",
   "aria-valid-attr-value": "Robust",
@@ -309,26 +380,50 @@ export const WCAG_PRINCIPLE_MAP = {
 };
 
 export function wcagPrinciple(ruleId) {
-  return WCAG_PRINCIPLE_MAP[ruleId] || "Other";
+  return WCAG_PRINCIPLE_MAP[ruleId] || "Robust";
 }
 
-/**
- * Grouped issues section for the PDF (Severity vs Page grouping).
- */
 export function buildPageGroupedSection(findings) {
-  const pages = Array.from(new Set(findings.map((f) => f.area))).sort();
+  if (findings.length === 0) return "";
 
-  return pages
-    .map((page) => {
-      const pageFindings = findings.filter((f) => f.area === page);
-      return `
-      <div class="page-group mb-12" data-page="${escapeHtml(page)}">
-        <h2 class="text-2xl font-black text-slate-800 mb-6 border-b pb-4">${escapeHtml(page || "/")}</h2>
-        <div class="space-y-6">
-          ${pageFindings.map((f) => buildIssueCard(f)).join("\n")}
-        </div>
-      </div>
-    `;
+  const pageGroups = {};
+  for (const f of findings) {
+    if (!pageGroups[f.area]) pageGroups[f.area] = [];
+    pageGroups[f.area].push(f);
+  }
+
+  const sorted = Object.entries(pageGroups).sort(
+    (a, b) => b[1].length - a[1].length,
+  );
+
+  return sorted
+    .map(([page, pageFinding]) => {
+      const worstSeverity = pageFinding.reduce((worst, f) => {
+        return (SEVERITY_ORDER[f.severity] ?? 99) <
+          (SEVERITY_ORDER[worst] ?? 99)
+          ? f.severity
+          : worst;
+      }, "Low");
+      const badgeColor =
+        {
+          Critical: "bg-rose-100 text-rose-700 border-rose-200",
+          High: "bg-orange-100 text-orange-700 border-orange-200",
+          Medium: "bg-amber-100 text-amber-700 border-amber-200",
+          Low: "bg-emerald-100 text-emerald-700 border-emerald-200",
+        }[worstSeverity] || "bg-slate-100 text-slate-700 border-slate-200";
+
+      const cards = pageFinding
+        .sort(
+          (a, b) =>
+            (SEVERITY_ORDER[a.severity] ?? 99) -
+            (SEVERITY_ORDER[b.severity] ?? 99),
+        )
+        .map((f) => buildIssueCard(f))
+        .join("\n");
+
+      return `<div class="page-group mb-10" data-page="${escapeHtml(page)}">
+      ${cards}
+    </div>`;
     })
-    .join("\n");
+    .join("");
 }

@@ -26,8 +26,6 @@ const CONFIG_SCHEMA = {
   outputDir: { type: "string" },
   internalDir: { type: "string" },
   playwright: { type: "object" },
-  // Branding
-  reportTitle: { type: "string" },
   // Emulation
   colorScheme: { type: "string" },
   viewports: { type: "array" },
@@ -72,7 +70,6 @@ export function loadConfig() {
     axeRules: {},
     outputDir: "audit",
     internalDir: "audit/internal",
-    reportTitle: "Web Accessibility Audit",
     colorScheme: "light",
     viewports: [{ width: 1280, height: 800, name: "Desktop" }],
     // Visibility Defaults

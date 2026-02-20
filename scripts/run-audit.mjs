@@ -22,7 +22,6 @@ Options:
   --headless <bool>       Run browser in background (default: true).
   --headed                Run browser in visible mode.
   --color-scheme <value>  Emulate color scheme: "light" or "dark".
-  --title <text>          Custom title for the HTML report.
   --target <text>         Compliance target label (default: "WCAG 2.2 AA").
   --ignore-findings <csv> Ignore specific rule IDs.
   --exclude-selectors <csv> Exclude CSS selectors from scan.
@@ -84,7 +83,6 @@ async function main() {
     getArgValue("output") || path.join(process.cwd(), "audit", "report.html");
 
   const colorScheme = getArgValue("color-scheme");
-  const title = getArgValue("title");
   const target = getArgValue("target");
   const headless = argv.includes("--headless")
     ? getArgValue("headless") === "true"
@@ -93,8 +91,12 @@ async function main() {
       : config.headless;
 
   const onlyRule = getArgValue("only-rule") || config.onlyRule;
-  const ignoreFindings = getArgValue("ignore-findings");
-  const excludeSelectors = getArgValue("exclude-selectors");
+  const ignoreFindings =
+    getArgValue("ignore-findings") ||
+    (config.ignoreFindings?.length ? config.ignoreFindings.join(",") : null);
+  const excludeSelectors =
+    getArgValue("exclude-selectors") ||
+    (config.excludeSelectors?.length ? config.excludeSelectors.join(",") : null);
 
   if (!baseUrl) {
     log.error("Missing required argument: --base-url");
@@ -152,7 +154,6 @@ async function main() {
     await runScript("run-analyzer.mjs", analyzerArgs);
 
     const buildArgs = ["--output", output, "--base-url", baseUrl];
-    if (title) buildArgs.push("--title", title);
     if (target) buildArgs.push("--target", target);
 
     await runScript("build-report-html.mjs", buildArgs);

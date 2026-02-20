@@ -26,6 +26,8 @@ import {
   buildPdfRemediationRoadmap,
   buildPdfAuditLimitations,
   buildPageGroupedSection,
+  computeComplianceScore as pdfScore,
+  scoreLabel as pdfScoreLabel,
 } from "./report/format-pdf.mjs";
 
 function printUsage() {
@@ -35,7 +37,6 @@ function printUsage() {
 Options:
   --input <path>           Findings JSON path (default: audit/internal/a11y-findings.json)
   --output <path>          Output HTML path (default: audit/report.html)
-  --title <text>           Report title
   --target <text>          Compliance target label (default: WCAG 2.2 AA)
   -h, --help               Show this help
 `);
@@ -52,7 +53,6 @@ function parseArgs(argv) {
     input: getInternalPath("a11y-findings.json"),
     scanResults: getInternalPath("a11y-scan-results.json"),
     output: path.join(process.cwd(), config.outputDir, "report.html"),
-    title: config.reportTitle,
     baseUrl: "",
     target: config.complianceTarget,
   };
@@ -66,7 +66,6 @@ function parseArgs(argv) {
     if (key === "--scan-results") args.scanResults = value;
     if (key === "--output") args.output = value;
     if (key === "--base-url") args.baseUrl = value;
-    if (key === "--title") args.title = value;
     if (key === "--target") args.target = value;
     i += 1;
   }
@@ -84,6 +83,18 @@ function buildHtml(args, findings, metadata = {}) {
     minute: "2-digit",
   });
   const hasIssues = findings.length > 0;
+
+  let siteHostname = args.baseUrl;
+  try {
+    siteHostname = new URL(
+      args.baseUrl.startsWith("http") ? args.baseUrl : `https://${args.baseUrl}`,
+    ).hostname;
+  } catch {}
+  const coverDate = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   const statusColor = hasIssues
     ? "text-rose-600 bg-rose-50 border-rose-200"
@@ -232,7 +243,7 @@ function buildHtml(args, findings, metadata = {}) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(args.title)}</title>
+  <title>Web Accessibility Audit &mdash; ${escapeHtml(siteHostname)}</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -296,12 +307,9 @@ function buildHtml(args, findings, metadata = {}) {
       h1, h2, h3, h4 { font-family: 'Inter', sans-serif !important; color: black !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
 
       .cover-page {
-        height: 25cm;
+        height: 25.5cm;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        border-bottom: 2pt solid black;
-        margin-bottom: 3cm;
         page-break-after: always;
       }
 
@@ -371,7 +379,7 @@ function buildHtml(args, findings, metadata = {}) {
     <div class="max-w-7xl mx-auto px-4 pt-24 pb-20">
       <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 class="text-3xl font-extrabold mb-2">${escapeHtml(args.title)}</h2>
+          <h2 class="text-3xl font-extrabold mb-2">Web Accessibility Audit</h2>
           <p class="text-slate-500">${dateStr} &bull; ${escapeHtml(args.baseUrl)}</p>
         </div>
       </div>
@@ -564,19 +572,37 @@ function buildHtml(args, findings, metadata = {}) {
 
     <!-- Cover -->
     <div class="cover-page">
-      <p style="font-family: sans-serif; font-weight: 900; letter-spacing: 2pt; font-size: 14pt; margin-bottom: 4cm;">ACCESSIBILITY AUDIT REPORT</p>
-      <h1 style="font-size: 42pt !important; line-height: 1.1; border: none; margin: 0 0 1cm 0;">${escapeHtml(args.title)}</h1>
-      <div style="display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1cm;">
-        <span style="font-family: sans-serif; font-size: 48pt; font-weight: 900; color: ${computeComplianceScore(totals) >= 75 ? "#16a34a" : computeComplianceScore(totals) >= 55 ? "#d97706" : "#dc2626"};">${computeComplianceScore(totals)}</span>
-        <span style="font-family: sans-serif; font-size: 18pt; color: #9ca3af;">/ 100</span>
-        <span style="font-family: sans-serif; font-size: 13pt; font-weight: 700; color: #374151; margin-left: 0.5rem;">${scoreLabel(computeComplianceScore(totals)).label} &mdash; ${scoreLabel(computeComplianceScore(totals)).risk}</span>
+      <!-- Top accent line -->
+      <div style="border-top: 5pt solid #111827; padding-top: 1.3cm;">
+        <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; letter-spacing: 3.5pt; text-transform: uppercase; color: #9ca3af; margin: 0;">Accessibility Assessment</p>
       </div>
-      <div style="font-family: sans-serif; font-size: 10pt; line-height: 2; color: #374151; border-top: 1pt solid #e5e7eb; padding-top: 0.8cm;">
-        <p style="margin: 0;"><strong>Target:</strong> ${escapeHtml(args.baseUrl)}</p>
-        <p style="margin: 0;"><strong>Environment:</strong> ${escapeHtml(args.environment)}</p>
-        <p style="margin: 0;"><strong>Standard:</strong> ${escapeHtml(args.target)}</p>
-        <p style="margin: 0;"><strong>Date:</strong> ${dateStr}</p>
-        <p style="margin: 0;"><strong>Automated findings:</strong> ${findings.length} &nbsp;|&nbsp; <strong>Manual checks:</strong> ${MANUAL_CHECKS.length} required</p>
+
+      <!-- Main content -->
+      <div style="flex: 1; padding: 2cm 0 1.5cm 0;">
+        <p style="font-family: 'Inter', sans-serif; font-size: 13pt; color: #6b7280; margin: 0 0 0.4cm 0; font-weight: 400;">${escapeHtml(siteHostname)}</p>
+        <h1 style="font-family: 'Inter', sans-serif !important; font-size: 38pt !important; font-weight: 900 !important; line-height: 1.08 !important; color: #111827 !important; margin: 0 0 1.8cm 0 !important; border: none !important; padding: 0 !important;">Web Accessibility<br>Audit</h1>
+        <div style="border-top: 1.5pt solid #111827; width: 4.5cm; margin-bottom: 1.5cm;"></div>
+
+        <!-- Score + meta -->
+        <div style="display: flex; align-items: flex-start;">
+          <div style="min-width: 7cm;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 5pt 0;">Compliance Score</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 40pt; font-weight: 900; line-height: 1; margin: 0; color: ${pdfScore(totals) >= 75 ? "#16a34a" : pdfScore(totals) >= 55 ? "#d97706" : "#dc2626"};">${pdfScore(totals)}<span style="font-size: 16pt; font-weight: 400; color: #9ca3af;"> / 100</span></p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 9.5pt; font-weight: 700; color: #374151; margin: 5pt 0 0 0;">${pdfScoreLabel(pdfScore(totals)).label} &mdash; ${pdfScoreLabel(pdfScore(totals)).risk}</p>
+          </div>
+          <div style="border-left: 1pt solid #e5e7eb; padding-left: 2cm;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 4pt 0;">Standard</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 11pt; font-weight: 700; color: #111827; margin: 0 0 1.1cm 0;">${escapeHtml(args.target)}</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 4pt 0;">Audit Date</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 11pt; font-weight: 700; color: #111827; margin: 0;">${coverDate}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="border-top: 1pt solid #e5e7eb; padding-top: 0.6cm; display: flex; justify-content: space-between; align-items: center;">
+        <p style="font-family: 'Inter', sans-serif; font-size: 8pt; color: #9ca3af; margin: 0;">Generated by <strong style="color: #6b7280;">a11y</strong></p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 8pt; color: #9ca3af; margin: 0;">github.com/diegovelasquezweb/a11y</p>
       </div>
     </div>
 
@@ -628,7 +654,6 @@ function buildHtml(args, findings, metadata = {}) {
     <!-- 6. Audit Scope & Limitations -->
     ${buildPdfAuditLimitations()}
 
-      ${buildGlobalReferencesSection(metadata)}
     </div>
 
     <footer class="mt-10 py-6 border-t border-slate-200 text-center">

@@ -79,7 +79,7 @@ function parseArgs(argv) {
   const args = {
     input: getInternalPath("a11y-scan-results.json"),
     output: getInternalPath("a11y-findings.json"),
-    ignoreFindings: config.ignoreFindings || [],
+    ignoreFindings: [],
   };
 
   for (let i = 0; i < argv.length; i += 1) {
