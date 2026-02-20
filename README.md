@@ -20,14 +20,14 @@ To install this skill, provide the following prompt to your AI agent:
 
 This skill follows the [Agent Skills standard](https://agentskills.io). Below are the supported agents and their default installation paths:
 
-| Agent / IDE        | Skill install path (Global/User)               | Extended Workflow        | Agent Config         |
-| :----------------- | :--------------------------------------------- | :----------------------- | :------------------- |
-| **Antigravity**    | `~/.gemini/antigravity/skills/a11y/`           | `.agent/workflows/`      | —                    |
-| **Codex (OpenAI)** | `~/.codex/skills/a11y/`                        | —                        | `agents/openai.yaml` |
-| **Claude (Code)**  | `~/.claude/skills/a11y/`                       | —                        | —                    |
-| **Cursor**         | `~/.cursor/skills/` (or inherits Claude/Codex) | —                        | —                    |
-| **Gemini CLI**     | `~/.gemini/skills/a11y/`                       | —                        | —                    |
-| **Windsurf**       | `~/.codeium/windsurf/skills/a11y/`             | `.windsurf/workflows/`   | —                    |
+| Agent / IDE     | Skill install path (Global/User)               | Extended Workflow      | Agent Config         |
+| :-------------- | :--------------------------------------------- | :--------------------- | :------------------- |
+| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`           | `.agent/workflows/`    | —                    |
+| **Codex**       | `~/.codex/skills/a11y/`                        | —                      | `agents/openai.yaml` |
+| **Claude**      | `~/.claude/skills/a11y/`                       | —                      | —                    |
+| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex) | —                      | —                    |
+| **Gemini CLI**  | `~/.gemini/skills/a11y/`                       | —                      | —                    |
+| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`             | `.windsurf/workflows/` | —                    |
 
 ## How to Use
 
@@ -122,7 +122,7 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 ```json
 {
   "axeRules": {
-    "color-contrast": { "enabled": false },
+    "color-contrast": { "enabled": false }
   }
 }
 ```
