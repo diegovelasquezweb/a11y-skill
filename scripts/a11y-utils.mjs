@@ -80,7 +80,13 @@ export function loadConfig() {
     try {
       const userConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       validateConfig(userConfig);
-      return { ...defaults, ...userConfig };
+      const merged = { ...defaults, ...userConfig };
+      const hexColorRe = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+      if (merged.accentColor && !hexColorRe.test(merged.accentColor)) {
+        log.warn(`a11y.config.json: invalid accentColor "${merged.accentColor}" — must be a 3 or 6-digit hex (e.g. #6366f1). Using default.`);
+        merged.accentColor = defaults.accentColor;
+      }
+      return merged;
     } catch (e) {
       log.warn(
         `Failed to parse a11y.config.json: ${e.message}. Using defaults.`,

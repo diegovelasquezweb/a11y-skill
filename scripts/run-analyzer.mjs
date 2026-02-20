@@ -14,7 +14,12 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
-const INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
+let INTELLIGENCE;
+try {
+  INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
+} catch {
+  throw new Error("Missing or invalid assets/intelligence.json — reinstall the skill.");
+}
 
 function makeFindingId(ruleId, url, selector) {
   const key = `${ruleId}||${url}||${selector}`;
@@ -381,7 +386,7 @@ function mapWcag(tags) {
   return "WCAG";
 }
 
-function detectImplicitRole(tag, html) {
+export function detectImplicitRole(tag, html) {
   if (!tag) return null;
   if (tag === "input") {
     const type = html?.match(/type=["']([^"']+)["']/i)?.[1]?.toLowerCase();
@@ -402,7 +407,7 @@ function detectImplicitRole(tag, html) {
   return map[tag] ?? null;
 }
 
-function extractSearchHint(selector) {
+export function extractSearchHint(selector) {
   if (!selector || selector === "N/A") return selector;
   const specific =
     selector

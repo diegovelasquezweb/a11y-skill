@@ -5,7 +5,12 @@ import { buildSummary } from "./core-findings.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const manualChecksPath = join(__dirname, "../../assets/manual-checks.json");
-const MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
+let MANUAL_CHECKS;
+try {
+  MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
+} catch {
+  throw new Error("Missing or invalid assets/manual-checks.json — reinstall the skill.");
+}
 
 /**
  * Builds the manual checks section in Markdown format for AI agents.

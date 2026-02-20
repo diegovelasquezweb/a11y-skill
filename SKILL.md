@@ -126,7 +126,7 @@ Each finding must include:
 | `companyName`      | `string` | Logo/brand name in the report header.                   |
 | `accentColor`      | `string` | Hex color (e.g. `#fbbf24`) for report accents.          |
 | `colorScheme`      | `string` | Emulate `"light"` or `"dark"` during scanning.          |
-| `viewports`        | `array`  | List of `{ width, height, name }` objects.              |
+| `viewports`        | `array`  | List of `{ width, height, name }` objects. Only the first entry is used for scanning. To change viewport, update `viewports[0]`. |
 | `maxRoutes`        | `number` | Max URLs to discover (default: 10).                     |
 | `routes`           | `array`  | Static list of paths to scan (overrides autodiscovery). |
 | `complianceTarget` | `string` | Report label (default: "WCAG 2.2 AA").                  |
