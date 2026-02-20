@@ -44,12 +44,12 @@ Once installed, the skill is available to your agent in any conversation. Simply
 
 All generated assets are stored in the `audit/` directory.
 
-| Deliverable           | Format  | Audience   | Key Value                                                  |
-| :-------------------- | :------ | :--------- | :--------------------------------------------------------- |
-| **Audit Dashboard**   | `.html` | Developers | Premium interactive UI with code fixes & persona mapping.  |
-| **Executive Summary** | `.pdf`  | Clients    | Formal, document-style compliance and risk evidence.       |
-| **Remediation Guide** | `.md`   | AI Agents  | Token-optimized guide with selectors for automated fixes.  |
-| **Technical Data**    | `.json` | Systems    | Raw findings in `internal/` for CI/CD or custom ingestion. |
+| Deliverable           | Format           | Audience   | Key Value                                                  |
+| :-------------------- | :--------------- | :--------- | :--------------------------------------------------------- |
+| **Audit Dashboard**   | `.html`          | Developers | Premium interactive UI with code fixes & persona mapping.  |
+| **Executive Summary** | `.pdf`           | Clients    | Formal, document-style compliance and risk evidence.       |
+| **Remediation Guide** | `remediation.md` | AI Agents  | Token-optimized guide with selectors for automated fixes.  |
+| **Technical Data**    | `.json`          | Systems    | Raw findings in `internal/` for CI/CD or custom ingestion. |
 
 ## Standalone CLI
 

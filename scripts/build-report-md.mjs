@@ -8,7 +8,7 @@ import { buildMarkdownSummary } from "./report/format-md.mjs";
 
 function printUsage() {
   log.info(`Usage:
-  node build-remediation-md.mjs [options]
+  node build-report-md.mjs [options]
 
 Options:
   --input <path>           Findings JSON path (default: audit/internal/a11y-findings.json)

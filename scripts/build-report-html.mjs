@@ -26,7 +26,7 @@ import {
 
 function printUsage() {
   log.info(`Usage:
-  node build-audit-html.mjs [options]
+  node build-report-html.mjs [options]
 
 Options:
   --input <path>           Findings JSON path (default: audit/internal/a11y-findings.json)

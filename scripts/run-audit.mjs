@@ -25,6 +25,14 @@ Options:
   --target <text>         Compliance target label (default: "WCAG 2.2 AA").
   --no-open               Do not open the report after audit.
   -h, --help              Show this help.
+
+Guardrails for Remediation:
+  1.  **Framework & CMS Awareness**: This project may use React, Vue, Next.js, Astro, **Shopify** (.liquid), **WordPress** (.php), or **Drupal** (.twig).
+    - **NEVER** edit compiled, minified, or cached files (e.g., \`dist/\`, \`.next/\`, \`build/\`, \`wp-content/cache/\`, \`assets/*.min.js\`).
+    - **WordPress**: Work only in \`wp-content/themes/\` or \`plugins/\`. **NEVER** edit \`wp-admin/\` or \`wp-includes/\`.
+    - **Shopify**: Edit \`.liquid\` files in \`sections/\`, \`snippets/\`, or \`layout/\`. Avoid minified assets.
+    - **Drupal**: Search for \`.html.twig\` in \`themes/\`. Clear cache with \`drush cr\` after changes.
+    - **Source of Truth**: Traced DOM violations must be fixed at the **Source Component** or **Server-side Template**. Edit the origin, not the output.
 `);
 }
 
@@ -137,9 +145,10 @@ async function main() {
 
     await runScript("build-report-html.mjs", buildArgs);
 
-    const mdOutput = output
-      .replace(".html", ".md")
-      .replace("report.md", "remediation.md");
+    const mdOutput = path.join(
+      path.dirname(absoluteOutputPath),
+      "remediation.md",
+    );
     const mdArgs = ["--output", mdOutput, "--base-url", baseUrl];
     if (target) mdArgs.push("--target", target);
     await runScript("build-report-md.mjs", mdArgs);

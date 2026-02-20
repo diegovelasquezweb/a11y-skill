@@ -8,7 +8,7 @@ import fs from "node:fs";
 
 function printUsage() {
   log.info(`Usage:
-  node generate-route-checks.mjs --base-url <url> [options]
+  node run-scanner.mjs --base-url <url> [options]
 
 Options:
   --routes <csv|newline>      Optional route list (same-origin paths/urls)
@@ -162,13 +162,17 @@ async function analyzeRoute(
     } catch (error) {
       lastError = error;
       if (attempt <= maxRetries) {
-        log.warn(`[attempt ${attempt}/${maxRetries + 1}] Retrying ${routeUrl}: ${error.message}`);
+        log.warn(
+          `[attempt ${attempt}/${maxRetries + 1}] Retrying ${routeUrl}: ${error.message}`,
+        );
         await page.waitForTimeout(1000 * attempt);
       }
     }
   }
 
-  log.error(`Failed to analyze ${routeUrl} after ${maxRetries + 1} attempts: ${lastError.message}`);
+  log.error(
+    `Failed to analyze ${routeUrl} after ${maxRetries + 1} attempts: ${lastError.message}`,
+  );
   return {
     url: routeUrl,
     error: lastError.message,
@@ -205,9 +209,10 @@ async function main() {
     });
 
     const cliRoutes = parseRoutesArg(args.routes, origin);
-    const configRoutes = Array.isArray(config.routes) && config.routes.length > 0
-      ? config.routes.map((r) => normalizePath(r, origin)).filter(Boolean)
-      : [];
+    const configRoutes =
+      Array.isArray(config.routes) && config.routes.length > 0
+        ? config.routes.map((r) => normalizePath(r, origin)).filter(Boolean)
+        : [];
     const providedRoutes = cliRoutes.length > 0 ? cliRoutes : configRoutes;
 
     if (providedRoutes.length > 0) {
@@ -237,7 +242,10 @@ async function main() {
       const safeRuleId = violation.id.replace(/[^a-z0-9-]/g, "-");
       const filename = `${routeIndex}-${safeRuleId}.png`;
       const screenshotPath = path.join(args.screenshotsDir, filename);
-      await page.locator(selector).first().screenshot({ path: screenshotPath, timeout: 3000 });
+      await page
+        .locator(selector)
+        .first()
+        .screenshot({ path: screenshotPath, timeout: 3000 });
       violation.screenshot_path = `screenshots/${filename}`;
     } catch {
       // skip silently — element may be hidden or off-screen

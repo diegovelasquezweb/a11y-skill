@@ -145,7 +145,7 @@ Run automated tests using the bundled robust scanner (Playwright + Axe-Core).
 
 1. Automated pass (bundled scanner).
 
-- The skill uses `scripts/generate-route-checks.mjs` which launches a headless browser.
+- The skill uses `scripts/run-scanner.mjs` which launches a headless browser.
 - It scans the DOM using Axe-Core for WCAG 2.0/2.1/2.2 A/AA compliance.
 - It supports SPAs (Single Page Applications) and complex JS-driven UIs.
 - Dependencies are isolated in the skill directory; **NO** installation occurs in the target project.
@@ -241,8 +241,9 @@ Execution discipline for the agent:
 
 1. Write three final artifacts in `audit/`:
 
-- `audit/report.html` — full HTML report (primary deliverable).
-- `audit/remediation.md` — actionable remediation guide for agents (selectors, evidence, fix templates).
+- **Audit Report (HTML)**: `audit/report.html`
+- **Remediation Guide (MD)**: `audit/remediation.md`
+- **Executive Summary (PDF)**: `audit/report.pdf`
 - Do not generate dated versions of the report (e.g., `audit/index-2026-01-01.html`).
 - Do not generate per-issue markdown files.
 - `audit/report.html` must include the completed findings with evidence and linked finding IDs.

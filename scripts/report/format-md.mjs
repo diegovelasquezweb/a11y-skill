@@ -141,7 +141,12 @@ Total findings: **${findings.length} issues**
 
 **FOLLOW THESE RULES TO PREVENT REGRESSIONS AND HALLUCINATIONS:**
 
-1.  **Framework Awareness**: This project may use React, Vue, Next.js, or Astro. **NEVER** edit files in \`dist/\`, \`.next/\`, or \`build/\`. If remediation requires a DOM change, locate the corresponding **Source Component** (.tsx, .jsx, .vue, .astro) and apply the logic there.
+1.  **Framework & CMS Awareness**: This project may use React, Vue, Next.js, Astro, **Shopify** (.liquid), **WordPress** (.php), or **Drupal** (.twig).
+    - **NEVER** edit compiled, minified, or cached files (e.g., \`dist/\`, \`.next/\`, \`build/\`, \`wp-content/cache/\`, \`assets/*.min.js\`).
+    - **WordPress**: Work only in \`wp-content/themes/\` or \`plugins/\`. **NEVER** edit \`wp-admin/\` or \`wp-includes/\`.
+    - **Shopify**: Edit \`.liquid\` files in \`sections/\`, \`snippets/\`, or \`layout/\`. Avoid minified assets.
+    - **Drupal**: Search for \`.html.twig\` in \`themes/\`. Clear cache with \`drush cr\` after changes.
+    - **Source of Truth**: Traced DOM violations must be fixed at the **Source Component** or **Server-side Template**. Edit the origin, not the output.
 2.  **Surgical Selection**: Use the **Surgical Selector** and **Evidence from DOM** to verify you are editing the correct element. Accessibility fixes are context-sensitive.
 3.  **Global Component Check**: If an issue repeats across multiple pages, it is likely inside a Global Component (e.g., \`Header.tsx\`, \`Button.vue\`). Fix it once at the source.
 4.  **Verification**: After applying a fix, explain *why* it resolves the WCAG criterion mentioned.
