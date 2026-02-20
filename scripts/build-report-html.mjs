@@ -743,7 +743,7 @@ function buildHtml(args, findings, metadata = {}) {
       const toolbar = document.getElementById('findings-toolbar');
       const manualBar = document.getElementById('manual-progress-sticky');
       if (toolbar && manualBar) {
-        manualBar.style.top = (64 + toolbar.offsetHeight + 10) + 'px';
+        manualBar.style.top = (64 + toolbar.offsetHeight - 1) + 'px';
       }
     });
     // ─────────────────────────────────────────────────────────────────────
