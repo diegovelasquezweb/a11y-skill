@@ -139,6 +139,18 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 }
 ```
 
+**3. Configure Playwright Options:**
+
+```json
+{
+  "playwright": {
+    "viewport": { "width": 375, "height": 812 },
+    "colorScheme": "dark",
+    "reducedMotion": "reduce"
+  }
+}
+```
+
 ## Feature Comparison
 
 While traditional tools are excellent for visual learning or broad metrics, this skill is purpose-built to automate the remediation workflow using AI agents.
