@@ -1,5 +1,4 @@
 import { buildSummary } from "./utils.mjs";
-import { wcagPrinciple } from "./pdf-sections.mjs";
 import { buildManualChecksMd } from "./manual-checks.mjs";
 
 export function buildMarkdownSummary(args, findings) {
@@ -50,9 +49,9 @@ export function buildMarkdownSummary(args, findings) {
       `- **WCAG:** ${f.wcag}`,
       f.impactedUsers ? `- **Impacted users:** ${f.impactedUsers}` : null,
       ``,
-      `**Expected:** ${f.expected}`,
-      ``,
-      `**Actual:** ${f.actual}`,
+      f.expected ? `**Expected:** ${f.expected}` : null,
+      f.expected ? `` : null,
+      f.actual ? `**Actual:** ${f.actual}` : null,
       reproBlock ? `` : null,
       reproBlock,
       ``,
@@ -77,7 +76,7 @@ export function buildMarkdownSummary(args, findings) {
       .sort()
       .map((page) => {
         const pageFindings = filtered.filter((f) => f.area === page);
-        return `## Page: ${page}\n\n${pageFindings.map(findingToMd).join("\n\n")}`;
+        return `## Page: ${page || "/"}\n\n${pageFindings.map(findingToMd).join("\n\n")}`;
       })
       .join("\n\n");
   }
@@ -105,7 +104,7 @@ ${findings.length === 0 ? "> No accessibility violations found. All checks passe
 2. Use \`grep\` or codebase search to find the CSS selector or the exact HTML shown in **Affected HTML**.
 3. **DO NOT** edit compiled files in \`dist/\`, \`build/\`, or \`.next/\`. Always edit source components (\`.tsx\`, \`.vue\`, \`.astro\`).
 4. Apply the **Fix** block exactly. Prioritize Critical/High first.
-5. After completing all fixes on a route, re-run \`pnpm run audit -- --base-url <url>\` to verify before moving to the next route.
+5. After completing all fixes on a route, re-run \`pnpm run audit -- --base-url ${args.baseUrl}\` to verify before moving to the next route.
 
 ${blockers ? `## Priority Fixes (Critical & High)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or high severity issues found."}
 
