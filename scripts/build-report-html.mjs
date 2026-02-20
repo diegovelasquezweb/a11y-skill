@@ -39,6 +39,8 @@ Options:
   --environment <text>     Test environment label
   --scope <text>           Audit scope label
   --target <text>          Compliance target label (default: WCAG 2.2 AA)
+  --company-name <text>    Company name override
+  --accent-color <hex>     Accent color override (e.g., #6366f1)
   -h, --help               Show this help
 `);
 }
@@ -76,6 +78,8 @@ function parseArgs(argv) {
     if (key === "--environment") args.environment = value;
     if (key === "--scope") args.scope = value;
     if (key === "--target") args.target = value;
+    if (key === "--company-name") args.companyName = value;
+    if (key === "--accent-color") args.accentColor = value;
     i += 1;
   }
 

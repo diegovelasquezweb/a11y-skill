@@ -19,6 +19,7 @@ Options:
   --headless <boolean>        Run headless (default: true)
   --color-scheme <value>      Emulate color scheme: "light" or "dark" (default: "light")
   --screenshots-dir <path>    Directory to save element screenshots (optional)
+  --exclude-selectors <csv>   Selectors to exclude (overrides config)
   -h, --help                  Show this help
 `);
 }
@@ -41,6 +42,7 @@ function parseArgs(argv, config) {
     screenshotsDir: null,
     slowMo: config.slowMo || 0,
     playground: config.playground || false,
+    excludeSelectors: config.excludeSelectors || [],
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -58,6 +60,8 @@ function parseArgs(argv, config) {
     if (key === "--headed") args.headless = false;
     if (key === "--slow-mo") args.slowMo = Number.parseInt(value, 10);
     if (key === "--playground") args.playground = true;
+    if (key === "--exclude-selectors")
+      args.excludeSelectors = value.split(",").map((s) => s.trim());
     if (key === "--color-scheme") args.colorScheme = value;
     if (key === "--screenshots-dir") args.screenshotsDir = value;
     i += 1;

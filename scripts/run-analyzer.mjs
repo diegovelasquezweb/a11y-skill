@@ -65,6 +65,7 @@ function printUsage() {
 
 Options:
   --output <path>          Output findings JSON path (default: audit/internal/a11y-findings.json)
+  --ignore-findings <csv> Ignore specific rule IDs (overrides config)
   -h, --help               Show this help
 `);
 }
@@ -78,6 +79,7 @@ function parseArgs(argv) {
   const args = {
     input: getInternalPath("a11y-scan-results.json"),
     output: getInternalPath("a11y-findings.json"),
+    ignoreFindings: [],
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -87,6 +89,8 @@ function parseArgs(argv) {
 
     if (key === "--input") args.input = value;
     if (key === "--output") args.output = value;
+    if (key === "--ignore-findings")
+      args.ignoreFindings = value.split(",").map((v) => v.trim());
     i += 1;
   }
 
@@ -282,7 +286,11 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
   const config = loadConfig();
   const ignoredRules = new Set(
-    Array.isArray(config.ignoreFindings) ? config.ignoreFindings : [],
+    args.ignoreFindings && args.ignoreFindings.length > 0
+      ? args.ignoreFindings
+      : Array.isArray(config.ignoreFindings)
+        ? config.ignoreFindings
+        : [],
   );
 
   const payload = readJson(args.input);

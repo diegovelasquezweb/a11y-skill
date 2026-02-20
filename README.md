@@ -67,25 +67,29 @@ pnpm run audit -- --base-url https://mysite.com
 
 ### Options
 
-| Flag                     | Description                                          | Default                      |
-| :----------------------- | :--------------------------------------------------- | :--------------------------- |
-| `--base-url <url>`       | The target to audit (Live URL or Localhost).         | Required                     |
-| `--color-scheme <value>` | Emulate `light` or `dark` color scheme.              | `"light"`                    |
-| `--environment <text>`   | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
-| `-h, --help`             | Show this help message.                              | —                            |
-| `--headless <bool>`      | Run browser in background (default: `true`).         | `true`                       |
-| `--headed`               | Run browser in visible mode.                         | `false`                      |
-| `--slow-mo <ms>`         | Delay between actions in milliseconds.               | `0`                          |
-| `--playground`           | Keep browser open after audit for inspection.        | `false`                      |
-| `--max-routes <num>`     | Maximum number of routes to discover and scan.       | `10`                         |
-| `--no-open`              | Do not open the report automatically after audit.    | `false`                      |
-| `--output <path>`        | Final HTML report location.                          | `audit/report.html`          |
-| `--routes <csv>`         | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
-| `--scope <text>`         | Custom scope label for the HTML report.              | Optional                     |
-| `--target <text>`        | Compliance target label.                             | "WCAG 2.2 AA"                |
-| `--timeout-ms <num>`     | Network timeout for page loads.                      | `30000`                      |
-| `--title <text>`         | Custom title for the HTML report.                    | "Accessibility Audit Report" |
-| `--wait-ms <num>`        | Time to wait for dynamic content after page load.    | `2000`                       |
+| Flag                        | Description                                          | Default                      |
+| :-------------------------- | :--------------------------------------------------- | :--------------------------- |
+| `--accent-color <hex>`      | Override report theme color (e.g., `#6366f1`).       | Config hex                   |
+| `--base-url <url>`          | The target to audit (Live URL or Localhost).         | Required                     |
+| `--color-scheme <value>`    | Emulate `light` or `dark` color scheme.              | `"light"`                    |
+| `--company-name <text>`     | Override company branding in the report.             | Config name                  |
+| `--environment <text>`      | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
+| `--exclude-selectors <csv>` | Specific CSS selectors to ignore during scan.        | `[]`                         |
+| `-h, --help`                | Show this help message.                              | —                            |
+| `--headless <bool>`         | Run browser in background (default: `true`).         | `true`                       |
+| `--headed`                  | Run browser in visible mode.                         | `false`                      |
+| `--ignore-findings <csv>`   | Comma-separated rule IDs to skip in the report.      | `[]`                         |
+| `--max-routes <num>`        | Maximum number of routes to discover and scan.       | `10`                         |
+| `--no-open`                 | Do not open the report automatically after audit.    | `false`                      |
+| `--output <path>`           | Final HTML report location.                          | `audit/report.html`          |
+| `--playground`              | Keep browser open after audit for inspection.        | `false`                      |
+| `--routes <csv>`            | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
+| `--scope <text>`            | Custom scope label for the HTML report.              | Optional                     |
+| `--slow-mo <ms>`            | Delay between actions in milliseconds.               | `0`                          |
+| `--target <text>`           | Compliance target label.                             | "WCAG 2.2 AA"                |
+| `--timeout-ms <num>`        | Network timeout for page loads.                      | `30000`                      |
+| `--title <text>`            | Custom title for the HTML report.                    | "Accessibility Audit Report" |
+| `--wait-ms <num>`           | Time to wait for dynamic content after page load.    | `2000`                       |
 
 ## Advanced Configuration
 

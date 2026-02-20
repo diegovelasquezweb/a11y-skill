@@ -26,6 +26,10 @@ Options:
   --title <text>          Custom title for the HTML report.
   --environment <text>    Test environment label (e.g., "Staging").
   --target <text>         Compliance target label (default: "WCAG 2.2 AA").
+  --company-name <text>   Override company name in report.
+  --accent-color <hex>    Override accent color (e.g., #6366f1).
+  --ignore-findings <csv> Ignore specific rule IDs.
+  --exclude-selectors <csv> Exclude CSS selectors from scan.
   --no-open               Do not open the report after audit.
   -h, --help              Show this help.
 
@@ -94,6 +98,11 @@ async function main() {
   const slowMo = getArgValue("slow-mo") || config.slowMo;
   const playground = argv.includes("--playground") || config.playground;
 
+  const companyName = getArgValue("company-name") || config.companyName;
+  const accentColor = getArgValue("accent-color") || config.accentColor;
+  const ignoreFindings = getArgValue("ignore-findings");
+  const excludeSelectors = getArgValue("exclude-selectors");
+
   if (!baseUrl) {
     log.error("Missing required argument: --base-url");
     console.log("Usage: node scripts/run-audit.mjs --base-url <url> [options]");
@@ -139,18 +148,24 @@ async function main() {
     if (headed) scanArgs.push("--headed");
     if (slowMo) scanArgs.push("--slow-mo", slowMo.toString());
     if (playground) scanArgs.push("--playground");
+    if (excludeSelectors)
+      scanArgs.push("--exclude-selectors", excludeSelectors);
     if (routes) scanArgs.push("--routes", routes);
     if (colorScheme) scanArgs.push("--color-scheme", colorScheme);
 
     await runScript("run-scanner.mjs", scanArgs);
 
-    await runScript("run-analyzer.mjs");
+    const analyzerArgs = [];
+    if (ignoreFindings) analyzerArgs.push("--ignore-findings", ignoreFindings);
+    await runScript("run-analyzer.mjs", analyzerArgs);
 
     const buildArgs = ["--output", output, "--base-url", baseUrl];
     if (title) buildArgs.push("--title", title);
     if (environment) buildArgs.push("--environment", environment);
     if (scope) buildArgs.push("--scope", scope);
     if (target) buildArgs.push("--target", target);
+    if (companyName) buildArgs.push("--company-name", companyName);
+    if (accentColor) buildArgs.push("--accent-color", accentColor);
 
     await runScript("build-report-html.mjs", buildArgs);
 
