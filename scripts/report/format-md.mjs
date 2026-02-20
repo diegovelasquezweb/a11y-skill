@@ -15,7 +15,7 @@ try {
 /**
  * Builds the manual checks section in Markdown format for AI agents.
  */
-export function buildManualChecksMd() {
+function buildManualChecksMd() {
   const entries = MANUAL_CHECKS.map((check) => {
     const codeBlock = check.code_example
       ? [

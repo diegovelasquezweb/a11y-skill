@@ -17,7 +17,7 @@ try {
 /**
  * Renders technical evidence (HTML snippets and failure summaries) for the dashboard.
  */
-export function formatEvidence(evidence) {
+function formatEvidence(evidence) {
   const data = Array.isArray(evidence) ? evidence : [];
   if (data.length === 0) return "";
 
@@ -250,7 +250,7 @@ export function buildIssueCard(finding) {
 /**
  * Builds a manual check card for the dashboard.
  */
-export function buildManualCheckCard(check) {
+function buildManualCheckCard(check) {
   const id = `manual-${check.criterion.replace(".", "-")}`;
   const steps = check.steps
     .map(

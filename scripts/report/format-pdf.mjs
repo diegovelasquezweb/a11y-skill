@@ -327,51 +327,6 @@ export function buildPdfAuditLimitations() {
 </div>`;
 }
 
-export const WCAG_PRINCIPLE_MAP = {
-  "image-alt": "Perceivable",
-  "input-image-alt": "Perceivable",
-  "object-alt": "Perceivable",
-  label: "Perceivable",
-  "select-name": "Perceivable",
-  "color-contrast": "Perceivable",
-  "landmark-one-main": "Perceivable",
-  region: "Perceivable",
-  list: "Perceivable",
-  listitem: "Perceivable",
-  "definition-list": "Perceivable",
-  dlitem: "Perceivable",
-  bypass: "Operable",
-  "link-name": "Operable",
-  "heading-order": "Operable",
-  "page-has-heading-one": "Operable",
-  tabindex: "Operable",
-  "scrollable-region-focusable": "Operable",
-  "target-size": "Operable",
-  "focus-appearance": "Operable",
-  "dragging-movements": "Operable",
-  "meta-viewport": "Operable",
-  "html-has-lang": "Understandable",
-  "html-lang-valid": "Understandable",
-  "valid-lang": "Understandable",
-  "document-title": "Understandable",
-  "meta-refresh": "Understandable",
-  "redundant-entry": "Understandable",
-  "autocomplete-valid": "Understandable",
-  "consistent-help": "Understandable",
-  "form-field-multiple-labels": "Understandable",
-  "accessible-auth-minimum": "Understandable",
-  "button-name": "Robust",
-  "aria-required-attr": "Robust",
-  "aria-valid-attr-value": "Robust",
-  "aria-hidden-focus": "Robust",
-  "frame-title": "Robust",
-  "duplicate-id": "Robust",
-};
-
-export function wcagPrinciple(ruleId) {
-  return WCAG_PRINCIPLE_MAP[ruleId] || "Robust";
-}
-
 export function buildPageGroupedSection(findings) {
   if (findings.length === 0) return "";
 

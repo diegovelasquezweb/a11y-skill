@@ -1,6 +1,6 @@
 ---
 name: a11y
-description: Run a WCAG 2.2 AA accessibility audit on a website. Use when the user says "audit [url]", "run an accessibility audit", "check accessibility", or asks to scan a site for a11y issues, WCAG compliance, or screen reader compatibility.
+description: Detect and autonomously fix WCAG 2.2 AA accessibility issues. Use when the user says "audit [url]", "fix accessibility", "make my site accessible", or asks to scan for compliance. The primary goal is finding vulnerabilities for the AI to patch.
 compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL. Playwright + Chromium are installed automatically on first run.
 license: MIT
 metadata:
@@ -26,10 +26,8 @@ Follow this workflow to audit and report website accessibility issues with consi
 
 4. **Audit behavior**:
 
-- Do not modify source code, config, content, or dependencies unless the user explicitly asks for fixes.
-- Do not create, update, or delete editor configuration files (for example `.vscode/settings.json`) during audits.
-- Never add or modify `livePreview.defaultPreviewPath`.
-- Default behavior is read-only auditing and reporting.
+- **Proactive Fixes**: While you must ask for permission before executing a command that modifies source code, you are encouraged to propose specific, surgical code fixes in the chat immediately after an audit.
+- Do not modify source code, config, content, or dependencies silently. Always present the proposed change first.
 - Never initialize package managers in the audited project (`npm init`, `pnpm init`, `yarn init`).
 - Never install or remove dependencies in the audited project (`npm/pnpm/yarn add|install|remove`).
 - Never create or modify `package.json`, lockfiles, or `node_modules` in the audited project during audit runs.
@@ -216,13 +214,13 @@ Execution discipline for the agent:
 
 4. Chat output should summarize results, but `audit/report.html` is the default source of truth.
 
-## 9) Final Output Rules
+## 9) Fix-First Output Rules
 
-1. Keep issue titles short, specific, and component-oriented.
-2. Use plain, implementation-ready language.
-3. Include exact selectors/components when known.
-4. Distinguish compliance blockers from advisory improvements.
-5. If evidence is incomplete, mark assumptions explicitly.
+1. **Evidence First**: When an audit completes, open the HTML report immediately as visual evidence.
+2. **The Resolution is the Goal**: In the chat, prioritize the **Remediation Roadmap**. Do not just say "here is the report"; instead, say "The report is open as evidence, here are the fixes I am ready to apply."
+3. **Surgical Precision**: Use the exact selectors and "Search Hints" provided by the analyzer to locate code.
+4. **Group by Component**: Present fixes grouped by component or page area to make review easier for the user.
+5. **Clear Impact**: Briefly explain _why_ the fix is needed (e.g., "Fixes screen reader access for the main nav").
 
 ## 10) Platform-Specific Installation
 
@@ -250,6 +248,9 @@ Follow these steps in order when executing an audit:
    - Linux: `xdg-open "<path>"`
    - If the open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
 
-5. **Summarize the findings**: total issues by severity (Critical / High / Medium / Low), top Critical and High items with route and fix, and the report location.
+5. **Summarize and Propose Fixes**:
+   - Report the location and total issues by severity.
+   - **MANDATORY**: Present a list of "Proposed Fixes" with the specific code changes found in `audit/remediation.md`.
+   - Ask for explicit permission to apply the fixes: "Should I apply these patches for you?"
 
 6. **Suggest `.gitignore` update**: If a `.gitignore` exists in the project root and does not already contain `audit/`, mention to the user that they may want to add `audit/` to avoid committing generated reports. Do not edit `.gitignore` automatically.

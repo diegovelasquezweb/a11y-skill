@@ -1,17 +1,17 @@
-# a11y — Web Accessibility Skill for AI Agents
+# a11y — Autonomous Accessibility Fixer for AI Agents
 
-This skill executes comprehensive WCAG 2.2 AA audits and generates surgical remediation roadmaps, providing AI agents with the precise selectors and fix patterns needed to patch vulnerabilities directly in the source code.
+This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with surgical remediation blueprints including precise DOM selectors and fix patterns to autonomously patch vulnerabilities directly in the source code.
 
 ## Why this Skill?
 
-Traditional accessibility tools focus on visual inspection or surface-level scores. This skill bridges the gap between **knowing** a problem exists and **fixing** it by providing professional-grade risk analysis and the interactive verification logic needed to ship truly accessible products.
+Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between **knowing** a problem exists and **fixing** it by providing the exact intelligence an agent needs to resolve issues with surgical precision.
 
-| Feature / Capability            | `a11y`                                                                         | Google Lighthouse                                  | WebAIM WAVE                                  |
-| :------------------------------ | :----------------------------------------------------------------------------- | :------------------------------------------------- | :------------------------------------------- |
-| **Native AI Agent Integration** | <small>✅ (Surgical DOM selectors & hints)</small>                             | <small>⚠️ (High token cost / Massive JSON)</small> | <small>❌ (Visual GUI only)</small>          |
-| **Site-Wide Route Scouting**    | <small>✅ (Automated zero-config crawler)</small>                              | <small>❌ (Single URL per run)</small>             | <small>❌ (Single URL per run)</small>       |
-| **Remediation Intelligence**    | <small>✅ (AI-optimized resolution patterns & multi-source blueprints)</small> | <small>⚠️ (Diagnostic hints only)</small>          | <small>⚠️ (Documentation links only)</small> |
-| **Guided Manual Verification**  | <small>✅ (Comprehensive DevTools, Keyboard & AT checks)</small>               | <small>❌ (Static link list only)</small>          | <small>⚠️ (Passive visual overlays)</small>  |
+| Feature / Capability         | `a11y`                                                          | Google Lighthouse                               | WebAIM WAVE                                  |
+| :--------------------------- | :-------------------------------------------------------------- | :---------------------------------------------- | :------------------------------------------- |
+| **Autonomous AI Resolution** | <small>✅ (Surgical DOM selectors & fix-ready patterns)</small> | <small>⚠️ (Basic diagnostic hints only)</small> | <small>❌ (Manual inspection only)</small>   |
+| **Site-Wide Route Scouting** | <small>✅ (Automated zero-config crawler)</small>               | <small>❌ (Single URL per run)</small>          | <small>❌ (Single URL per run)</small>       |
+| **Remediation Intelligence** | <small>✅ (AI-optimized blueprints & W3C APG patterns)</small>  | <small>⚠️ (Diagnostic links only)</small>       | <small>⚠️ (Documentation links only)</small> |
+| **Interactive QA Evidence**  | <small>✅ (Premium dashboard for visual verification)</small>   | <small>❌ (Static link list only)</small>       | <small>⚠️ (Passive visual overlays)</small>  |
 
 ## Installation
 
@@ -48,14 +48,14 @@ Once installed, the skill is available to your agent in any conversation:
 
 ## Deliverables
 
-All generated assets are stored in the `audit/` directory.
+While the primary output for the AI agent is the Remediation Guide, the skill generates artifacts for human verification and reporting.
 
-| Deliverable           | Format  | Audience   | Key Value                                                  |
-| :-------------------- | :------ | :--------- | :--------------------------------------------------------- |
-| **Audit Dashboard**   | `.html` | Developers | Premium interactive UI with code fixes & persona mapping.  |
-| **Executive Summary** | `.pdf`  | Clients    | Formal, document-style compliance and risk evidence.       |
-| **Remediation Guide** | `.md`   | AI Agents  | Token-optimized guide with selectors for automated fixes.  |
-| **Technical Data**    | `.json` | Systems    | Raw findings in `internal/` for CI/CD or custom ingestion. |
+| Deliverable           | Format  | Audience   | Key Value                                                 |
+| :-------------------- | :------ | :--------- | :-------------------------------------------------------- |
+| Remediation Guide     | `.md`   | AI Agents  | AI-optimized patching guide with surgical selectors.      |
+| **Audit Dashboard**   | `.html` | Developers | Visual evidence and interactive verification of findings. |
+| **Executive Summary** | `.pdf`  | Clients    | Formal compliance evidence for clients or stakeholders.   |
+| **Technical Data**    | `.json` | Systems    | Raw findings in `internal/` for custom integration.       |
 
 ## Standalone CLI
 

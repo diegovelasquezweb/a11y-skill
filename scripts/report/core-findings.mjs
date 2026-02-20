@@ -42,6 +42,7 @@ export function normalizeFindings(payload) {
         : [],
       actual: String(item.actual ?? ""),
       expected: String(item.expected ?? ""),
+      mdn: item.mdn ?? null,
       fixDescription: item.fix_description ?? null,
       fixCode: item.fix_code ?? null,
       recommendedFix: String(item.recommended_fix ?? item.recommendedFix ?? ""),
