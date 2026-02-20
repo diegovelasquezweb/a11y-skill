@@ -13,6 +13,11 @@ export const MANUAL_CHECKS = [
       "Check the focus indicator has at least 3:1 contrast vs adjacent colors",
       "Confirm the indicator area is at least: component perimeter × 2 CSS pixels",
     ],
+    agentTasks: [
+      "Search all CSS/SCSS/styled-components for `:focus` and `:focus-visible` — flag any rule that sets `outline: none` or `outline: 0` on interactive elements without a replacement style.",
+      "For every button, a, input, select, textarea — verify a `:focus-visible` rule with a visible outline or box-shadow exists.",
+      "If no focus style is defined globally, add: `*:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }` to the global stylesheet.",
+    ],
     ref: "https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance.html",
   },
   {
@@ -25,6 +30,11 @@ export const MANUAL_CHECKS = [
       "Identify all drag-and-drop interactions: sortable lists, sliders, file upload zones",
       "Verify each can be operated without dragging (arrow keys, click alternatives)",
       "Test using only pointer clicks — no drag gestures allowed as the sole method",
+    ],
+    agentTasks: [
+      "Search for `draggable`, `onDragStart`, `useDraggable`, `Sortable`, `react-dnd`, `@dnd-kit`, `dragula` — list every component that uses drag interactions.",
+      "For each drag component, verify an `onKeyDown` handler or a click-based alternative (up/down buttons, select+confirm) exists in the same component.",
+      "If no keyboard alternative exists, add arrow-key support or button controls to the component.",
     ],
     ref: "https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html",
   },
@@ -39,6 +49,11 @@ export const MANUAL_CHECKS = [
       "Use DevTools: select element → Computed → check width/height",
       "For targets under 24×24 px, verify at least (24 − size) px of non-interactive spacing surrounds it",
     ],
+    agentTasks: [
+      "Search CSS for button, a, [role=\"button\"], input[type=\"checkbox\"], input[type=\"radio\"] rules — flag any with explicit `width` or `height` below 24px.",
+      "For flagged elements, add `min-width: 24px; min-height: 24px;` or increase padding so the clickable area meets the minimum.",
+      "For icon-only buttons (no text), ensure `padding` is set so the total rendered size is at least 24×24px.",
+    ],
     ref: "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
   },
   {
@@ -51,6 +66,10 @@ export const MANUAL_CHECKS = [
       "Navigate to at least 3 different pages that contain help links or contact info",
       "Verify the help mechanism is always in the same location (e.g., always in the footer)",
       "Check that its order relative to surrounding elements is consistent across pages",
+    ],
+    agentTasks: [
+      "Search for help/support/contact components (e.g., `HelpLink`, `SupportChat`, `ContactInfo`, `IntercomWidget`) — verify they are rendered inside a shared layout component (Header, Footer, Layout) and not duplicated inline per page.",
+      "If found on individual pages rather than in a shared layout, move the component to the shared layout to guarantee consistent placement.",
     ],
     ref: "https://www.w3.org/WAI/WCAG22/Understanding/consistent-help.html",
   },
@@ -65,6 +84,10 @@ export const MANUAL_CHECKS = [
       "Verify that data entered earlier (name, address, email) is pre-populated or selectable in later steps",
       "Check that users are never asked to re-type the same information twice",
     ],
+    agentTasks: [
+      "Search for multi-step form components (wizard, stepper, checkout flow) — verify that data from previous steps is passed as props, state, or hidden inputs to subsequent steps.",
+      "If later steps re-render fields already collected (name, address, email), pre-populate them from stored state/context instead of showing empty inputs.",
+    ],
     ref: "https://www.w3.org/WAI/WCAG22/Understanding/redundant-entry.html",
   },
   {
@@ -78,6 +101,11 @@ export const MANUAL_CHECKS = [
       "If a CAPTCHA is present, verify an audio alternative or another accessible option exists",
       "Confirm copy-paste is allowed in password fields",
       "Check whether passkeys or email magic links are offered as alternatives",
+    ],
+    agentTasks: [
+      "Search for `<input type=\"password\">` — verify each has `autocomplete=\"current-password\"` (login) or `autocomplete=\"new-password\"` (signup). Add the attribute if missing.",
+      "Search for CAPTCHA implementations (`recaptcha`, `hcaptcha`, `turnstile`) — verify an accessible alternative is offered (audio challenge, email magic link, or passkey).",
+      "Verify password fields do not have `onPaste` handlers that prevent pasting — remove any such restriction.",
     ],
     ref: "https://www.w3.org/WAI/WCAG22/Understanding/accessible-authentication-minimum.html",
   },
@@ -154,23 +182,23 @@ ${cards}`;
 
 export function buildManualChecksMd() {
   const entries = MANUAL_CHECKS.map((check) => {
-    const steps = check.steps.map((s, i) => `${i + 1}. ${s}`).join("\n");
+    const tasks = check.agentTasks.map((s, i) => `${i + 1}. ${s}`).join("\n");
     return [
       `---`,
       `### ${check.criterion} — ${check.title} (WCAG 2.2 ${check.level})`,
       ``,
       `${check.description}`,
       ``,
-      `**How to verify:**`,
-      steps,
+      `**Agent tasks:**`,
+      tasks,
       ``,
       `**Reference:** ${check.ref}`,
     ].join("\n");
   }).join("\n\n");
 
-  return `## Manual Verification Required (WCAG 2.2)
+  return `## WCAG 2.2 Static Code Checks
 
-> These criteria cannot be detected automatically. Verify each one manually before certifying compliance.
+> These criteria are not detectable by axe-core. Search the source code for the patterns below and apply fixes where missing.
 
 ${entries}
 `;

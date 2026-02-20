@@ -8,18 +8,38 @@ export function buildMarkdownSummary(args, findings) {
 
   function findingToMd(f) {
     const evidenceHtml = (() => {
-      if (!f.evidence) return "";
+      if (!f.evidence) return null;
       try {
         const nodes = JSON.parse(f.evidence);
-        if (!Array.isArray(nodes) || nodes.length === 0) return "";
-        return nodes
+        if (!Array.isArray(nodes) || nodes.length === 0) return null;
+        const blocks = nodes
           .map((n) => (n.html ? `\`\`\`html\n${n.html}\n\`\`\`` : ""))
           .filter(Boolean)
           .join("\n");
+        return blocks || null;
       } catch {
-        return "";
+        return null;
       }
     })();
+
+    const reproBlock =
+      f.reproduction && f.reproduction.length > 0
+        ? `**To reproduce:**\n${f.reproduction.map((s, i) => `${i + 1}. ${s}`).join("\n")}`
+        : null;
+
+    const fixBlock =
+      f.fixDescription || f.fixCode
+        ? [
+            f.fixDescription ? `**Fix:** ${f.fixDescription}` : null,
+            f.fixCode ? `\`\`\`html\n${f.fixCode}\n\`\`\`` : null,
+          ]
+            .filter(Boolean)
+            .join("\n\n")
+        : `**Fix:** ${f.recommendedFix}`;
+
+    const ruleRef = f.ruleId
+      ? `**Rule:** https://dequeuniversity.com/rules/axe/4.10/${f.ruleId}`
+      : null;
 
     return [
       `---`,
@@ -28,24 +48,19 @@ export function buildMarkdownSummary(args, findings) {
       `- **Page:** \`${f.area}\``,
       `- **Selector:** \`${f.selector}\``,
       `- **WCAG:** ${f.wcag}`,
-      `- **Impacted users:** ${f.impactedUsers}`,
+      f.impactedUsers ? `- **Impacted users:** ${f.impactedUsers}` : null,
       ``,
       `**Expected:** ${f.expected}`,
       ``,
       `**Actual:** ${f.actual}`,
+      reproBlock ? `` : null,
+      reproBlock,
       ``,
-      f.fixDescription || f.fixCode
-        ? [
-            f.fixDescription ? `**Fix:** ${f.fixDescription}` : null,
-            f.fixCode ? `\`\`\`html\n${f.fixCode}\n\`\`\`` : null,
-          ]
-            .filter(Boolean)
-            .join("\n\n")
-        : `**Fix:** ${f.recommendedFix}`,
-      ``,
-      evidenceHtml ? `**Affected HTML:**\n${evidenceHtml}` : "",
-      ``,
-      `**Reference:** ${f.recommendedFix}`,
+      fixBlock,
+      evidenceHtml ? `` : null,
+      evidenceHtml ? `**Affected HTML:**\n${evidenceHtml}` : null,
+      ruleRef ? `` : null,
+      ruleRef,
     ]
       .filter((line) => line !== null)
       .join("\n");
@@ -80,23 +95,17 @@ export function buildMarkdownSummary(args, findings) {
 
 ## Overview
 
-| Severity | Count |
-|---|---|
-| Critical | ${totals.Critical} |
-| High | ${totals.High} |
-| Medium | ${totals.Medium} |
-| Low | ${totals.Low} |
-| **Total** | **${findings.length}** |
+Critical: ${totals.Critical} · High: ${totals.High} · Medium: ${totals.Medium} · Low: ${totals.Low} · Total: ${findings.length}
 
 ${findings.length === 0 ? "> No accessibility violations found. All checks passed." : ""}
 
-## 🤖 SYSTEM: Agent Instructions
+## SYSTEM: Agent Instructions
 
-**CRITICAL INSTRUCTIONS FOR AI AGENTS:**
 1. This file is grouped by Page/Route. Fix ALL issues on a single route before moving to the next.
-2. Use your \`grep\` or codebase search tools to find the unique CSS selectors or the exact code shown in **Affected HTML**.
-3. **DO NOT** edit compiled files in \`dist/\`, \`build/\`, or \`.next/\`. Always edit the original source components (e.g., \`.tsx\`, \`.vue\`, \`.astro\`).
-4. Apply the exact logic from the **Fix** block to resolve the violation. Prioritize Critical/High first.
+2. Use \`grep\` or codebase search to find the CSS selector or the exact HTML shown in **Affected HTML**.
+3. **DO NOT** edit compiled files in \`dist/\`, \`build/\`, or \`.next/\`. Always edit source components (\`.tsx\`, \`.vue\`, \`.astro\`).
+4. Apply the **Fix** block exactly. Prioritize Critical/High first.
+5. After completing all fixes on a route, re-run \`pnpm run audit -- --base-url <url>\` to verify before moving to the next route.
 
 ${blockers ? `## Priority Fixes (Critical & High)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or high severity issues found."}
 
