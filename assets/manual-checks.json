@@ -89,5 +89,304 @@
       "Verify password fields do not have `onPaste` handlers that prevent pasting — remove any such restriction."
     ],
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/accessible-authentication-minimum.html"
+  },
+  {
+    "criterion": "2.1.1",
+    "title": "Keyboard Access",
+    "level": "A",
+    "description": "All functionality must be operable through a keyboard interface without requiring specific timings for individual keystrokes.",
+    "steps": [
+      "Unplug or disable your mouse and navigate the entire page using only Tab, Shift+Tab, Enter, Space, and arrow keys.",
+      "Confirm every interactive feature (menus, modals, carousels, date pickers) can be opened, used, and closed by keyboard.",
+      "Flag any action that requires hover or mouse click with no keyboard equivalent."
+    ],
+    "remediation": [
+      "Add keyboard event handlers (keydown/keyup) alongside mouse event handlers for all custom interactive components.",
+      "Ensure custom components follow the APG keyboard interaction patterns: https://www.w3.org/WAI/ARIA/apg/patterns/"
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html"
+  },
+  {
+    "criterion": "2.1.2",
+    "title": "No Keyboard Trap",
+    "level": "A",
+    "description": "Keyboard focus must never become locked inside a component unless it is a modal dialog, and even then Escape must close it.",
+    "steps": [
+      "Tab into every interactive component (menus, widgets, embedded media).",
+      "Attempt to Tab or Shift+Tab out of each component — confirm focus moves to the next element.",
+      "For modal dialogs, press Escape and confirm the dialog closes and focus returns to the trigger."
+    ],
+    "remediation": [
+      "For modals, implement a focus trap that keeps focus inside while open, and releases it when closed with Escape or the close button.",
+      "Remove any tabindex or focus logic that prevents Tab from exiting a non-modal component."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/no-keyboard-trap.html"
+  },
+  {
+    "criterion": "2.4.3",
+    "title": "Focus Order",
+    "level": "A",
+    "description": "The keyboard focus sequence must follow a logical order that preserves meaning and operability.",
+    "steps": [
+      "Press Tab repeatedly from the top of the page and observe the focus sequence.",
+      "Confirm focus moves left-to-right and top-to-bottom (or in the logical reading order of the content).",
+      "Check that modals and dynamic content (drawers, toasts) receive focus in the correct sequence when they appear."
+    ],
+    "remediation": [
+      "Remove positive tabindex values — they override the natural DOM order and create unpredictable sequences.",
+      "Reorder DOM elements to match the intended visual and logical reading order."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/focus-order.html"
+  },
+  {
+    "criterion": "1.4.1",
+    "title": "Use of Color",
+    "level": "A",
+    "description": "Color must not be the only visual means of conveying information, indicating an action, prompting a response, or distinguishing a visual element.",
+    "steps": [
+      "Enable grayscale mode (DevTools → Rendering → Emulate vision deficiencies: Achromatopsia).",
+      "Check that all meaningful information is still understandable without color (e.g. error states, required fields, status indicators).",
+      "Confirm links within body text are distinguishable from surrounding text by more than color alone (e.g. underline)."
+    ],
+    "remediation": [
+      "Add a secondary indicator alongside color: icon, pattern, label, underline, or border.",
+      "Never rely solely on red/green color coding for status — add text labels or icons."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/use-of-color.html"
+  },
+  {
+    "criterion": "1.4.10",
+    "title": "Reflow",
+    "level": "AA",
+    "description": "Content must reflow into a single column at 320 CSS pixels wide without requiring horizontal scrolling.",
+    "steps": [
+      "In DevTools, set the viewport to 320px wide (iPhone SE size or use the responsive mode).",
+      "Scroll vertically through the entire page — confirm no content requires horizontal scrolling to read.",
+      "Check that no text is clipped, truncated, or overlapping at this width."
+    ],
+    "remediation": [
+      "Use relative units (rem, %, vw) instead of fixed pixel widths for layout containers.",
+      "Add a CSS media query at max-width: 320px to collapse multi-column layouts into a single column."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/reflow.html"
+  },
+  {
+    "criterion": "1.4.11",
+    "title": "Non-text Contrast",
+    "level": "AA",
+    "description": "UI components (buttons, inputs, icons) and informational graphics must have a contrast ratio of at least 3:1 against adjacent colors.",
+    "steps": [
+      "Use the DevTools color picker to sample the border color of form inputs and compare it against the background.",
+      "Check icon-only buttons — the icon itself must contrast at least 3:1 against its background.",
+      "Inspect focus indicators — the outline color must contrast at least 3:1 against the surrounding area."
+    ],
+    "remediation": [
+      "Darken input borders, icon strokes, and UI component outlines to meet the 3:1 ratio.",
+      "Use the WebAIM Contrast Checker or Colour Contrast Analyser to validate values."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast.html"
+  },
+  {
+    "criterion": "1.4.12",
+    "title": "Text Spacing",
+    "level": "AA",
+    "description": "No content or functionality must be lost when users apply custom text spacing: line-height 1.5, letter-spacing 0.12em, word-spacing 0.16em, paragraph spacing 2em.",
+    "steps": [
+      "Install the Text Spacing bookmarklet (Steve Faulkner / TPGi) or paste the following CSS into DevTools: `* { line-height: 1.5 !important; letter-spacing: 0.12em !important; word-spacing: 0.16em !important; } p { margin-bottom: 2em !important; }`",
+      "Scroll through the page and confirm no text is clipped, overlapping, or hidden.",
+      "Check form labels, buttons, and navigation items specifically — these commonly overflow."
+    ],
+    "remediation": [
+      "Use min-height instead of fixed height on containers with text.",
+      "Avoid overflow:hidden on elements that contain user-readable text."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/text-spacing.html"
+  },
+  {
+    "criterion": "1.4.13",
+    "title": "Content on Hover or Focus",
+    "level": "AA",
+    "description": "Additional content that appears on hover or focus (tooltips, sub-menus) must be dismissable, hoverable, and persistent.",
+    "steps": [
+      "Hover over elements that trigger tooltips or popovers — confirm the content stays visible while you move the cursor onto it.",
+      "Press Escape while a tooltip is visible — confirm it dismisses without moving focus.",
+      "Trigger the same content via keyboard focus (Tab) — confirm it appears and remains visible until focus moves away."
+    ],
+    "remediation": [
+      "Ensure tooltip/popover elements are adjacent in DOM so the cursor can move from trigger to content without dismissal.",
+      "Add an Escape key handler to close hover content without requiring focus change."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/content-on-hover-or-focus.html"
+  },
+  {
+    "criterion": "3.3.1",
+    "title": "Error Identification",
+    "level": "A",
+    "description": "When a form input error is detected, the item in error must be identified and the error described to the user in text.",
+    "steps": [
+      "Submit a form with intentionally invalid or empty required fields.",
+      "Confirm each error is identified by text — not only by a red border or icon.",
+      "Verify the error message describes what is wrong (e.g. 'Email is required' not just 'Invalid input').",
+      "Check that focus moves to the first error field or an error summary at the top of the form."
+    ],
+    "remediation": [
+      "Add aria-describedby on the input pointing to the error message element.",
+      "Use aria-invalid=\"true\" on inputs in an error state.",
+      "Move focus to the error summary or first error field on form submission failure."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/error-identification.html"
+  },
+  {
+    "criterion": "2.3.3",
+    "title": "Animation from Interactions",
+    "level": "AAA",
+    "description": "Motion animations triggered by interaction must be disableable unless the animation is essential to the functionality.",
+    "steps": [
+      "Enable 'Reduce Motion' in your OS (macOS: System Settings → Accessibility → Display → Reduce Motion).",
+      "Interact with the page — confirm transitions, parallax effects, and non-essential animations are suppressed.",
+      "Check that page content is still fully functional with motion disabled."
+    ],
+    "remediation": [
+      "Wrap non-essential CSS animations in a @media (prefers-reduced-motion: reduce) query and set them to a simple opacity or instant transition.",
+      "Never use animation as the only way to convey state change."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html"
+  },
+  {
+    "criterion": "AT-1",
+    "title": "Screen Reader: Heading Navigation",
+    "level": "AT",
+    "description": "A screen reader user must be able to navigate the page efficiently using heading shortcuts.",
+    "steps": [
+      "Open VoiceOver (macOS: Cmd+F5) or NVDA (Windows: Ctrl+Alt+N).",
+      "Use the heading navigation shortcut (VoiceOver: VO+Cmd+H — NVDA: H) to jump between headings.",
+      "Confirm all major sections are reachable by heading and announced with the correct level (e.g. 'Heading level 2').",
+      "Confirm no decorative or off-screen elements are announced as headings."
+    ],
+    "remediation": [
+      "Ensure visual headings use semantic <h1>–<h6> elements, not styled <div> or <span> elements.",
+      "Remove role=\"heading\" from decorative elements."
+    ],
+    "ref": "https://www.w3.org/WAI/test-evaluate/preliminary/#headings"
+  },
+  {
+    "criterion": "AT-2",
+    "title": "Screen Reader: Landmark Navigation",
+    "level": "AT",
+    "description": "A screen reader user must be able to navigate between page regions using landmark shortcuts.",
+    "steps": [
+      "Open VoiceOver or NVDA.",
+      "Use the landmark navigation shortcut (VoiceOver: VO+Cmd+W — NVDA: D) to cycle through landmarks.",
+      "Confirm main, nav, header, footer, and any aside regions are announced with descriptive labels.",
+      "Confirm no orphan content (text outside any landmark) is present."
+    ],
+    "remediation": [
+      "Add aria-label to disambiguate multiple nav or section elements (e.g. aria-label=\"Main navigation\").",
+      "Wrap all visible page content in semantic landmark elements."
+    ],
+    "ref": "https://www.w3.org/WAI/test-evaluate/preliminary/#landmarks"
+  },
+  {
+    "criterion": "AT-3",
+    "title": "Screen Reader: Form Labels",
+    "level": "AT",
+    "description": "Every form field must be announced with its label and type when focused by a screen reader.",
+    "steps": [
+      "Open VoiceOver or NVDA and Tab into each form field.",
+      "Confirm the screen reader announces the field label, input type, and any required state (e.g. 'Email, required, edit text').",
+      "Confirm placeholder text alone is NOT the only label — placeholders disappear on input and are not reliably announced."
+    ],
+    "remediation": [
+      "Associate every input with a <label> element using for/id, or use aria-label / aria-labelledby.",
+      "Never rely on placeholder as a substitute for a visible label."
+    ],
+    "ref": "https://www.w3.org/WAI/tutorials/forms/labels/"
+  },
+  {
+    "criterion": "AT-4",
+    "title": "Screen Reader: Interactive Element Activation",
+    "level": "AT",
+    "description": "All interactive elements must be operable and correctly announced when activated via keyboard with a screen reader running.",
+    "steps": [
+      "With VoiceOver or NVDA active, Tab to buttons, links, and custom widgets.",
+      "Activate each element using Enter (links, buttons) or Space (buttons, checkboxes).",
+      "Confirm the resulting action is announced (e.g. dialog opens, content expands, page navigates).",
+      "Confirm custom components (role=\"button\", role=\"checkbox\") respond to the same keys as native equivalents."
+    ],
+    "remediation": [
+      "Add keydown handlers for Enter and Space on all elements with role=\"button\".",
+      "Ensure state changes trigger an accessible announcement via aria-live or focus management."
+    ],
+    "ref": "https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/"
+  },
+  {
+    "criterion": "AT-5",
+    "title": "Screen Reader: Live Region Announcements",
+    "level": "AT",
+    "description": "Dynamic content updates (alerts, status messages, loading states) must be announced by the screen reader without requiring focus.",
+    "steps": [
+      "With VoiceOver or NVDA active, trigger dynamic content: submit a form, load more results, trigger a toast/notification.",
+      "Confirm the screen reader announces the update automatically without the user moving focus.",
+      "Confirm loading spinners are announced as 'Loading' and completion is announced when done."
+    ],
+    "remediation": [
+      "Add aria-live=\"polite\" for non-urgent updates (search results, status messages).",
+      "Add aria-live=\"assertive\" only for urgent alerts that must interrupt the user.",
+      "Use role=\"status\" for polite messages and role=\"alert\" for urgent ones."
+    ],
+    "ref": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Live_Regions"
+  },
+  {
+    "criterion": "AT-6",
+    "title": "Screen Reader: Modal Dialog Behavior",
+    "level": "AT",
+    "description": "Modal dialogs must trap focus, announce their role and label, and return focus to the trigger on close.",
+    "steps": [
+      "Open VoiceOver or NVDA and trigger a modal dialog.",
+      "Confirm the screen reader announces 'dialog' and the dialog's title when it opens.",
+      "Press Tab repeatedly — confirm focus cycles only within the modal and does not escape to the background.",
+      "Close the dialog with Escape or the close button — confirm focus returns to the element that triggered it."
+    ],
+    "remediation": [
+      "Add role=\"dialog\" and aria-modal=\"true\" to the dialog container.",
+      "Add aria-labelledby pointing to the dialog title.",
+      "Implement a JavaScript focus trap and restore focus on close."
+    ],
+    "ref": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/"
+  },
+  {
+    "criterion": "AT-7",
+    "title": "Screen Reader: Table Reading",
+    "level": "AT",
+    "description": "Data tables must be navigable by a screen reader with row and column headers announced for each cell.",
+    "steps": [
+      "With VoiceOver or NVDA, navigate into a data table using the table navigation shortcut (NVDA: T).",
+      "Move between cells using arrow keys — confirm the screen reader announces the column and row header for each cell.",
+      "Confirm the table has an accessible caption or aria-label describing its purpose."
+    ],
+    "remediation": [
+      "Use <th> with scope=\"col\" or scope=\"row\" for all header cells.",
+      "Add a <caption> or aria-label to the <table> element.",
+      "Never use tables for layout — only for tabular data."
+    ],
+    "ref": "https://www.w3.org/WAI/tutorials/tables/"
+  },
+  {
+    "criterion": "AT-8",
+    "title": "Screen Reader: Form Error Announcement",
+    "level": "AT",
+    "description": "Form validation errors must be announced by the screen reader so users know what failed and why.",
+    "steps": [
+      "With VoiceOver or NVDA active, submit a form with intentionally invalid data.",
+      "Confirm the screen reader announces the error(s) — either via focus moving to an error summary or via an aria-live region.",
+      "Tab to each invalid field and confirm the error message is announced alongside the field label.",
+      "Confirm aria-invalid=\"true\" is set on fields in error state."
+    ],
+    "remediation": [
+      "On validation failure, move focus to an error summary at the top of the form with role=\"alert\".",
+      "Set aria-invalid=\"true\" and aria-describedby on each invalid input pointing to its error message.",
+      "Ensure error messages are visible text nodes — not only communicated via color or icon."
+    ],
+    "ref": "https://www.w3.org/WAI/tutorials/forms/validation/"
   }
 ]

@@ -105,7 +105,15 @@
       },
       "impacted_users": "Blind users relying on screen readers",
       "expected": "Every <img> must have an alt attribute. Decorative images use alt=\"\".",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#alt"
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#alt",
+      "manual_test": {
+        "description": "Verify the alt text is meaningful, not just present.",
+        "steps": [
+          "Read the alt text in isolation — does it convey the image's purpose without seeing it?",
+          "Flag alts that are filenames (e.g. 'hero.jpg'), generic ('image', 'photo'), or identical to adjacent text.",
+          "For decorative images, confirm alt=\"\" is used (not omitted entirely)."
+        ]
+      }
     },
     "button-name": {
       "fix": {
@@ -162,7 +170,15 @@
       },
       "impacted_users": "Users with low vision or color blindness",
       "expected": "Text contrast ratio must be at least 4.5:1 for normal text, 3:1 for large text.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Perceivable#contrast_minimum"
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Perceivable#contrast_minimum",
+      "manual_test": {
+        "description": "Verify contrast in interactive states — axe only scans the static DOM.",
+        "steps": [
+          "Hover over links and buttons — check that text contrast remains ≥4.5:1 in the hover state.",
+          "Focus interactive elements with Tab — verify the focused state maintains sufficient contrast.",
+          "Check text rendered over images or gradients using the DevTools color picker."
+        ]
+      }
     },
     "duplicate-id": {
       "fix": {
@@ -179,7 +195,15 @@
         "code": "<h1>Page title</h1>\n<h2>Section heading</h2>\n<h3>Subsection heading</h3>\n<!-- Invalid: jumping from h1 to h3 -->"
       },
       "impacted_users": "Screen reader users navigating by headings",
-      "expected": "Heading levels must not skip (h1 → h2 → h3, no gaps allowed)."
+      "expected": "Heading levels must not skip (h1 → h2 → h3, no gaps allowed).",
+      "manual_test": {
+        "description": "Verify headings describe their sections meaningfully, not just maintain numeric order.",
+        "steps": [
+          "Read only the heading text in sequence — do they form a logical outline of the page?",
+          "Check that no heading is used purely for visual sizing (e.g. an h3 that is not a subsection of the h2 above it).",
+          "Use the browser Accessibility Tree or a headings extension to review the full outline."
+        ]
+      }
     },
     "page-has-heading-one": {
       "fix": {
@@ -283,7 +307,15 @@
         "code": "<title>Product Details — My Store</title>"
       },
       "impacted_users": "Screen reader users and users with cognitive disabilities",
-      "expected": "Page must have a descriptive, unique <title> element."
+      "expected": "Page must have a descriptive, unique <title> element.",
+      "manual_test": {
+        "description": "Verify the title is unique per page and describes the current content.",
+        "steps": [
+          "Navigate to at least 3 different pages and check the browser tab title each time.",
+          "Confirm each title is different and reflects the specific page (not just the site name).",
+          "For SPAs, confirm the title updates dynamically after route changes."
+        ]
+      }
     },
     "html-has-lang": {
       "fix": {
@@ -315,7 +347,15 @@
         "code": "<a class=\"skip-link\" href=\"#main-content\">Skip to main content</a>\n<nav><!-- navigation --></nav>\n<main id=\"main-content\">\n  <!-- page content -->\n</main>"
       },
       "impacted_users": "Keyboard-only users and screen reader users",
-      "expected": "Page must provide a mechanism to skip repetitive navigation (e.g., a skip link)."
+      "expected": "Page must provide a mechanism to skip repetitive navigation (e.g., a skip link).",
+      "manual_test": {
+        "description": "Verify the skip link is functional, not just present in the DOM.",
+        "steps": [
+          "Press Tab on page load — the first focusable element should be the skip link.",
+          "Press Enter on the skip link — keyboard focus must move to the main content area.",
+          "Confirm the skip link is visible when focused (not permanently hidden with display:none)."
+        ]
+      }
     },
     "meta-refresh": {
       "fix": {
@@ -339,7 +379,15 @@
         "code": "/* Minimum WCAG 2.2 AA target size */\n.btn, a, [role=\"button\"] {\n  min-width: 24px;\n  min-height: 24px;\n}\n\n/* Recommended for touch: */\n.btn {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 0.5rem 1rem;\n}"
       },
       "impacted_users": "Mobile/touch users and users with motor disabilities",
-      "expected": "All interactive targets must be at least 24×24 CSS pixels (WCAG 2.5.8). Spacing or a larger equivalent target is an acceptable alternative."
+      "expected": "All interactive targets must be at least 24×24 CSS pixels (WCAG 2.5.8). Spacing or a larger equivalent target is an acceptable alternative.",
+      "manual_test": {
+        "description": "Measure the rendered size of small interactive elements — CSS values alone can be misleading.",
+        "steps": [
+          "In DevTools, inspect icon-only buttons, checkboxes, and radio inputs.",
+          "Check the computed width and height including padding in the Box Model panel.",
+          "On a touch device or with DevTools device emulation, attempt to tap small targets to confirm they are hittable."
+        ]
+      }
     },
     "focus-appearance": {
       "fix": {
@@ -347,7 +395,15 @@
         "code": ":focus-visible {\n  outline: 3px solid #005FCC;\n  outline-offset: 2px;\n  /* Ensure contrast ratio ≥ 3:1 vs adjacent background */\n}\n\n/* Remove browser default only when providing a custom style */\n:focus:not(:focus-visible) {\n  outline: none;\n}"
       },
       "impacted_users": "Keyboard-only users and users with low vision",
-      "expected": "Focus indicators must be clearly visible, with a minimum area of the component perimeter × 2 CSS px and a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11)."
+      "expected": "Focus indicators must be clearly visible, with a minimum area of the component perimeter × 2 CSS px and a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
+      "manual_test": {
+        "description": "Tab through every interactive element and verify the focus indicator is visible and distinct.",
+        "steps": [
+          "Press Tab repeatedly and confirm every button, link, and input shows a visible focus ring.",
+          "Check that the focus indicator contrasts at least 3:1 against the adjacent unfocused background.",
+          "Verify the outline is not clipped by overflow:hidden on a parent container."
+        ]
+      }
     },
     "dragging-movements": {
       "fix": {
@@ -355,7 +411,15 @@
         "code": "<!-- Provide non-drag alternative with arrow buttons: -->\n<ul role=\"listbox\" aria-label=\"Sortable items\">\n  <li role=\"option\" tabindex=\"0\">\n    Item 1\n    <button aria-label=\"Move item up\">↑</button>\n    <button aria-label=\"Move item down\">↓</button>\n  </li>\n</ul>"
       },
       "impacted_users": "Users with motor disabilities who cannot perform drag gestures",
-      "expected": "All drag-and-drop functionality must have an equivalent single-pointer alternative operable without dragging (WCAG 2.5.7)."
+      "expected": "All drag-and-drop functionality must have an equivalent single-pointer alternative operable without dragging (WCAG 2.5.7).",
+      "manual_test": {
+        "description": "Verify the non-drag alternative completes the same task end-to-end.",
+        "steps": [
+          "Identify all drag interactions (sortable lists, file uploads, kanban boards).",
+          "Complete the full task using only keyboard or single clicks — no drag gesture.",
+          "Confirm the result is identical to what the drag interaction would produce."
+        ]
+      }
     },
     "redundant-entry": {
       "fix": {
