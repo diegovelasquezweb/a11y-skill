@@ -4,11 +4,16 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 
 ## Key Features
 
-- **Modern Engine**: Uses Playwright for full browser automation and Axe-Core for high-precision detection.
-- **SPA Support**: Handles dynamic content and Single Page Applications natively.
-- **Isolated Stack**: No global dependencies or project-level pollution. All tools live within the skill.
-- **Detailed Reports**: Generates an interactive HTML dashboard for developers and a formal PDF summary for compliance evidence.
-- **Autodiscovery**: Automatically finds and scans same-origin routes if none are provided.
+- **Engineered for LLMs (`remediation.md`)** — Unlike traditional tools built for human eyeballs, this skill generates an AI-optimized markdown file engineered to prevent agent hallucinations and context window bloat:
+  - **Zero Context-Switching**: Violations are grouped by Route/Page (e.g., `## Page: /cart`), allowing the agent to fix all errors in one sweep without constantly reopening files.
+  - **Embedded Guardrails**: Injects hardcoded system prompts (`🤖 SYSTEM: Agent Instructions`) to actively forbid the agent from recklessly editing compiled `dist/` or `.next/` outputs.
+  - **Token Efficiency**: Replaces heavy markdown tables with flat key-value lists, saving hundreds of context tokens per issue.
+  - **Targeted Evidence**: Provides exact DOM snippets and selectors, allowing the agent to confidently `grep` the precise component.
+- **Zero-Config Route Discovery** — Point it at a URL and it crawls. Finds same-origin pages automatically, no sitemap or route list required.
+- **Failing Element Screenshots** — Violations with a single, identifiable element automatically get a screenshot captured and embedded in the HTML report.
+- **Accessibility Emulation** — Test dark mode, forced colors, and reduced motion via Playwright — the scenarios real users with disabilities rely on.
+- **WCAG 2.2 Manual Check Coverage** — Six criteria axe-core can't detect are covered with step-by-step verification instructions built into the report.
+- **Runs Without an Agent** — Drop it into CI/CD directly. `pnpm run audit -- --base-url <url>` runs the full pipeline, no AI tokens required.
 
 ## Installation
 
@@ -79,7 +84,7 @@ pnpm run audit -- --base-url https://mysite.com
 | `--base-url <url>`       | The target to audit (Live URL or Localhost).         | Required                     |
 | `--max-routes <num>`     | Maximum number of routes to discover and scan.       | `10`                         |
 | `--routes <csv>`         | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
-| `--output <path>`        | Final HTML report location.                          | `audit/report.html`           |
+| `--output <path>`        | Final HTML report location.                          | `audit/report.html`          |
 | `--wait-ms <num>`        | Time to wait for dynamic content after page load.    | `2000`                       |
 | `--headless <bool>`      | Run browser in background.                           | `true`                       |
 | `--timeout-ms <num>`     | Network timeout for page loads.                      | `30000`                      |
@@ -166,10 +171,10 @@ While traditional tools are excellent for visual learning or broad metrics, this
 
 ## Reference
 
-- [Agent Skills Standard](https://agentskills.io/)
 - [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
 - [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
 - [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
+- [Agent Skills Standard](https://agentskills.io/)
 - [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/)
 - [Antigravity Skills](https://antigravity.google/docs/skills)
 - [Codex Skills](https://developers.openai.com/codex/skills/)
