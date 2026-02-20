@@ -30,7 +30,7 @@ This skill follows the [Agent Skills standard](https://agentskills.io). Below ar
 | Agent / IDE     | Skill Install Path (Global/User)                | Config & Rules             | Extended Workflow          |
 | :-------------- | :---------------------------------------------- | :------------------------- | :------------------------- |
 | **Antigravity** | `~/.gemini/antigravity/skills/a11y/`            | —                          | `.agent/`, `workflows/`    |
-| **Codex**       | `~/.codex/skills/a11y/`                         | `agents/openai.yaml`       | `.agents/`, `workflows/`   |
+| **Codex**       | `~/.codex/skills/a11y/`                         | `agents/openai.yaml`       | `workflows/`               |
 | **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`, `.claude/`    | `workflows/`               |
 | **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  | `.cursorrules`, `.cursor/` | `workflows/`               |
 | **Gemini CLI**  | `~/.gemini/skills/a11y/` (or `.agents/skills/`) | `~/.gemini/settings.json`  | —                          |
@@ -67,7 +67,7 @@ Execute the audit script directly from the skill directory:
 
 ```bash
 # Example: Audit a specific URL with custom limit and visible browser
-pnpm run audit -- --base-url https://mysite.com --max-routes 20 --headed
+pnpm run audit -- --base-url localhost:3000 --max-routes 20 --headed
 
 # Diagnostic: Run ONLY the color-contrast check
 pnpm run audit -- --base-url https://mysite.com --only-rule color-contrast
