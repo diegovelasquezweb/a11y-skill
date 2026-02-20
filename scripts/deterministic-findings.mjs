@@ -70,6 +70,48 @@ const DEQUE_CHECKLISTS = {
   tooltip: "https://dequeuniversity.com/checklists/web/custom-widgets/tooltip",
 };
 
+const A11Y_SUPPORT = {
+  alert: "https://a11ysupport.io/tech/aria/alert_role",
+  alertdialog: "https://a11ysupport.io/tech/aria/alertdialog_role",
+  button: "https://a11ysupport.io/tech/aria/button_role",
+  checkbox: "https://a11ysupport.io/tech/aria/checkbox_role",
+  combobox: "https://a11ysupport.io/tech/aria/combobox_role",
+  dialog: "https://a11ysupport.io/tech/aria/dialog_role",
+  grid: "https://a11ysupport.io/tech/aria/grid_role",
+  link: "https://a11ysupport.io/tech/aria/link_role",
+  listbox: "https://a11ysupport.io/tech/aria/listbox_role",
+  menu: "https://a11ysupport.io/tech/aria/menu_role",
+  menubar: "https://a11ysupport.io/tech/aria/menubar_role",
+  meter: "https://a11ysupport.io/tech/aria/meter_role",
+  radio: "https://a11ysupport.io/tech/aria/radio_role",
+  slider: "https://a11ysupport.io/tech/aria/slider_role",
+  switch: "https://a11ysupport.io/tech/aria/switch_role",
+  tab: "https://a11ysupport.io/tech/aria/tab_role",
+  tabpanel: "https://a11ysupport.io/tech/aria/tabpanel_role",
+  tooltip: "https://a11ysupport.io/tech/aria/tooltip_role",
+  tree: "https://a11ysupport.io/tech/aria/tree_role",
+};
+
+const INCLUSIVE_COMPONENTS = {
+  button: "https://inclusive-components.design/toggle-button/",
+  card: "https://inclusive-components.design/cards/",
+  dialog: "https://inclusive-components.design/modal-dialogues/",
+  menu: "https://inclusive-components.design/menus-menu-buttons/",
+  menubar: "https://inclusive-components.design/menus-menu-buttons/",
+  notifications: "https://inclusive-components.design/notifications/",
+  slider: "https://inclusive-components.design/content-sliders/",
+  tab: "https://inclusive-components.design/tabbed-interfaces/",
+  tablist: "https://inclusive-components.design/tabbed-interfaces/",
+  tooltip: "https://inclusive-components.design/tooltips-toggletips/",
+  switch: "https://inclusive-components.design/toggle-button/",
+};
+
+const US_REGULATORY = {
+  default: "https://accessibility.18f.gov/checklist/",
+  section508: "https://www.section508.gov/create/software-websites/",
+  "18f": "https://accessibility.18f.gov/tools/",
+};
+
 const FIX_TEMPLATES = {
   "landmark-one-main": {
     description: "Add a <main> landmark wrapping your page content.",
@@ -434,12 +476,25 @@ function buildFindings(inputPayload) {
           firstNode?.html?.match(/role=["']([^"']+)["']/)?.[1] || null;
         const apgUrl = role ? APG_PATTERNS[role] : null;
         const dequeUrl = role ? DEQUE_CHECKLISTS[role] : null;
+        const supportUrl = role ? A11Y_SUPPORT[role] : null;
+        const inclusiveUrl = role ? INCLUSIVE_COMPONENTS[role] : null;
 
         let recFix = v.helpUrl ? `See ${v.helpUrl}` : "Fix the violation.";
-        if (apgUrl || dequeUrl) {
-          recFix = `Remediation steps for "${role}":\n`;
-          if (apgUrl) recFix += `- Implementation: ${apgUrl}\n`;
-          if (dequeUrl) recFix += `- Quality Checklist: ${dequeUrl}`;
+        if (apgUrl || dequeUrl || supportUrl || inclusiveUrl) {
+          recFix = `Remediation guide for "${role}":\n`;
+          if (apgUrl) recFix += `- **Implementation (W3C APG)**: ${apgUrl}\n`;
+          if (dequeUrl)
+            recFix += `- **Quality Checklist (Deque)**: ${dequeUrl}\n`;
+          if (inclusiveUrl)
+            recFix += `- **Inclusive Design Guide**: ${inclusiveUrl}\n`;
+          if (supportUrl)
+            recFix += `- **Browser/AT Support Data**: ${supportUrl}\n`;
+
+          recFix += `\n**US Regulatory Context (ADA/508)**:\n`;
+          recFix += `- 18F Govt Guide: ${US_REGULATORY["18f"]}\n`;
+          recFix += `- Section 508 Standards: ${US_REGULATORY.section508}\n`;
+
+          recFix += `\nVerification Checklist: https://www.a11yproject.com/checklist/`;
         }
 
         findings.push({
