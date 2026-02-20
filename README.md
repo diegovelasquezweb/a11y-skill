@@ -109,9 +109,13 @@ Customize the audit by editing `a11y.config.json` in the skill root.
   "colorScheme": "light",
   "viewports": [{ "width": 1280, "height": 800, "name": "Desktop" }],
   "maxRoutes": 10,
+  "routes": [],
   "complianceTarget": "WCAG 2.2 AA",
   "ignoreFindings": [],
   "excludeSelectors": [],
+  "onlyRule": "",
+  "waitMs": 2000,
+  "timeoutMs": 30000,
   "outputDir": "audit",
   "axeRules": {},
   "headless": true

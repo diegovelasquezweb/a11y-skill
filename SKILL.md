@@ -133,6 +133,8 @@ Each finding must include:
 | `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                                         |
 | `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                                                |
 | `onlyRule`         | `string`  | Targeted Audit: Only check for this specific rule ID.                                                                            |
+| `waitMs`           | `number`  | Time to wait for dynamic content (default: 2000).                                                                                |
+| `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                                                 |
 | `headless`         | `boolean` | Run browser in background (default: true).                                                                                       |
 
 ## 5) Required Deliverables

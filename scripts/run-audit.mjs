@@ -80,8 +80,8 @@ async function main() {
   const baseUrl = getArgValue("base-url");
   const maxRoutes = getArgValue("max-routes") || config.maxRoutes || 10;
   const routes = getArgValue("routes");
-  const waitMs = getArgValue("wait-ms") || 2000;
-  const timeoutMs = getArgValue("timeout-ms") || 30000;
+  const waitMs = getArgValue("wait-ms") || config.waitMs || 2000;
+  const timeoutMs = getArgValue("timeout-ms") || config.timeoutMs || 30000;
   const output =
     getArgValue("output") || path.join(process.cwd(), "audit", "report.html");
 
@@ -94,7 +94,7 @@ async function main() {
       ? false
       : config.headless;
 
-  const onlyRule = getArgValue("only-rule");
+  const onlyRule = getArgValue("only-rule") || config.onlyRule;
   const companyName = getArgValue("company-name") || config.companyName;
   const accentColor = getArgValue("accent-color") || config.accentColor;
   const ignoreFindings = getArgValue("ignore-findings");

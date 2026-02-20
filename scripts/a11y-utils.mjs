@@ -33,7 +33,10 @@ const CONFIG_SCHEMA = {
   // Emulation
   colorScheme: { type: "string" },
   viewports: { type: "array" },
-  // Visibility
+  // Timing & Performance
+  waitMs: { type: "number" },
+  timeoutMs: { type: "number" },
+  onlyRule: { type: "string" },
   headless: { type: "boolean" },
 };
 
