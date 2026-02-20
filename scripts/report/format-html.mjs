@@ -18,30 +18,24 @@ try {
  * Renders technical evidence (HTML snippets and failure summaries) for the dashboard.
  */
 export function formatEvidence(evidence) {
-  if (!evidence) return "";
-  try {
-    const data = JSON.parse(evidence);
-    if (!Array.isArray(data))
-      return `<pre class="bg-slate-900 text-slate-50 p-4 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(evidence)}</code></pre>`;
+  const data = Array.isArray(evidence) ? evidence : [];
+  if (data.length === 0) return "";
 
-    return data
-      .map((item) => {
-        const failureSummary = item.failureSummary
-          ? `<div class="mt-2 p-3 bg-rose-50 border-l-4 border-rose-500 text-rose-700 text-xs font-mono whitespace-pre-wrap">${formatMultiline(item.failureSummary)}</div>`
-          : "";
-        const htmlSnippet = item.html
-          ? `<div class="mb-2"><span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Source</span><pre class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(item.html)}</code></pre></div>`
-          : "";
-        return `
-        <div class="mb-4 last:mb-0">
-          ${htmlSnippet}
-          ${failureSummary}
-        </div>`;
-      })
-      .join("");
-  } catch {
-    return `<pre class="bg-slate-900 text-slate-50 p-4 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(evidence)}</code></pre>`;
-  }
+  return data
+    .map((item) => {
+      const failureSummary = item.failureSummary
+        ? `<div class="mt-2 p-3 bg-rose-50 border-l-4 border-rose-500 text-rose-700 text-xs font-mono whitespace-pre-wrap">${formatMultiline(item.failureSummary)}</div>`
+        : "";
+      const htmlSnippet = item.html
+        ? `<div class="mb-2"><span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Source</span><pre class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(item.html)}</code></pre></div>`
+        : "";
+      return `
+      <div class="mb-4 last:mb-0">
+        ${htmlSnippet}
+        ${failureSummary}
+      </div>`;
+    })
+    .join("");
 }
 
 /**
@@ -125,7 +119,7 @@ export function buildIssueCard(finding) {
   }
 
   return `
-<article class="issue-card bg-white/90 backdrop-blur-xl rounded-2xl border ${borderClass} shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 mb-8 overflow-hidden group" data-severity="${finding.severity}" data-collapsed="true" id="${escapeHtml(finding.id)}">
+<article class="issue-card bg-white/90 backdrop-blur-xl rounded-2xl border ${borderClass} shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 mb-8 overflow-hidden group" data-severity="${finding.severity}" data-rule-id="${escapeHtml(finding.ruleId)}" data-wcag="${escapeHtml(finding.wcag)}" data-collapsed="true" id="${escapeHtml(finding.id)}">
   <div class="card-header p-5 md:p-6 bg-gradient-to-r from-white to-slate-50/80 cursor-pointer select-none relative" onclick="toggleCard(this)">
     <div class="absolute inset-y-0 left-0 w-1.5 ${severityBadge.split(" ")[0]} opacity-80"></div>
     <div class="flex items-start gap-4 pl-2">

@@ -359,6 +359,23 @@ function buildHtml(args, findings, metadata = {}) {
       }
     }
   </style>
+  <script type="application/ld+json">
+  ${JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Report",
+    "name": "Web Accessibility Audit Report",
+    "about": args.baseUrl || siteHostname,
+    "dateCreated": metadata.scanDate || new Date().toISOString(),
+    "hasPart": findings.map((f) => ({
+      "@type": "CreativeWork",
+      "identifier": f.id,
+      "name": f.title,
+      "description": f.impact,
+      "url": f.url,
+      "keywords": [f.severity, f.wcag, f.ruleId].filter(Boolean).join(", "),
+    })),
+  }, null, 2)}
+  </script>
 </head>
 <body class="text-slate-900 min-h-screen">
 

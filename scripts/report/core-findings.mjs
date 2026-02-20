@@ -1,5 +1,13 @@
 export const SEVERITY_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 
+function computePriorityScore(item) {
+  const sev = SEVERITY_ORDER[item.severity] ?? 3;
+  const severityPoints = sev === 0 ? 40 : sev === 1 ? 20 : sev === 2 ? 5 : 0;
+  const instancePoints = Math.min((item.total_instances || 1) * 2, 30);
+  const fixPoints = item.fix_code ? 10 : 0;
+  return severityPoints + instancePoints + fixPoints;
+}
+
 /**
  * Normalizes raw AXE findings into a consistent structure used by all reports.
  */
@@ -22,6 +30,7 @@ export function normalizeFindings(payload) {
       area: String(item.area ?? ""),
       url: String(item.url ?? ""),
       selector: String(item.selector ?? ""),
+      primarySelector: String(item.primary_selector ?? item.selector ?? ""),
       impactedUsers: String(item.impacted_users ?? "Users relying on assistive technology"),
       impact: String(item.impact ?? ""),
       reproduction: Array.isArray(item.reproduction)
@@ -32,8 +41,9 @@ export function normalizeFindings(payload) {
       fixDescription: item.fix_description ?? null,
       fixCode: item.fix_code ?? null,
       recommendedFix: String(item.recommended_fix ?? item.recommendedFix ?? ""),
-      evidence: String(item.evidence ?? ""),
+      evidence: Array.isArray(item.evidence) ? item.evidence : [],
       totalInstances: typeof item.total_instances === "number" ? item.total_instances : null,
+      priorityScore: computePriorityScore(item),
       screenshotPath: item.screenshot_path ?? null,
     }))
     .sort((a, b) => {

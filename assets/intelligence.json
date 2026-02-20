@@ -166,7 +166,7 @@
     "color-contrast": {
       "fix": {
         "description": "Increase the contrast ratio between text and its background. Minimum 4.5:1 for normal text, 3:1 for large text (≥18pt or ≥14pt bold).",
-        "code": null
+        "code": "/* Adjust the foreground or background color until contrast ≥4.5:1 */\n/* Use CSS custom properties to keep the fix systematic: */\n.element {\n  color: var(--color-text-primary); /* verify ≥4.5:1 against background */\n  background-color: var(--color-surface); /* e.g. #fff or #1e293b */\n}\n/* Tip: Check contrast at https://webaim.org/resources/contrastchecker/ */"
       },
       "impacted_users": "Users with low vision or color blindness",
       "expected": "Text contrast ratio must be at least 4.5:1 for normal text, 3:1 for large text.",
@@ -183,7 +183,7 @@
     "duplicate-id": {
       "fix": {
         "description": "All id attributes must be unique within the page. Search for duplicate values and rename them.",
-        "code": null
+        "code": "<!-- Before: duplicate ids -->\n<nav id=\"main-nav\">...</nav>\n<footer id=\"main-nav\">...</footer>\n\n<!-- After: unique ids -->\n<nav id=\"primary-nav\">...</nav>\n<footer id=\"footer-nav\">...</footer>\n\n<!-- Update any referencing aria-labelledby / aria-controls / href=\"#\" accordingly -->"
       },
       "impacted_users": "Screen reader users (broken element references)",
       "expected": "All id attributes must be unique within the document.",
@@ -216,7 +216,7 @@
     "aria-required-attr": {
       "fix": {
         "description": "Add the required ARIA attribute(s) for the element's role. See the WAI-ARIA spec for required attributes per role.",
-        "code": null
+        "code": "<!-- combobox requires: aria-expanded + aria-controls -->\n<div role=\"combobox\" aria-expanded=\"false\" aria-controls=\"listbox-id\" aria-haspopup=\"listbox\">\n  <input type=\"text\" aria-autocomplete=\"list\">\n</div>\n<ul role=\"listbox\" id=\"listbox-id\">...</ul>\n\n<!-- scrollbar requires: aria-controls + aria-valuenow + aria-valuemin + aria-valuemax -->\n<div role=\"scrollbar\" aria-controls=\"scrollable-region\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div>"
       },
       "impacted_users": "Screen reader users",
       "expected": "ARIA roles must include all required attributes defined in the WAI-ARIA spec."
@@ -224,7 +224,7 @@
     "aria-valid-attr-value": {
       "fix": {
         "description": "Set a valid value for the ARIA attribute. Consult the WAI-ARIA spec for the list of allowed values.",
-        "code": null
+        "code": "<!-- Common invalid → valid corrections: -->\n\n<!-- aria-live: must be 'off' | 'polite' | 'assertive' -->\n<div aria-live=\"polite\">...</div>  <!-- not aria-live=\"yes\" -->\n\n<!-- aria-expanded: must be 'true' | 'false' -->\n<button aria-expanded=\"false\">Menu</button>  <!-- not aria-expanded=\"0\" -->\n\n<!-- aria-haspopup: must be 'true' | 'false' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog' -->\n<button aria-haspopup=\"menu\">Options</button>  <!-- not aria-haspopup=\"dropdown\" -->"
       },
       "impacted_users": "Screen reader users",
       "expected": "ARIA attributes must use only valid values defined in the WAI-ARIA spec."

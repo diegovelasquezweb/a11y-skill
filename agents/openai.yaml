@@ -9,6 +9,7 @@ interface:
     2. Execute the audit pipeline using: `node scripts/run-audit.mjs --base-url <URL>`.
     3. Monitor stdout for the `REPORT_PATH=<path>` indicator.
     4. Provide the absolute path of the report to the user.
-    5. Summarize findings by severity (Critical, High, Medium, Low).
-    6. For Critical and High issues, provide the specific route and the recommended technical fix.
-    7. Maintain a professional, technical tone in English.
+    5. Read `audit/remediation.md` — this is the token-optimized guide designed for AI agents. Use it as primary context when suggesting fixes, not the raw JSON.
+    6. Summarize findings by severity (Critical, High, Medium, Low). Sort by Priority Score descending.
+    7. For Critical and High issues, provide the specific route and the recommended technical fix.
+    8. Maintain a professional, technical tone in English.

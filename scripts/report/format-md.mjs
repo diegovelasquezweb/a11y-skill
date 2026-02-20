@@ -45,6 +45,32 @@ ${entries}
 `;
 }
 
+function detectFramework(baseUrl = "") {
+  const url = baseUrl.toLowerCase();
+  if (url.includes("myshopify.com") || url.includes(".myshopify.")) return "shopify";
+  if (url.includes("wp-content") || url.includes("wordpress")) return "wordpress";
+  if (url.includes("drupal")) return "drupal";
+  return "generic";
+}
+
+function buildGuardrails(framework) {
+  const shared = [
+    `2.  **Surgical Selection**: Use the **Surgical Selector** and **Evidence from DOM** to verify you are editing the correct element. Accessibility fixes are context-sensitive.`,
+    `3.  **Global Component Check**: If an issue repeats across multiple pages, it is likely inside a Global Component (e.g., \`Header.tsx\`, \`Button.vue\`). Fix it once at the source.`,
+    `4.  **Verification**: After applying a fix, explain *why* it resolves the WCAG criterion mentioned.`,
+    `5.  **No Placeholders**: Do not add "todo" comments. Provide the complete code fix.`,
+  ];
+
+  const frameworkRule = {
+    shopify: `1.  **Shopify Project**: Edit \`.liquid\` files in \`sections/\`, \`snippets/\`, or \`layout/\`. **NEVER** edit compiled assets in \`assets/*.min.js\`. Source of Truth: fix at the template, not the rendered DOM.`,
+    wordpress: `1.  **WordPress Project**: Work only in \`wp-content/themes/\` or \`plugins/\`. **NEVER** edit \`wp-admin/\` or \`wp-includes/\` or any cached file. Source of Truth: fix at the theme template.`,
+    drupal: `1.  **Drupal Project**: Search for \`.html.twig\` in \`themes/\`. Clear cache with \`drush cr\` after changes. **NEVER** edit compiled or cached files.`,
+    generic: `1.  **Framework & CMS Awareness**: This project may use React, Vue, Next.js, Astro, **Shopify** (.liquid), **WordPress** (.php), or **Drupal** (.twig).\n    - **NEVER** edit compiled, minified, or cached files (e.g., \`dist/\`, \`.next/\`, \`build/\`, \`wp-content/cache/\`, \`assets/*.min.js\`).\n    - **Source of Truth**: Traced DOM violations must be fixed at the **Source Component** or **Server-side Template**. Edit the origin, not the output.`,
+  };
+
+  return [frameworkRule[framework] ?? frameworkRule.generic, ...shared].join("\n");
+}
+
 /**
  * Builds the AI-optimized remediation guide in Markdown.
  */
@@ -56,25 +82,19 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     let evidenceHtml = null;
     let evidenceLabel = "#### Evidence from DOM";
     (() => {
-      if (!f.evidence) return;
-      try {
-        const nodes = JSON.parse(f.evidence);
-        if (!Array.isArray(nodes) || nodes.length === 0) return;
-        const shownCount = nodes.filter((n) => n.html).length;
-        if (f.totalInstances && f.totalInstances > shownCount) {
-          evidenceLabel = `#### Evidence from DOM (showing ${shownCount} of ${f.totalInstances} instances)`;
-        }
-        evidenceHtml = nodes
-          .map((n, i) =>
-            n.html
-              ? `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\``
-              : "",
-          )
-          .filter(Boolean)
-          .join("\n\n");
-      } catch {
-        // ignore malformed evidence
+      if (!f.evidence || !Array.isArray(f.evidence) || f.evidence.length === 0) return;
+      const shownCount = f.evidence.filter((n) => n.html).length;
+      if (f.totalInstances && f.totalInstances > shownCount) {
+        evidenceLabel = `#### Evidence from DOM (showing ${shownCount} of ${f.totalInstances} instances)`;
       }
+      evidenceHtml = f.evidence
+        .map((n, i) =>
+          n.html
+            ? `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\``
+            : "",
+        )
+        .filter(Boolean)
+        .join("\n\n");
     })();
 
     const reproBlock =
@@ -96,9 +116,10 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `### ID: ${f.id || f.ruleId} · ${f.severity} · \`${f.title}\``,
       ``,
       `- **Target Area:** \`${f.area}\``,
-      `- **Surgical Selector:** \`${f.selector}\``,
+      `- **Surgical Selector:** \`${f.primarySelector || f.selector}\``,
       `- **WCAG Criterion:** ${f.wcag}`,
       `- **Persona Impact:** ${f.impactedUsers}`,
+      f.priorityScore != null ? `- **Priority Score:** ${f.priorityScore}/100` : null,
       ``,
       `**Why it matters:** ${f.impact || "This violation creates barriers for users with disabilities."}`,
       ``,
@@ -180,16 +201,7 @@ Total findings: **${findings.length} issues**
 
 **FOLLOW THESE RULES TO PREVENT REGRESSIONS AND HALLUCINATIONS:**
 
-1.  **Framework & CMS Awareness**: This project may use React, Vue, Next.js, Astro, **Shopify** (.liquid), **WordPress** (.php), or **Drupal** (.twig).
-    - **NEVER** edit compiled, minified, or cached files (e.g., \`dist/\`, \`.next/\`, \`build/\`, \`wp-content/cache/\`, \`assets/*.min.js\`).
-    - **WordPress**: Work only in \`wp-content/themes/\` or \`plugins/\`. **NEVER** edit \`wp-admin/\` or \`wp-includes/\`.
-    - **Shopify**: Edit \`.liquid\` files in \`sections/\`, \`snippets/\`, or \`layout/\`. Avoid minified assets.
-    - **Drupal**: Search for \`.html.twig\` in \`themes/\`. Clear cache with \`drush cr\` after changes.
-    - **Source of Truth**: Traced DOM violations must be fixed at the **Source Component** or **Server-side Template**. Edit the origin, not the output.
-2.  **Surgical Selection**: Use the **Surgical Selector** and **Evidence from DOM** to verify you are editing the correct element. Accessibility fixes are context-sensitive.
-3.  **Global Component Check**: If an issue repeats across multiple pages, it is likely inside a Global Component (e.g., \`Header.tsx\`, \`Button.vue\`). Fix it once at the source.
-4.  **Verification**: After applying a fix, explain *why* it resolves the WCAG criterion mentioned.
-5.  **No Placeholders**: Do not add "todo" comments. Provide the complete code fix.
+${buildGuardrails(detectFramework(args.baseUrl))}
 
 ---
 

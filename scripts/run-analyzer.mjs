@@ -24,7 +24,8 @@ try {
 }
 
 function makeFindingId(ruleId, url, selector) {
-  const key = `${ruleId}||${url}||${selector}`;
+  const stableSelector = selector.split(",")[0].trim();
+  const key = `${ruleId}||${url}||${stableSelector}`;
   return `A11Y-${createHash("sha256").update(key).digest("hex").slice(0, 6)}`;
 }
 
@@ -161,6 +162,13 @@ function buildFindings(inputPayload) {
       for (const v of route.violations) {
         const nodes = v.nodes || [];
         const selectors = nodes.map((n) => n.target.join(" ")).slice(0, 5);
+        const bestSelector = selectors.reduce((best, s) => {
+          if (/#[\w-]+/.test(s)) return s;
+          if (best && /#[\w-]+/.test(best)) return best;
+          const len = s.replace(/[^a-z0-9-]/gi, "").length;
+          const bestLen = best ? best.replace(/[^a-z0-9-]/gi, "").length : 0;
+          return len < bestLen ? s : best;
+        }, selectors[0] || "N/A");
         const firstNode = nodes[0];
         const explicitRole =
           firstNode?.html?.match(/role=["']([^"']+)["']/)?.[1] ?? null;
@@ -196,9 +204,10 @@ function buildFindings(inputPayload) {
           selector: selectors.join(", "),
           impacted_users: getImpactedUsers(v.id, v.tags),
           impact: v.description,
+          primary_selector: bestSelector,
           reproduction: [
             `Open ${route.url} in a browser to observe the issue`,
-            `Search source files for \`${extractSearchHint(selectors[0] || "N/A")}\` to locate the component`,
+            `Search source files for \`${extractSearchHint(bestSelector)}\` to locate the component`,
             `Confirm the violation: ${v.help}`,
           ],
           actual:
@@ -210,15 +219,11 @@ function buildFindings(inputPayload) {
           mdn: ruleInfo.mdn ?? null,
           manual_test: ruleInfo.manual_test ?? null,
           total_instances: nodes.length,
-          evidence: JSON.stringify(
-            nodes.slice(0, 3).map((n) => ({
-              html: n.html,
-              target: n.target,
-              failureSummary: n.failureSummary,
-            })),
-            null,
-            1,
-          ),
+          evidence: nodes.slice(0, 3).map((n) => ({
+            html: n.html,
+            target: n.target,
+            failureSummary: n.failureSummary,
+          })),
           screenshot_path: v.screenshot_path || null,
         });
       }
@@ -300,6 +305,17 @@ function main() {
   if (!payload) throw new Error(`Input not found or invalid: ${args.input}`);
 
   const result = buildFindings(payload);
+
+  if (ignoredRules.size > 0) {
+    const knownIds = new Set(
+      result.findings.map((f) => f.rule_id).filter(Boolean),
+    );
+    for (const r of ignoredRules) {
+      if (!knownIds.has(r))
+        log.warn(`ignoreFindings: rule "${r}" not found in this scan — typo?`);
+    }
+  }
+
   const findings =
     ignoredRules.size > 0
       ? result.findings.filter((f) => !ignoredRules.has(f.rule_id))
