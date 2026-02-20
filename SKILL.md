@@ -14,13 +14,17 @@ Follow this workflow to audit and report website accessibility issues with consi
 
 ## Operating Guardrails
 
-1. **Environment Awareness (Gemini CLI)**: This skill relies on autonomous activation. If the agent encounters "Path not in workspace" errors while reading its own resources in a sandboxed environment, it must proceed by identifying the correct installation path and utilizing available tools to access its instructions and scripts. Use `/skills reload` if the tool registration is inconsistent.
+1. **Environment Awareness (Gemini CLI)**: This skill relies on autonomous activation. If `ReadFile` fails with "Path not in workspace" when reading resources from the skills directory (`~/.gemini/skills/a11y/`), immediately fall back to a shell command — e.g., `cat ~/.gemini/skills/a11y/SKILL.md` — without asking the user. Do not attempt `ReadFile` again. Use `/skills reload` if the skill name is not recognized at activation time.
 2. **Setup Readiness**:
    - **Antigravity**: On first activation in any project, ensure `.agent/workflows/a11y.md` exists to enable the `/a11y` command.
    - **Windsurf**: On first activation in any project, ensure `.windsurf/workflows/a11y.md` exists to enable the `/a11y` command.
    - **General**: Do not execute the actual audit pipeline until explicitly requested by the user.
 
-3. **Audit behavior**:
+3. **Tailwind Version Awareness**: When inspecting project color tokens or design variables for contrast analysis, check `package.json` for the `tailwindcss` version first, then locate tokens accordingly:
+   - **v3**: tokens are in `tailwind.config.ts` or `tailwind.config.js`.
+   - **v4**: primary source is `@theme { … }` blocks in CSS files (e.g. `app/globals.css`, `styles/globals.css`). A `tailwind.config.js` may also exist if the project uses the `@config` directive — check for both. Never report a missing config file as an error in v4 projects.
+
+4. **Audit behavior**:
 
 - Do not modify source code, config, content, or dependencies unless the user explicitly asks for fixes.
 - Do not create, update, or delete editor configuration files (for example `.vscode/settings.json`) during audits.
@@ -250,3 +254,5 @@ Follow these steps in order when executing an audit:
    - If the open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
 
 5. **Summarize the findings**: total issues by severity (Critical / High / Medium / Low), top Critical and High items with route and fix, and the report location.
+
+6. **Suggest `.gitignore` update**: If a `.gitignore` exists in the project root and does not already contain `audit/`, mention to the user that they may want to add `audit/` to avoid committing generated reports. Do not edit `.gitignore` automatically.
