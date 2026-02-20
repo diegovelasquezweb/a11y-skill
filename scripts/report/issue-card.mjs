@@ -1,4 +1,9 @@
-import { escapeHtml, formatMultiline, formatEvidence, linkify } from "./utils.mjs";
+import {
+  escapeHtml,
+  formatMultiline,
+  formatEvidence,
+  linkify,
+} from "./utils.mjs";
 
 export function buildIssueCard(finding) {
   const reproductionItems =
@@ -75,7 +80,7 @@ export function buildIssueCard(finding) {
       <span class="px-3 py-1 rounded-full text-[11px] font-bold border ${severityBadge} shadow-sm backdrop-blur-sm uppercase tracking-wider">${escapeHtml(finding.severity)}</span>
       <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200/60 font-mono tracking-tight shadow-sm">${escapeHtml(finding.id)}</span>
       ${finding.ruleId ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-200 border border-slate-700/60 font-mono tracking-tight shadow-sm">${escapeHtml(finding.ruleId)}</span>` : ""}
-      <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-100/80 ml-auto shadow-sm backdrop-blur-sm">WCAG ${escapeHtml(finding.wcag)}</span>
+      <span class="wcag-label px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-100/80 ml-auto shadow-sm backdrop-blur-sm">WCAG ${escapeHtml(finding.wcag)}</span>
     </div>
     <h3 class="text-lg md:text-xl font-extrabold text-slate-900 leading-tight mb-3 group-hover:text-indigo-900 transition-colors">${escapeHtml(finding.title)}</h3>
 

@@ -106,7 +106,7 @@ function buildHtml(args, findings) {
   const pageSelectHtml =
     _sortedPages.length > 1
       ? `<div id="page-select-container" style="display:none" class="flex items-center gap-2 shrink-0">
-          <label for="page-select" class="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:block">Page:</label>
+          <label for="page-select" class="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:block whitespace-nowrap">Page:</label>
           <select id="page-select" onchange="filterByPage(this.value)" class="${selectClasses}">
             <option value="all">All pages (${_sortedPages.length})</option>
             ${_sortedPages.map(([pg, cnt]) => `<option value="${escapeHtml(pg)}">${escapeHtml(pg)} (${cnt})</option>`).join("")}
@@ -449,7 +449,7 @@ function buildHtml(args, findings) {
           </div>
           
           <div id="filter-controls" class="flex items-center gap-2 shrink-0">
-            <label for="filter-select" class="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:block">Filter by:</label>
+            <label for="filter-select" class="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:block whitespace-nowrap">Filter by:</label>
             <select id="filter-select" onchange="filterIssues(this.value)" class="${selectClasses}">
               <optgroup label="General">
                 <option value="all">All Issues</option>
@@ -468,7 +468,7 @@ function buildHtml(args, findings) {
               </optgroup>
             </select>
           </div>
-          ${pageSelectHtml.replace("display:none", "display:block")}
+          ${pageSelectHtml}
         </div>
       </div>
 
@@ -671,7 +671,7 @@ function buildHtml(args, findings) {
       if (view === 'severity') {
         severityContainer.style.display = '';
         pageContainer.style.display = 'none';
-        if (filterControls) filterControls.style.display = '';
+        if (filterControls) filterControls.style.display = 'flex';
         if (pageSelectCont) pageSelectCont.style.display = 'none';
         
         if (btnSeverity) {
@@ -685,9 +685,9 @@ function buildHtml(args, findings) {
       } else {
         severityContainer.style.display = 'none';
         pageContainer.style.display = '';
-        if (filterControls) filterControls.style.display = 'none';
+        if (filterControls) filterControls.style.display = 'flex';
         if (pageSelectCont) {
-          pageSelectCont.style.display = '';
+          pageSelectCont.style.display = 'flex';
           const ps = document.getElementById('page-select');
           if (ps) { ps.value = 'all'; filterByPage('all'); }
         }
@@ -775,8 +775,10 @@ function buildHtml(args, findings) {
             let match = false;
             if (type === 'all') match = true;
             else if (severity === type) match = true;
-            else if (principles.includes(type)) {
-                const wcagText = card.querySelector('.bg-indigo-50')?.textContent || '';
+            if (principles.includes(type)) {
+                const badge = card.querySelector('.wcag-label');
+                const wcagText = badge ? badge.textContent : '';
+                
                 if (type === 'Perceivable' && wcagText.includes(' 1.')) match = true;
                 if (type === 'Operable' && wcagText.includes(' 2.')) match = true;
                 if (type === 'Understandable' && wcagText.includes(' 3.')) match = true;
