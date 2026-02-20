@@ -287,3 +287,58 @@ export function buildManualChecksSection() {
 
 ${cards}`;
 }
+
+/**
+ * Builds the global references section for the HTML report.
+ */
+export function buildGlobalReferencesSection(metadata = {}) {
+  if (!metadata.regulatory) return "";
+
+  return `
+<div class="mt-16 mb-12">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="p-2 bg-indigo-100 rounded-xl text-indigo-600">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.246 18.477 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+    </div>
+    <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Global References & Regulatory Context</h3>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="premium-card p-6 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all hover:shadow-md">
+      <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
+        US Regulatory Context (ADA/508)
+      </h4>
+      <ul class="space-y-3">
+        <li>
+          <a href="${metadata.regulatory["18f"]}" target="_blank" class="text-sm text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-2 transition-colors">
+            <span>18F Accessibility Guide (Govt Standards)</span>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </a>
+        </li>
+        <li>
+          <a href="${metadata.regulatory.section508}" target="_blank" class="text-sm text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-2 transition-colors">
+            <span>Section 508 Standards (Federal Web)</span>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </a>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="premium-card p-6 rounded-2xl bg-white border border-slate-200 shadow-sm transition-all hover:shadow-md">
+      <h4 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
+        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+        Verification Checklists
+      </h4>
+      <ul class="space-y-3">
+        <li>
+          <a href="${metadata.checklist}" target="_blank" class="text-sm text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-2 transition-colors">
+            <span>The A11y Project Checklist</span>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>`;
+}

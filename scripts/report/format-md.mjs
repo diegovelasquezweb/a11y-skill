@@ -37,7 +37,7 @@ ${entries}
 /**
  * Builds the AI-optimized remediation guide in Markdown.
  */
-export function buildMarkdownSummary(args, findings) {
+export function buildMarkdownSummary(args, findings, metadata = {}) {
   const totals = buildSummary(findings);
   const status = findings.length === 0 ? "PASS" : "ISSUES FOUND";
 
@@ -130,9 +130,24 @@ export function buildMarkdownSummary(args, findings) {
   const blockers = findingsByPage(["Critical", "High"]);
   const deferred = findingsByPage(["Medium", "Low"]);
 
+  const referencesSection = metadata.regulatory
+    ? `
+---
+
+## 📚 Global References & Regulatory Context
+
+### US Regulatory Context (ADA/Section 508)
+- **18F Accessibility Guide**: ${metadata.regulatory["18f"]}
+- **Section 508 Standards**: ${metadata.regulatory.section508}
+
+### Verification & Checklists
+- **A11y Project Checklist**: ${metadata.checklist}
+`
+    : "";
+
   return (
     `# 🛡️ Accessibility Remediation Guide — AI MODE
-> **Scan Date:** ${new Date().toISOString()}
+> **Scan Date:** ${metadata.scanDate || new Date().toISOString()}
 > **Base URL:** ${args.baseUrl || "N/A"}
 > **Target:** ${args.target}
 > **Status:** ${status}
@@ -171,6 +186,7 @@ ${blockers ? `## 🔴 Priority Fixes (Critical & High)\n\n${blockers}` : "## Pri
 
 ${deferred ? `## 🔵 Deferred Issues (Medium & Low)\n\n${deferred}` : "## Deferred Issues\n\nNo medium or low severity issues found."}
 
-${buildManualChecksMd()}`.trimEnd() + "\n"
+${buildManualChecksMd()}
+${referencesSection}`.trimEnd() + "\n"
   );
 }

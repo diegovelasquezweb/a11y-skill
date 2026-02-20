@@ -483,18 +483,10 @@ function buildFindings(inputPayload) {
         if (apgUrl || dequeUrl || supportUrl || inclusiveUrl) {
           recFix = `Remediation guide for "${role}":\n`;
           if (apgUrl) recFix += `- **Implementation (W3C APG)**: ${apgUrl}\n`;
-          if (dequeUrl)
-            recFix += `- **Quality Checklist (Deque)**: ${dequeUrl}\n`;
           if (inclusiveUrl)
             recFix += `- **Inclusive Design Guide**: ${inclusiveUrl}\n`;
           if (supportUrl)
             recFix += `- **Browser/AT Support Data**: ${supportUrl}\n`;
-
-          recFix += `\n**US Regulatory Context (ADA/508)**:\n`;
-          recFix += `- 18F Govt Guide: ${US_REGULATORY["18f"]}\n`;
-          recFix += `- Section 508 Standards: ${US_REGULATORY.section508}\n`;
-
-          recFix += `\nVerification Checklist: https://www.a11yproject.com/checklist/`;
         }
 
         findings.push({
@@ -572,15 +564,17 @@ function buildFindings(inputPayload) {
     }
   }
 
-  findings.sort((a, b) => {
-    if (a.area !== b.area) return a.area.localeCompare(b.area);
-    return a.title.localeCompare(b.title);
-  });
-
-  return findings.map((f) => ({
-    ...f,
-    id: makeFindingId(f.rule_id || f.title, f.url, f.selector),
-  }));
+  return {
+    findings: findings.map((f) => ({
+      ...f,
+      id: makeFindingId(f.rule_id || f.title, f.url, f.selector),
+    })),
+    metadata: {
+      scanDate: new Date().toISOString(),
+      regulatory: US_REGULATORY,
+      checklist: "https://www.a11yproject.com/checklist/",
+    },
+  };
 }
 
 function main() {
@@ -593,19 +587,19 @@ function main() {
   const payload = readJson(args.input);
   if (!payload) throw new Error(`Input not found or invalid: ${args.input}`);
 
-  const allFindings = buildFindings(payload);
+  const result = buildFindings(payload);
   const findings =
     ignoredRules.size > 0
-      ? allFindings.filter((f) => !ignoredRules.has(f.rule_id))
-      : allFindings;
+      ? result.findings.filter((f) => !ignoredRules.has(f.rule_id))
+      : result.findings;
 
-  if (ignoredRules.size > 0 && allFindings.length !== findings.length) {
+  if (ignoredRules.size > 0 && result.findings.length !== findings.length) {
     log.info(
-      `Ignored ${allFindings.length - findings.length} finding(s) via ignoreFindings config.`,
+      `Ignored ${result.findings.length - findings.length} finding(s) via ignoreFindings config.`,
     );
   }
 
-  writeJson(args.output, { findings });
+  writeJson(args.output, { ...result, findings });
 
   if (findings.length === 0) {
     log.info("Congratulations, no issues found.");
