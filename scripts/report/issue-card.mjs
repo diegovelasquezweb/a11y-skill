@@ -90,7 +90,6 @@ export function buildIssueCard(finding) {
     <div class="flex-1 min-w-0">
     <div class="flex flex-wrap items-center gap-2.5 mb-3.5">
       <span class="px-3 py-1 rounded-full text-[11px] font-bold border ${severityBadge} shadow-sm backdrop-blur-sm uppercase tracking-wider">${escapeHtml(finding.severity)}</span>
-      <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200/60 font-mono tracking-tight shadow-sm searchable-field">${escapeHtml(finding.id)}</span>
       ${effortBadge}
       <span class="wcag-label px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-100/80 ml-auto shadow-sm backdrop-blur-sm">WCAG ${escapeHtml(finding.wcag)}</span>
     </div>

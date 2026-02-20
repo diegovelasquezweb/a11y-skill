@@ -896,10 +896,11 @@ function buildHtml(args, findings) {
                 if (type === 'Robust' && wcagText.includes(' 4.')) match = true;
             }
 
-            // Surgical search: only search in Title, ID, Selector, etc.
+            // Surgical search: only search in Title, Selector, URL, and the card's ID
             const searchableText = [...card.querySelectorAll('.searchable-field')]
               .map(el => el.textContent)
               .join(' ')
+              .concat(' ', card.id)
               .toLowerCase();
             const textMatch = !q || searchableText.includes(q);
 
