@@ -4,11 +4,7 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 
 ## Key Features
 
-- **Engineered for LLMs (`remediation.md`)** — Unlike traditional tools built for human eyeballs, this skill generates an AI-optimized markdown file engineered to prevent agent hallucinations and context window bloat:
-  - **Zero Context-Switching**: Violations are grouped by Route/Page (e.g., `## Page: /cart`), allowing the agent to fix all errors in one sweep without constantly reopening files.
-  - **Embedded Guardrails**: Injects hardcoded system prompts (`🤖 SYSTEM: Agent Instructions`) to actively forbid the agent from recklessly editing compiled `dist/` or `.next/` outputs.
-  - **Token Efficiency**: Replaces heavy markdown tables with flat key-value lists, saving hundreds of context tokens per issue.
-  - **Targeted Evidence**: Provides exact DOM snippets and selectors, allowing the agent to confidently `grep` the precise component.
+- **Engineered for LLMs** — Generates a remediation guide specifically optimized for AI agents. It groups issues by route to eliminate context-switching, drops heavy markdown tables to save tokens, and injects strict guardrails to prevent agents from editing compiled code.
 - **Zero-Config Route Discovery** — Point it at a URL and it crawls. Finds same-origin pages automatically, no sitemap or route list required.
 - **Failing Element Screenshots** — Violations with a single, identifiable element automatically get a screenshot captured and embedded in the HTML report.
 - **Accessibility Emulation** — Test dark mode, forced colors, and reduced motion via Playwright — the scenarios real users with disabilities rely on.
@@ -101,7 +97,7 @@ All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
 1. **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
 2. **Scan**: `generate-route-checks.mjs` crawls the site and runs Axe-Core.
 3. **Process**: `deterministic-findings.mjs` transforms raw data into structured findings.
-4. **Build**: `build-audit-html.mjs` generates the final detailed HTML report.
+4. **Build**: `build-audit-html.mjs` generates the final HTML dashboard and the AI-optimized `remediation.md`.
 5. **Export**: `generate-pdf.mjs` creates a portable PDF version of the report.
 
 ## Advanced Configuration
