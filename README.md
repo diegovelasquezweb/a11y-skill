@@ -43,17 +43,17 @@ Once installed, the skill is available to your agent in any conversation. Simply
 
 ### For Clients & Stakeholders
 
-- `index.pdf`: A professional, formal document designed for offline sharing and compliance evidence.
+- `report.pdf`: A professional, formal document designed for offline sharing and compliance evidence.
 
 ### For Developers & PMs
 
-- `index.html`: A premium, interactive React-like dashboard that features:
+- `report.html`: A premium, interactive React-like dashboard that features:
   - Persona impact mapping (Screen Readers, Cognitive, Motor) to help prioritize UX improvements.
   - Critical issue isolation with ready-to-use code solutions for fast remediation.
 
 ### For AI Agents & Automation
 
-- `summary.md`: A highly concise markdown summary ideal for PR comments or GitHub/Jira tickets.
+- `remediation.md`: Actionable remediation guide for AI agents — contains selectors, HTML evidence, code fix templates, and agent instructions for resolving each issue.
 - `internal/`: Raw technical assets for data ingestion.
   - `a11y-findings.json`: Final normalized findings (Cleaned).
   - `a11y-scan-results.json`: Raw automated scan data (Full).
@@ -79,7 +79,7 @@ pnpm run audit -- --base-url https://mysite.com
 | `--base-url <url>`       | The target to audit (Live URL or Localhost).         | Required                     |
 | `--max-routes <num>`     | Maximum number of routes to discover and scan.       | `10`                         |
 | `--routes <csv>`         | Custom list of paths to scan (e.g., `/cart,/about`). | Autodiscover                 |
-| `--output <path>`        | Final HTML report location.                          | `audit/index.html`           |
+| `--output <path>`        | Final HTML report location.                          | `audit/report.html`           |
 | `--wait-ms <num>`        | Time to wait for dynamic content after page load.    | `2000`                       |
 | `--headless <bool>`      | Run browser in background.                           | `true`                       |
 | `--timeout-ms <num>`     | Network timeout for page loads.                      | `30000`                      |

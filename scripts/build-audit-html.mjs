@@ -31,7 +31,7 @@ function printUsage() {
 
 Options:
   --input <path>           Findings JSON path (default: audit/internal/a11y-findings.json)
-  --output <path>          Output HTML path (default: audit/index.html)
+  --output <path>          Output HTML path (default: audit/report.html)
   --title <text>           Report title
   --environment <text>     Test environment label
   --scope <text>           Audit scope label
@@ -49,7 +49,7 @@ function parseArgs(argv) {
   const args = {
     input: getInternalPath("a11y-findings.json"),
     scanResults: getInternalPath("a11y-scan-results.json"),
-    output: path.join(process.cwd(), "audit", "index.html"),
+    output: path.join(process.cwd(), "audit", "report.html"),
     title: "Accessibility Audit Report",
     baseUrl: "",
     environment: "Local Development",
@@ -996,14 +996,14 @@ function main() {
   fs.writeFileSync(args.output, html, "utf-8");
 
   const md = buildMarkdownSummary(args, findings);
-  const mdPath = path.join(path.dirname(args.output), "summary.md");
+  const mdPath = path.join(path.dirname(args.output), "remediation.md");
   fs.writeFileSync(mdPath, md, "utf-8");
 
   if (findings.length === 0) {
     log.info("Congratulations, no issues found.");
   }
   log.success(`HTML report written to ${args.output}`);
-  log.success(`AI summary written to ${mdPath}`);
+  log.success(`Remediation guide written to ${mdPath}`);
 }
 
 try {

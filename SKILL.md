@@ -237,23 +237,23 @@ Execution discipline for the agent:
 
 1. Write two final artifacts in `audit/`:
 
-- `audit/index.html` — full HTML report (primary deliverable).
-- `audit/summary.md` — concise markdown summary (ideal for PRs and tickets).
+- `audit/report.html` — full HTML report (primary deliverable).
+- `audit/remediation.md` — actionable remediation guide for agents (selectors, evidence, fix templates).
 - Do not generate dated versions of the report (e.g., `audit/index-2026-01-01.html`).
 - Do not generate per-issue markdown files.
-- `audit/index.html` must include the completed findings with evidence and linked finding IDs.
+- `audit/report.html` must include the completed findings with evidence and linked finding IDs.
 - Follow the WS Accessibility standard for issue severity (Critical, High, Medium, Low).
 - Do not keep any JSON files in `audit/`.
 - Use `audit/internal/a11y-scan-results.json` and `audit/internal/a11y-findings.json` for pipeline JSON files.
 
 2. If findings count is 0:
 
-- Still generate `audit/index.html` with a clean summary (`Congratulations, no issues found.`).
+- Still generate `audit/report.html` with a clean summary (`Congratulations, no issues found.`).
 - This is allowed only after all baseline domains were checked, automated tool results were reviewed.
 
 3. Keep temporary pipeline files in `audit/internal/`; do not delete them automatically.
 
-4. Chat output should summarize results, but `audit/index.html` is the default source of truth.
+4. Chat output should summarize results, but `audit/report.html` is the default source of truth.
 
 ## 6) Final Output Rules
 

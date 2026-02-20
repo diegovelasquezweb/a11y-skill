@@ -9,7 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function generatePdf() {
   const args = process.argv.slice(2);
-  const inputPath = args[0] || path.join(process.cwd(), "audit", "index.html");
+  const inputPath = args[0] || path.join(process.cwd(), "audit", "report.html");
   const outputPath = args[1] || inputPath.replace(".html", ".pdf");
 
   log.info(`Generating PDF from ${inputPath}...`);

@@ -15,7 +15,7 @@ Options:
   --base-url <url>        (Required) The target website to audit.
   --max-routes <num>      Max routes to discover and scan (default: 10).
   --routes <csv>          Custom list of paths to scan.
-  --output <path>         Final HTML report location (default: audit/index.html).
+  --output <path>         Final HTML report location (default: audit/report.html).
   --wait-ms <num>         Time to wait after page load (default: 2000).
   --timeout-ms <num>      Network timeout (default: 30000).
   --headless <bool>       Run browser in background (default: true).
@@ -72,7 +72,7 @@ async function main() {
   const timeoutMs = getArgValue("timeout-ms") || 30000;
   const headless = getArgValue("headless") !== "false";
   const output =
-    getArgValue("output") || path.join(process.cwd(), "audit", "index.html");
+    getArgValue("output") || path.join(process.cwd(), "audit", "report.html");
 
   const colorScheme = getArgValue("color-scheme");
   const title = getArgValue("title");
