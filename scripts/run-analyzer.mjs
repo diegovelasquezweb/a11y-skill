@@ -441,6 +441,40 @@ function mapWcag(tags) {
   return "WCAG";
 }
 
+function detectImplicitRole(tag, html) {
+  if (!tag) return null;
+  if (tag === "input") {
+    const type = html?.match(/type=["']([^"']+)["']/i)?.[1]?.toLowerCase();
+    if (type === "checkbox") return "checkbox";
+    if (type === "radio") return "radio";
+    if (type === "range") return "slider";
+    return null;
+  }
+  const map = {
+    a: "link",
+    button: "button",
+    dialog: "dialog",
+    select: "listbox",
+    details: "group",
+    summary: "group",
+    table: "table",
+  };
+  return map[tag] ?? null;
+}
+
+function extractSearchHint(selector) {
+  if (!selector || selector === "N/A") return selector;
+  const specific =
+    selector.split(/[\s>+~]+/).filter(Boolean).pop() || selector;
+  const id = specific.match(/#([\w-]+)/)?.[1];
+  if (id) return `id="${id}"`;
+  const cls = specific.match(/\.([\w-]+)/)?.[1];
+  if (cls) return `.${cls}`;
+  const tag = specific.match(/^([a-z][a-z0-9-]*)/i)?.[1];
+  if (tag) return `<${tag}`;
+  return specific;
+}
+
 function buildFindings(inputPayload) {
   const routes = inputPayload.routes || [];
   const findings = [];
@@ -451,8 +485,10 @@ function buildFindings(inputPayload) {
         const nodes = v.nodes || [];
         const selectors = nodes.map((n) => n.target.join(" ")).slice(0, 5);
         const firstNode = nodes[0];
-        const role =
-          firstNode?.html?.match(/role=["']([^"']+)["']/)?.[1] || null;
+        const explicitRole =
+          firstNode?.html?.match(/role=["']([^"']+)["']/)?.[1] ?? null;
+        const tag = firstNode?.html?.match(/^<([a-z][a-z0-9-]*)/i)?.[1]?.toLowerCase() ?? null;
+        const role = explicitRole ?? detectImplicitRole(tag, firstNode?.html);
         const apgUrl = role ? APG_PATTERNS[role] : null;
         const supportUrl = role ? A11Y_SUPPORT[role] : null;
         const inclusiveUrl = role ? INCLUSIVE_COMPONENTS[role] : null;
@@ -480,7 +516,7 @@ function buildFindings(inputPayload) {
           impact: v.description,
           reproduction: [
             `Open ${route.url} in a browser to observe the issue`,
-            `Search source files for \`${selectors[0] || "N/A"}\` to locate the component`,
+            `Search source files for \`${extractSearchHint(selectors[0] || "N/A")}\` to locate the component`,
             `Confirm the violation: ${v.help}`,
           ],
           actual:
