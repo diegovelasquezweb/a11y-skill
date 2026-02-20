@@ -1,0 +1,13 @@
+{
+  "reportTitle": "Accessibility Audit Report",
+  "companyName": "MyCompany",
+  "accentColor": "#6366f1",
+  "colorScheme": "light",
+  "viewports": [{ "width": 1280, "height": 800, "name": "Desktop" }],
+  "maxRoutes": 10,
+  "complianceTarget": "WCAG 2.2 AA",
+  "ignoreFindings": [],
+  "excludeSelectors": [],
+  "outputDir": "audit",
+  "axeRules": {}
+}

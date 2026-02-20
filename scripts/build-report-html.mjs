@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { log, readJson, getInternalPath } from "./a11y-utils.mjs";
+import { log, readJson, getInternalPath, loadConfig } from "./a11y-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -49,15 +49,18 @@ function parseArgs(argv) {
     process.exit(0);
   }
 
+  const config = loadConfig();
   const args = {
     input: getInternalPath("a11y-findings.json"),
     scanResults: getInternalPath("a11y-scan-results.json"),
-    output: path.join(process.cwd(), "audit", "report.html"),
-    title: "Accessibility Audit Report",
+    output: path.join(process.cwd(), config.outputDir, "report.html"),
+    title: config.reportTitle,
     baseUrl: "",
     environment: "Local Development",
     scope: "Full Site Scan",
-    target: "WCAG 2.2 AA",
+    target: config.complianceTarget,
+    accentColor: config.accentColor,
+    companyName: config.companyName,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -104,7 +107,7 @@ function buildHtml(args, findings, metadata = {}) {
   }
   const _sortedPages = Object.entries(_pageCounts).sort((a, b) => b[1] - a[1]);
   const selectClasses =
-    "pl-4 pr-10 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 shadow-sm transition-all appearance-none cursor-pointer relative bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.5rem_center] bg-no-repeat";
+    "pl-4 pr-10 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/10 focus:border-[var(--primary)] shadow-sm transition-all appearance-none cursor-pointer relative bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.5rem_center] bg-no-repeat";
 
   const pageSelectHtml =
     _sortedPages.length > 1
@@ -118,7 +121,7 @@ function buildHtml(args, findings, metadata = {}) {
       : "";
 
   const score = computeComplianceScore(totals);
-  const { label } = scoreLabel(score);
+  const label = scoreLabel(score);
   const scoreHue = score >= 90 ? 142 : score >= 75 ? 142 : score >= 55 ? 38 : 0;
 
   const personaGroups = {
@@ -250,9 +253,9 @@ function buildHtml(args, findings, metadata = {}) {
         --primary-h: 226;
         --primary-s: 70%;
         --primary-l: 50%;
-        --primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
-        --primary-light: hsl(var(--primary-h), var(--primary-s), 95%);
-        --primary-dark: hsl(var(--primary-h), var(--primary-s), 30%);
+        --primary: ${args.accentColor || "hsl(var(--primary-h), var(--primary-s), var(--primary-l))"};
+        --primary-light: ${args.accentColor ? args.accentColor + "15" : "hsl(var(--primary-h), var(--primary-s), 95%)"};
+        --primary-dark: ${args.accentColor || "hsl(var(--primary-h), var(--primary-s), 30%)"};
         --slate-50: #f8fafc;
         --slate-100: #f1f5f9;
         --slate-200: #e2e8f0;
@@ -364,8 +367,8 @@ function buildHtml(args, findings, metadata = {}) {
     <div class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-slate-200/80 shadow-sm" id="navbar">
       <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
         <div class="flex items-center gap-3">
-          <div class="px-3 h-10 rounded-lg bg-slate-900 text-white font-bold text-base font-mono flex items-center justify-center shadow-md">a11y</div>
-          <h1 class="text-xl font-bold">Accessibility <span class="text-slate-500">Report</span></h1>
+          <div class="px-3 h-10 rounded-lg bg-[var(--primary)] text-white font-bold text-base font-mono flex items-center justify-center shadow-lg">${args.companyName || "a11y"}</div>
+          <h1 class="text-xl font-bold">${args.companyName ? escapeHtml(args.reportTitle) : 'Accessibility <span class="text-slate-500">Report</span>'}</h1>
         </div>
         <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border ${statusColor}">
           ${statusIcon} <span>${statusText}</span>
@@ -451,13 +454,13 @@ function buildHtml(args, findings, metadata = {}) {
             <div class="group">
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">${p.icon}</div>
+                  <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[var(--primary-light)] group-hover:text-[var(--primary)] transition-colors">${p.icon}</div>
                   <span class="text-sm font-bold text-slate-700">${p.label}</span>
                 </div>
                 <span class="text-xs font-black text-slate-900">${p.count} issues</span>
               </div>
               <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                <div class="bg-indigo-500 h-full rounded-full transition-all duration-500" style="width: ${findings.length > 0 ? (p.count / findings.length) * 100 : 0}%"></div>
+                <div class="bg-[var(--primary)] h-full rounded-full transition-all duration-500" style="width: ${findings.length > 0 ? (p.count / findings.length) * 100 : 0}%"></div>
               </div>
             </div>`,
               )
@@ -472,14 +475,14 @@ function buildHtml(args, findings, metadata = {}) {
           ? `
       <div class="premium-card rounded-2xl bg-slate-900 p-6 mb-12 relative overflow-hidden">
         <div class="absolute -right-4 -bottom-4 opacity-10">
-          <svg class="w-32 h-32 text-indigo-400" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <svg class="w-32 h-32 text-[var(--primary)]" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
         </div>
         <div class="relative z-10">
           <div class="flex items-center gap-3 mb-4">
-            <span class="px-2 py-0.5 rounded bg-indigo-500 text-[10px] font-black text-white uppercase tracking-tighter">AI Analysis</span>
+            <span class="px-2 py-0.5 rounded bg-[var(--primary)] text-[10px] font-black text-white uppercase tracking-tighter">AI Analysis</span>
             <h3 class="text-xl font-bold text-white">Recommended Quick Wins</h3>
           </div>
-          <p class="text-xs text-indigo-300/80 mb-6 -mt-2 leading-relaxed italic">High-priority issues with ready-to-use code fixes for immediate remediation.</p>
+          <p class="text-xs text-[var(--primary)]/80 mb-6 -mt-2 leading-relaxed italic">High-priority issues with ready-to-use code fixes for immediate remediation.</p>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             ${quickWins
               .map(
@@ -491,7 +494,7 @@ function buildHtml(args, findings, metadata = {}) {
               </div>
               <h4 class="text-sm font-bold text-slate-200 mb-1 line-clamp-1">${w.title}</h4>
               <p class="text-[10px] text-slate-500 font-mono mb-3 truncate">Page: ${w.area}</p>
-              <button onclick="scrollToIssue('${w.id}')" class="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 transition-colors uppercase tracking-widest flex items-center gap-1">
+              <button onclick="scrollToIssue('${w.id}')" class="text-[10px] font-bold text-[var(--primary)] hover:opacity-80 transition-colors uppercase tracking-widest flex items-center gap-1">
                 View Solution
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
@@ -510,7 +513,7 @@ function buildHtml(args, findings, metadata = {}) {
           <div class="flex items-center gap-4">
             <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Findings <span class="text-slate-400 font-bold ml-1">${findings.length}</span></h3>
             <div class="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-              <button onclick="setView('severity')" id="view-severity" class="view-btn px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest bg-indigo-50 text-indigo-700 transition-all">By Severity</button>
+              <button onclick="setView('severity')" id="view-severity" class="view-btn px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest bg-[var(--primary-light)] text-[var(--primary)] transition-all">By Severity</button>
               ${
                 Object.keys(_pageCounts).length > 1
                   ? `<button onclick="setView('page')" id="view-page" class="view-btn px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-slate-700 transition-all">By Page</button>`
@@ -524,7 +527,7 @@ function buildHtml(args, findings, metadata = {}) {
         <!-- Row 2: Search & Filter Select -->
         <div class="flex items-center gap-4 w-full">
           <div class="relative flex-1">
-            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search violations..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all shadow-sm">
+            <input type="text" id="search-input" oninput="handleSearch(this.value)" placeholder="Search violations..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/10 focus:border-[var(--primary)] transition-all shadow-sm">
             <svg class="absolute left-4 top-3.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
           
@@ -637,7 +640,7 @@ function buildHtml(args, findings, metadata = {}) {
     </div>
 
     <footer class="mt-10 py-6 border-t border-slate-200 text-center">
-        <p class="text-slate-400 text-sm font-medium">Generated by <a href="https://github.com/diegovelasquezweb/a11y" target="_blank" class="text-slate-500 hover:text-indigo-600 font-semibold transition-colors">a11y</a> &bull; <span class="text-slate-500">${escapeHtml(args.target)}</span></p>
+        <p class="text-slate-400 text-sm font-medium">Generated by <a href="https://github.com/diegovelasquezweb/a11y" target="_blank" class="text-slate-500 hover:text-[var(--primary)] font-semibold transition-colors">a11y</a> &bull; <span class="text-slate-500">${escapeHtml(args.target)}</span></p>
     </footer>
 
   </div>
@@ -756,11 +759,11 @@ function buildHtml(args, findings, metadata = {}) {
         if (pageSelectCont) pageSelectCont.style.display = 'none';
         
         if (btnSeverity) {
-          btnSeverity.classList.add('bg-indigo-50', 'text-indigo-700');
+          btnSeverity.classList.add('bg-[var(--primary-light)]', 'text-[var(--primary)]');
           btnSeverity.classList.remove('text-slate-500', 'hover:text-slate-700');
         }
         if (btnPage) {
-          btnPage.classList.remove('bg-indigo-50', 'text-indigo-700');
+          btnPage.classList.remove('bg-[var(--primary-light)]', 'text-[var(--primary)]');
           btnPage.classList.add('text-slate-500', 'hover:text-slate-700');
         }
       } else {
@@ -774,11 +777,11 @@ function buildHtml(args, findings, metadata = {}) {
         }
         
         if (btnPage) {
-          btnPage.classList.add('bg-indigo-50', 'text-indigo-700');
+          btnPage.classList.add('bg-[var(--primary-light)]', 'text-[var(--primary)]');
           btnPage.classList.remove('text-slate-500', 'hover:text-slate-700');
         }
         if (btnSeverity) {
-          btnSeverity.classList.remove('bg-indigo-50', 'text-indigo-700');
+          btnSeverity.classList.remove('bg-[var(--primary-light)]', 'text-[var(--primary)]');
           btnSeverity.classList.add('text-slate-500', 'hover:text-slate-700');
         }
       }
@@ -957,9 +960,9 @@ function buildHtml(args, findings, metadata = {}) {
             behavior: 'smooth'
         });
 
-        el.classList.add('ring-4', 'ring-indigo-500/30', 'border-indigo-500');
+        el.classList.add('ring-4', 'ring-[var(--primary)]/30', 'border-[var(--primary)]');
         setTimeout(() => {
-            el.classList.remove('ring-4', 'ring-indigo-500/30', 'border-indigo-500');
+            el.classList.remove('ring-4', 'ring-[var(--primary)]/30', 'border-[var(--primary)]');
         }, 2000);
     }
 

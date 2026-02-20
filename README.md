@@ -38,6 +38,17 @@ Once installed, the skill is available to your agent in any conversation. Simply
 
 > "Check accessibility for `https://mysite.com`"
 
+## How to Update Configuration
+
+You can manage the skill's settings through the AI agent using natural language:
+
+- _"Change the company name to 'MyCompany' in the a11y config."_
+- _"Set the report title to 'Accessibility Audit' and use #6366f1 as the accent color."_
+- _"Update the config to ignore the 'color-contrast-enhanced' rule."_
+- _"Configure the scanner to use a Mobile viewport (375x812) and dark mode."_
+
+Changes to `a11y.config.json` are dynamic and automatically applied during the next audit execution.
+
 ## Deliverables
 
 All generated assets are stored in the `audit/` directory.
@@ -102,47 +113,47 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 
 ```json
 {
+  "reportTitle": "Accessibility Audit Report",
+  "companyName": "a11y",
+  "accentColor": "#6366f1",
+  "colorScheme": "light",
+  "viewports": [{ "width": 1280, "height": 800, "name": "Desktop" }],
   "maxRoutes": 10,
   "complianceTarget": "WCAG 2.2 AA",
-  "routes": [],
   "ignoreFindings": [],
   "excludeSelectors": [],
   "outputDir": "audit",
-  "internalDir": "audit/internal",
-  "axeRules": {},
-  "playwright": {}
+  "axeRules": {}
 }
 ```
 
 ### Common Use Cases
 
-**1. Ignore Third-Party Widgets:**
+**1. Project Branding:**
 
 ```json
 {
-  "excludeSelectors": [".google-map-embed"]
+  "reportTitle": "Company Accessibility Audit",
+  "companyName": "MyCompany",
+  "accentColor": "#6366f1"
 }
 ```
 
-**2. Disable Specific Rules:**
+**2. Custom Emulation (Mobile Viewport):**
 
 ```json
 {
-  "axeRules": {
-    "color-contrast": { "enabled": false }
-  }
+  "colorScheme": "dark",
+  "viewports": [{ "width": 375, "height": 812, "name": "Mobile" }]
 }
 ```
 
-**3. Configure Playwright Options:**
+**3. Ignore Specific Findings & Selectors:**
 
 ```json
 {
-  "playwright": {
-    "viewport": { "width": 375, "height": 812 },
-    "colorScheme": "dark",
-    "reducedMotion": "reduce"
-  }
+  "ignoreFindings": ["color-contrast-enhanced"],
+  "excludeSelectors": [".third-party-widget"]
 }
 ```
 

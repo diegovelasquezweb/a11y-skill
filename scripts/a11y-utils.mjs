@@ -17,15 +17,22 @@ export const log = {
 };
 
 const CONFIG_SCHEMA = {
-  maxRoutes:        { type: "number" },
+  maxRoutes: { type: "number" },
   complianceTarget: { type: "string" },
-  routes:           { type: "array" },
+  routes: { type: "array" },
   excludeSelectors: { type: "array" },
-  ignoreFindings:   { type: "array" },
-  axeRules:         { type: "object" },
-  outputDir:        { type: "string" },
-  internalDir:      { type: "string" },
-  playwright:       { type: "object" },
+  ignoreFindings: { type: "array" },
+  axeRules: { type: "object" },
+  outputDir: { type: "string" },
+  internalDir: { type: "string" },
+  playwright: { type: "object" },
+  // Branding
+  reportTitle: { type: "string" },
+  companyName: { type: "string" },
+  accentColor: { type: "string" },
+  // Emulation
+  colorScheme: { type: "string" },
+  viewports: { type: "array" },
 };
 
 function validateConfig(userConfig) {
@@ -39,7 +46,9 @@ function validateConfig(userConfig) {
       continue;
     }
     const expected = CONFIG_SCHEMA[key].type;
-    const actual = Array.isArray(userConfig[key]) ? "array" : typeof userConfig[key];
+    const actual = Array.isArray(userConfig[key])
+      ? "array"
+      : typeof userConfig[key];
     if (actual !== expected) {
       log.warn(
         `a11y.config.json: "${key}" should be a ${expected}, got ${actual}. Using default.`,
@@ -60,6 +69,11 @@ export function loadConfig() {
     axeRules: {},
     outputDir: "audit",
     internalDir: "audit/internal",
+    reportTitle: "Accessibility Audit Report",
+    companyName: "",
+    accentColor: "#6366f1", // Indigo-500
+    colorScheme: "light",
+    viewports: [{ width: 1280, height: 800, name: "Desktop" }],
   };
 
   if (fs.existsSync(configPath)) {

@@ -190,12 +190,18 @@ async function main() {
   log.info(`Starting accessibility audit for ${baseUrl}`);
 
   const pwConfig = config.playwright || {};
+  // Determine primary viewport from config or fallback
+  const primaryViewport =
+    Array.isArray(config.viewports) && config.viewports[0]
+      ? { width: config.viewports[0].width, height: config.viewports[0].height }
+      : pwConfig.viewport || { width: 1280, height: 720 };
 
   const browser = await chromium.launch({ headless: args.headless });
   const context = await browser.newContext({
-    viewport: pwConfig.viewport || { width: 1280, height: 720 },
+    viewport: primaryViewport,
     reducedMotion: pwConfig.reducedMotion || "no-preference",
-    colorScheme: args.colorScheme || pwConfig.colorScheme || "light",
+    colorScheme:
+      args.colorScheme || config.colorScheme || pwConfig.colorScheme || "light",
     forcedColors: pwConfig.forcedColors || "none",
     locale: pwConfig.locale || "en-US",
   });

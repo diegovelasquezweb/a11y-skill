@@ -1,4 +1,16 @@
 {
+  "reportTitle": "Accessibility Audit Report",
+  "companyName": "a11y Skill",
+  "accentColor": "#6366f1",
+  "colorScheme": "light",
+  "viewports": [
+    {
+      "width": 1280,
+      "height": 800,
+      "name": "Desktop"
+    }
+  ],
   "maxRoutes": 10,
-  "complianceTarget": "WCAG 2.2 AA"
+  "complianceTarget": "WCAG 2.2 AA",
+  "ignoreFindings": []
 }

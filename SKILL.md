@@ -118,6 +118,22 @@ Each finding must include:
 7. Recommended fix.
 8. QA retest notes.
 
+### `a11y.config.json` Reference
+
+| Key                | Type     | Description                                             |
+| :----------------- | :------- | :------------------------------------------------------ |
+| `reportTitle`      | `string` | Custom title for the HTML report.                       |
+| `companyName`      | `string` | Logo/brand name in the report header.                   |
+| `accentColor`      | `string` | Hex color (e.g. `#fbbf24`) for report accents.          |
+| `colorScheme`      | `string` | Emulate `"light"` or `"dark"` during scanning.          |
+| `viewports`        | `array`  | List of `{ width, height, name }` objects.              |
+| `maxRoutes`        | `number` | Max URLs to discover (default: 10).                     |
+| `routes`           | `array`  | Static list of paths to scan (overrides autodiscovery). |
+| `complianceTarget` | `string` | Report label (default: "WCAG 2.2 AA").                  |
+| `axeRules`         | `object` | fine-grained Axe configuration.                         |
+| `ignoreFindings`   | `array`  | Axe rule IDs to silence.                                |
+| `excludeSelectors` | `array`  | DOM selectors to ignore entirely.                       |
+
 ## 5) Required Deliverables
 
 Always return results in this exact order:
