@@ -186,7 +186,7 @@ export function buildIssueCard(finding) {
         </div>
 
         ${
-          finding.manual_test
+          finding.manualTest
             ? `
         <div class="mt-5 pt-4 border-t border-slate-100">
             <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -194,9 +194,9 @@ export function buildIssueCard(finding) {
               Manual Validation Steps
             </h4>
             <div class="bg-amber-50/50 rounded-lg p-3 border border-amber-100/50">
-              <p class="text-[12px] text-amber-900 font-bold mb-2">${escapeHtml(finding.manual_test.description)}</p>
+              <p class="text-[12px] text-amber-900 font-bold mb-2">${escapeHtml(finding.manualTest.description)}</p>
               <ul class="list-disc list-outside ml-4 space-y-1 text-[12px] text-amber-800/80">
-                ${finding.manual_test.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}
+                ${(finding.manualTest.steps ?? []).map((s) => `<li>${escapeHtml(s)}</li>`).join("")}
               </ul>
             </div>
         </div>`

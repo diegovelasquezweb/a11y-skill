@@ -51,6 +51,7 @@ export function normalizeFindings(payload) {
       effort: item.effort ?? null,
       relatedRules: Array.isArray(item.related_rules) ? item.related_rules : [],
       fixCodeLang: item.fix_code_lang ?? "html",
+      manualTest: item.manual_test ?? null,
       screenshotPath: item.screenshot_path ?? null,
     }))
     .sort((a, b) => {
@@ -74,21 +75,16 @@ export function buildSummary(findings) {
 
 /**
  * Calculates a 0-100 compliance score based on weighted severities.
+ * Weights: Critical=15, High=5, Medium=2, Low=0.5
  */
 export function computeComplianceScore(totals) {
-  const weights = { Critical: 10, High: 5, Medium: 2, Low: 1 };
-  const totalWeight =
-    totals.Critical * weights.Critical +
-    totals.High * weights.High +
-    totals.Medium * weights.Medium +
-    totals.Low * weights.Low;
-
-  if (totalWeight === 0) return 100;
-
-  // Each finding reduces the score. A "perfect" score is 100.
-  // We use a logarithmic-like penalty so it doesn't hit 0 too fast but penalizes Critical heavily.
-  const score = Math.max(0, 100 - totalWeight);
-  return Math.round(score);
+  const raw =
+    100 -
+    totals.Critical * 15 -
+    totals.High * 5 -
+    totals.Medium * 2 -
+    totals.Low * 0.5;
+  return Math.max(0, Math.min(100, Math.round(raw)));
 }
 
 /**

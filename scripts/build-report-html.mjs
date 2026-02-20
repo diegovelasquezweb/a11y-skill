@@ -26,7 +26,6 @@ import {
   buildPdfRemediationRoadmap,
   buildPdfAuditLimitations,
   buildPageGroupedSection,
-  computeComplianceScore as pdfScore,
   scoreLabel as pdfScoreLabel,
 } from "./report/format-pdf.mjs";
 
@@ -604,8 +603,8 @@ function buildHtml(args, findings, metadata = {}) {
         <div style="display: flex; align-items: flex-start;">
           <div style="min-width: 7cm;">
             <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 5pt 0;">Compliance Score</p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 40pt; font-weight: 900; line-height: 1; margin: 0; color: ${pdfScore(totals) >= 75 ? "#16a34a" : pdfScore(totals) >= 55 ? "#d97706" : "#dc2626"};">${pdfScore(totals)}<span style="font-size: 16pt; font-weight: 400; color: #9ca3af;"> / 100</span></p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 9.5pt; font-weight: 700; color: #374151; margin: 5pt 0 0 0;">${pdfScoreLabel(pdfScore(totals)).label} &mdash; ${pdfScoreLabel(pdfScore(totals)).risk}</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 40pt; font-weight: 900; line-height: 1; margin: 0; color: ${score >= 75 ? "#16a34a" : score >= 55 ? "#d97706" : "#dc2626"};">${score}<span style="font-size: 16pt; font-weight: 400; color: #9ca3af;"> / 100</span></p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 9.5pt; font-weight: 700; color: #374151; margin: 5pt 0 0 0;">${pdfScoreLabel(score).label} &mdash; ${pdfScoreLabel(score).risk}</p>
           </div>
           <div style="border-left: 1pt solid #e5e7eb; padding-left: 2cm;">
             <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 4pt 0;">Standard</p>

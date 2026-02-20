@@ -10,10 +10,8 @@ Traditional accessibility tools focus on visual inspection or surface-level scor
 | :------------------------------ | :----------------------------------------------------------------------------- | :------------------------------------------------- | :------------------------------------------- |
 | **Native AI Agent Integration** | <small>✅ (Surgical DOM selectors & hints)</small>                             | <small>⚠️ (High token cost / Massive JSON)</small> | <small>❌ (Visual GUI only)</small>          |
 | **Site-Wide Route Scouting**    | <small>✅ (Automated zero-config crawler)</small>                              | <small>❌ (Single URL per run)</small>             | <small>❌ (Single URL per run)</small>       |
-| **Auditor-Grade Risk Analysis** | <small>✅ (Persona impact & Remediation roadmap)</small>                       | <small>❌ (Standard tech report)</small>           | <small>❌ (Visual overlays only)</small>     |
 | **Remediation Intelligence**    | <small>✅ (AI-optimized resolution patterns & multi-source blueprints)</small> | <small>⚠️ (Diagnostic hints only)</small>          | <small>⚠️ (Documentation links only)</small> |
 | **Guided Manual Verification**  | <small>✅ (Comprehensive DevTools, Keyboard & AT checks)</small>               | <small>❌ (Static link list only)</small>          | <small>⚠️ (Passive visual overlays)</small>  |
-| **Depth of Standard**           | <small>WCAG 2.2 AA (Axe-Core 4.10+)</small>                                    | <small>WCAG 2.1 AA (Axe subset)</small>            | <small>WCAG 2.2 AA</small>                   |
 
 ## Installation
 

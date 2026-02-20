@@ -1,16 +1,6 @@
-import { SEVERITY_ORDER } from "./core-findings.mjs";
+import { SEVERITY_ORDER, computeComplianceScore } from "./core-findings.mjs";
 import { escapeHtml } from "./core-utils.mjs";
 import { buildIssueCard } from "./format-html.mjs";
-
-export function computeComplianceScore(totals) {
-  const raw =
-    100 -
-    totals.Critical * 15 -
-    totals.High * 5 -
-    totals.Medium * 2 -
-    totals.Low * 0.5;
-  return Math.max(0, Math.min(100, Math.round(raw)));
-}
 
 export function scoreLabel(score) {
   if (score >= 90) return { label: "Excellent", risk: "Minimal Risk" };
@@ -245,7 +235,6 @@ export function buildPdfMethodologySection(args, findings) {
       <tr><td style="font-weight: 700;">Engine</td><td>axe-core 4.10+ (Deque Systems) — industry-standard accessibility rules library</td></tr>
       <tr><td style="font-weight: 700;">Browser</td><td>Chromium (headless) via Playwright</td></tr>
       <tr><td style="font-weight: 700;">Standard</td><td>${escapeHtml(args.target)}</td></tr>
-      <tr><td style="font-weight: 700;">Environment</td><td>${escapeHtml(args.environment)}</td></tr>
       <tr><td style="font-weight: 700;">Audit date</td><td>${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</td></tr>
     </tbody>
   </table>

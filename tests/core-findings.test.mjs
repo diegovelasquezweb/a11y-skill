@@ -16,13 +16,13 @@ describe("core-findings logic", () => {
     it("penalizes heavily for Critical issues", () => {
       const totals = { Critical: 1, High: 0, Medium: 0, Low: 0 };
       const score = computeComplianceScore(totals);
-      expect(score).toBe(90); // 100 - (1 * 10)
+      expect(score).toBe(85); // 100 - (1 * 15)
     });
 
     it("calculates complex weighted scores correctly", () => {
       const totals = { Critical: 2, High: 3, Medium: 10, Low: 0 };
-      // (2*10) + (3*5) + (10*2) = 20 + 15 + 20 = 55 penalty
-      expect(computeComplianceScore(totals)).toBe(45);
+      // (2*15) + (3*5) + (10*2) = 30 + 15 + 20 = 65 penalty
+      expect(computeComplianceScore(totals)).toBe(35);
     });
 
     it("does not return negative scores", () => {
