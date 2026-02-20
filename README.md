@@ -4,10 +4,10 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 
 ## Key Features
 
-- **Engineered for LLMs** — Generates a remediation guide specifically optimized for AI agents. It groups issues by route to eliminate context-switching, drops heavy markdown tables to save tokens, and injects strict guardrails to prevent agents from editing compiled code.
-- **Zero-Config Route Discovery** — Point it at a URL and it crawls. Finds same-origin pages automatically, no sitemap or route list required.
+- **Engineered for AI Agents** — Generates a remediation guide prioritizing findings by severity and grouping them by route. It provides surgical DOM selectors and search hints specifically designed for AI agents to locate and patch source code securely.
+- **Zero-Config Route Discovery** — Point it at a URL and it scouts same-origin routes from the entry point. Finds internal links automatically, no sitemap or route list required.
 - **WCAG 2.2 Manual Check Coverage** — Six criteria axe-core can't detect are covered with step-by-step verification instructions built into the report.
-- **Multi-Source a11y Intelligence** — Automatically links custom widgets to W3C Patterns (Implementation), Deque Checklists (Verification), A11ySupport.io (Browser Support), and Inclusive Components (Design).
+- **Multi-Source a11y Intelligence** — Automatically links findings to W3C Patterns (Implementation), Deque University (Rule Logic), A11ySupport.io (Browser Support), and Inclusive Components (Design).
 
 ## Installation
 
@@ -159,14 +159,14 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 
 While traditional tools are excellent for visual learning or broad metrics, this skill is purpose-built to automate the remediation workflow using AI agents.
 
-| Feature / Capability              | `a11y`                                                | Google Lighthouse                            | WebAIM WAVE                           |
-| :-------------------------------- | :---------------------------------------------------- | :------------------------------------------- | :------------------------------------ |
-| **Native AI Agent Integration**   | <small>✅ (Outputs clean JSON & DOM evidence)</small> | <small>❌ (Requires complex parsing)</small> | <small>❌ (Visual only)</small>       |
-| **Headless / CI-Ready Execution** | <small>✅ (Playwright)</small>                        | <small>✅ (CLI available)</small>            | <small>❌ (Browser Extension)</small> |
-| **Zero-Config SPA Support**       | <small>✅ (Waits for network & JS rendering)</small>  | <small>⚠️ (Requires config)</small>          | <small>✅ (Manual click)</small>      |
-| **Premium Executive Reports**     | <small>✅ (HTML Dashboard & PDF Export)</small>       | <small>❌ (Basic HTML/JSON)</small>          | <small>❌</small>                     |
-| **Direct Code Remediation**       | <small>✅ (AI uses findings to fix code)</small>      | <small>❌ (Only reports)</small>             | <small>❌ (Only reports)</small>      |
-| **Depth of Standard**             | <small>WCAG 2.2 AA (Axe-Core Engine)</small>          | <small>Basic A11y + Web Vitals</small>       | <small>WCAG 2.1 AA</small>            |
+| Feature / Capability              | `a11y`                                                 | Google Lighthouse                            | WebAIM WAVE                           |
+| :-------------------------------- | :----------------------------------------------------- | :------------------------------------------- | :------------------------------------ |
+| **Native AI Agent Integration**   | <small>✅ (Outputs clean JSON & DOM evidence)</small>  | <small>❌ (Requires complex parsing)</small> | <small>❌ (Visual only)</small>       |
+| **Headless / CI-Ready Execution** | <small>✅ (Playwright)</small>                         | <small>✅ (CLI available)</small>            | <small>❌ (Browser Extension)</small> |
+| **Zero-Config SPA Support**       | <small>✅ (Waits for hydration & JS rendering)</small> | <small>⚠️ (Requires config)</small>          | <small>✅ (Manual click)</small>      |
+| **Premium Executive Reports**     | <small>✅ (HTML Dashboard & PDF Export)</small>        | <small>❌ (Basic HTML/JSON)</small>          | <small>❌</small>                     |
+| **Direct Code Remediation**       | <small>✅ (AI uses findings to fix code)</small>       | <small>❌ (Only reports)</small>             | <small>❌ (Only reports)</small>      |
+| **Depth of Standard**             | <small>WCAG 2.2 AA (Axe-Core Engine)</small>           | <small>Basic A11y + Web Vitals</small>       | <small>WCAG 2.1 AA</small>            |
 
 ## Testing
 
