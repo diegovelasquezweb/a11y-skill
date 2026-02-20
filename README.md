@@ -6,8 +6,6 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 
 - **Engineered for LLMs** — Generates a remediation guide specifically optimized for AI agents. It groups issues by route to eliminate context-switching, drops heavy markdown tables to save tokens, and injects strict guardrails to prevent agents from editing compiled code.
 - **Zero-Config Route Discovery** — Point it at a URL and it crawls. Finds same-origin pages automatically, no sitemap or route list required.
-- **Failing Element Screenshots** — Violations with a single, identifiable element automatically get a screenshot captured and embedded in the HTML report.
-- **Accessibility Emulation** — Test dark mode, forced colors, and reduced motion via Playwright — the scenarios real users with disabilities rely on.
 - **WCAG 2.2 Manual Check Coverage** — Six criteria axe-core can't detect are covered with step-by-step verification instructions built into the report.
 - **Multi-Source a11y Intelligence** — Automatically links custom widgets to W3C Patterns (Implementation), Deque Checklists (Verification), A11ySupport.io (Browser Support), and Inclusive Components (Design).
 
@@ -178,15 +176,15 @@ pnpm test
 
 39 unit tests covering the core pipeline functions:
 
-| Module | What's tested |
-| :--- | :--- |
-| `detectImplicitRole` | Native HTML → ARIA role mapping (`<button>`, `<a>`, `<input>` variants, case-insensitive) |
-| `extractSearchHint` | CSS selector → source-code search pattern (ID > class > tag > attribute selector) |
-| `normalizeFindings` | Finding schema normalization and severity sort order |
-| `computeComplianceScore` | Weighted score calculation and clamping |
-| `buildSummary` / `scoreLabel` | Severity totals and grade labels |
-| `escapeHtml` / `linkify` | HTML escaping and URL linkification |
-| `loadConfig` | Config parsing, unknown key warnings, hex color validation |
+| Module                        | What's tested                                                                             |
+| :---------------------------- | :---------------------------------------------------------------------------------------- |
+| `detectImplicitRole`          | Native HTML → ARIA role mapping (`<button>`, `<a>`, `<input>` variants, case-insensitive) |
+| `extractSearchHint`           | CSS selector → source-code search pattern (ID > class > tag > attribute selector)         |
+| `normalizeFindings`           | Finding schema normalization and severity sort order                                      |
+| `computeComplianceScore`      | Weighted score calculation and clamping                                                   |
+| `buildSummary` / `scoreLabel` | Severity totals and grade labels                                                          |
+| `escapeHtml` / `linkify`      | HTML escaping and URL linkification                                                       |
+| `loadConfig`                  | Config parsing, unknown key warnings, hex color validation                                |
 
 ## Reference
 
