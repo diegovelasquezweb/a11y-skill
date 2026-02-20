@@ -170,6 +170,24 @@ While traditional tools are excellent for visual learning or broad metrics, this
 | **Direct Code Remediation**       | <small>✅ (AI uses findings to fix code)</small>      | <small>❌ (Only reports)</small>             | <small>❌ (Only reports)</small>      |
 | **Depth of Standard**             | <small>WCAG 2.2 AA (Axe-Core Engine)</small>          | <small>Basic A11y + Web Vitals</small>       | <small>WCAG 2.1 AA</small>            |
 
+## Testing
+
+```bash
+pnpm test
+```
+
+39 unit tests covering the core pipeline functions:
+
+| Module | What's tested |
+| :--- | :--- |
+| `detectImplicitRole` | Native HTML → ARIA role mapping (`<button>`, `<a>`, `<input>` variants, case-insensitive) |
+| `extractSearchHint` | CSS selector → source-code search pattern (ID > class > tag > attribute selector) |
+| `normalizeFindings` | Finding schema normalization and severity sort order |
+| `computeComplianceScore` | Weighted score calculation and clamping |
+| `buildSummary` / `scoreLabel` | Severity totals and grade labels |
+| `escapeHtml` / `linkify` | HTML escaping and URL linkification |
+| `loadConfig` | Config parsing, unknown key warnings, hex color validation |
+
 ## Reference
 
 - [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)

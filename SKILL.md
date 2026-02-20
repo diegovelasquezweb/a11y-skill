@@ -6,7 +6,6 @@ license: MIT
 metadata:
   author: diegovelasquezweb
   version: "0.2.1"
-  hint: "[url]"
 ---
 
 # Web Accessibility Audit
