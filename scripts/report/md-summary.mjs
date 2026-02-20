@@ -25,15 +25,10 @@ export function buildMarkdownSummary(args, findings) {
       `---`,
       `### ${f.id} · ${f.severity} · \`${f.ruleId || f.title}\``,
       ``,
-      `| Field | Value |`,
-      `|---|---|`,
-      `| **Page** | \`${f.area}\` |`,
-      `| **Selector** | \`${f.selector}\` |`,
-      `| **WCAG** | ${f.wcag} |`,
-      `| **Impacted users** | ${f.impactedUsers} |`,
-      f.screenshotPath
-        ? `| **Screenshot** | ![${f.id}](${f.screenshotPath}) |`
-        : null,
+      `- **Page:** \`${f.area}\``,
+      `- **Selector:** \`${f.selector}\``,
+      `- **WCAG:** ${f.wcag}`,
+      `- **Impacted users:** ${f.impactedUsers}`,
       ``,
       `**Expected:** ${f.expected}`,
       ``,
@@ -56,25 +51,24 @@ export function buildMarkdownSummary(args, findings) {
       .join("\n");
   }
 
-  function findingsByPrinciple(severities) {
+  function findingsByPage(severities) {
     const filtered = findings.filter((f) => severities.includes(f.severity));
     if (filtered.length === 0) return "";
 
-    const PRINCIPLES = ["Perceivable", "Operable", "Understandable", "Robust"];
-    const groups = {};
-    for (const p of PRINCIPLES) groups[p] = [];
-    for (const f of filtered) groups[wcagPrinciple(f.ruleId)].push(f);
+    const pages = new Set();
+    for (const f of filtered) pages.add(f.area);
 
-    return PRINCIPLES.filter((p) => groups[p].length > 0)
-      .map(
-        (p) =>
-          `### ${p} (WCAG ${["1", "2", "3", "4"][PRINCIPLES.indexOf(p)]}.x)\n\n${groups[p].map(findingToMd).join("\n\n")}`,
-      )
+    return Array.from(pages)
+      .sort()
+      .map((page) => {
+        const pageFindings = filtered.filter((f) => f.area === page);
+        return `## Page: ${page}\n\n${pageFindings.map(findingToMd).join("\n\n")}`;
+      })
       .join("\n\n");
   }
 
-  const blockers = findingsByPrinciple(["Critical", "High"]);
-  const deferred = findingsByPrinciple(["Medium", "Low"]);
+  const blockers = findingsByPage(["Critical", "High"]);
+  const deferred = findingsByPage(["Medium", "Low"]);
 
   return (
     `# Accessibility Audit — Remediation Guide
@@ -96,16 +90,13 @@ export function buildMarkdownSummary(args, findings) {
 
 ${findings.length === 0 ? "> No accessibility violations found. All checks passed." : ""}
 
-## Agent Instructions
+## 🤖 SYSTEM: Agent Instructions
 
-When asked to fix accessibility issues, use this file as your primary reference.
-Each finding includes the affected selector, a code fix template, and the exact HTML evidence from the page.
-Apply fixes in the source code — do not modify this file or the audit output.
-Prioritize Critical and High issues first.
-
-If you have access to the source code, locate the file to edit by searching for
-the HTML snippet shown under **Affected HTML** in each finding. The selector and
-URL are also available to narrow the search.
+**CRITICAL INSTRUCTIONS FOR AI AGENTS:**
+1. This file is grouped by Page/Route. Fix ALL issues on a single route before moving to the next.
+2. Use your \`grep\` or codebase search tools to find the unique CSS selectors or the exact code shown in **Affected HTML**.
+3. **DO NOT** edit compiled files in \`dist/\`, \`build/\`, or \`.next/\`. Always edit the original source components (e.g., \`.tsx\`, \`.vue\`, \`.astro\`).
+4. Apply the exact logic from the **Fix** block to resolve the violation. Prioritize Critical/High first.
 
 ${blockers ? `## Priority Fixes (Critical & High)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or high severity issues found."}
 
