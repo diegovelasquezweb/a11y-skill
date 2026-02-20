@@ -30,14 +30,17 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const key = argv[i];
     const value = argv[i + 1];
-    if (key === "--input") args.input = value;
-    if (key === "--output") args.output = value;
-    if (key === "--base-url") args.baseUrl = value;
-    if (key === "--target") args.target = value;
     if (key === "--help" || key === "-h") {
       printUsage();
       process.exit(0);
     }
+    if (!key.startsWith("--") || value === undefined) continue;
+
+    if (key === "--input") args.input = value;
+    if (key === "--output") args.output = value;
+    if (key === "--base-url") args.baseUrl = value;
+    if (key === "--target") args.target = value;
+    i += 1;
   }
 
   return args;

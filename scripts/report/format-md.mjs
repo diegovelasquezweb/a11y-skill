@@ -6,8 +6,6 @@ import { MANUAL_CHECKS } from "./data-manual-checks.mjs";
  */
 export function buildManualChecksMd() {
   const entries = MANUAL_CHECKS.map((check) => {
-    // Note: In a real scenario, we might want to add agent-specific tasks to the data-manual-checks.mjs
-    // For now, we'll use the description as the base task.
     return [
       `---`,
       `### ${check.criterion} — ${check.title} (WCAG 2.2 ${check.level})`,
@@ -75,7 +73,7 @@ export function buildMarkdownSummary(args, findings) {
 
     const fixBlock =
       f.fixDescription || f.fixCode
-        ? `#### Recommended Technical Solution\n${f.fixDescription ? `**Implementation:** ${f.fixDescription}` : ""}${f.fixCode ? `\n\`\`\`html\n${f.fixCode}\n\`\`\`` : ""}`
+        ? `#### Recommended Technical Solution\n${f.fixDescription ? `**Implementation:** ${f.fixDescription}\n` : ""}${f.fixCode ? `\`\`\`html\n${f.fixCode}\n\`\`\`` : ""}`.trimEnd()
         : `#### Recommended Remediation\n${f.recommendedFix}`;
 
     const ruleRef = f.ruleId

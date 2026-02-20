@@ -190,7 +190,7 @@ Always return results in this exact order:
 2. Findings table (ID, severity, WCAG criterion, impacted area, short impact).
 3. Issue details (one section per issue using the issue template).
 
-## 5) Minimum Evidence Standards
+## 6) Minimum Evidence Standards
 
 Each reported issue must include:
 
@@ -260,7 +260,7 @@ Execution discipline for the agent:
 
 4. Chat output should summarize results, but `audit/report.html` is the default source of truth.
 
-## 6) Final Output Rules
+## 9) Final Output Rules
 
 1. Keep issue titles short, specific, and component-oriented.
 2. Use plain, implementation-ready language.
@@ -268,7 +268,7 @@ Execution discipline for the agent:
 4. Distinguish compliance blockers from advisory improvements.
 5. If evidence is incomplete, mark assumptions explicitly.
 
-## 7) Platform-Specific Installation
+## 10) Platform-Specific Installation
 
 ### [Antigravity Only] Workflow Setup
 
@@ -347,7 +347,7 @@ node scripts/run-audit.mjs --base-url <URL>
 
 Gemini CLI utilizes autonomous activation based on this `SKILL.md`. No project-level files or workflows are required or allowed to be created by the agent during Gemini CLI sessions. After activation, the agent should suggest the user to refresh the skills registry by running `/skills reload` if the skill is not immediately available.
 
-## 8) Execution Workflow
+## 11) Execution Workflow
 
 Follow these steps in order when executing an audit:
 
