@@ -98,10 +98,12 @@ pnpm run audit -- --base-url https://mysite.com
 All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
 
 1. **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
-2. **Scan**: `generate-route-checks.mjs` crawls the site and runs Axe-Core.
-3. **Process**: `deterministic-findings.mjs` transforms raw data into structured findings.
-4. **Build**: `build-audit-html.mjs` generates the final HTML dashboard and the AI-optimized `remediation.md`.
-5. **Export**: `generate-pdf.mjs` creates a portable PDF version of the report.
+2. **Scan**: `run-scanner.mjs` crawls the site and executes automated Axe-Core checks.
+3. **Analyze**: `run-analyzer.mjs` processes raw data into normalized, rule-based findings.
+4. **Build Reports**:
+   - `build-report-html.mjs` generates the interactive dashboard.
+   - `build-report-md.mjs` creates the AI-optimized remediation guide.
+   - `build-report-pdf.mjs` exports the formal executive summary.
 
 ## Advanced Configuration
 

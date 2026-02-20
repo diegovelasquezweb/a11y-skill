@@ -103,7 +103,10 @@ async function main() {
     const absoluteOutputPath = path.isAbsolute(output)
       ? output
       : path.join(process.cwd(), output);
-    const screenshotsDir = path.join(path.dirname(absoluteOutputPath), "screenshots");
+    const screenshotsDir = path.join(
+      path.dirname(absoluteOutputPath),
+      "screenshots",
+    );
 
     const scanArgs = [
       "--base-url",
@@ -122,9 +125,9 @@ async function main() {
     if (routes) scanArgs.push("--routes", routes);
     if (colorScheme) scanArgs.push("--color-scheme", colorScheme);
 
-    await runScript("generate-route-checks.mjs", scanArgs);
+    await runScript("run-scanner.mjs", scanArgs);
 
-    await runScript("deterministic-findings.mjs");
+    await runScript("run-analyzer.mjs");
 
     const buildArgs = ["--output", output, "--base-url", baseUrl];
     if (title) buildArgs.push("--title", title);
@@ -132,10 +135,17 @@ async function main() {
     if (scope) buildArgs.push("--scope", scope);
     if (target) buildArgs.push("--target", target);
 
-    await runScript("build-audit-html.mjs", buildArgs);
+    await runScript("build-report-html.mjs", buildArgs);
+
+    const mdOutput = output
+      .replace(".html", ".md")
+      .replace("report.md", "remediation.md");
+    const mdArgs = ["--output", mdOutput, "--base-url", baseUrl];
+    if (target) mdArgs.push("--target", target);
+    await runScript("build-report-md.mjs", mdArgs);
 
     const pdfOutput = output.replace(".html", ".pdf");
-    await runScript("generate-pdf.mjs", [output, pdfOutput]);
+    await runScript("build-report-pdf.mjs", [output, pdfOutput]);
 
     log.success(`🎉 Audit complete!`);
     console.log(`REPORT_PATH=${absoluteOutputPath}`);

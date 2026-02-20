@@ -23,7 +23,6 @@ import {
   buildPdfRemediationRoadmap,
   buildPdfAuditLimitations,
 } from "./report/pdf-sections.mjs";
-import { buildMarkdownSummary } from "./report/md-summary.mjs";
 
 function printUsage() {
   log.info(`Usage:
@@ -995,15 +994,10 @@ function main() {
   fs.mkdirSync(path.dirname(args.output), { recursive: true });
   fs.writeFileSync(args.output, html, "utf-8");
 
-  const md = buildMarkdownSummary(args, findings);
-  const mdPath = path.join(path.dirname(args.output), "remediation.md");
-  fs.writeFileSync(mdPath, md, "utf-8");
-
   if (findings.length === 0) {
     log.info("Congratulations, no issues found.");
   }
   log.success(`HTML report written to ${args.output}`);
-  log.success(`Remediation guide written to ${mdPath}`);
 }
 
 try {
