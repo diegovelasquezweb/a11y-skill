@@ -73,54 +73,24 @@ pnpm run audit -- --base-url localhost:3000 --max-routes 20 --headed
 pnpm run audit -- --base-url https://mysite.com --only-rule color-contrast
 ```
 
-### Options
+### Configuration Reference
 
-| Flag                        | Description                                           | Default                      |
-| :-------------------------- | :---------------------------------------------------- | :--------------------------- |
-| `--accent-color <hex>`      | Override report theme color (e.g., `#6366f1`).        | Config hex                   |
-| `--base-url <url>`          | The target to audit (Live URL or Localhost).          | Required                     |
-| `--color-scheme <value>`    | Emulate `light` or `dark` color scheme.               | `"light"`                    |
-| `--company-name <text>`     | Override company branding in the report.              | Config name                  |
-| `--exclude-selectors <csv>` | Specific CSS selectors to ignore during scan.         | `[]`                         |
-| `-h, --help`                | Show this help message.                               | —                            |
-| `--headless <bool>`         | Run browser in background (default: `true`).          | `true`                       |
-| `--headed`                  | Run browser in visible mode.                          | `false`                      |
-| `--ignore-findings <csv>`   | Comma-separated rule IDs to skip in the report.       | `[]`                         |
-| `--max-routes <num>`        | Maximum number of routes to discover and scan.        | `10`                         |
-| `--only-rule <id>`          | Targeted Audit: Only check for this specific rule ID. | All standard rules           |
-| `--output <path>`           | Final HTML report location.                           | `audit/report.html`          |
-| `--routes <csv>`            | Custom list of paths to scan (e.g., `/cart,/about`).  | Autodiscover                 |
-| `--target <text>`           | Compliance target label.                              | "WCAG 2.2 AA"                |
-| `--timeout-ms <num>`        | Network timeout for page loads.                       | `30000`                      |
-| `--title <text>`            | Custom title for the HTML report.                     | "Accessibility Audit Report" |
-| `--wait-ms <num>`           | Time to wait for dynamic content after page load.     | `2000`                       |
+All flags can be persisted in `a11y.config.json`. CLI flags **always override** file settings.
 
-## Advanced Configuration
-
-Customize the audit by editing `a11y.config.json` in the skill root.
-
-### Full Reference
-
-```json
-{
-  "reportTitle": "Accessibility Audit Report",
-  "companyName": "a11y",
-  "accentColor": "#6366f1",
-  "colorScheme": "light",
-  "viewports": [{ "width": 1280, "height": 800, "name": "Desktop" }],
-  "maxRoutes": 10,
-  "routes": [],
-  "complianceTarget": "WCAG 2.2 AA",
-  "ignoreFindings": [],
-  "excludeSelectors": [],
-  "onlyRule": "",
-  "waitMs": 2000,
-  "timeoutMs": 30000,
-  "outputDir": "audit",
-  "axeRules": {},
-  "headless": true
-}
-```
+| Capability            | CLI Flag                    | JSON Key           | Default             |
+| :-------------------- | :-------------------------- | :----------------- | :------------------ |
+| **Target URL**        | `--base-url <url>`          | —                  | _Required_          |
+| **Max Routes**        | `--max-routes <num>`        | `maxRoutes`        | `10`                |
+| **Targeted Rule**     | `--only-rule <id>`          | `onlyRule`         | —                   |
+| **Ignore Rules**      | `--ignore-findings <csv>`   | `ignoreFindings`   | `[]`                |
+| **Exclude Selectors** | `--exclude-selectors <csv>` | `excludeSelectors` | `[]`                |
+| **Output Path**       | `--output <path>`           | `outputDir`        | `audit/report.html` |
+| **Compliance**        | `--target <text>`           | `complianceTarget` | `"WCAG 2.2 AA"`     |
+| **Headless**          | `--headless <bool>`         | `headless`         | `true`              |
+| **Theme Color**       | `--accent-color <hex>`      | `accentColor`      | `#6366f1`           |
+| **Branding**          | `--company-name <text>`     | `companyName`      | `"a11y"`            |
+| **Wait (Stability)**  | `--wait-ms <num>`           | `waitMs`           | `2000`              |
+| **Timeout**           | `--timeout-ms <num>`        | `timeoutMs`        | `30000`             |
 
 ### Common Use Cases
 
