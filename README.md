@@ -54,7 +54,7 @@ Once installed, the skill is available to your agent in any conversation. Simply
 
 ### For AI Agents & Automation
 
-- `remediation.md`: Actionable remediation guide for AI agents — contains selectors, HTML evidence, code fix templates, and agent instructions for resolving each issue.
+- `remediation.md`: Actionable, token-optimized remediation guide for AI agents — contains selectors, HTML evidence, code fix templates, and agent instructions for resolving each issue without exhausting context windows.
 - `internal/`: Raw technical assets for data ingestion.
   - `a11y-findings.json`: Final normalized findings (Cleaned).
   - `a11y-scan-results.json`: Raw automated scan data (Full).
