@@ -161,13 +161,6 @@ While traditional tools are excellent for visual learning or broad metrics, this
 ## Reference
 
 - [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
-- [ADA Title II — DOJ Final Rule (WCAG 2.1 AA)](https://www.ada.gov/resources/2024-04-24-final-rule-title-ii/)
-- [Section 508 Standards (US Federal)](https://www.section508.gov/)
-- [ARIA Authoring Practices Guide (APG)](https://www.w3.org/WAI/ARIA/apg/)
-- [A11ySupport.io (Browser & AT Support Data)](https://a11ysupport.io/)
-- [Inclusive Components Pattern Library](https://inclusive-components.design/)
-- [The A11y Project Checklist](https://www.a11yproject.com/checklist/)
-- [Gov.uk Accessibility Dos and Don'ts](https://accessibility.blog.gov.uk/2016/09/02/dos-and-donts-on-designing-for-accessibility/)
 - [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
 - [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
 - [Agent Skills Standard](https://agentskills.io/)
