@@ -403,7 +403,7 @@ function buildHtml(args, findings) {
               </div>
             </div>
             <h3 class="text-xl font-bold text-slate-900 mb-1">${label} Compliance</h3>
-            <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">${statusText}</p>
+            <p class="text-xs font-medium text-slate-500 max-w-[200px] leading-snug">Overall accessibility health based on automated WCAG 2.1 AA checks.</p>
           </div>
 
           <div class="md:col-span-7 grid grid-cols-2 gap-4">
@@ -801,22 +801,51 @@ function buildHtml(args, findings) {
 
     function exportToCSV() {
       const rows = [
-        ["ID", "Severity", "Rule", "Title", "URL", "Selector", "WCAG"]
+        ["ID", "Severity", "Rule", "Title", "URL", "Selector", "WCAG", "Type", "Status"]
       ];
+      
+      const escapeCsv = (str) => {
+        if (str === null || str === undefined) return '""';
+        const cleaned = String(str).replace(/\\r?\\n/g, " "); // Replace newlines with spaces
+        return '"' + cleaned.replace(/"/g, '""') + '"';       // Escape inner quotes
+      };
       
       const findingsData = ${JSON.stringify(findings)};
       
+      // Add automated findings
       findingsData.forEach(f => {
         const row = [
-          f.id,
-          f.severity,
-          f.ruleId || 'N/A',
-          f.title.replace(/"/g, '""'), // Escape quotes for CSV
-          f.url,
-          f.selector.replace(/"/g, '""'),
-          f.wcag
+          escapeCsv(f.id),
+          escapeCsv(f.severity),
+          escapeCsv(f.ruleId || 'N/A'),
+          escapeCsv(f.title),
+          escapeCsv(f.url),
+          escapeCsv(f.selector),
+          escapeCsv(f.wcag),
+          escapeCsv("Automated"),
+          escapeCsv("Failed")
         ];
-        rows.push('"' + row.join('","') + '"');
+        rows.push(row.join(','));
+      });
+
+      // Add manual checks
+      const manualChecksData = ${JSON.stringify(MANUAL_CHECKS)};
+      const manualState = getState(); // From localStorage
+      
+      manualChecksData.forEach(c => {
+        const state = manualState[c.criterion] || "Pending verification";
+        const row = [
+          escapeCsv("MANUAL-" + c.criterion),
+          escapeCsv("N/A"), // Severity not strictly defined for manual until failure
+          escapeCsv("Manual Check"),
+          escapeCsv(c.title),
+          escapeCsv("${escapeHtml(args.baseUrl)}"),
+          escapeCsv("N/A"),
+          escapeCsv("WCAG " + c.criterion),
+          escapeCsv("Manual"),
+          escapeCsv(state)
+        ];
+        rows.push(row.join(','));
       });
 
       const csvContent = "data:text/csv;charset=utf-8," + rows.join("\\n");
@@ -880,6 +909,8 @@ function buildHtml(args, findings) {
         let emptyMsg = document.getElementById('dynamic-empty-state');
         const container = document.getElementById('issues-container');
 
+        const manualCards = document.querySelectorAll('.manual-card');
+
         cards.forEach(card => {
             const severity = card.dataset.severity;
 
@@ -911,6 +942,33 @@ function buildHtml(args, findings) {
                 card.style.display = 'none';
             }
         });
+
+        // Search in manual checks if the filter is 'all'
+        let anyManualVisible = false;
+        manualCards.forEach(card => {
+            const title = card.querySelector('h3').textContent.toLowerCase();
+            const criterion = card.querySelector('.font-mono').textContent.toLowerCase();
+            const textMatch = !q || title.includes(q) || criterion.includes(q);
+            
+            // Only show manual cards if search is active or filter is 'all'
+            if (type === 'all' && textMatch) {
+                card.style.display = '';
+                anyManualVisible = true;
+            } else if (q && textMatch) {
+                // If there's an active search, let manual cards show up regardless of severity tab (manual don't have severity)
+                card.style.display = '';
+                anyManualVisible = true;
+                visibleCount++; // Count them to avoid "empty state"
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Hide entire manual check section if no search results match it, to save space
+        const manualSection = document.getElementById('manual-checks-section');
+        if (manualSection) {
+            manualSection.style.display = (!q && type === 'all') || anyManualVisible ? '' : 'none';
+        }
 
         if (visibleCount === 0) {
             if (!emptyMsg) {
