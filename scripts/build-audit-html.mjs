@@ -371,9 +371,15 @@ function buildHtml(args, findings) {
     </div>
 
     <div class="max-w-7xl mx-auto px-4 pt-24 pb-20">
-      <div class="mb-10">
-        <h2 class="text-3xl font-extrabold mb-2">${escapeHtml(args.title)}</h2>
-        <p class="text-slate-500">${dateStr} &bull; ${escapeHtml(args.baseUrl)}</p>
+      <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-3xl font-extrabold mb-2">${escapeHtml(args.title)}</h2>
+          <p class="text-slate-500">${dateStr} &bull; ${escapeHtml(args.baseUrl)}</p>
+        </div>
+        <button onclick="exportToCSV()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow hover:border-slate-300 transition-all text-sm font-bold text-slate-700">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          Export CSV
+        </button>
       </div>
 
       <!-- Dashboard Grid -->
@@ -793,17 +799,47 @@ function buildHtml(args, findings) {
       btn.textContent = anyCollapsed ? 'Expand all' : 'Collapse all';
     }
 
+    function exportToCSV() {
+      const rows = [
+        ["ID", "Severity", "Rule", "Title", "URL", "Selector", "WCAG"]
+      ];
+      
+      const findingsData = ${JSON.stringify(findings)};
+      
+      findingsData.forEach(f => {
+        const row = [
+          f.id,
+          f.severity,
+          f.ruleId || 'N/A',
+          f.title.replace(/"/g, '""'), // Escape quotes for CSV
+          f.url,
+          f.selector.replace(/"/g, '""'),
+          f.wcag
+        ];
+        rows.push('"' + row.join('","') + '"');
+      });
+
+      const csvContent = "data:text/csv;charset=utf-8," + rows.join("\\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "a11y-audit-export.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
     function toggleCard(header) {
       const card = header.closest('.issue-card');
       const body = card.querySelector('.card-body');
       const chevron = header.querySelector('.card-chevron');
       const isCollapsed = card.dataset.collapsed === 'true';
       if (isCollapsed) {
-        body.style.display = '';
+        body.style.gridTemplateRows = '1fr';
         card.dataset.collapsed = 'false';
         if (chevron) chevron.style.transform = 'rotate(180deg)';
       } else {
-        body.style.display = 'none';
+        body.style.gridTemplateRows = '0fr';
         card.dataset.collapsed = 'true';
         if (chevron) chevron.style.transform = '';
       }

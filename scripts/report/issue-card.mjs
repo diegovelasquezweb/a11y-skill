@@ -70,6 +70,18 @@ export function buildIssueCard(finding) {
       borderClass = "border-slate-200";
   }
 
+  let effortBadge = "";
+  if (finding.fixCode) {
+    effortBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase tracking-widest shadow-sm">Low Effort</span>`;
+  } else if (
+    finding.ruleId &&
+    (finding.ruleId.includes("aria") || finding.ruleId.includes("name"))
+  ) {
+    effortBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 uppercase tracking-widest shadow-sm">Med Effort</span>`;
+  } else {
+    effortBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200/60 uppercase tracking-widest shadow-sm">High Effort</span>`;
+  }
+
   return `
 <article class="issue-card bg-white/90 backdrop-blur-xl rounded-2xl border ${borderClass} shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 mb-8 overflow-hidden group" data-severity="${finding.severity}" data-collapsed="true" id="${escapeHtml(finding.id)}">
   <div class="card-header p-5 md:p-6 bg-gradient-to-r from-white to-slate-50/80 cursor-pointer select-none relative" onclick="toggleCard(this)">
@@ -79,7 +91,7 @@ export function buildIssueCard(finding) {
     <div class="flex flex-wrap items-center gap-2.5 mb-3.5">
       <span class="px-3 py-1 rounded-full text-[11px] font-bold border ${severityBadge} shadow-sm backdrop-blur-sm uppercase tracking-wider">${escapeHtml(finding.severity)}</span>
       <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200/60 font-mono tracking-tight shadow-sm searchable-field">${escapeHtml(finding.id)}</span>
-      ${finding.ruleId ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-800 text-slate-200 border border-slate-700/60 font-mono tracking-tight shadow-sm searchable-field">${escapeHtml(finding.ruleId)}</span>` : ""}
+      ${effortBadge}
       <span class="wcag-label px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-100/80 ml-auto shadow-sm backdrop-blur-sm">WCAG ${escapeHtml(finding.wcag)}</span>
     </div>
     <h3 class="text-lg md:text-xl font-extrabold text-slate-900 leading-tight mb-3 group-hover:text-indigo-900 transition-colors searchable-field issue-title">${escapeHtml(finding.title)}</h3>
@@ -101,7 +113,8 @@ export function buildIssueCard(finding) {
     </div>
   </div>
 
-  <div class="card-body" style="display:none">
+  <div class="card-body grid transition-all duration-300 ease-in-out" style="grid-template-rows: 0fr;">
+  <div class="overflow-hidden">
   <div class="p-6 md:p-8 bg-slate-50/30 border-t border-slate-100/60">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
       <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)]">
@@ -166,6 +179,7 @@ export function buildIssueCard(finding) {
 
     ${screenshotHtml}
     ${evidenceHtml}
+  </div>
   </div>
   </div>
 </article>`;
