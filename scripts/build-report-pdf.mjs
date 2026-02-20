@@ -20,7 +20,7 @@ async function generatePdf() {
   try {
     // Navigate to the local file
     const fileUrl = `file://${path.resolve(inputPath)}`;
-    await page.goto(fileUrl, { waitUntil: "networkidle" });
+    await page.goto(fileUrl, { waitUntil: "load" });
 
     // Wait a bit for Tailwind and fonts to settle
     await page.waitForTimeout(1000);

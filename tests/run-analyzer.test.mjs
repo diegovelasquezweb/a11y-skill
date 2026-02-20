@@ -69,6 +69,11 @@ describe("detectImplicitRole", () => {
   it("returns null when tag is null", () => {
     expect(detectImplicitRole(null, null)).toBeNull();
   });
+
+  it("handles uppercase type attribute (case-insensitive)", () => {
+    expect(detectImplicitRole("input", '<input type="CHECKBOX">')).toBe("checkbox");
+    expect(detectImplicitRole("input", '<input type="RADIO">')).toBe("radio");
+  });
 });
 
 describe("extractSearchHint", () => {
@@ -102,5 +107,9 @@ describe("extractSearchHint", () => {
 
   it("prefers ID over class in same segment", () => {
     expect(extractSearchHint("#main.container")).toBe('id="main"');
+  });
+
+  it("returns attribute selector as-is when no ID, class, or tag match", () => {
+    expect(extractSearchHint('[aria-label="Close"]')).toBe('[aria-label="Close"]');
   });
 });

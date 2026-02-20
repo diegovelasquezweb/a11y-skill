@@ -17,7 +17,6 @@ function parseArgs(argv) {
     printUsage();
     process.exit(0);
   }
-  return {};
 }
 
 function checkNodeModules() {
