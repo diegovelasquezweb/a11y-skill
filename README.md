@@ -42,25 +42,14 @@ Once installed, the skill is available to your agent in any conversation. Simply
 
 ## Deliverables
 
-- **Location**: All reports are generated in the `audit/` directory.
+All generated assets are stored in the `audit/` directory.
 
-### For Clients & Stakeholders
-
-- `report.pdf`: A professional, formal document designed for offline sharing and compliance evidence.
-
-### For Developers
-
-- `report.html`: A premium, interactive React-like dashboard that features:
-  - Persona impact mapping (Screen Readers, Cognitive, Motor) to help prioritize UX improvements.
-  - Multi-Source Intelligence: Links custom widgets directly to W3C implementation patterns, Deque checklists, and Inclusive Components design docs.
-  - Critical issue isolation with ready-to-use code solutions for fast remediation.
-
-### For AI Agents & Automation
-
-- `remediation.md`: Actionable, token-optimized remediation guide for AI agents — contains selectors, HTML evidence, code fix templates, and agent instructions for resolving each issue without exhausting context windows.
-- `internal/`: Raw technical assets for data ingestion.
-  - `a11y-findings.json`: Final normalized findings (Cleaned).
-  - `a11y-scan-results.json`: Raw automated scan data (Full).
+| Deliverable           | Format  | Audience   | Key Value                                                  |
+| :-------------------- | :------ | :--------- | :--------------------------------------------------------- |
+| **Audit Dashboard**   | `.html` | Developers | Premium interactive UI with code fixes & persona mapping.  |
+| **Executive Summary** | `.pdf`  | Clients    | Formal, document-style compliance and risk evidence.       |
+| **Remediation Guide** | `.md`   | AI Agents  | Token-optimized guide with selectors for automated fixes.  |
+| **Technical Data**    | `.json` | Systems    | Raw findings in `internal/` for CI/CD or custom ingestion. |
 
 ## Standalone CLI
 
