@@ -76,6 +76,7 @@ pnpm run audit -- --base-url https://mysite.com
 | `--title <text>`         | Custom title for the HTML report.                    | "Accessibility Audit Report" |
 | `--environment <text>`   | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
 | `--target <text>`        | Compliance target label.                             | "WCAG 2.2 AA"                |
+| `--scope <text>`         | Custom scope label for the HTML report.              | Optional                     |
 
 ## Audit Pipeline
 
@@ -126,6 +127,19 @@ Customize the audit by editing `a11y.config.json` in the skill root.
   }
 }
 ```
+
+## Feature Comparison
+
+While traditional tools are excellent for visual learning or broad metrics, this skill is purpose-built to automate the remediation workflow using AI agents.
+
+| Feature / Capability              | `a11y`                                 | Google Lighthouse             | WebAIM WAVE            |
+| :-------------------------------- | :------------------------------------- | :---------------------------- | :--------------------- |
+| **Native AI Agent Integration**   | ✅ (Outputs clean JSON & DOM evidence) | ❌ (Requires complex parsing) | ❌ (Visual only)       |
+| **Headless / CI-Ready Execution** | ✅ (Playwright)                        | ✅ (CLI available)            | ❌ (Browser Extension) |
+| **Zero-Config SPA Support**       | ✅ (Waits for network & JS rendering)  | ⚠️ (Requires config)          | ✅ (Manual click)      |
+| **Premium Executive Reports**     | ✅ (HTML Dashboard & PDF Export)       | ❌ (Basic HTML/JSON)          | ❌                     |
+| **Direct Code Remediation**       | ✅ (AI uses findings to fix code)      | ❌ (Only reports)             | ❌ (Only reports)      |
+| **Depth of Standard**             | WCAG 2.2 AA (Axe-Core Engine)          | Basic A11y + Web Vitals       | WCAG 2.1 AA            |
 
 ## Reference
 
