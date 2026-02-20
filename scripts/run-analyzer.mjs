@@ -509,9 +509,9 @@ function buildFindings(inputPayload) {
           impacted_users: getImpactedUsers(v.id, v.tags),
           impact: v.description,
           reproduction: [
-            `Open ${route.url}`,
-            `Check selector: ${selectors[0] || "N/A"}`,
-            v.help,
+            `Open ${route.url} in a browser to observe the issue`,
+            `Search source files for \`${selectors[0] || "N/A"}\` to locate the component`,
+            `Confirm the violation: ${v.help}`,
           ],
           actual:
             firstNode?.failureSummary || `Found ${nodes.length} instance(s).`,
@@ -519,6 +519,7 @@ function buildFindings(inputPayload) {
           fix_description: FIX_TEMPLATES[v.id]?.description ?? null,
           fix_code: FIX_TEMPLATES[v.id]?.code ?? null,
           recommended_fix: recFix.trim(),
+          total_instances: nodes.length,
           evidence: JSON.stringify(
             nodes.slice(0, 3).map((n) => ({
               html: n.html,

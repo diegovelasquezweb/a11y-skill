@@ -22,7 +22,7 @@ export function normalizeFindings(payload) {
       area: String(item.area ?? ""),
       url: String(item.url ?? ""),
       selector: String(item.selector ?? ""),
-      impactedUsers: String(item.impacted_users ?? item.impact ?? ""),
+      impactedUsers: String(item.impacted_users ?? "Users relying on assistive technology"),
       impact: String(item.impact ?? ""),
       reproduction: Array.isArray(item.reproduction)
         ? item.reproduction.map((v) => String(v))
@@ -33,6 +33,7 @@ export function normalizeFindings(payload) {
       fixCode: item.fix_code ?? null,
       recommendedFix: String(item.recommended_fix ?? item.recommendedFix ?? ""),
       evidence: String(item.evidence ?? ""),
+      totalInstances: typeof item.total_instances === "number" ? item.total_instances : null,
       screenshotPath: item.screenshot_path ?? null,
     }))
     .sort((a, b) => {

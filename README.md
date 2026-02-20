@@ -10,8 +10,6 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 - **Accessibility Emulation** — Test dark mode, forced colors, and reduced motion via Playwright — the scenarios real users with disabilities rely on.
 - **WCAG 2.2 Manual Check Coverage** — Six criteria axe-core can't detect are covered with step-by-step verification instructions built into the report.
 - **Multi-Source a11y Intelligence** — Automatically links custom widgets to W3C Patterns (Implementation), Deque Checklists (Verification), A11ySupport.io (Browser Support), and Inclusive Components (Design).
-- **US Regulatory Compliance Context** — Fixes for custom widgets are explicitly mapped to 18F Accessibility Guides and Section 508 standards for legal-aware remediation.
-- **Runs Without an Agent** — Drop it into CI/CD directly. `pnpm run audit -- --base-url <url>` runs the full pipeline, no AI tokens required.
 
 ## Installation
 
@@ -150,14 +148,15 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 
 While traditional tools are excellent for visual learning or broad metrics, this skill is purpose-built to automate the remediation workflow using AI agents.
 
-| Feature / Capability              | `a11y`                                 | Google Lighthouse             | WebAIM WAVE            |
-| :-------------------------------- | :------------------------------------- | :---------------------------- | :--------------------- |
-| **Native AI Agent Integration**   | ✅ (Outputs clean JSON & DOM evidence) | ❌ (Requires complex parsing) | ❌ (Visual only)       |
-| **Headless / CI-Ready Execution** | ✅ (Playwright)                        | ✅ (CLI available)            | ❌ (Browser Extension) |
-| **Zero-Config SPA Support**       | ✅ (Waits for network & JS rendering)  | ⚠️ (Requires config)          | ✅ (Manual click)      |
-| **Premium Executive Reports**     | ✅ (HTML Dashboard & PDF Export)       | ❌ (Basic HTML/JSON)          | ❌                     |
-| **Direct Code Remediation**       | ✅ (AI uses findings to fix code)      | ❌ (Only reports)             | ❌ (Only reports)      |
-| **Depth of Standard**             | WCAG 2.2 AA (Axe-Core Engine)          | Basic A11y + Web Vitals       | WCAG 2.1 AA            |
+| Feature / Capability               | `a11y`                                 | Google Lighthouse             | WebAIM WAVE            |
+| :--------------------------------- | :------------------------------------- | :---------------------------- | :--------------------- |
+| **Native AI Agent Integration**    | ✅ (Outputs clean JSON & DOM evidence) | ❌ (Requires complex parsing) | ❌ (Visual only)       |
+| **Headless / CI-Ready Execution**  | ✅ (Playwright)                        | ✅ (CLI available)            | ❌ (Browser Extension) |
+| **Zero-Config SPA Support**        | ✅ (Waits for network & JS rendering)  | ⚠️ (Requires config)          | ✅ (Manual click)      |
+| **Premium Executive Reports**      | ✅ (HTML Dashboard & PDF Export)       | ❌ (Basic HTML/JSON)          | ❌                     |
+| **Direct Code Remediation**        | ✅ (AI uses findings to fix code)      | ❌ (Only reports)             | ❌ (Only reports)      |
+| **AI Safety (Anti-Hallucination)** | ✅ (Guardrails for CMS & Frameworks)   | ❌                            | ❌                     |
+| **Depth of Standard**              | WCAG 2.2 AA (Axe-Core Engine)          | Basic A11y + Web Vitals       | WCAG 2.1 AA            |
 
 ## Reference
 

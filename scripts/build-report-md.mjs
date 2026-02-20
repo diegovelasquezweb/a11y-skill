@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readJson, log } from "./a11y-utils.mjs";
+import { readJson, log, getInternalPath } from "./a11y-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { normalizeFindings } from "./report/core-findings.mjs";

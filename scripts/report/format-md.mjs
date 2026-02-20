@@ -17,6 +17,13 @@ export function buildManualChecksMd() {
       `**Verification Steps:**`,
       check.steps.map((s, i) => `${i + 1}. ${s}`).join("\n"),
       ``,
+      ...(check.remediation?.length
+        ? [
+            `**Recommended Fix:**`,
+            check.remediation.map((r) => `- ${r}`).join("\n"),
+            ``,
+          ]
+        : []),
       `**Reference:** ${check.ref}`,
     ].join("\n");
   }).join("\n\n");
@@ -37,12 +44,18 @@ export function buildMarkdownSummary(args, findings) {
   const status = findings.length === 0 ? "PASS" : "ISSUES FOUND";
 
   function findingToMd(f) {
-    const evidenceHtml = (() => {
-      if (!f.evidence) return null;
+    let evidenceHtml = null;
+    let evidenceLabel = "#### Evidence from DOM";
+    (() => {
+      if (!f.evidence) return;
       try {
         const nodes = JSON.parse(f.evidence);
-        if (!Array.isArray(nodes) || nodes.length === 0) return null;
-        return nodes
+        if (!Array.isArray(nodes) || nodes.length === 0) return;
+        const shownCount = nodes.filter((n) => n.html).length;
+        if (f.totalInstances && f.totalInstances > shownCount) {
+          evidenceLabel = `#### Evidence from DOM (showing ${shownCount} of ${f.totalInstances} instances)`;
+        }
+        evidenceHtml = nodes
           .map((n, i) =>
             n.html
               ? `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\``
@@ -51,7 +64,7 @@ export function buildMarkdownSummary(args, findings) {
           .filter(Boolean)
           .join("\n\n");
       } catch {
-        return null;
+        // ignore malformed evidence
       }
     })();
 
@@ -88,11 +101,13 @@ export function buildMarkdownSummary(args, findings) {
       ``,
       fixBlock,
       evidenceHtml ? `` : null,
-      evidenceHtml ? `#### Evidence from DOM\n${evidenceHtml}` : null,
+      evidenceHtml ? `${evidenceLabel}\n${evidenceHtml}` : null,
       ruleRef ? `` : null,
       ruleRef,
-      ``,
-      `**Context & Patterns:** ${f.recommendedFix}`,
+      f.fixDescription || f.fixCode ? `` : null,
+      f.fixDescription || f.fixCode
+        ? `**Context & Patterns:** ${f.recommendedFix}`
+        : null,
     ]
       .filter((line) => line !== null)
       .join("\n");
