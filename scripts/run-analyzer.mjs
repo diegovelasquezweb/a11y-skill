@@ -48,27 +48,6 @@ const APG_PATTERNS = {
   treegrid: "https://www.w3.org/WAI/ARIA/apg/patterns/treegrid/",
 };
 
-const DEQUE_CHECKLISTS = {
-  alert: "https://dequeuniversity.com/checklists/web/custom-widgets/alert",
-  button: "https://dequeuniversity.com/checklists/web/custom-widgets/button",
-  combobox:
-    "https://dequeuniversity.com/checklists/web/custom-widgets/combobox",
-  dialog:
-    "https://dequeuniversity.com/checklists/web/custom-widgets/modal-dialog",
-  link: "https://dequeuniversity.com/checklists/web/custom-widgets/link",
-  listbox: "https://dequeuniversity.com/checklists/web/custom-widgets/listbox",
-  menu: "https://dequeuniversity.com/checklists/web/custom-widgets/menubar",
-  menubar: "https://dequeuniversity.com/checklists/web/custom-widgets/menubar",
-  radio:
-    "https://dequeuniversity.com/checklists/web/custom-widgets/radio-group",
-  radiogroup:
-    "https://dequeuniversity.com/checklists/web/custom-widgets/radio-group",
-  slider: "https://dequeuniversity.com/checklists/web/custom-widgets/slider",
-  switch: "https://dequeuniversity.com/checklists/web/custom-widgets/switch",
-  tab: "https://dequeuniversity.com/checklists/web/custom-widgets/tabs",
-  tablist: "https://dequeuniversity.com/checklists/web/custom-widgets/tabs",
-  tooltip: "https://dequeuniversity.com/checklists/web/custom-widgets/tooltip",
-};
 
 const A11Y_SUPPORT = {
   alert: "https://a11ysupport.io/tech/aria/alert_role",
@@ -475,12 +454,11 @@ function buildFindings(inputPayload) {
         const role =
           firstNode?.html?.match(/role=["']([^"']+)["']/)?.[1] || null;
         const apgUrl = role ? APG_PATTERNS[role] : null;
-        const dequeUrl = role ? DEQUE_CHECKLISTS[role] : null;
         const supportUrl = role ? A11Y_SUPPORT[role] : null;
         const inclusiveUrl = role ? INCLUSIVE_COMPONENTS[role] : null;
 
         let recFix = v.helpUrl ? `See ${v.helpUrl}` : "Fix the violation.";
-        if (apgUrl || dequeUrl || supportUrl || inclusiveUrl) {
+        if (apgUrl || supportUrl || inclusiveUrl) {
           recFix = `Remediation guide for "${role}":\n`;
           if (apgUrl) recFix += `- **Implementation (W3C APG)**: ${apgUrl}\n`;
           if (inclusiveUrl)
