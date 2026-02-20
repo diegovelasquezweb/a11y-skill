@@ -21,17 +21,13 @@ Options:
   --timeout-ms <num>      Network timeout (default: 30000).
   --headless <bool>       Run browser in background (default: true).
   --headed                Run browser in visible mode.
-  --slow-mo <num>         Delay between actions in ms.
-  --playground            Keep browser open for inspection after audit.
-  --color-scheme <value>  Emulate color scheme: "light" or "dark" (default: "light").
+  --color-scheme <value>  Emulate color scheme: "light" or "dark".
   --title <text>          Custom title for the HTML report.
-  --environment <text>    Test environment label (e.g., "Staging").
   --target <text>         Compliance target label (default: "WCAG 2.2 AA").
   --company-name <text>   Override company name in report.
   --accent-color <hex>    Override accent color (e.g., #6366f1).
   --ignore-findings <csv> Ignore specific rule IDs.
   --exclude-selectors <csv> Exclude CSS selectors from scan.
-  --no-open               Do not open the report after audit.
   -h, --help              Show this help.
 
 Guardrails for Remediation:
@@ -91,11 +87,7 @@ async function main() {
 
   const colorScheme = getArgValue("color-scheme");
   const title = getArgValue("title");
-  const environment = getArgValue("environment");
-  const scope = getArgValue("scope");
   const target = getArgValue("target");
-  const slowMo = Number.parseInt(getArgValue("slow-mo"), 10) || 0;
-  const playground = argv.includes("--playground");
   const headless = argv.includes("--headless")
     ? getArgValue("headless") === "true"
     : argv.includes("--headed")
@@ -151,8 +143,6 @@ async function main() {
       screenshotsDir,
     ];
     if (!headless) scanArgs.push("--headed");
-    if (slowMo) scanArgs.push("--slow-mo", slowMo.toString());
-    if (playground) scanArgs.push("--playground");
     if (onlyRule) scanArgs.push("--only-rule", onlyRule);
     if (excludeSelectors)
       scanArgs.push("--exclude-selectors", excludeSelectors);
@@ -167,8 +157,6 @@ async function main() {
 
     const buildArgs = ["--output", output, "--base-url", baseUrl];
     if (title) buildArgs.push("--title", title);
-    if (environment) buildArgs.push("--environment", environment);
-    if (scope) buildArgs.push("--scope", scope);
     if (target) buildArgs.push("--target", target);
     if (companyName) buildArgs.push("--company-name", companyName);
     if (accentColor) buildArgs.push("--accent-color", accentColor);

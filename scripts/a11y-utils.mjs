@@ -33,7 +33,7 @@ const CONFIG_SCHEMA = {
   // Emulation
   colorScheme: { type: "string" },
   viewports: { type: "array" },
-  // Visibility & Playground
+  // Visibility
   headless: { type: "boolean" },
 };
 
@@ -76,7 +76,7 @@ export function loadConfig() {
     accentColor: "#6366f1", // Indigo-500
     colorScheme: "light",
     viewports: [{ width: 1280, height: 800, name: "Desktop" }],
-    // Visibility & Playground Defaults
+    // Visibility Defaults
     headless: true,
   };
 

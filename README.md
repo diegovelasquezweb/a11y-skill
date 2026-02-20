@@ -13,14 +13,14 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 
 While traditional tools are excellent for visual learning or broad metrics, this skill is purpose-built to automate the remediation workflow using AI agents.
 
-| Feature / Capability              | `a11y`                                                   | Google Lighthouse                             | WebAIM WAVE                              |
-| :-------------------------------- | :------------------------------------------------------- | :-------------------------------------------- | :--------------------------------------- |
-| **Native AI Agent Integration**   | <small>✅ (Optimized Markdown remediation guide)</small> | <small>❌ (Massive JSON/HTML only)</small>    | <small>❌ (Visual-only GUI)</small>      |
-| **Headless / CI-Ready Execution** | <small>✅ (Playwright included)</small>                  | <small>✅ (CLI available)</small>             | <small>⚠️ (Paid API/Runner only)</small> |
-| **Multi-Route Discovery**         | <small>✅ (Automated site crawling)</small>              | <small>❌ (Single URL per run)</small>        | <small>❌ (Single URL per run)</small>   |
-| **Premium Executive Reports**     | <small>✅ (Custom branding & PDF Export)</small>         | <small>❌ (Standard technical report)</small> | <small>❌ (Visual overlays only)</small> |
-| **Direct Code Remediation**       | <small>✅ (AI-ready code evidence)</small>               | <small>❌ (Diagnostic only)</small>           | <small>❌ (Diagnostic only)</small>      |
-| **Depth of Standard**             | <small>WCAG 2.2 AA (Axe-Core 4.10+)</small>              | <small>WCAG 2.1 AA (Axe subset)</small>       | <small>WCAG 2.2 AA</small>               |
+| Feature / Capability              | `a11y`                                          | Google Lighthouse                          | WebAIM WAVE                              |
+| :-------------------------------- | :---------------------------------------------- | :----------------------------------------- | :--------------------------------------- |
+| **Native AI Agent Integration**   | <small>✅ (Optimized remediation guide)</small> | <small>❌ (Massive JSON/HTML only)</small> | <small>❌ (Visual-only GUI)</small>      |
+| **Headless / CI-Ready Execution** | <small>✅ (Playwright included)</small>         | <small>✅ (CLI available)</small>          | <small>⚠️ (Paid API/Runner only)</small> |
+| **Multi-Route Discovery**         | <small>✅ (Automated site crawling)</small>     | <small>❌ (Single URL per run)</small>     | <small>❌ (Single URL per run)</small>   |
+| **Premium Executive Reports**     | <small>✅ (Custom branding & PDF)</small>       | <small>❌ (Standard tech report)</small>   | <small>❌ (Visual overlays only)</small> |
+| **Direct Code Remediation**       | <small>✅ (AI-ready code evidence)</small>      | <small>❌ (Diagnostic only)</small>        | <small>❌ (Diagnostic only)</small>      |
+| **Depth of Standard**             | <small>WCAG 2.2 AA (Axe-Core 4.10+)</small>     | <small>WCAG 2.1 AA (Axe subset)</small>    | <small>WCAG 2.2 AA</small>               |
 
 ## Installation
 
@@ -88,20 +88,15 @@ pnpm run audit -- --base-url https://mysite.com --only-rule color-contrast
 | `--base-url <url>`          | The target to audit (Live URL or Localhost).          | Required                     |
 | `--color-scheme <value>`    | Emulate `light` or `dark` color scheme.               | `"light"`                    |
 | `--company-name <text>`     | Override company branding in the report.              | Config name                  |
-| `--environment <text>`      | Test environment label (e.g., "Staging", "Local").    | "Live Site"                  |
 | `--exclude-selectors <csv>` | Specific CSS selectors to ignore during scan.         | `[]`                         |
 | `-h, --help`                | Show this help message.                               | —                            |
 | `--headless <bool>`         | Run browser in background (default: `true`).          | `true`                       |
 | `--headed`                  | Run browser in visible mode.                          | `false`                      |
 | `--ignore-findings <csv>`   | Comma-separated rule IDs to skip in the report.       | `[]`                         |
 | `--max-routes <num>`        | Maximum number of routes to discover and scan.        | `10`                         |
-| `--no-open`                 | Do not open the report automatically after audit.     | `false`                      |
 | `--only-rule <id>`          | Targeted Audit: Only check for this specific rule ID. | All standard rules           |
 | `--output <path>`           | Final HTML report location.                           | `audit/report.html`          |
-| `--playground`              | Keep browser open after audit for inspection.         | `false`                      |
 | `--routes <csv>`            | Custom list of paths to scan (e.g., `/cart,/about`).  | Autodiscover                 |
-| `--scope <text>`            | Custom scope label for the HTML report.               | Optional                     |
-| `--slow-mo <ms>`            | Delay between actions in milliseconds.                | `0`                          |
 | `--target <text>`           | Compliance target label.                              | "WCAG 2.2 AA"                |
 | `--timeout-ms <num>`        | Network timeout for page loads.                       | `30000`                      |
 | `--title <text>`            | Custom title for the HTML report.                     | "Accessibility Audit Report" |
