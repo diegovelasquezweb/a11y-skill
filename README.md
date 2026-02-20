@@ -26,7 +26,9 @@ While traditional tools are excellent for visual learning or broad metrics, this
 
 To install this skill, provide the following prompt to your AI agent:
 
-> "Install skill https://github.com/diegovelasquezweb/a11y"
+```bash
+ "Install skill https://github.com/diegovelasquezweb/a11y"
+```
 
 ## Compatibility & Paths
 
