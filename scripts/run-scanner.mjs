@@ -5,6 +5,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { log, loadConfig, writeJson, getInternalPath } from "./a11y-utils.mjs";
 import path from "node:path";
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 
 function printUsage() {
   log.info(`Usage:
@@ -21,6 +22,7 @@ Options:
   --screenshots-dir <path>    Directory to save element screenshots (optional)
   --exclude-selectors <csv>   Selectors to exclude (overrides config)
   --only-rule <id>            Only check for this specific rule ID (ignores tags)
+  --wait-until <value>        Page load strategy: domcontentloaded|load|networkidle (default: domcontentloaded)
   -h, --help                  Show this help
 `);
 }
@@ -39,6 +41,7 @@ function parseArgs(argv, config) {
     waitMs: config.waitMs || 2000,
     timeoutMs: config.timeoutMs || 30000,
     headless: config.headless !== undefined ? config.headless : true,
+    waitUntil: config.waitUntil || "domcontentloaded",
     colorScheme: null,
     screenshotsDir: null,
     excludeSelectors: config.excludeSelectors || [],
@@ -59,6 +62,7 @@ function parseArgs(argv, config) {
     if (key === "--headless") args.headless = value !== "false";
     if (key === "--headed") args.headless = false;
     if (key === "--only-rule") args.onlyRule = value;
+    if (key === "--wait-until") args.waitUntil = value;
     if (key === "--exclude-selectors")
       args.excludeSelectors = value.split(",").map((s) => s.trim());
     if (key === "--color-scheme") args.colorScheme = value;
@@ -70,11 +74,79 @@ function parseArgs(argv, config) {
   return args;
 }
 
-function normalizePath(rawValue, origin) {
+const BLOCKED_EXTENSIONS =
+  /\.(pdf|jpg|jpeg|png|gif|svg|webp|ico|css|js|mjs|json|xml|zip|tar|gz|mp4|mp3|woff|woff2|ttf|eot)$/i;
+
+const PAGINATION_PARAMS = /^(page|p|pg|offset|cursor|start|from|skip|limit)$/i;
+
+async function discoverFromSitemap(origin, maxRoutes) {
+  try {
+    const res = await fetch(`${origin}/sitemap.xml`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return [];
+    const xml = await res.text();
+    const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/gi)].map((m) =>
+      m[1].trim(),
+    );
+    const routes = new Set();
+    for (const loc of locs) {
+      const normalized = normalizePath(loc, origin);
+      if (normalized && normalized !== "/") routes.add(normalized);
+      if (routes.size >= maxRoutes - 1) break;
+    }
+    return [...routes];
+  } catch {
+    return [];
+  }
+}
+
+async function fetchDisallowedPaths(origin) {
+  const disallowed = new Set();
+  try {
+    const res = await fetch(`${origin}/robots.txt`, {
+      signal: AbortSignal.timeout(3000),
+    });
+    if (!res.ok) return disallowed;
+    const text = await res.text();
+    let inUserAgentAll = false;
+    for (const raw of text.split("\n")) {
+      const line = raw.trim();
+      if (/^User-agent:\s*\*/i.test(line)) {
+        inUserAgentAll = true;
+        continue;
+      }
+      if (/^User-agent:/i.test(line)) {
+        inUserAgentAll = false;
+        continue;
+      }
+      if (inUserAgentAll) {
+        const match = line.match(/^Disallow:\s*(.+)/i);
+        if (match) {
+          const p = match[1].trim();
+          if (p) disallowed.add(p);
+        }
+      }
+    }
+  } catch {
+    // silent — robots.txt is optional
+  }
+  return disallowed;
+}
+
+function isDisallowedPath(routePath, disallowedPaths) {
+  for (const rule of disallowedPaths) {
+    if (routePath.startsWith(rule)) return true;
+  }
+  return false;
+}
+
+export function normalizePath(rawValue, origin) {
   if (!rawValue) return "";
   try {
     const u = new URL(rawValue, origin);
     if (u.origin !== origin) return "";
+    if (BLOCKED_EXTENSIONS.test(u.pathname)) return "";
     const hashless = `${u.pathname || "/"}${u.search || ""}`;
     return hashless === "" ? "/" : hashless;
   } catch {
@@ -82,7 +154,7 @@ function normalizePath(rawValue, origin) {
   }
 }
 
-function parseRoutesArg(routesArg, origin) {
+export function parseRoutesArg(routesArg, origin) {
   if (!routesArg.trim()) return [];
   const entries = routesArg
     .split(/[,\n]/)
@@ -100,20 +172,37 @@ function parseRoutesArg(routesArg, origin) {
 async function discoverRoutes(page, baseUrl, maxRoutes) {
   const origin = new URL(baseUrl).origin;
   const routes = new Set(["/"]);
+  const seenPathnames = new Set(["/"]);
+  let rawLinkCount = 0;
 
   try {
     const hrefs = await page.$$eval("a[href]", (elements) =>
       elements.map((el) => el.getAttribute("href")),
     );
+    rawLinkCount = hrefs.length;
     for (const href of hrefs) {
       const normalized = normalizePath(href, origin);
-      if (normalized) routes.add(normalized);
+      if (!normalized) continue;
+      try {
+        const u = new URL(normalized, origin);
+        const hasPagination = [...new URLSearchParams(u.search).keys()].some(
+          (k) => PAGINATION_PARAMS.test(k),
+        );
+        if (hasPagination && seenPathnames.has(u.pathname)) continue;
+        seenPathnames.add(u.pathname);
+      } catch {
+        // keep non-parseable normalized paths as-is
+      }
+      routes.add(normalized);
       if (routes.size >= maxRoutes) break;
     }
   } catch (error) {
     log.warn(`Autodiscovery failed on ${baseUrl}: ${error.message}`);
   }
 
+  log.info(
+    `Discovered ${rawLinkCount} links → ${routes.size} unique route(s) added`,
+  );
   return [...routes];
 }
 
@@ -126,13 +215,14 @@ async function analyzeRoute(
   onlyRule,
   timeoutMs = 30000,
   maxRetries = 2,
+  waitUntil = "domcontentloaded",
 ) {
   let lastError;
 
   for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
     try {
       await page.goto(routeUrl, {
-        waitUntil: "domcontentloaded",
+        waitUntil,
         timeout: timeoutMs,
       });
       await page.waitForTimeout(waitMs);
@@ -236,7 +326,7 @@ async function main() {
   let routes = [];
   try {
     await page.goto(baseUrl, {
-      waitUntil: "domcontentloaded",
+      waitUntil: args.waitUntil,
       timeout: args.timeoutMs,
     });
 
@@ -250,16 +340,32 @@ async function main() {
     if (providedRoutes.length > 0) {
       routes = providedRoutes.slice(0, args.maxRoutes);
     } else if (baseUrl.startsWith("file://")) {
-      // For local files, if no routes provided, just skip discovery and use the file itself
       routes = [""];
     } else {
       log.info("Autodiscovering routes...");
-      routes = await discoverRoutes(page, baseUrl, args.maxRoutes);
+      const sitemapRoutes = await discoverFromSitemap(origin, args.maxRoutes);
+      if (sitemapRoutes.length > 0) {
+        routes = ["/", ...sitemapRoutes].slice(0, args.maxRoutes);
+        log.info(
+          `Sitemap: ${routes.length} route(s) discovered from /sitemap.xml`,
+        );
+      } else {
+        routes = await discoverRoutes(page, baseUrl, args.maxRoutes);
+      }
     }
   } catch (err) {
     log.error(`Fatal: Could not load base URL ${baseUrl}: ${err.message}`);
     await browser.close();
     process.exit(1);
+  }
+
+  const disallowed = await fetchDisallowedPaths(origin);
+  if (disallowed.size > 0) {
+    const before = routes.length;
+    routes = routes.filter((r) => !isDisallowedPath(r, disallowed));
+    const skipped = before - routes.length;
+    if (skipped > 0)
+      log.info(`robots.txt: ${skipped} route(s) excluded (Disallow rules)`);
   }
 
   log.info(`Targeting ${routes.length} routes: ${routes.join(", ")}`);
@@ -301,6 +407,8 @@ async function main() {
       config.excludeSelectors,
       args.onlyRule,
       args.timeoutMs,
+      2,
+      args.waitUntil,
     );
     if (args.screenshotsDir && result.violations) {
       for (const violation of result.violations) {
@@ -323,7 +431,9 @@ async function main() {
   log.success(`Routes scan complete. Results saved to ${args.output}`);
 }
 
-main().catch((error) => {
-  log.error(error.message);
-  process.exit(1);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    log.error(error.message);
+    process.exit(1);
+  });
+}
