@@ -543,7 +543,7 @@ function buildFindings(inputPayload) {
     const axeRuleIds = (route.violations || []).map((v) => v.id);
 
     const meta = route.metadata || {};
-    if (meta.h1Count !== 1 && !axeRuleIds.includes("page-has-heading-one")) {
+    if (meta.h1Count !== undefined && meta.h1Count !== 1 && !axeRuleIds.includes("page-has-heading-one")) {
       findings.push({
         id: "",
         title: "Page must have exactly one h1",
@@ -560,7 +560,7 @@ function buildFindings(inputPayload) {
       });
     }
 
-    if (meta.mainCount !== 1 && !axeRuleIds.includes("landmark-one-main")) {
+    if (meta.mainCount !== undefined && meta.mainCount !== 1 && !axeRuleIds.includes("landmark-one-main")) {
       findings.push({
         id: "",
         title: "Page must have exactly one main landmark",
