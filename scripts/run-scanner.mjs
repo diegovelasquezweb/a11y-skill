@@ -35,16 +35,14 @@ function parseArgs(argv, config) {
     baseUrl: "",
     routes: "",
     output: getInternalPath("a11y-scan-results.json"),
-    maxRoutes: config.maxRoutes,
-    waitMs: 2000,
-    timeoutMs: 30000,
+    maxRoutes: config.maxRoutes || 10,
+    waitMs: config.waitMs || 2000,
+    timeoutMs: config.timeoutMs || 30000,
     headless: config.headless !== undefined ? config.headless : true,
     colorScheme: null,
     screenshotsDir: null,
-    slowMo: config.slowMo || 0,
-    playground: config.playground || false,
     excludeSelectors: config.excludeSelectors || [],
-    onlyRule: null,
+    onlyRule: config.onlyRule || null,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -60,8 +58,6 @@ function parseArgs(argv, config) {
     if (key === "--timeout-ms") args.timeoutMs = Number.parseInt(value, 10);
     if (key === "--headless") args.headless = value !== "false";
     if (key === "--headed") args.headless = false;
-    if (key === "--slow-mo") args.slowMo = Number.parseInt(value, 10);
-    if (key === "--playground") args.playground = true;
     if (key === "--only-rule") args.onlyRule = value;
     if (key === "--exclude-selectors")
       args.excludeSelectors = value.split(",").map((s) => s.trim());
@@ -128,13 +124,17 @@ async function analyzeRoute(
   axeRules,
   excludeSelectors,
   onlyRule,
+  timeoutMs = 30000,
   maxRetries = 2,
 ) {
   let lastError;
 
   for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
     try {
-      await page.goto(routeUrl, { waitUntil: "domcontentloaded" });
+      await page.goto(routeUrl, {
+        waitUntil: "domcontentloaded",
+        timeout: timeoutMs,
+      });
       await page.waitForTimeout(waitMs);
 
       const builder = new AxeBuilder({ page });
@@ -222,7 +222,6 @@ async function main() {
 
   const browser = await chromium.launch({
     headless: args.headless,
-    slowMo: args.slowMo,
   });
   const context = await browser.newContext({
     viewport: primaryViewport,
@@ -301,6 +300,7 @@ async function main() {
       config.axeRules,
       config.excludeSelectors,
       args.onlyRule,
+      args.timeoutMs,
     );
     if (args.screenshotsDir && result.violations) {
       for (const violation of result.violations) {
@@ -310,14 +310,7 @@ async function main() {
     results.push({ path: routePath, ...result });
   }
 
-  if (args.playground) {
-    log.info("Playground mode active. Keeping browser open for inspection...");
-    log.info("Press Ctrl+C in the terminal to close the browser and exit.");
-    // Keep internal process alive
-    await new Promise(() => {});
-  } else {
-    await browser.close();
-  }
+  await browser.close();
 
   const payload = {
     generated_at: new Date().toISOString(),

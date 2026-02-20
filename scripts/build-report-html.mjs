@@ -36,8 +36,6 @@ Options:
   --input <path>           Findings JSON path (default: audit/internal/a11y-findings.json)
   --output <path>          Output HTML path (default: audit/report.html)
   --title <text>           Report title
-  --environment <text>     Test environment label
-  --scope <text>           Audit scope label
   --target <text>          Compliance target label (default: WCAG 2.2 AA)
   --company-name <text>    Company name override
   --accent-color <hex>     Accent color override (e.g., #6366f1)
@@ -58,8 +56,6 @@ function parseArgs(argv) {
     output: path.join(process.cwd(), config.outputDir, "report.html"),
     title: config.reportTitle,
     baseUrl: "",
-    environment: "Local Development",
-    scope: "Full Site Scan",
     target: config.complianceTarget,
     accentColor: config.accentColor,
     companyName: config.companyName,
@@ -75,8 +71,6 @@ function parseArgs(argv) {
     if (key === "--output") args.output = value;
     if (key === "--base-url") args.baseUrl = value;
     if (key === "--title") args.title = value;
-    if (key === "--environment") args.environment = value;
-    if (key === "--scope") args.scope = value;
     if (key === "--target") args.target = value;
     if (key === "--company-name") args.companyName = value;
     if (key === "--accent-color") args.accentColor = value;

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readJson, log, getInternalPath } from "./a11y-utils.mjs";
+import { readJson, log, getInternalPath, loadConfig } from "./a11y-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { normalizeFindings } from "./report/core-findings.mjs";
@@ -20,11 +20,16 @@ Options:
 }
 
 function parseArgs(argv) {
+  const config = loadConfig();
   const args = {
     input: getInternalPath("a11y-findings.json"),
-    output: path.join(process.cwd(), "audit", "remediation.md"),
+    output: path.join(
+      process.cwd(),
+      config.outputDir || "audit",
+      "remediation.md",
+    ),
     baseUrl: "",
-    target: "WCAG 2.2 AA",
+    target: config.complianceTarget || "WCAG 2.2 AA",
   };
 
   for (let i = 0; i < argv.length; i += 1) {
