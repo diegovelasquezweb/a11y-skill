@@ -115,55 +115,66 @@ async function analyzeRoute(
   waitMs,
   axeRules,
   excludeSelectors,
+  maxRetries = 2,
 ) {
-  try {
-    await page.goto(routeUrl, { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(waitMs);
+  let lastError;
 
-    const builder = new AxeBuilder({ page }).withTags([
-      "wcag2a",
-      "wcag2aa",
-      "wcag21a",
-      "wcag21aa",
-      "wcag22a",
-      "wcag22aa",
-      "best-practice",
-    ]);
+  for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
+    try {
+      await page.goto(routeUrl, { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(waitMs);
 
-    if (Array.isArray(excludeSelectors)) {
-      for (const selector of excludeSelectors) {
-        builder.exclude(selector);
+      const builder = new AxeBuilder({ page }).withTags([
+        "wcag2a",
+        "wcag2aa",
+        "wcag21a",
+        "wcag21aa",
+        "wcag22a",
+        "wcag22aa",
+        "best-practice",
+      ]);
+
+      if (Array.isArray(excludeSelectors)) {
+        for (const selector of excludeSelectors) {
+          builder.exclude(selector);
+        }
+      }
+
+      if (axeRules && typeof axeRules === "object") {
+        builder.options({ rules: axeRules });
+      }
+
+      const axeResults = await builder.analyze();
+
+      const metadata = await page.evaluate(() => {
+        return {
+          h1Count: document.querySelectorAll("h1").length,
+          mainCount: document.querySelectorAll('main, [role="main"]').length,
+          title: document.title,
+        };
+      });
+
+      return {
+        url: routeUrl,
+        violations: axeResults.violations,
+        metadata,
+      };
+    } catch (error) {
+      lastError = error;
+      if (attempt <= maxRetries) {
+        log.warn(`[attempt ${attempt}/${maxRetries + 1}] Retrying ${routeUrl}: ${error.message}`);
+        await page.waitForTimeout(1000 * attempt);
       }
     }
-
-    if (axeRules && typeof axeRules === "object") {
-      builder.options({ rules: axeRules });
-    }
-
-    const axeResults = await builder.analyze();
-
-    const metadata = await page.evaluate(() => {
-      return {
-        h1Count: document.querySelectorAll("h1").length,
-        mainCount: document.querySelectorAll('main, [role="main"]').length,
-        title: document.title,
-      };
-    });
-
-    return {
-      url: routeUrl,
-      violations: axeResults.violations,
-      metadata,
-    };
-  } catch (error) {
-    log.error(`Error analyzing ${routeUrl}: ${error.message}`);
-    return {
-      url: routeUrl,
-      error: error.message,
-      violations: [],
-      metadata: {},
-    };
   }
+
+  log.error(`Failed to analyze ${routeUrl} after ${maxRetries + 1} attempts: ${lastError.message}`);
+  return {
+    url: routeUrl,
+    error: lastError.message,
+    violations: [],
+    metadata: {},
+  };
 }
 
 async function main() {

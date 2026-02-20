@@ -1,8 +1,14 @@
 #!/usr/bin/env node
 
 import { log, readJson, writeJson, getInternalPath, loadConfig } from "./a11y-utils.mjs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
+
+function makeFindingId(ruleId, url, selector) {
+  const key = `${ruleId}||${url}||${selector}`;
+  return `A11Y-${createHash("sha256").update(key).digest("hex").slice(0, 6)}`;
+}
 
 const FIX_TEMPLATES = {
   "landmark-one-main": {
@@ -387,9 +393,9 @@ function buildFindings(inputPayload) {
     return a.title.localeCompare(b.title);
   });
 
-  return findings.map((f, i) => ({
+  return findings.map((f) => ({
     ...f,
-    id: `A11Y-${String(i + 1).padStart(3, "0")}`,
+    id: makeFindingId(f.rule_id || f.title, f.url, f.selector),
   }));
 }
 

@@ -22,7 +22,7 @@ Options:
   --color-scheme <value>  Emulate color scheme: "light" or "dark" (default: "light").
   --title <text>          Custom title for the HTML report.
   --environment <text>    Test environment label (e.g., "Staging").
-  --target <text>         Compliance target label (default: "WCAG 2.1 AA").
+  --target <text>         Compliance target label (default: "WCAG 2.2 AA").
   --no-open               Do not open the report after audit.
   -h, --help              Show this help.
 `);

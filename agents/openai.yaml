@@ -1,5 +1,5 @@
 interface:
-  display_name: "Web Accessibility Audit (WCAG 2.1 AA)"
+  display_name: "Web Accessibility Audit (WCAG 2.2 AA)"
   short_description: "Professional accessibility auditing engine using Playwright and Axe-Core."
   icon_small: "check_circle"
   invocation_policy: "implicit"

@@ -16,6 +16,38 @@ export const log = {
   error: (msg) => console.error(`\x1b[31m[ERROR]\x1b[0m ${msg}`),
 };
 
+const CONFIG_SCHEMA = {
+  maxRoutes:        { type: "number" },
+  complianceTarget: { type: "string" },
+  routes:           { type: "array" },
+  excludeSelectors: { type: "array" },
+  ignoreFindings:   { type: "array" },
+  axeRules:         { type: "object" },
+  outputDir:        { type: "string" },
+  internalDir:      { type: "string" },
+  playwright:       { type: "object" },
+};
+
+function validateConfig(userConfig) {
+  for (const key of Object.keys(userConfig)) {
+    if (!CONFIG_SCHEMA[key]) {
+      const closest = Object.keys(CONFIG_SCHEMA).find(
+        (k) => k.toLowerCase() === key.toLowerCase(),
+      );
+      const hint = closest ? ` Did you mean "${closest}"?` : "";
+      log.warn(`a11y.config.json: unknown key "${key}".${hint}`);
+      continue;
+    }
+    const expected = CONFIG_SCHEMA[key].type;
+    const actual = Array.isArray(userConfig[key]) ? "array" : typeof userConfig[key];
+    if (actual !== expected) {
+      log.warn(
+        `a11y.config.json: "${key}" should be a ${expected}, got ${actual}. Using default.`,
+      );
+    }
+  }
+}
+
 /**
  * Load a11y.config.json if it exists
  */
@@ -23,7 +55,7 @@ export function loadConfig() {
   const configPath = path.join(SKILL_ROOT, "a11y.config.json");
   const defaults = {
     maxRoutes: 10,
-    complianceTarget: "WCAG 2.1 AA",
+    complianceTarget: "WCAG 2.2 AA",
     excludeSelectors: [],
     axeRules: {},
     outputDir: "audit",
@@ -33,6 +65,7 @@ export function loadConfig() {
   if (fs.existsSync(configPath)) {
     try {
       const userConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+      validateConfig(userConfig);
       return { ...defaults, ...userConfig };
     } catch (e) {
       log.warn(
