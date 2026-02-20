@@ -15,6 +15,7 @@ Options:
   --base-url <url>        (Required) The target website to audit.
   --max-routes <num>      Max routes to discover and scan (default: 10).
   --routes <csv>          Custom list of paths to scan.
+  --only-rule <id>        Only check for this specific rule ID.
   --output <path>         Final HTML report location (default: audit/report.html).
   --wait-ms <num>         Time to wait after page load (default: 2000).
   --timeout-ms <num>      Network timeout (default: 30000).
@@ -85,7 +86,6 @@ async function main() {
   const routes = getArgValue("routes");
   const waitMs = getArgValue("wait-ms") || 2000;
   const timeoutMs = getArgValue("timeout-ms") || 30000;
-  const headless = getArgValue("headless") !== "false";
   const output =
     getArgValue("output") || path.join(process.cwd(), "audit", "report.html");
 
@@ -94,10 +94,15 @@ async function main() {
   const environment = getArgValue("environment");
   const scope = getArgValue("scope");
   const target = getArgValue("target");
-  const headed = argv.includes("--headed") || config.headless === false;
-  const slowMo = getArgValue("slow-mo") || config.slowMo;
-  const playground = argv.includes("--playground") || config.playground;
+  const slowMo = Number.parseInt(getArgValue("slow-mo"), 10) || 0;
+  const playground = argv.includes("--playground");
+  const headless = argv.includes("--headless")
+    ? getArgValue("headless") === "true"
+    : argv.includes("--headed")
+      ? false
+      : config.headless;
 
+  const onlyRule = getArgValue("only-rule");
   const companyName = getArgValue("company-name") || config.companyName;
   const accentColor = getArgValue("accent-color") || config.accentColor;
   const ignoreFindings = getArgValue("ignore-findings");
@@ -145,9 +150,10 @@ async function main() {
       "--screenshots-dir",
       screenshotsDir,
     ];
-    if (headed) scanArgs.push("--headed");
+    if (!headless) scanArgs.push("--headed");
     if (slowMo) scanArgs.push("--slow-mo", slowMo.toString());
     if (playground) scanArgs.push("--playground");
+    if (onlyRule) scanArgs.push("--only-rule", onlyRule);
     if (excludeSelectors)
       scanArgs.push("--exclude-selectors", excludeSelectors);
     if (routes) scanArgs.push("--routes", routes);

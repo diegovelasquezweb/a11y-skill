@@ -20,6 +20,7 @@ Options:
   --color-scheme <value>      Emulate color scheme: "light" or "dark" (default: "light")
   --screenshots-dir <path>    Directory to save element screenshots (optional)
   --exclude-selectors <csv>   Selectors to exclude (overrides config)
+  --only-rule <id>            Only check for this specific rule ID (ignores tags)
   -h, --help                  Show this help
 `);
 }
@@ -43,6 +44,7 @@ function parseArgs(argv, config) {
     slowMo: config.slowMo || 0,
     playground: config.playground || false,
     excludeSelectors: config.excludeSelectors || [],
+    onlyRule: null,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -60,6 +62,7 @@ function parseArgs(argv, config) {
     if (key === "--headed") args.headless = false;
     if (key === "--slow-mo") args.slowMo = Number.parseInt(value, 10);
     if (key === "--playground") args.playground = true;
+    if (key === "--only-rule") args.onlyRule = value;
     if (key === "--exclude-selectors")
       args.excludeSelectors = value.split(",").map((s) => s.trim());
     if (key === "--color-scheme") args.colorScheme = value;
@@ -124,6 +127,7 @@ async function analyzeRoute(
   waitMs,
   axeRules,
   excludeSelectors,
+  onlyRule,
   maxRetries = 2,
 ) {
   let lastError;
@@ -133,15 +137,22 @@ async function analyzeRoute(
       await page.goto(routeUrl, { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(waitMs);
 
-      const builder = new AxeBuilder({ page }).withTags([
-        "wcag2a",
-        "wcag2aa",
-        "wcag21a",
-        "wcag21aa",
-        "wcag22a",
-        "wcag22aa",
-        "best-practice",
-      ]);
+      const builder = new AxeBuilder({ page });
+
+      if (onlyRule) {
+        log.info(`Targeted Audit: Only checking rule "${onlyRule}"`);
+        builder.withRules([onlyRule]);
+      } else {
+        builder.withTags([
+          "wcag2a",
+          "wcag2aa",
+          "wcag21a",
+          "wcag21aa",
+          "wcag22a",
+          "wcag22aa",
+          "best-practice",
+        ]);
+      }
 
       if (Array.isArray(excludeSelectors)) {
         for (const selector of excludeSelectors) {
@@ -149,7 +160,11 @@ async function analyzeRoute(
         }
       }
 
-      if (axeRules && typeof axeRules === "object") {
+      if (
+        axeRules &&
+        typeof axeRules === "object" &&
+        Object.keys(axeRules).length > 0
+      ) {
         builder.options({ rules: axeRules });
       }
 
@@ -235,6 +250,9 @@ async function main() {
 
     if (providedRoutes.length > 0) {
       routes = providedRoutes.slice(0, args.maxRoutes);
+    } else if (baseUrl.startsWith("file://")) {
+      // For local files, if no routes provided, just skip discovery and use the file itself
+      routes = [""];
     } else {
       log.info("Autodiscovering routes...");
       routes = await discoverRoutes(page, baseUrl, args.maxRoutes);
@@ -282,6 +300,7 @@ async function main() {
       args.waitMs,
       config.axeRules,
       config.excludeSelectors,
+      args.onlyRule,
     );
     if (args.screenshotsDir && result.violations) {
       for (const violation of result.violations) {
@@ -303,6 +322,7 @@ async function main() {
   const payload = {
     generated_at: new Date().toISOString(),
     base_url: baseUrl,
+    onlyRule: args.onlyRule || null,
     routes: results,
   };
 

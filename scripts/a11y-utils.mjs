@@ -35,8 +35,6 @@ const CONFIG_SCHEMA = {
   viewports: { type: "array" },
   // Visibility & Playground
   headless: { type: "boolean" },
-  playground: { type: "boolean" },
-  slowMo: { type: "number" },
 };
 
 function validateConfig(userConfig) {
@@ -80,8 +78,6 @@ export function loadConfig() {
     viewports: [{ width: 1280, height: 800, name: "Desktop" }],
     // Visibility & Playground Defaults
     headless: true,
-    playground: false,
-    slowMo: 0,
   };
 
   if (fs.existsSync(configPath)) {

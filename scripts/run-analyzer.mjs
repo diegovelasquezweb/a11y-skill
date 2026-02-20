@@ -152,6 +152,7 @@ export function extractSearchHint(selector) {
 }
 
 function buildFindings(inputPayload) {
+  const onlyRule = inputPayload.onlyRule;
   const routes = inputPayload.routes || [];
   const findings = [];
 
@@ -227,6 +228,7 @@ function buildFindings(inputPayload) {
 
     const meta = route.metadata || {};
     if (
+      !onlyRule &&
       meta.h1Count !== undefined &&
       meta.h1Count !== 1 &&
       !axeRuleIds.includes("page-has-heading-one")
@@ -248,6 +250,7 @@ function buildFindings(inputPayload) {
     }
 
     if (
+      !onlyRule &&
       meta.mainCount !== undefined &&
       meta.mainCount !== 1 &&
       !axeRuleIds.includes("landmark-one-main")
