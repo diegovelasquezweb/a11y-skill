@@ -9,7 +9,9 @@ let MANUAL_CHECKS;
 try {
   MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
 } catch {
-  throw new Error("Missing or invalid assets/manual-checks.json — reinstall the skill.");
+  throw new Error(
+    "Missing or invalid assets/manual-checks.json — reinstall the skill.",
+  );
 }
 
 /**
@@ -190,6 +192,24 @@ export function buildIssueCard(finding) {
             <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Impacted Users</h4>
             <p class="text-[13px] text-slate-600 leading-relaxed italic border-l-2 border-slate-200 pl-3 py-0.5 bg-slate-50 rounded-r-md">${formatMultiline(finding.impactedUsers)}</p>
         </div>
+
+        ${
+          finding.manual_test
+            ? `
+        <div class="mt-5 pt-4 border-t border-slate-100">
+            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              Manual Validation Steps
+            </h4>
+            <div class="bg-amber-50/50 rounded-lg p-3 border border-amber-100/50">
+              <p class="text-[12px] text-amber-900 font-bold mb-2">${escapeHtml(finding.manual_test.description)}</p>
+              <ul class="list-disc list-outside ml-4 space-y-1 text-[12px] text-amber-800/80">
+                ${finding.manual_test.steps.map((s) => `<li>${escapeHtml(s)}</li>`).join("")}
+              </ul>
+            </div>
+        </div>`
+            : ""
+        }
       </div>
     </div>
 
@@ -214,6 +234,17 @@ export function buildIssueCard(finding) {
           : ""
       }
       <p class="text-xs text-indigo-500 leading-relaxed relative z-10">${linkify(formatMultiline(finding.recommendedFix))}</p>
+      ${
+        finding.mdn
+          ? `
+        <div class="mt-4 pt-3 border-t border-indigo-100/50">
+          <a href="${escapeHtml(finding.mdn)}" target="_blank" class="text-[11px] font-bold text-slate-500 hover:text-indigo-600 transition-colors flex items-center gap-1.5 uppercase tracking-wider">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.246 18.477 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            Technical Docs (MDN)
+          </a>
+        </div>`
+          : ""
+      }
     </div>
 
     ${screenshotHtml}
