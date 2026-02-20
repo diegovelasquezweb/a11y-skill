@@ -136,7 +136,7 @@ export function buildManualChecksSection() {
   <p class="text-sm text-slate-500">These WCAG 2.2 criteria cannot be detected automatically by axe-core. Check each one off as you verify it — progress is saved in your browser.</p>
 </div>
 
-<div id="manual-progress-sticky" class="sticky top-16 z-30 bg-white rounded-xl border border-slate-200 p-4 mb-6 flex items-center gap-4 shadow-sm">
+<div id="manual-progress-sticky" class="sticky top-14 z-30 bg-white rounded-xl border border-slate-200 p-4 mb-6 flex items-center gap-4 shadow-sm">
   <div class="flex-1">
     <div class="flex justify-between text-xs font-medium text-slate-500 mb-1.5">
       <span>Verification progress</span>

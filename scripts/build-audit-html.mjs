@@ -376,10 +376,6 @@ function buildHtml(args, findings) {
           <h2 class="text-3xl font-extrabold mb-2">${escapeHtml(args.title)}</h2>
           <p class="text-slate-500">${dateStr} &bull; ${escapeHtml(args.baseUrl)}</p>
         </div>
-        <button onclick="exportToCSV()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg shadow-sm hover:shadow hover:border-slate-300 transition-all text-sm font-bold text-slate-700">
-          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-          Export CSV
-        </button>
       </div>
 
       <!-- Dashboard Grid -->
@@ -403,7 +399,7 @@ function buildHtml(args, findings) {
               </div>
             </div>
             <h3 class="text-xl font-bold text-slate-900 mb-1">${label} Compliance</h3>
-            <p class="text-xs font-medium text-slate-500 max-w-[200px] leading-snug">Overall accessibility health based on automated WCAG 2.1 AA checks.</p>
+            <p class="text-xs font-medium text-slate-500 max-w-[200px] leading-snug">Automated testing coverage based on ${escapeHtml(args.target)} technical checks.</p>
           </div>
 
           <div class="md:col-span-7 grid grid-cols-2 gap-4">
@@ -799,64 +795,7 @@ function buildHtml(args, findings) {
       btn.textContent = anyCollapsed ? 'Expand all' : 'Collapse all';
     }
 
-    function exportToCSV() {
-      const rows = [
-        ["ID", "Severity", "Rule", "Title", "URL", "Selector", "WCAG", "Type", "Status"]
-      ];
-      
-      const escapeCsv = (str) => {
-        if (str === null || str === undefined) return '""';
-        const cleaned = String(str).replace(/\\r?\\n/g, " "); // Replace newlines with spaces
-        return '"' + cleaned.replace(/"/g, '""') + '"';       // Escape inner quotes
-      };
-      
-      const findingsData = ${JSON.stringify(findings)};
-      
-      // Add automated findings
-      findingsData.forEach(f => {
-        const row = [
-          escapeCsv(f.id),
-          escapeCsv(f.severity),
-          escapeCsv(f.ruleId || 'N/A'),
-          escapeCsv(f.title),
-          escapeCsv(f.url),
-          escapeCsv(f.selector),
-          escapeCsv(f.wcag),
-          escapeCsv("Automated"),
-          escapeCsv("Failed")
-        ];
-        rows.push(row.join(','));
-      });
 
-      // Add manual checks
-      const manualChecksData = ${JSON.stringify(MANUAL_CHECKS)};
-      const manualState = getState(); // From localStorage
-      
-      manualChecksData.forEach(c => {
-        const state = manualState[c.criterion] || "Pending verification";
-        const row = [
-          escapeCsv("MANUAL-" + c.criterion),
-          escapeCsv("N/A"), // Severity not strictly defined for manual until failure
-          escapeCsv("Manual Check"),
-          escapeCsv(c.title),
-          escapeCsv("${escapeHtml(args.baseUrl)}"),
-          escapeCsv("N/A"),
-          escapeCsv("WCAG " + c.criterion),
-          escapeCsv("Manual"),
-          escapeCsv(state)
-        ];
-        rows.push(row.join(','));
-      });
-
-      const csvContent = "data:text/csv;charset=utf-8," + rows.join("\\n");
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "a11y-audit-export.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
 
     function toggleCard(header) {
       const card = header.closest('.issue-card');
