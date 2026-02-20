@@ -9,6 +9,7 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 - **Failing Element Screenshots** — Violations with a single, identifiable element automatically get a screenshot captured and embedded in the HTML report.
 - **Accessibility Emulation** — Test dark mode, forced colors, and reduced motion via Playwright — the scenarios real users with disabilities rely on.
 - **WCAG 2.2 Manual Check Coverage** — Six criteria axe-core can't detect are covered with step-by-step verification instructions built into the report.
+- **ARIA APG & Deque Checklist Mapping** — Automatically links custom widgets to W3C patterns (Implementation) and Deque University checklists (Verification) for end-to-end quality assurance.
 - **Runs Without an Agent** — Drop it into CI/CD directly. `pnpm run audit -- --base-url <url>` runs the full pipeline, no AI tokens required.
 
 ## Installation
@@ -50,6 +51,7 @@ Once installed, the skill is available to your agent in any conversation. Simply
 
 - `report.html`: A premium, interactive React-like dashboard that features:
   - Persona impact mapping (Screen Readers, Cognitive, Motor) to help prioritize UX improvements.
+  - ARIA APG Integration: Links custom widgets directly to W3C implementation patterns.
   - Critical issue isolation with ready-to-use code solutions for fast remediation.
 
 ### For AI Agents & Automation
@@ -168,6 +170,7 @@ While traditional tools are excellent for visual learning or broad metrics, this
 ## Reference
 
 - [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
+- [ARIA Authoring Practices Guide (APG)](https://www.w3.org/WAI/ARIA/apg/)
 - [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
 - [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
 - [Agent Skills Standard](https://agentskills.io/)
