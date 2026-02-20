@@ -126,8 +126,6 @@ Each finding must include:
 | Key                | Type      | Description                                                                                                                      |
 | :----------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------- |
 | `reportTitle`      | `string`  | Custom title for the HTML report.                                                                                                |
-| `companyName`      | `string`  | Logo/brand name in the report header.                                                                                            |
-| `accentColor`      | `string`  | Hex color (e.g. `#fbbf24`) for report accents.                                                                                   |
 | `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                                                   |
 | `viewports`        | `array`   | List of `{ width, height, name }` objects. Only the first entry is used for scanning. To change viewport, update `viewports[0]`. |
 | `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                                              |

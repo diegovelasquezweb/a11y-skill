@@ -87,8 +87,6 @@ All flags can be persisted in `a11y.config.json`. CLI flags **always override** 
 | **Output Path**       | `--output <path>`           | `outputDir`        | `audit/report.html` |
 | **Compliance**        | `--target <text>`           | `complianceTarget` | `"WCAG 2.2 AA"`     |
 | **Headless**          | `--headless <bool>`         | `headless`         | `true`              |
-| **Theme Color**       | `--accent-color <hex>`      | `accentColor`      | `#6366f1`           |
-| **Branding**          | `--company-name <text>`     | `companyName`      | `"a11y"`            |
 | **Wait (Stability)**  | `--wait-ms <num>`           | `waitMs`           | `2000`              |
 | **Timeout**           | `--timeout-ms <num>`        | `timeoutMs`        | `30000`             |
 
@@ -154,7 +152,7 @@ pnpm test
 | `computeComplianceScore`      | Weighted score calculation and clamping                                                   |
 | `buildSummary` / `scoreLabel` | Severity totals and grade labels                                                          |
 | `escapeHtml` / `linkify`      | HTML escaping and URL linkification                                                       |
-| `loadConfig`                  | Config parsing, unknown key warnings, hex color validation                                |
+| `loadConfig`                  | Config parsing, unknown key warnings, type validation                                     |
 
 ## Reference
 

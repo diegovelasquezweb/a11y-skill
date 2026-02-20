@@ -28,8 +28,6 @@ const CONFIG_SCHEMA = {
   playwright: { type: "object" },
   // Branding
   reportTitle: { type: "string" },
-  companyName: { type: "string" },
-  accentColor: { type: "string" },
   // Emulation
   colorScheme: { type: "string" },
   viewports: { type: "array" },
@@ -74,9 +72,7 @@ export function loadConfig() {
     axeRules: {},
     outputDir: "audit",
     internalDir: "audit/internal",
-    reportTitle: "Accessibility Audit Report",
-    companyName: "",
-    accentColor: "#6366f1", // Indigo-500
+    reportTitle: "Web Accessibility Audit",
     colorScheme: "light",
     viewports: [{ width: 1280, height: 800, name: "Desktop" }],
     // Visibility Defaults
@@ -88,13 +84,6 @@ export function loadConfig() {
       const userConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
       validateConfig(userConfig);
       const merged = { ...defaults, ...userConfig };
-      const hexColorRe = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
-      if (merged.accentColor && !hexColorRe.test(merged.accentColor)) {
-        log.warn(
-          `a11y.config.json: invalid accentColor "${merged.accentColor}" — must be a 3 or 6-digit hex (e.g. #6366f1). Using default.`,
-        );
-        merged.accentColor = defaults.accentColor;
-      }
       return merged;
     } catch (e) {
       log.warn(

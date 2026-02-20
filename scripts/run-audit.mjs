@@ -24,8 +24,6 @@ Options:
   --color-scheme <value>  Emulate color scheme: "light" or "dark".
   --title <text>          Custom title for the HTML report.
   --target <text>         Compliance target label (default: "WCAG 2.2 AA").
-  --company-name <text>   Override company name in report.
-  --accent-color <hex>    Override accent color (e.g., #6366f1).
   --ignore-findings <csv> Ignore specific rule IDs.
   --exclude-selectors <csv> Exclude CSS selectors from scan.
   -h, --help              Show this help.
@@ -95,8 +93,6 @@ async function main() {
       : config.headless;
 
   const onlyRule = getArgValue("only-rule") || config.onlyRule;
-  const companyName = getArgValue("company-name") || config.companyName;
-  const accentColor = getArgValue("accent-color") || config.accentColor;
   const ignoreFindings = getArgValue("ignore-findings");
   const excludeSelectors = getArgValue("exclude-selectors");
 
@@ -158,8 +154,6 @@ async function main() {
     const buildArgs = ["--output", output, "--base-url", baseUrl];
     if (title) buildArgs.push("--title", title);
     if (target) buildArgs.push("--target", target);
-    if (companyName) buildArgs.push("--company-name", companyName);
-    if (accentColor) buildArgs.push("--accent-color", accentColor);
 
     await runScript("build-report-html.mjs", buildArgs);
 

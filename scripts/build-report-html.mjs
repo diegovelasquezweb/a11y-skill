@@ -37,8 +37,6 @@ Options:
   --output <path>          Output HTML path (default: audit/report.html)
   --title <text>           Report title
   --target <text>          Compliance target label (default: WCAG 2.2 AA)
-  --company-name <text>    Company name override
-  --accent-color <hex>     Accent color override (e.g., #6366f1)
   -h, --help               Show this help
 `);
 }
@@ -57,8 +55,6 @@ function parseArgs(argv) {
     title: config.reportTitle,
     baseUrl: "",
     target: config.complianceTarget,
-    accentColor: config.accentColor,
-    companyName: config.companyName,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -72,8 +68,6 @@ function parseArgs(argv) {
     if (key === "--base-url") args.baseUrl = value;
     if (key === "--title") args.title = value;
     if (key === "--target") args.target = value;
-    if (key === "--company-name") args.companyName = value;
-    if (key === "--accent-color") args.accentColor = value;
     i += 1;
   }
 
@@ -251,9 +245,9 @@ function buildHtml(args, findings, metadata = {}) {
         --primary-h: 226;
         --primary-s: 70%;
         --primary-l: 50%;
-        --primary: ${args.accentColor || "hsl(var(--primary-h), var(--primary-s), var(--primary-l))"};
-        --primary-light: ${args.accentColor ? args.accentColor + "15" : "hsl(var(--primary-h), var(--primary-s), 95%)"};
-        --primary-dark: ${args.accentColor || "hsl(var(--primary-h), var(--primary-s), 30%)"};
+        --primary: hsl(var(--primary-h), var(--primary-s), var(--primary-l));
+        --primary-light: hsl(var(--primary-h), var(--primary-s), 95%);
+        --primary-dark: hsl(var(--primary-h), var(--primary-s), 30%);
         --slate-50: #f8fafc;
         --slate-100: #f1f5f9;
         --slate-200: #e2e8f0;
@@ -365,8 +359,8 @@ function buildHtml(args, findings, metadata = {}) {
     <div class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-slate-200/80 shadow-sm" id="navbar">
       <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
         <div class="flex items-center gap-3">
-          <div class="px-3 h-10 rounded-lg bg-[var(--primary)] text-white font-bold text-base font-mono flex items-center justify-center shadow-lg">${args.companyName || "a11y"}</div>
-          <h1 class="text-xl font-bold">${args.companyName ? escapeHtml(args.reportTitle) : 'Accessibility <span class="text-slate-500">Report</span>'}</h1>
+          <div class="px-3 h-10 rounded-lg bg-slate-900 text-white font-bold text-base font-mono flex items-center justify-center shadow-md">a11y</div>
+          <h1 class="text-xl font-bold">Web Accessibility <span class="text-slate-500">Audit</span></h1>
         </div>
         <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border ${statusColor}">
           ${statusIcon} <span>${statusText}</span>
