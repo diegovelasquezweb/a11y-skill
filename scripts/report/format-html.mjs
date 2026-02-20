@@ -1,10 +1,39 @@
-import {
-  escapeHtml,
-  formatMultiline,
-  formatEvidence,
-  linkify,
-} from "./utils.mjs";
+import { escapeHtml, formatMultiline, linkify } from "./core-utils.mjs";
+import { MANUAL_CHECKS } from "./data-manual-checks.mjs";
 
+/**
+ * Renders technical evidence (HTML snippets and failure summaries) for the dashboard.
+ */
+export function formatEvidence(evidence) {
+  if (!evidence) return "";
+  try {
+    const data = JSON.parse(evidence);
+    if (!Array.isArray(data))
+      return `<pre class="bg-slate-900 text-slate-50 p-4 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(evidence)}</code></pre>`;
+
+    return data
+      .map((item) => {
+        const failureSummary = item.failureSummary
+          ? `<div class="mt-2 p-3 bg-rose-50 border-l-4 border-rose-500 text-rose-700 text-xs font-mono whitespace-pre-wrap">${formatMultiline(item.failureSummary)}</div>`
+          : "";
+        const htmlSnippet = item.html
+          ? `<div class="mb-2"><span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Source</span><pre class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(item.html)}</code></pre></div>`
+          : "";
+        return `
+        <div class="mb-4 last:mb-0">
+          ${htmlSnippet}
+          ${failureSummary}
+        </div>`;
+      })
+      .join("");
+  } catch {
+    return `<pre class="bg-slate-900 text-slate-50 p-4 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(evidence)}</code></pre>`;
+  }
+}
+
+/**
+ * Builds an interactive card for an automated accessibility violation.
+ */
 export function buildIssueCard(finding) {
   const reproductionItems =
     finding.reproduction.length > 0
@@ -182,4 +211,79 @@ export function buildIssueCard(finding) {
   </div>
   </div>
 </article>`;
+}
+
+/**
+ * Builds a manual check card for the dashboard.
+ */
+export function buildManualCheckCard(check) {
+  const id = `manual-${check.criterion.replace(".", "-")}`;
+  const steps = check.steps
+    .map(
+      (s) => `<li class="mb-1.5 text-slate-600 text-sm">${escapeHtml(s)}</li>`,
+    )
+    .join("");
+  return `
+<div class="manual-card bg-white rounded-xl border border-amber-200 shadow-sm mb-4 overflow-hidden transition-all duration-200" id="${id}" data-criterion="${escapeHtml(check.criterion)}" data-state="">
+  <div class="manual-header flex items-start gap-4 p-5 border-b border-amber-100 bg-gradient-to-r from-amber-50/60 to-white transition-colors">
+    <div class="flex-1 min-w-0">
+      <div class="flex flex-wrap items-center gap-2 mb-2">
+        <span class="manual-badge px-2.5 py-0.5 rounded-full text-xs font-bold border bg-amber-100 text-amber-800 border-amber-200">Manual</span>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 font-mono">${escapeHtml(check.criterion)}</span>
+        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">WCAG 2.2 ${escapeHtml(check.level)}</span>
+      </div>
+      <h3 class="text-base font-bold text-slate-900">${escapeHtml(check.title)}</h3>
+    </div>
+    <div class="flex gap-2 flex-shrink-0 mt-0.5">
+      <button class="manual-verified-btn px-3 py-1.5 rounded-full text-xs font-bold border border-slate-200 bg-white text-slate-500 hover:border-emerald-300 hover:text-emerald-700 hover:bg-emerald-50 transition-colors whitespace-nowrap" onclick="setManualState('${escapeHtml(check.criterion)}', 'verified')">✓ Verified</button>
+      <button class="manual-na-btn px-3 py-1.5 rounded-full text-xs font-bold border border-slate-200 bg-white text-slate-500 hover:border-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors whitespace-nowrap" onclick="setManualState('${escapeHtml(check.criterion)}', 'na')">N/A</button>
+    </div>
+  </div>
+  <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">What to verify</h4>
+      <p class="text-sm text-slate-600 leading-relaxed">${escapeHtml(check.description)}</p>
+    </div>
+    <div>
+      <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">How to test</h4>
+      <ol class="list-decimal list-outside ml-4 space-y-1 marker:text-slate-400 marker:font-medium">
+        ${steps}
+      </ol>
+    </div>
+  </div>
+  <div class="px-5 pb-4">
+    <a href="${escapeHtml(check.ref)}" target="_blank" class="text-xs text-indigo-600 hover:underline font-medium">WCAG 2.2 Understanding — ${escapeHtml(check.criterion)} ${escapeHtml(check.title)} →</a>
+  </div>
+</div>`;
+}
+
+/**
+ * Builds the entire manual checks section for the dashboard.
+ */
+export function buildManualChecksSection() {
+  const total = MANUAL_CHECKS.length;
+  const cards = MANUAL_CHECKS.map((c) => buildManualCheckCard(c)).join("\n");
+  return `
+<div class="mt-16 mb-4">
+  <div class="flex items-center gap-3 mb-2">
+    <h3 class="text-lg font-bold text-slate-900">Manual Verification Required</h3>
+    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">${total} checks</span>
+  </div>
+  <p class="text-sm text-slate-500">These WCAG 2.2 criteria cannot be detected automatically by axe-core. Check each one off as you verify it — progress is saved in your browser.</p>
+</div>
+
+<div id="manual-progress-sticky" class="sticky top-14 z-30 bg-white rounded-xl border border-slate-200 p-4 mb-6 flex items-center gap-4 shadow-sm">
+  <div class="flex-1">
+    <div class="flex justify-between text-xs font-medium text-slate-500 mb-1.5">
+      <span>Verification progress</span>
+      <span id="manual-progress-label">0 / ${total} verified</span>
+    </div>
+    <div class="w-full bg-slate-100 rounded-full h-2">
+      <div id="manual-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+    </div>
+  </div>
+  <button onclick="resetManualChecks()" class="text-xs text-slate-400 hover:text-rose-500 transition-colors font-medium whitespace-nowrap">Reset all</button>
+</div>
+
+${cards}`;
 }

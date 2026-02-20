@@ -6,23 +6,23 @@ import path from "node:path";
 import {
   normalizeFindings,
   buildSummary,
-  escapeHtml,
-} from "./report/utils.mjs";
-import { buildIssueCard } from "./report/issue-card.mjs";
-import {
-  MANUAL_CHECKS,
-  buildManualChecksSection,
-} from "./report/manual-checks.mjs";
-import {
   computeComplianceScore,
   scoreLabel,
-  buildPageGroupedSection,
+} from "./report/core-findings.mjs";
+import { escapeHtml } from "./report/core-utils.mjs";
+import { MANUAL_CHECKS } from "./report/data-manual-checks.mjs";
+import {
+  buildIssueCard,
+  buildManualChecksSection,
+} from "./report/format-html.mjs";
+import {
   buildPdfExecutiveSummary,
   buildPdfMethodologySection,
   buildPdfRiskSection,
   buildPdfRemediationRoadmap,
   buildPdfAuditLimitations,
-} from "./report/pdf-sections.mjs";
+  buildPageGroupedSection,
+} from "./report/format-pdf.mjs";
 
 function printUsage() {
   log.info(`Usage:

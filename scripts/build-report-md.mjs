@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import { log, readJson, getInternalPath } from "./a11y-utils.mjs";
+import { readJson, log } from "./a11y-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeFindings } from "./report/utils.mjs";
-import { buildMarkdownSummary } from "./report/md-summary.mjs";
+import { normalizeFindings } from "./report/core-findings.mjs";
+import { buildMarkdownSummary } from "./report/format-md.mjs";
 
 function printUsage() {
   log.info(`Usage:
