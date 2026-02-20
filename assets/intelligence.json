@@ -28,7 +28,15 @@
     "toolbar": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
     "tooltip": "https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/",
     "treeview": "https://www.w3.org/WAI/ARIA/apg/patterns/treeview/",
-    "treegrid": "https://www.w3.org/WAI/ARIA/apg/patterns/treegrid/"
+    "treegrid": "https://www.w3.org/WAI/ARIA/apg/patterns/treegrid/",
+    "navigation": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/navigation.html",
+    "banner": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/banner.html",
+    "contentinfo": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/contentinfo.html",
+    "complementary": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/complementary.html",
+    "main": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/main.html",
+    "form": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/form.html",
+    "heading": "https://www.w3.org/WAI/ARIA/apg/practices/structural-roles/",
+    "group": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/form.html"
   },
   "a11ySupport": {
     "alert": "https://a11ysupport.io/tech/aria/alert_role",
@@ -70,9 +78,15 @@
         "description": "Add a <main> landmark wrapping your page content.",
         "code": "<main id=\"main-content\">\n  <!-- page content -->\n</main>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users navigating by landmarks",
       "expected": "Page must contain exactly one <main> landmark element.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main",
+      "related_rules": [
+        { "id": "bypass", "reason": "The skip link target (#main-content) should reference the <main> landmark." },
+        { "id": "region", "reason": "Adding <main> may resolve orphan-content region violations." }
+      ],
       "manual_test": {
         "description": "Verify that the page content is structurally contained within the main landmark.",
         "steps": [
@@ -87,9 +101,14 @@
         "description": "Wrap all visible content in semantic landmark elements.",
         "code": "<header><!-- header content --></header>\n<main><!-- main content --></main>\n<footer><!-- footer content --></footer>"
       },
+      "fix_code_lang": "html",
+      "effort": "medium",
       "impacted_users": "Screen reader users navigating by landmarks",
       "expected": "All visible page content must be contained within a landmark element (main, nav, header, footer, aside).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header",
+      "related_rules": [
+        { "id": "landmark-one-main", "reason": "Adding a <main> landmark is typically the primary fix for orphan content." }
+      ],
       "manual_test": {
         "description": "Check for content outside of landmarks using a screen reader or landmark extension.",
         "steps": [
@@ -103,6 +122,8 @@
         "description": "Add a descriptive alt attribute to every <img>. Use alt=\"\" for decorative images.",
         "code": "<img src=\"photo.jpg\" alt=\"Description of the image\">\n<!-- Decorative image (hidden from AT): -->\n<img src=\"divider.png\" alt=\"\">"
       },
+      "fix_code_lang": "html",
+      "effort": "medium",
       "impacted_users": "Blind users relying on screen readers",
       "expected": "Every <img> must have an alt attribute. Decorative images use alt=\"\".",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#alt",
@@ -120,6 +141,8 @@
         "description": "Give every button an accessible name via visible text or aria-label.",
         "code": "<!-- Via visible text: -->\n<button>Submit form</button>\n<!-- Icon button via aria-label: -->\n<button aria-label=\"Close dialog\"><svg aria-hidden=\"true\">...</svg></button>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every <button> and [role=\"button\"] must have a non-empty accessible name.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/button_role",
@@ -136,6 +159,8 @@
         "description": "Use descriptive link text that conveys the destination or purpose. Avoid \"click here\" or \"read more\".",
         "code": "<a href=\"/products\">View our product catalog</a>\n<!-- Avoid: <a href=\"/products\">click here</a> -->"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every <a href> must have descriptive, non-empty text content or an aria-label.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
@@ -152,9 +177,14 @@
         "description": "Associate every form input with a visible <label> element.",
         "code": "<label for=\"email\">Email address</label>\n<input id=\"email\" type=\"email\" name=\"email\">"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every form input must have an associated <label>, aria-label, or aria-labelledby.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
+      "related_rules": [
+        { "id": "select-name", "reason": "The same label association pattern resolves select-name violations." }
+      ],
       "manual_test": {
         "description": "Click the label text to ensure focus moves to the input.",
         "steps": [
@@ -168,6 +198,8 @@
         "description": "Increase the contrast ratio between text and its background. Minimum 4.5:1 for normal text, 3:1 for large text (≥18pt or ≥14pt bold).",
         "code": "/* Adjust the foreground or background color until contrast ≥4.5:1 */\n/* Use CSS custom properties to keep the fix systematic: */\n.element {\n  color: var(--color-text-primary); /* verify ≥4.5:1 against background */\n  background-color: var(--color-surface); /* e.g. #fff or #1e293b */\n}\n/* Tip: Check contrast at https://webaim.org/resources/contrastchecker/ */"
       },
+      "fix_code_lang": "css",
+      "effort": "high",
       "impacted_users": "Users with low vision or color blindness",
       "expected": "Text contrast ratio must be at least 4.5:1 for normal text, 3:1 for large text.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Perceivable#contrast_minimum",
@@ -185,17 +217,33 @@
         "description": "All id attributes must be unique within the page. Search for duplicate values and rename them.",
         "code": "<!-- Before: duplicate ids -->\n<nav id=\"main-nav\">...</nav>\n<footer id=\"main-nav\">...</footer>\n\n<!-- After: unique ids -->\n<nav id=\"primary-nav\">...</nav>\n<footer id=\"footer-nav\">...</footer>\n\n<!-- Update any referencing aria-labelledby / aria-controls / href=\"#\" accordingly -->"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users (broken element references)",
       "expected": "All id attributes must be unique within the document.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id"
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id",
+      "manual_test": {
+        "description": "Verify no duplicate id values exist, especially across dynamically rendered components.",
+        "steps": [
+          "Open DevTools Console and run: document.querySelectorAll('[id]') — look for repeated values.",
+          "Paste: [...document.querySelectorAll('[id]')].filter((el, i, arr) => arr.findIndex(e => e.id === el.id) !== i) — non-empty result = duplicates.",
+          "Check SPAs after route changes — ids may be duplicated when components re-render."
+        ]
+      }
     },
     "heading-order": {
       "fix": {
         "description": "Fix the heading hierarchy — no levels may be skipped.",
         "code": "<h1>Page title</h1>\n<h2>Section heading</h2>\n<h3>Subsection heading</h3>\n<!-- Invalid: jumping from h1 to h3 -->"
       },
+      "fix_code_lang": "html",
+      "effort": "medium",
       "impacted_users": "Screen reader users navigating by headings",
       "expected": "Heading levels must not skip (h1 → h2 → h3, no gaps allowed).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements",
+      "related_rules": [
+        { "id": "page-has-heading-one", "reason": "Fixing the h1 establishes the root of the hierarchy — resolve it first." }
+      ],
       "manual_test": {
         "description": "Verify headings describe their sections meaningfully, not just maintain numeric order.",
         "steps": [
@@ -210,104 +258,245 @@
         "description": "Add exactly one <h1> as the primary page heading.",
         "code": "<h1>Main page heading</h1>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users navigating by headings",
-      "expected": "Page must have exactly one <h1> element as the primary heading."
+      "expected": "Page must have exactly one <h1> element as the primary heading.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements",
+      "related_rules": [
+        { "id": "heading-order", "reason": "Fixing the missing h1 anchors the heading hierarchy and may cascade-resolve heading-order violations." }
+      ],
+      "manual_test": {
+        "description": "Confirm there is exactly one h1 per page — not zero, not two.",
+        "steps": [
+          "Open DevTools Console and run: document.querySelectorAll('h1').length — expect 1.",
+          "For SPAs, navigate between routes and re-run the check after each transition.",
+          "Read the h1 aloud — does it accurately describe the unique purpose of this page?"
+        ]
+      }
     },
     "aria-required-attr": {
       "fix": {
         "description": "Add the required ARIA attribute(s) for the element's role. See the WAI-ARIA spec for required attributes per role.",
         "code": "<!-- combobox requires: aria-expanded + aria-controls -->\n<div role=\"combobox\" aria-expanded=\"false\" aria-controls=\"listbox-id\" aria-haspopup=\"listbox\">\n  <input type=\"text\" aria-autocomplete=\"list\">\n</div>\n<ul role=\"listbox\" id=\"listbox-id\">...</ul>\n\n<!-- scrollbar requires: aria-controls + aria-valuenow + aria-valuemin + aria-valuemax -->\n<div role=\"scrollbar\" aria-controls=\"scrollable-region\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users",
-      "expected": "ARIA roles must include all required attributes defined in the WAI-ARIA spec."
+      "expected": "ARIA roles must include all required attributes defined in the WAI-ARIA spec.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes",
+      "manual_test": {
+        "description": "Verify the ARIA widget is fully operable by a screen reader after adding the required attributes.",
+        "steps": [
+          "Locate the flagged element in DevTools and read its role attribute.",
+          "Cross-reference the WAI-ARIA spec (https://www.w3.org/TR/wai-aria/) for required attributes of that role.",
+          "Tab to the element with a screen reader active — confirm all state information (expanded, selected, etc.) is announced."
+        ]
+      }
     },
     "aria-valid-attr-value": {
       "fix": {
         "description": "Set a valid value for the ARIA attribute. Consult the WAI-ARIA spec for the list of allowed values.",
         "code": "<!-- Common invalid → valid corrections: -->\n\n<!-- aria-live: must be 'off' | 'polite' | 'assertive' -->\n<div aria-live=\"polite\">...</div>  <!-- not aria-live=\"yes\" -->\n\n<!-- aria-expanded: must be 'true' | 'false' -->\n<button aria-expanded=\"false\">Menu</button>  <!-- not aria-expanded=\"0\" -->\n\n<!-- aria-haspopup: must be 'true' | 'false' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog' -->\n<button aria-haspopup=\"menu\">Options</button>  <!-- not aria-haspopup=\"dropdown\" -->"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users",
-      "expected": "ARIA attributes must use only valid values defined in the WAI-ARIA spec."
+      "expected": "ARIA attributes must use only valid values defined in the WAI-ARIA spec.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes",
+      "manual_test": {
+        "description": "Confirm the corrected attribute value is recognised by a screen reader.",
+        "steps": [
+          "Locate the element in DevTools — note the invalid attribute value flagged by axe.",
+          "Update the value to a valid token per the WAI-ARIA spec.",
+          "Interact with the element using VoiceOver or NVDA and confirm the state is announced correctly (e.g., 'expanded', 'collapsed')."
+        ]
+      }
     },
     "aria-hidden-focus": {
       "fix": {
         "description": "Remove aria-hidden=\"true\" from elements that can receive focus, or exclude them from the tab order.",
         "code": "<!-- Option 1: Remove aria-hidden -->\n<button>Visible button</button>\n<!-- Option 2: Keep hidden but remove from tab order -->\n<span aria-hidden=\"true\" tabindex=\"-1\">Decorative text</span>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Keyboard-only users and screen reader users",
-      "expected": "Elements with aria-hidden=\"true\" must not be focusable."
+      "expected": "Elements with aria-hidden=\"true\" must not be focusable.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-hidden",
+      "manual_test": {
+        "description": "Tab into the flagged element and verify a screen reader either announces it or skips it cleanly.",
+        "steps": [
+          "Tab to the element — if focus reaches it while aria-hidden=\"true\" is set, the fix is needed.",
+          "After fix: Tab through the area again — the element should either be announced (aria-hidden removed) or completely skipped (tabindex=-1 added).",
+          "With VoiceOver or NVDA active, confirm no 'ghost' announcement occurs."
+        ]
+      }
     },
     "tabindex": {
       "fix": {
         "description": "Remove positive tabindex values. Use tabindex=\"0\" to include in natural tab order, tabindex=\"-1\" to exclude.",
         "code": "<!-- Include in natural tab order: -->\n<div role=\"button\" tabindex=\"0\">Focusable element</div>\n<!-- Programmatically focusable only: -->\n<div tabindex=\"-1\">Focus via script only</div>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Keyboard-only users",
-      "expected": "tabindex values must be 0 or -1. Positive values disrupt natural focus order."
+      "expected": "tabindex values must be 0 or -1. Positive values disrupt natural focus order.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex",
+      "manual_test": {
+        "description": "Tab through the page and verify focus order matches visual reading order.",
+        "steps": [
+          "Press Tab repeatedly from the top of the page — focus must move top-to-bottom, left-to-right.",
+          "If focus jumps unexpectedly, inspect the tabindex attribute on the focused element.",
+          "Confirm no element has tabindex > 0 in the source."
+        ]
+      }
     },
     "autocomplete-valid": {
       "fix": {
         "description": "Add a valid autocomplete token to form inputs to assist users with autofill.",
         "code": "<input type=\"email\" name=\"email\" autocomplete=\"email\">\n<input type=\"text\" name=\"name\" autocomplete=\"name\">\n<input type=\"tel\" name=\"phone\" autocomplete=\"tel\">"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Users with motor disabilities and cognitive disabilities",
-      "expected": "WCAG accessibility check must pass."
+      "expected": "Inputs collecting personal data must have a valid autocomplete attribute per WCAG 1.3.5.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete",
+      "manual_test": {
+        "description": "Verify autofill populates the correct field type in a real browser.",
+        "steps": [
+          "Open the form in Chrome or Safari with autofill data saved.",
+          "Trigger autofill (e.g., click the field or use Cmd+Shift+A in Chrome) — confirm the field receives the right data type.",
+          "Check DevTools: the autocomplete attribute value must be a valid token from the WCAG 1.3.5 list."
+        ]
+      }
     },
     "form-field-multiple-labels": {
       "fix": {
         "description": "Each form field must have exactly one associated <label>. Remove duplicate labels.",
         "code": "<!-- One label per input: -->\n<label for=\"name\">Full name</label>\n<input id=\"name\" type=\"text\" name=\"name\">"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users",
-      "expected": "WCAG accessibility check must pass."
+      "expected": "Each form input must have exactly one accessible name source (label, aria-label, or aria-labelledby).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
+      "manual_test": {
+        "description": "Confirm a screen reader announces exactly one label when focused on the input.",
+        "steps": [
+          "Tab to the flagged input with VoiceOver or NVDA active.",
+          "Listen to the announcement — it should state one name, not two concatenated labels.",
+          "In DevTools Accessibility panel, check the 'Name' field — it should contain a single, clean label."
+        ]
+      }
     },
     "scrollable-region-focusable": {
       "fix": {
         "description": "Make scrollable regions keyboard-accessible by adding tabindex=\"0\" and a descriptive label.",
-        "code": "<div tabindex=\"0\" role=\"region\" aria-label=\"Content section\">\n  <!-- scrollable content -->\n</div>"
+        "code": "<div tabindex=\"0\" role=\"region\" aria-label=\"Content section\" style=\"overflow: auto;\">\n  <!-- scrollable content -->\n</div>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Keyboard-only users",
-      "expected": "WCAG accessibility check must pass."
+      "expected": "Any element with scrollable overflow must be reachable via keyboard (tabindex=\"0\" or natively focusable).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/CSS/overflow",
+      "manual_test": {
+        "description": "Tab to the scrollable region and verify arrow keys scroll it.",
+        "steps": [
+          "Tab to the flagged element — keyboard focus must land on it.",
+          "Press Arrow Down / Arrow Up — the content must scroll.",
+          "Confirm a screen reader announces the region label when it receives focus."
+        ]
+      }
     },
     "select-name": {
       "fix": {
         "description": "Associate every <select> element with a visible <label>.",
         "code": "<label for=\"country\">Country</label>\n<select id=\"country\" name=\"country\">\n  <option value=\"us\">United States</option>\n</select>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
-      "expected": "WCAG accessibility check must pass."
+      "expected": "Every <select> must have an accessible name via <label>, aria-label, or aria-labelledby.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select",
+      "related_rules": [
+        { "id": "label", "reason": "The same label association pattern applies — fix label rule to resolve both." }
+      ],
+      "manual_test": {
+        "description": "Focus the select and verify the screen reader announces its label.",
+        "steps": [
+          "Tab to the <select> with VoiceOver or NVDA active.",
+          "The announcement must include both the label name and 'combo box' role.",
+          "Click the label text — focus must move to the select input."
+        ]
+      }
     },
     "input-image-alt": {
       "fix": {
         "description": "Add an alt attribute to every <input type=\"image\"> describing the action it performs.",
         "code": "<input type=\"image\" src=\"submit.png\" alt=\"Submit form\">"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Blind users relying on screen readers",
-      "expected": "WCAG accessibility check must pass."
+      "expected": "Every <input type=\"image\"> must have an alt attribute describing the button's action.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/image",
+      "manual_test": {
+        "description": "Tab to the image input and verify the screen reader announces the action.",
+        "steps": [
+          "Tab to the <input type=\"image\"> — the screen reader must announce the alt text.",
+          "Confirm the alt text describes the action (e.g., 'Submit form'), not the image appearance.",
+          "If no screen reader is available, inspect the alt attribute in DevTools."
+        ]
+      }
     },
     "object-alt": {
       "fix": {
         "description": "Add an aria-label to every <object> element describing its content.",
         "code": "<object data=\"chart.svg\" type=\"image/svg+xml\" aria-label=\"Bar chart: Q1 2024 sales by region\">\n  Fallback text for unsupported browsers\n</object>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Blind users relying on screen readers",
-      "expected": "WCAG accessibility check must pass."
+      "expected": "Every <object> must have an accessible name via aria-label or aria-labelledby.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object",
+      "manual_test": {
+        "description": "Verify a screen reader announces the object's accessible name.",
+        "steps": [
+          "Tab to the <object> element with VoiceOver or NVDA active.",
+          "The screen reader must announce the label and the element type.",
+          "If the object is purely decorative, consider replacing it with an equivalent image with alt=\"\"."
+        ]
+      }
     },
     "frame-title": {
       "fix": {
         "description": "Add a descriptive title attribute to every <iframe>.",
         "code": "<iframe\n  title=\"Embedded map showing our store location\"\n  src=\"https://maps.example.com/embed\"\n></iframe>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users",
-      "expected": "WCAG accessibility check must pass."
+      "expected": "Every <iframe> must have a descriptive title attribute.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#title",
+      "manual_test": {
+        "description": "Tab into the iframe area and verify the screen reader announces its title.",
+        "steps": [
+          "Tab to the iframe — the screen reader must announce 'frame' and the title content.",
+          "Confirm the title describes the frame's purpose (e.g., 'Google Maps — Store Location'), not a generic label ('iframe').",
+          "For hidden or off-screen iframes (e.g., third-party scripts), add title=\"\" to suppress SR announcement."
+        ]
+      }
     },
     "document-title": {
       "fix": {
         "description": "Add a descriptive, unique <title> element to every page.",
         "code": "<title>Product Details — My Store</title>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users and users with cognitive disabilities",
       "expected": "Page must have a descriptive, unique <title> element.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title",
       "manual_test": {
         "description": "Verify the title is unique per page and describes the current content.",
         "steps": [
@@ -322,32 +511,74 @@
         "description": "Add a lang attribute to the <html> element so screen readers pronounce content correctly.",
         "code": "<html lang=\"en\">"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users (language detection for pronunciation)",
-      "expected": "The <html> element must have a lang attribute."
+      "expected": "The <html> element must have a lang attribute.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang",
+      "manual_test": {
+        "description": "Confirm a screen reader switches to the correct language voice when reading the page.",
+        "steps": [
+          "Enable VoiceOver or NVDA with multiple language voices installed.",
+          "Navigate to the page — the screen reader must use the declared language voice.",
+          "If content is bilingual, verify elements with lang overrides on child elements are also announced in the correct language."
+        ]
+      }
     },
     "html-lang-valid": {
       "fix": {
         "description": "Use a valid BCP 47 language tag on the <html> element.",
         "code": "<!-- English -->\n<html lang=\"en\">\n<!-- French Canadian -->\n<html lang=\"fr-CA\">\n<!-- Brazilian Portuguese -->\n<html lang=\"pt-BR\">"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users (language detection for pronunciation)",
-      "expected": "The lang attribute on <html> must be a valid BCP 47 language tag."
+      "expected": "The lang attribute on <html> must be a valid BCP 47 language tag.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang",
+      "related_rules": [
+        { "id": "html-has-lang", "reason": "html-has-lang and html-lang-valid are often co-located — fix the lang attribute once to resolve both." }
+      ],
+      "manual_test": {
+        "description": "Verify the lang value is a recognised BCP 47 tag.",
+        "steps": [
+          "Inspect the <html> element in DevTools — read the lang attribute.",
+          "Cross-check against the IANA Language Subtag Registry (https://www.iana.org/assignments/language-subtag-registry/).",
+          "Common mistakes: 'en_US' (underscore) instead of 'en-US' (hyphen), or 'english' (full word) instead of 'en'."
+        ]
+      }
     },
     "valid-lang": {
       "fix": {
         "description": "Use a valid BCP 47 language code on any element with a lang attribute.",
         "code": "<p lang=\"es\">Hola mundo</p>\n<blockquote lang=\"fr\">Citation en français</blockquote>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Screen reader users (language detection for pronunciation)",
-      "expected": "WCAG accessibility check must pass."
+      "expected": "All lang attributes must use valid BCP 47 language codes.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang",
+      "manual_test": {
+        "description": "Verify inline language switches are recognised by a screen reader.",
+        "steps": [
+          "Search source files for lang= attributes on elements other than <html>.",
+          "Confirm each value is a valid BCP 47 tag (e.g. 'es', 'fr-CA', 'pt-BR').",
+          "With a screen reader, navigate over the inline foreign-language text — the voice should switch languages."
+        ]
+      }
     },
     "bypass": {
       "fix": {
         "description": "Add a skip link at the very top of each page so keyboard users can bypass repetitive navigation.",
         "code": "<a class=\"skip-link\" href=\"#main-content\">Skip to main content</a>\n<nav><!-- navigation --></nav>\n<main id=\"main-content\">\n  <!-- page content -->\n</main>"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Keyboard-only users and screen reader users",
       "expected": "Page must provide a mechanism to skip repetitive navigation (e.g., a skip link).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
+      "related_rules": [
+        { "id": "landmark-one-main", "reason": "The skip link target (#main-content) must point to the <main> landmark." }
+      ],
       "manual_test": {
         "description": "Verify the skip link is functional, not just present in the DOM.",
         "steps": [
@@ -362,24 +593,49 @@
         "description": "Remove automatic page refresh. If redirecting immediately, a delay of 0 is permitted.",
         "code": "<!-- Remove this: -->\n<!-- <meta http-equiv=\"refresh\" content=\"5; url=...\"> -->\n\n<!-- Instant redirect only (delay=0 is OK): -->\n<meta http-equiv=\"refresh\" content=\"0; url=https://example.com/new-page\">"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Users with cognitive disabilities and screen reader users",
-      "expected": "WCAG accessibility check must pass."
+      "expected": "Pages must not auto-refresh or auto-redirect with a non-zero delay (WCAG 2.2.2).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/http-equiv",
+      "manual_test": {
+        "description": "Confirm the page does not reload or redirect without user interaction.",
+        "steps": [
+          "Load the page and wait 30 seconds — it must not refresh automatically.",
+          "Check the <head> for <meta http-equiv=\"refresh\"> with a non-zero delay.",
+          "Search JavaScript for setInterval/setTimeout calls that trigger window.location changes."
+        ]
+      }
     },
     "meta-viewport": {
       "fix": {
         "description": "Remove user-scalable=no from the viewport meta tag to allow users to zoom.",
         "code": "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
       },
+      "fix_code_lang": "html",
+      "effort": "low",
       "impacted_users": "Users who need to zoom (low vision, motor disabilities)",
-      "expected": "Viewport meta must not disable user scaling (user-scalable=no is forbidden)."
+      "expected": "Viewport meta must not disable user scaling (user-scalable=no is forbidden).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag",
+      "manual_test": {
+        "description": "Verify the page can be zoomed to 400% without horizontal scrolling on a 1280px viewport.",
+        "steps": [
+          "Open the page in Chrome and press Ctrl/Cmd + '+' repeatedly until 400% zoom.",
+          "Confirm all content reflows vertically — no horizontal scrollbar should appear.",
+          "On a mobile device, pinch-to-zoom must not be blocked."
+        ]
+      }
     },
     "target-size": {
       "fix": {
         "description": "Interactive elements must have a minimum target size of 24×24 CSS pixels (WCAG 2.5.8). Larger targets (44×44 px) are recommended for touch interfaces.",
         "code": "/* Minimum WCAG 2.2 AA target size */\n.btn, a, [role=\"button\"] {\n  min-width: 24px;\n  min-height: 24px;\n}\n\n/* Recommended for touch: */\n.btn {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 0.5rem 1rem;\n}"
       },
+      "fix_code_lang": "css",
+      "effort": "medium",
       "impacted_users": "Mobile/touch users and users with motor disabilities",
       "expected": "All interactive targets must be at least 24×24 CSS pixels (WCAG 2.5.8). Spacing or a larger equivalent target is an acceptable alternative.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Operable#guideline_2.5_%E2%80%94_input_modalities",
       "manual_test": {
         "description": "Measure the rendered size of small interactive elements — CSS values alone can be misleading.",
         "steps": [
@@ -394,8 +650,11 @@
         "description": "The focus indicator must cover a minimum area (perimeter × 2 CSS px) and maintain a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
         "code": ":focus-visible {\n  outline: 3px solid #005FCC;\n  outline-offset: 2px;\n  /* Ensure contrast ratio ≥ 3:1 vs adjacent background */\n}\n\n/* Remove browser default only when providing a custom style */\n:focus:not(:focus-visible) {\n  outline: none;\n}"
       },
+      "fix_code_lang": "css",
+      "effort": "medium",
       "impacted_users": "Keyboard-only users and users with low vision",
       "expected": "Focus indicators must be clearly visible, with a minimum area of the component perimeter × 2 CSS px and a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible",
       "manual_test": {
         "description": "Tab through every interactive element and verify the focus indicator is visible and distinct.",
         "steps": [
@@ -410,8 +669,11 @@
         "description": "All drag-and-drop functionality must have a single-pointer alternative (e.g., click-to-select then click-to-drop, or arrow buttons) for users who cannot perform drag gestures (WCAG 2.5.7).",
         "code": "<!-- Provide non-drag alternative with arrow buttons: -->\n<ul role=\"listbox\" aria-label=\"Sortable items\">\n  <li role=\"option\" tabindex=\"0\">\n    Item 1\n    <button aria-label=\"Move item up\">↑</button>\n    <button aria-label=\"Move item down\">↓</button>\n  </li>\n</ul>"
       },
+      "fix_code_lang": "html",
+      "effort": "high",
       "impacted_users": "Users with motor disabilities who cannot perform drag gestures",
       "expected": "All drag-and-drop functionality must have an equivalent single-pointer alternative operable without dragging (WCAG 2.5.7).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Operable",
       "manual_test": {
         "description": "Verify the non-drag alternative completes the same task end-to-end.",
         "steps": [
@@ -426,24 +688,57 @@
         "description": "Do not require users to re-enter information already provided in the same session (WCAG 3.3.7). Pre-populate fields or provide a copy option.",
         "code": "<!-- Pre-populate from session data: -->\n<label for=\"ship-address\">Shipping address</label>\n<input id=\"ship-address\" type=\"text\" autocomplete=\"shipping street-address\"\n  value=\"{{ session.billing_address }}\">\n\n<!-- Or offer a checkbox: -->\n<label>\n  <input type=\"checkbox\" id=\"same-as-billing\">\n  Same as billing address\n</label>"
       },
+      "fix_code_lang": "html",
+      "effort": "high",
       "impacted_users": "Users with cognitive disabilities and motor disabilities",
-      "expected": "Information already submitted during the same session must be auto-populated or selectable without requiring re-entry (WCAG 3.3.7)."
+      "expected": "Information already submitted during the same session must be auto-populated or selectable without requiring re-entry (WCAG 3.3.7).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Understandable",
+      "manual_test": {
+        "description": "Walk through a multi-step form and verify previously entered data is not requested again.",
+        "steps": [
+          "Complete step 1 of a multi-step flow (e.g., billing address).",
+          "On step 2 (e.g., shipping), check if the same data is pre-populated or a 'same as above' option is provided.",
+          "If neither is present, the WCAG 3.3.7 violation stands."
+        ]
+      }
     },
     "accessible-auth-minimum": {
       "fix": {
         "description": "Authentication must not require solving a cognitive test (CAPTCHA, puzzle, memorization) without providing an accessible alternative (WCAG 3.3.8).",
         "code": "<!-- Option 1: Offer an audio CAPTCHA alternative -->\n<div class=\"captcha-group\">\n  <img src=\"captcha.png\" alt=\"Enter the characters shown\">\n  <a href=\"/audio-captcha\">Use audio CAPTCHA instead</a>\n</div>\n\n<!-- Option 2: Use passkeys (no cognitive test required) -->\n<button type=\"button\" onclick=\"authenticateWithPasskey()\">\n  Sign in with passkey\n</button>"
       },
+      "fix_code_lang": "html",
+      "effort": "high",
       "impacted_users": "Users with cognitive disabilities (dyslexia, memory impairments)",
-      "expected": "Authentication processes must not require solving a cognitive function test without providing an accessible alternative method (WCAG 3.3.8)."
+      "expected": "Authentication processes must not require solving a cognitive function test without providing an accessible alternative method (WCAG 3.3.8).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Understandable",
+      "manual_test": {
+        "description": "Attempt to complete authentication using only a screen reader and no visual CAPTCHA solving.",
+        "steps": [
+          "Navigate to the login page with VoiceOver active.",
+          "If a CAPTCHA is present, verify an audio alternative is offered and functional.",
+          "Attempt login using passkey or magic link — no cognitive puzzle should be required."
+        ]
+      }
     },
     "consistent-help": {
       "fix": {
         "description": "Help mechanisms (support link, chat, contact info, self-help tool) must appear in the same relative order on every page where they appear (WCAG 3.2.6).",
         "code": "<!-- Place help in a consistent location across all pages (e.g., persistent header or footer): -->\n<header>\n  <nav aria-label=\"Support\">\n    <a href=\"/help\">Help centre</a>\n    <a href=\"/contact\">Contact support</a>\n  </nav>\n</header>"
       },
+      "fix_code_lang": "html",
+      "effort": "medium",
       "impacted_users": "Users with cognitive disabilities who rely on consistent page layouts",
-      "expected": "Help mechanisms must appear in the same relative order on every page where they are provided (WCAG 3.2.6)."
+      "expected": "Help mechanisms must appear in the same relative order on every page where they are provided (WCAG 3.2.6).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Understandable",
+      "manual_test": {
+        "description": "Navigate between at least 3 different pages and verify help links appear in the same position.",
+        "steps": [
+          "Identify all help mechanisms on the homepage (e.g., chat widget, help link in footer).",
+          "Visit 2 more pages and confirm the help mechanisms appear in the same order and position.",
+          "If any page hides or repositions the help mechanism, it violates WCAG 3.2.6."
+        ]
+      }
     }
   }
 }

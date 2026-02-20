@@ -132,6 +132,19 @@ export function detectImplicitRole(tag, html) {
     details: "group",
     summary: "group",
     table: "table",
+    nav: "navigation",
+    header: "banner",
+    footer: "contentinfo",
+    aside: "complementary",
+    main: "main",
+    form: "form",
+    fieldset: "group",
+    h1: "heading",
+    h2: "heading",
+    h3: "heading",
+    h4: "heading",
+    h5: "heading",
+    h6: "heading",
   };
   return map[tag] ?? null;
 }
@@ -215,9 +228,12 @@ function buildFindings(inputPayload) {
           expected: getExpected(v.id),
           fix_description: fixInfo.description ?? null,
           fix_code: fixInfo.code ?? null,
+          fix_code_lang: ruleInfo.fix_code_lang ?? "html",
           recommended_fix: recFix.trim(),
           mdn: ruleInfo.mdn ?? null,
           manual_test: ruleInfo.manual_test ?? null,
+          effort: ruleInfo.effort ?? null,
+          related_rules: Array.isArray(ruleInfo.related_rules) ? ruleInfo.related_rules : [],
           total_instances: nodes.length,
           evidence: nodes.slice(0, 3).map((n) => ({
             html: n.html,

@@ -107,12 +107,10 @@ export function buildIssueCard(finding) {
   }
 
   let effortBadge = "";
-  if (finding.fixCode) {
+  const effortLevel = finding.effort ?? (finding.fixCode ? "low" : "high");
+  if (effortLevel === "low") {
     effortBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase tracking-widest shadow-sm">Low Effort</span>`;
-  } else if (
-    finding.ruleId &&
-    (finding.ruleId.includes("aria") || finding.ruleId.includes("name"))
-  ) {
+  } else if (effortLevel === "medium") {
     effortBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 uppercase tracking-widest shadow-sm">Med Effort</span>`;
   } else {
     effortBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200/60 uppercase tracking-widest shadow-sm">High Effort</span>`;
@@ -289,6 +287,20 @@ export function buildManualCheckCard(check) {
       </ol>
     </div>
   </div>
+  ${check.code_example ? `
+  <div class="px-5 pb-4">
+    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Before / After</h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div>
+        <span class="text-[10px] font-bold text-rose-600 uppercase tracking-widest block mb-1">Before</span>
+        <pre class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(check.code_example.before)}</code></pre>
+      </div>
+      <div>
+        <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest block mb-1">After</span>
+        <pre class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(check.code_example.after)}</code></pre>
+      </div>
+    </div>
+  </div>` : ""}
   <div class="px-5 pb-4">
     <a href="${escapeHtml(check.ref)}" target="_blank" class="text-xs text-indigo-600 hover:underline font-medium">${check.level === "AT" ? `W3C Reference — ${escapeHtml(check.title)}` : `WCAG 2.2 Understanding — ${escapeHtml(check.criterion)} ${escapeHtml(check.title)}`} →</a>
   </div>

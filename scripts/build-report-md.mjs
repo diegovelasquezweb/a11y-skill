@@ -30,6 +30,7 @@ function parseArgs(argv) {
     ),
     baseUrl: "",
     target: config.complianceTarget || "WCAG 2.2 AA",
+    framework: config.framework ?? null,
   };
 
   for (let i = 0; i < argv.length; i += 1) {

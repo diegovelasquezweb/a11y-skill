@@ -74,6 +74,36 @@ describe("detectImplicitRole", () => {
     expect(detectImplicitRole("input", '<input type="CHECKBOX">')).toBe("checkbox");
     expect(detectImplicitRole("input", '<input type="RADIO">')).toBe("radio");
   });
+
+  it("returns 'navigation' for <nav>", () => {
+    expect(detectImplicitRole("nav", "<nav>")).toBe("navigation");
+  });
+
+  it("returns 'banner' for <header>", () => {
+    expect(detectImplicitRole("header", "<header>")).toBe("banner");
+  });
+
+  it("returns 'contentinfo' for <footer>", () => {
+    expect(detectImplicitRole("footer", "<footer>")).toBe("contentinfo");
+  });
+
+  it("returns 'complementary' for <aside>", () => {
+    expect(detectImplicitRole("aside", "<aside>")).toBe("complementary");
+  });
+
+  it("returns 'heading' for <h1> through <h6>", () => {
+    for (const h of ["h1", "h2", "h3", "h4", "h5", "h6"]) {
+      expect(detectImplicitRole(h, `<${h}>`)).toBe("heading");
+    }
+  });
+
+  it("returns 'form' for <form>", () => {
+    expect(detectImplicitRole("form", "<form>")).toBe("form");
+  });
+
+  it("returns 'group' for <fieldset>", () => {
+    expect(detectImplicitRole("fieldset", "<fieldset>")).toBe("group");
+  });
 });
 
 describe("extractSearchHint", () => {

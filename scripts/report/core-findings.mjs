@@ -2,9 +2,13 @@ export const SEVERITY_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 
 function computePriorityScore(item) {
   const sev = SEVERITY_ORDER[item.severity] ?? 3;
-  const severityPoints = sev === 0 ? 40 : sev === 1 ? 20 : sev === 2 ? 5 : 0;
-  const instancePoints = Math.min((item.total_instances || 1) * 2, 30);
-  const fixPoints = item.fix_code ? 10 : 0;
+  // Severity: 0-50 pts (Critical=50, High=30, Medium=10, Low=0)
+  const severityPoints = sev === 0 ? 50 : sev === 1 ? 30 : sev === 2 ? 10 : 0;
+  // Instance count: 0-30 pts, logarithmic curve so 1 instance ≠ 0 pts
+  const instances = item.total_instances || 1;
+  const instancePoints = Math.min(Math.round(Math.log2(instances + 1) * 10), 30);
+  // Fix available bonus: 0-20 pts
+  const fixPoints = item.fix_code ? 20 : 0;
   return severityPoints + instancePoints + fixPoints;
 }
 
@@ -44,6 +48,9 @@ export function normalizeFindings(payload) {
       evidence: Array.isArray(item.evidence) ? item.evidence : [],
       totalInstances: typeof item.total_instances === "number" ? item.total_instances : null,
       priorityScore: computePriorityScore(item),
+      effort: item.effort ?? null,
+      relatedRules: Array.isArray(item.related_rules) ? item.related_rules : [],
+      fixCodeLang: item.fix_code_lang ?? "html",
       screenshotPath: item.screenshot_path ?? null,
     }))
     .sort((a, b) => {

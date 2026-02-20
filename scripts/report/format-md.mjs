@@ -17,6 +17,19 @@ try {
  */
 export function buildManualChecksMd() {
   const entries = MANUAL_CHECKS.map((check) => {
+    const codeBlock = check.code_example
+      ? [
+          ``,
+          `**Before / After:**`,
+          `\`\`\`${check.code_example.lang || "html"}`,
+          check.code_example.before,
+          `\`\`\``,
+          `\`\`\`${check.code_example.lang || "html"}`,
+          check.code_example.after,
+          `\`\`\``,
+        ].join("\n")
+      : null;
+
     return [
       `---`,
       `### ${check.criterion} — ${check.title} (WCAG 2.2 ${check.level})`,
@@ -33,8 +46,9 @@ export function buildManualChecksMd() {
             ``,
           ]
         : []),
+      codeBlock,
       `**Reference:** ${check.ref}`,
-    ].join("\n");
+    ].filter(Boolean).join("\n");
   }).join("\n\n");
 
   return `## WCAG 2.2 Static Code Checks
@@ -45,7 +59,8 @@ ${entries}
 `;
 }
 
-function detectFramework(baseUrl = "") {
+function detectFramework(baseUrl = "", configFramework = null) {
+  if (configFramework) return configFramework.toLowerCase();
   const url = baseUrl.toLowerCase();
   if (url.includes("myshopify.com") || url.includes(".myshopify.")) return "shopify";
   if (url.includes("wp-content") || url.includes("wordpress")) return "wordpress";
@@ -102,10 +117,16 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         ? `**To reproduce:**\n${f.reproduction.map((s, i) => `${i + 1}. ${s}`).join("\n")}`
         : null;
 
+    const codeLang = f.fixCodeLang || "html";
     const fixBlock =
       f.fixDescription || f.fixCode
-        ? `#### Recommended Technical Solution\n${f.fixDescription ? `**Implementation:** ${f.fixDescription}\n` : ""}${f.fixCode ? `\`\`\`html\n${f.fixCode}\n\`\`\`` : ""}`.trimEnd()
+        ? `#### Recommended Technical Solution\n${f.fixDescription ? `**Implementation:** ${f.fixDescription}\n` : ""}${f.fixCode ? `\`\`\`${codeLang}\n${f.fixCode}\n\`\`\`` : ""}`.trimEnd()
         : `#### Recommended Remediation\n${f.recommendedFix}`;
+
+    const relatedBlock =
+      Array.isArray(f.relatedRules) && f.relatedRules.length > 0
+        ? `**Fixing this also helps:**\n${f.relatedRules.map((r) => `- \`${r.id}\` — ${r.reason}`).join("\n")}`
+        : null;
 
     const ruleRef = f.ruleId
       ? `**Rule Logic:** https://dequeuniversity.com/rules/axe/4.10/${f.ruleId}`
@@ -138,6 +159,8 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       f.fixDescription || f.fixCode
         ? `**Context & Patterns:** ${f.recommendedFix}`
         : null,
+      relatedBlock ? `` : null,
+      relatedBlock,
     ]
       .filter((line) => line !== null)
       .join("\n");
@@ -201,7 +224,7 @@ Total findings: **${findings.length} issues**
 
 **FOLLOW THESE RULES TO PREVENT REGRESSIONS AND HALLUCINATIONS:**
 
-${buildGuardrails(detectFramework(args.baseUrl))}
+${buildGuardrails(detectFramework(args.baseUrl, args.framework ?? null))}
 
 ---
 

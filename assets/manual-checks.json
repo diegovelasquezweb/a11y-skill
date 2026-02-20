@@ -12,6 +12,11 @@
     "remediation": [
       "If no focus style is defined globally, add: `*:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }` to the global stylesheet."
     ],
+    "code_example": {
+      "lang": "css",
+      "before": "/* BEFORE — browser default outline suppressed */\n*:focus {\n  outline: none;\n}",
+      "after": "/* AFTER — accessible focus indicator */\n*:focus-visible {\n  outline: 3px solid #005FCC;\n  outline-offset: 2px;\n  border-radius: 2px;\n}\n/* Only suppress for mouse/pointer interactions */\n*:focus:not(:focus-visible) {\n  outline: none;\n}"
+    },
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/focus-appearance.html"
   },
   {
@@ -88,6 +93,11 @@
     "remediation": [
       "Verify password fields do not have `onPaste` handlers that prevent pasting — remove any such restriction."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — blocks paste and autocomplete -->\n<input\n  type=\"password\"\n  name=\"password\"\n  autocomplete=\"off\"\n  onpaste=\"return false;\"\n>",
+      "after": "<!-- AFTER — allows password manager and paste -->\n<input\n  type=\"password\"\n  name=\"password\"\n  autocomplete=\"current-password\"\n>"
+    },
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/accessible-authentication-minimum.html"
   },
   {
@@ -104,6 +114,11 @@
       "Add keyboard event handlers (keydown/keyup) alongside mouse event handlers for all custom interactive components.",
       "Ensure custom components follow the APG keyboard interaction patterns: https://www.w3.org/WAI/ARIA/apg/patterns/"
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — click only, no keyboard support -->\n<div class=\"dropdown\" onclick=\"toggleMenu()\">\n  Options\n</div>",
+      "after": "<!-- AFTER — keyboard accessible with role + tabindex -->\n<button\n  class=\"dropdown\"\n  aria-expanded=\"false\"\n  aria-haspopup=\"menu\"\n  onclick=\"toggleMenu(this)\"\n  onkeydown=\"handleMenuKey(event, this)\"\n>\n  Options\n</button>"
+    },
     "ref": "https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html"
   },
   {
@@ -152,6 +167,11 @@
       "Add a secondary indicator alongside color: icon, pattern, label, underline, or border.",
       "Never rely solely on red/green color coding for status — add text labels or icons."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — error indicated by color only -->\n<input type=\"email\" class=\"input-error\">\n<!-- .input-error { border: 2px solid red; } -->",
+      "after": "<!-- AFTER — error indicated by color + icon + text -->\n<div class=\"field\">\n  <input type=\"email\" class=\"input-error\" aria-describedby=\"email-error\">\n  <p id=\"email-error\" class=\"error-message\" role=\"alert\">\n    <svg aria-hidden=\"true\"><!-- error icon --></svg>\n    Please enter a valid email address.\n  </p>\n</div>"
+    },
     "ref": "https://www.w3.org/WAI/WCAG21/Understanding/use-of-color.html"
   },
   {
