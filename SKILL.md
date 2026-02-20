@@ -207,16 +207,20 @@ Each reported issue must include:
 Use standard tools and bundled scripts for repeatable output:
 
 1. `scripts/check-toolchain.mjs` for preflight diagnostics of local dependencies.
-2. `scripts/generate-route-checks.mjs` for robust browser-side scanning with Axe-Core.
-3. `scripts/deterministic-findings.mjs` for stable finding generation from scan data.
-4. `scripts/build-audit-html.mjs` for final premium HTML report generation.
+2. `scripts/run-scanner.mjs` for robust browser-side scanning with Axe-Core.
+3. `scripts/run-analyzer.mjs` for stable finding generation from scan data.
+4. `scripts/build-report-html.mjs` for the interactive HTML dashboard.
+5. `scripts/build-report-md.mjs` for the AI-optimized remediation guide.
+6. `scripts/build-report-pdf.mjs` for the formal PDF export.
 
 Use this pipeline order:
 
 1. `check-toolchain.mjs`
-2. `generate-route-checks.mjs`
-3. `deterministic-findings.mjs`
-4. `build-audit-html.mjs`
+2. `run-scanner.mjs`
+3. `run-analyzer.mjs`
+4. `build-report-html.mjs`
+5. `build-report-md.mjs`
+6. `build-report-pdf.mjs`
 
 Execution discipline for the agent:
 
@@ -235,7 +239,7 @@ Execution discipline for the agent:
 
 ## 8) File Output Behavior (Mandatory)
 
-1. Write two final artifacts in `audit/`:
+1. Write three final artifacts in `audit/`:
 
 - `audit/report.html` — full HTML report (primary deliverable).
 - `audit/remediation.md` — actionable remediation guide for agents (selectors, evidence, fix templates).

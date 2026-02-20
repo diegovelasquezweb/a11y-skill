@@ -513,7 +513,7 @@ function buildFindings(inputPayload) {
             `Check selector: ${selectors[0] || "N/A"}`,
             v.help,
           ],
-          actual: firstFailure || `Found ${nodes.length} instance(s).`,
+          actual: firstNode?.failureSummary || `Found ${nodes.length} instance(s).`,
           expected: getExpected(v.id),
           fix_description: FIX_TEMPLATES[v.id]?.description ?? null,
           fix_code: FIX_TEMPLATES[v.id]?.code ?? null,
