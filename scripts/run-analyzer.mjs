@@ -308,9 +308,11 @@ function main() {
   log.success(`Findings processed and saved to ${args.output}`);
 }
 
-try {
-  main();
-} catch (error) {
-  log.error(error.message);
-  process.exit(1);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  try {
+    main();
+  } catch (error) {
+    log.error(error.message);
+    process.exit(1);
+  }
 }
