@@ -271,8 +271,10 @@ export function buildManualCheckCard(check) {
     <div class="flex-1 min-w-0">
       <div class="flex flex-wrap items-center gap-2 mb-2">
         <span class="manual-badge px-2.5 py-0.5 rounded-full text-xs font-bold border bg-amber-100 text-amber-800 border-amber-200">Manual</span>
-        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 font-mono">${escapeHtml(check.criterion)}</span>
-        <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">WCAG 2.2 ${escapeHtml(check.level)}</span>
+        ${check.level !== "AT" ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 font-mono">${escapeHtml(check.criterion)}</span>` : ""}
+        ${check.level === "AT"
+          ? `<span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-50 text-violet-700 border border-violet-200">Assistive Technology</span>`
+          : `<span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100">WCAG ${escapeHtml(check.level)}</span>`}
       </div>
       <h3 class="text-base font-bold text-slate-900">${escapeHtml(check.title)}</h3>
     </div>
@@ -294,7 +296,7 @@ export function buildManualCheckCard(check) {
     </div>
   </div>
   <div class="px-5 pb-4">
-    <a href="${escapeHtml(check.ref)}" target="_blank" class="text-xs text-indigo-600 hover:underline font-medium">WCAG 2.2 Understanding — ${escapeHtml(check.criterion)} ${escapeHtml(check.title)} →</a>
+    <a href="${escapeHtml(check.ref)}" target="_blank" class="text-xs text-indigo-600 hover:underline font-medium">${check.level === "AT" ? `W3C Reference — ${escapeHtml(check.title)}` : `WCAG 2.2 Understanding — ${escapeHtml(check.criterion)} ${escapeHtml(check.title)}`} →</a>
   </div>
 </div>`;
 }
@@ -311,7 +313,7 @@ export function buildManualChecksSection() {
     <h3 class="text-lg font-bold text-slate-900">Manual Verification Required</h3>
     <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">${total} checks</span>
   </div>
-  <p class="text-sm text-slate-500">These WCAG 2.2 criteria cannot be detected automatically by axe-core. Check each one off as you verify it — progress is saved in your browser.</p>
+  <p class="text-sm text-slate-500">Axe-core covers ~40% of WCAG issues automatically. The remaining checks below require human verification and are split into three categories: <strong class="text-slate-700">WCAG A</strong> and <strong class="text-slate-700">WCAG AA</strong> criteria verifiable with a browser and DevTools, and <strong class="text-violet-700">Assistive Technology</strong> checks that require VoiceOver (macOS) or NVDA (Windows). Check each off as you verify it — progress is saved per site.</p>
 </div>
 
 <div id="manual-progress-sticky" class="sticky top-14 z-30 bg-white rounded-xl border border-slate-200 p-4 mb-6 flex items-center gap-4 shadow-sm">

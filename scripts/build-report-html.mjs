@@ -651,7 +651,7 @@ function buildHtml(args, findings, metadata = {}) {
 
   <script>
     // ── Manual checks — localStorage persistence ──────────────────────────
-    const STORAGE_KEY = 'a11y-manual:${escapeHtml(args.baseUrl)}:${dateStr}';
+    const STORAGE_KEY = 'a11y-manual:${escapeHtml(args.baseUrl)}';
     const TOTAL_CHECKS = ${MANUAL_CHECKS.length};
 
     function getState() {

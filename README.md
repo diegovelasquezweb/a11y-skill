@@ -6,7 +6,7 @@ Perform automated accessibility audits that empower AI agents to resolve issues 
 
 - **Engineered for AI Agents** — Generates a remediation guide prioritizing findings by severity and grouping them by route. It provides surgical DOM selectors and search hints specifically designed for AI agents to locate and patch source code securely.
 - **Zero-Config Route Discovery** — Point it at a URL and it scouts same-origin routes from the entry point. Finds internal links automatically, no sitemap or route list required.
-- **WCAG 2.2 Manual Check Coverage** — Six criteria axe-core can't detect are covered with step-by-step verification instructions built into the report.
+- **Three-Level Manual Check Coverage** — 24 checks across three verification levels: WCAG A/AA criteria verifiable with DevTools, and Assistive Technology checks requiring VoiceOver or NVDA. Step-by-step instructions are built into the report with per-site progress saved in the browser.
 - **Multi-Source a11y Intelligence** — Automatically links findings to W3C Patterns (Implementation), Deque University (Rule Logic), A11ySupport.io (Browser Support), and Inclusive Components (Design).
 
 ## Feature Comparison
@@ -34,14 +34,14 @@ To install this skill, provide the following prompt to your AI agent:
 
 This skill follows the [Agent Skills standard](https://agentskills.io). Below are the supported agents and their default installation paths:
 
-| Agent / IDE     | Skill install path (Global/User)               | Extended Workflow      | Agent Config         |
-| :-------------- | :--------------------------------------------- | :--------------------- | :------------------- |
-| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`           | `.agent/workflows/`    | —                    |
-| **Codex**       | `~/.codex/skills/a11y/`                        | —                      | `agents/openai.yaml` |
-| **Claude**      | `~/.claude/skills/a11y/`                       | —                      | —                    |
-| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex) | —                      | —                    |
-| **Gemini CLI**  | `~/.gemini/skills/a11y/`                       | —                      | —                    |
-| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`             | `.windsurf/workflows/` | —                    |
+| Agent / IDE     | Skill Install Path (Global/User)                | Config & Rules             | Extended Workflow          |
+| :-------------- | :---------------------------------------------- | :------------------------- | :------------------------- |
+| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`            | —                          | `.agent/`, `workflows/`    |
+| **Codex**       | `~/.codex/skills/a11y/`                         | `agents/openai.yaml`       | `.agents/`, `workflows/`   |
+| **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`, `.claude/`    | `workflows/`               |
+| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  | `.cursorrules`, `.cursor/` | `workflows/`               |
+| **Gemini CLI**  | `~/.gemini/skills/a11y/` (or `.agents/skills/`) | `~/.gemini/settings.json`  | —                          |
+| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`              | —                          | `.windsurf/`, `workflows/` |
 
 ## How to Use
 
