@@ -141,15 +141,38 @@ function buildHtml(args, findings) {
     },
   };
 
+  const uniqueIssues = {
+    screenReader: new Set(),
+    keyboard: new Set(),
+    vision: new Set(),
+    cognitive: new Set(),
+  };
+
   for (const f of findings) {
     const users = f.impactedUsers.toLowerCase();
-    if (users.includes("screen reader")) personaGroups.screenReader.count++;
-    if (users.includes("keyboard")) personaGroups.keyboard.count++;
-    if (users.includes("vision") || users.includes("color"))
-      personaGroups.vision.count++;
-    if (users.includes("cognitive") || users.includes("motor"))
-      personaGroups.cognitive.count++;
+    const issueKey = f.ruleId || f.title;
+
+    if (
+      users.includes("screen reader") ||
+      users.includes("assistive technology")
+    ) {
+      uniqueIssues.screenReader.add(issueKey);
+    }
+    if (users.includes("keyboard")) {
+      uniqueIssues.keyboard.add(issueKey);
+    }
+    if (users.includes("vision") || users.includes("color")) {
+      uniqueIssues.vision.add(issueKey);
+    }
+    if (users.includes("cognitive") || users.includes("motor")) {
+      uniqueIssues.cognitive.add(issueKey);
+    }
   }
+
+  personaGroups.screenReader.count = uniqueIssues.screenReader.size;
+  personaGroups.keyboard.count = uniqueIssues.keyboard.size;
+  personaGroups.vision.count = uniqueIssues.vision.size;
+  personaGroups.cognitive.count = uniqueIssues.cognitive.size;
 
   const quickWins = findings
     .filter(
@@ -366,6 +389,7 @@ function buildHtml(args, findings) {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Persona Impact Matrix
           </h3>
+          <p class="text-xs text-slate-400 mb-6 -mt-4 leading-relaxed italic">Distribution of unique accessibility barriers per user profile. Duplicate errors are grouped to show strategic impact.</p>
           <div class="space-y-4">
             ${Object.entries(personaGroups)
               .map(
@@ -401,6 +425,7 @@ function buildHtml(args, findings) {
             <span class="px-2 py-0.5 rounded bg-indigo-500 text-[10px] font-black text-white uppercase tracking-tighter">AI Analysis</span>
             <h3 class="text-xl font-bold text-white">Recommended Quick Wins</h3>
           </div>
+          <p class="text-xs text-indigo-300/80 mb-6 -mt-2 leading-relaxed italic">High-priority issues with ready-to-use code fixes for immediate remediation.</p>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             ${quickWins
               .map(
