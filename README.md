@@ -30,22 +30,15 @@ This skill follows the [Agent Skills standard](https://agentskills.io). Below ar
 
 ## How to Use
 
-Once installed, the skill is available to your agent in any conversation. Simply ask:
+Once installed, the skill is available to your agent in any conversation:
 
-> "Audit my local dev server at `http://localhost:3000`"
+```bash
+"Audit my local dev server at http://localhost:3000"
+```
 
-> "Check accessibility for `https://mysite.com`"
-
-## How to Update Configuration
-
-You can manage the skill's settings through the AI agent using natural language:
-
-- _"Change the company name to 'MyCompany' in the a11y config."_
-- _"Set the report title to 'Accessibility Audit' and use #6366f1 as the accent color."_
-- _"Update the config to ignore the 'color-contrast-enhanced' rule."_
-- _"Configure the scanner to use a Mobile viewport (375x812) and dark mode."_
-
-Changes to `a11y.config.json` are dynamic and automatically applied during the next audit execution.
+```bash
+"Check accessibility for https://mysite.com"
+```
 
 ## Deliverables
 
@@ -91,18 +84,6 @@ pnpm run audit -- --base-url https://mysite.com
 | `--title <text>`         | Custom title for the HTML report.                    | "Accessibility Audit Report" |
 | `--wait-ms <num>`        | Time to wait for dynamic content after page load.    | `2000`                       |
 
-## Audit Pipeline
-
-All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
-
-1. **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
-2. **Scan**: `run-scanner.mjs` crawls the site and executes automated Axe-Core checks.
-3. **Analyze**: `run-analyzer.mjs` processes raw data into normalized, rule-based findings.
-4. **Build Reports**:
-   - `build-report-html.mjs` generates the interactive dashboard.
-   - `build-report-md.mjs` creates the AI-optimized remediation guide.
-   - `build-report-pdf.mjs` exports the formal executive summary.
-
 ## Advanced Configuration
 
 Customize the audit by editing `a11y.config.json` in the skill root.
@@ -127,17 +108,7 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 
 ### Common Use Cases
 
-**1. Project Branding:**
-
-```json
-{
-  "reportTitle": "Company Accessibility Audit",
-  "companyName": "MyCompany",
-  "accentColor": "#6366f1"
-}
-```
-
-**2. Custom Emulation (Mobile Viewport):**
+**1. Custom Emulation (Mobile Viewport):**
 
 ```json
 {
@@ -146,7 +117,7 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 }
 ```
 
-**3. Ignore Specific Findings & Selectors:**
+**2. Ignore Specific Findings & Selectors:**
 
 ```json
 {
@@ -155,18 +126,31 @@ Customize the audit by editing `a11y.config.json` in the skill root.
 }
 ```
 
-## Feature Comparison
+## How to Update Configuration
 
-While traditional tools are excellent for visual learning or broad metrics, this skill is purpose-built to automate the remediation workflow using AI agents.
+You can manage the skill's settings through the AI agent using natural language:
 
-| Feature / Capability              | `a11y`                                                 | Google Lighthouse                            | WebAIM WAVE                           |
-| :-------------------------------- | :----------------------------------------------------- | :------------------------------------------- | :------------------------------------ |
-| **Native AI Agent Integration**   | <small>✅ (Outputs clean JSON & DOM evidence)</small>  | <small>❌ (Requires complex parsing)</small> | <small>❌ (Visual only)</small>       |
-| **Headless / CI-Ready Execution** | <small>✅ (Playwright)</small>                         | <small>✅ (CLI available)</small>            | <small>❌ (Browser Extension)</small> |
-| **Zero-Config SPA Support**       | <small>✅ (Waits for hydration & JS rendering)</small> | <small>⚠️ (Requires config)</small>          | <small>✅ (Manual click)</small>      |
-| **Premium Executive Reports**     | <small>✅ (HTML Dashboard & PDF Export)</small>        | <small>❌ (Basic HTML/JSON)</small>          | <small>❌</small>                     |
-| **Direct Code Remediation**       | <small>✅ (AI uses findings to fix code)</small>       | <small>❌ (Only reports)</small>             | <small>❌ (Only reports)</small>      |
-| **Depth of Standard**             | <small>WCAG 2.2 AA (Axe-Core Engine)</small>           | <small>Basic A11y + Web Vitals</small>       | <small>WCAG 2.1 AA</small>            |
+```bash
+"Ignore the 'color-contrast' rule in the a11y configuration."
+```
+
+```bash
+"Configure the scanner to use a Mobile viewport (375x812) and dark mode."
+```
+
+Changes to `a11y.config.json` are dynamic and automatically applied during the next audit execution.
+
+## Audit Pipeline
+
+All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
+
+1. **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
+2. **Scan**: `run-scanner.mjs` crawls the site and executes automated Axe-Core checks.
+3. **Analyze**: `run-analyzer.mjs` processes raw data into normalized, rule-based findings.
+4. **Build Reports**:
+   - `build-report-html.mjs` generates the interactive dashboard.
+   - `build-report-md.mjs` creates the AI-optimized remediation guide.
+   - `build-report-pdf.mjs` exports the formal executive summary.
 
 ## Testing
 
@@ -185,6 +169,19 @@ pnpm test
 | `buildSummary` / `scoreLabel` | Severity totals and grade labels                                                          |
 | `escapeHtml` / `linkify`      | HTML escaping and URL linkification                                                       |
 | `loadConfig`                  | Config parsing, unknown key warnings, hex color validation                                |
+
+## Feature Comparison
+
+While traditional tools are excellent for visual learning or broad metrics, this skill is purpose-built to automate the remediation workflow using AI agents.
+
+| Feature / Capability              | `a11y`                                                 | Google Lighthouse                            | WebAIM WAVE                           |
+| :-------------------------------- | :----------------------------------------------------- | :------------------------------------------- | :------------------------------------ |
+| **Native AI Agent Integration**   | <small>✅ (Outputs clean JSON & DOM evidence)</small>  | <small>❌ (Requires complex parsing)</small> | <small>❌ (Visual only)</small>       |
+| **Headless / CI-Ready Execution** | <small>✅ (Playwright)</small>                         | <small>✅ (CLI available)</small>            | <small>❌ (Browser Extension)</small> |
+| **Zero-Config SPA Support**       | <small>✅ (Waits for hydration & JS rendering)</small> | <small>⚠️ (Requires config)</small>          | <small>✅ (Manual click)</small>      |
+| **Premium Executive Reports**     | <small>✅ (HTML Dashboard & PDF Export)</small>        | <small>❌ (Basic HTML/JSON)</small>          | <small>❌</small>                     |
+| **Direct Code Remediation**       | <small>✅ (AI uses findings to fix code)</small>       | <small>❌ (Only reports)</small>             | <small>❌ (Only reports)</small>      |
+| **Depth of Standard**             | <small>WCAG 2.2 AA (Axe-Core Engine)</small>           | <small>Basic A11y + Web Vitals</small>       | <small>WCAG 2.1 AA</small>            |
 
 ## Reference
 
