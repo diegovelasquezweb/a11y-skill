@@ -73,7 +73,10 @@ pnpm run audit -- --base-url https://mysite.com
 | `--color-scheme <value>` | Emulate `light` or `dark` color scheme.              | `"light"`                    |
 | `--environment <text>`   | Test environment label (e.g., "Staging", "Local").   | "Live Site"                  |
 | `-h, --help`             | Show this help message.                              | —                            |
-| `--headless <bool>`      | Run browser in background.                           | `true`                       |
+| `--headless <bool>`      | Run browser in background (default: `true`).         | `true`                       |
+| `--headed`               | Run browser in visible mode.                         | `false`                      |
+| `--slow-mo <ms>`         | Delay between actions in milliseconds.               | `0`                          |
+| `--playground`           | Keep browser open after audit for inspection.        | `false`                      |
 | `--max-routes <num>`     | Maximum number of routes to discover and scan.       | `10`                         |
 | `--no-open`              | Do not open the report automatically after audit.    | `false`                      |
 | `--output <path>`        | Final HTML report location.                          | `audit/report.html`          |
@@ -102,7 +105,10 @@ Customize the audit by editing `a11y.config.json` in the skill root.
   "ignoreFindings": [],
   "excludeSelectors": [],
   "outputDir": "audit",
-  "axeRules": {}
+  "axeRules": {},
+  "headless": true,
+  "playground": false,
+  "slowMo": 0
 }
 ```
 

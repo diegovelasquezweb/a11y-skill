@@ -19,6 +19,9 @@ Options:
   --wait-ms <num>         Time to wait after page load (default: 2000).
   --timeout-ms <num>      Network timeout (default: 30000).
   --headless <bool>       Run browser in background (default: true).
+  --headed                Run browser in visible mode.
+  --slow-mo <num>         Delay between actions in ms.
+  --playground            Keep browser open for inspection after audit.
   --color-scheme <value>  Emulate color scheme: "light" or "dark" (default: "light").
   --title <text>          Custom title for the HTML report.
   --environment <text>    Test environment label (e.g., "Staging").
@@ -87,6 +90,9 @@ async function main() {
   const environment = getArgValue("environment");
   const scope = getArgValue("scope");
   const target = getArgValue("target");
+  const headed = argv.includes("--headed") || config.headless === false;
+  const slowMo = getArgValue("slow-mo") || config.slowMo;
+  const playground = argv.includes("--playground") || config.playground;
 
   if (!baseUrl) {
     log.error("Missing required argument: --base-url");
@@ -130,6 +136,9 @@ async function main() {
       "--screenshots-dir",
       screenshotsDir,
     ];
+    if (headed) scanArgs.push("--headed");
+    if (slowMo) scanArgs.push("--slow-mo", slowMo.toString());
+    if (playground) scanArgs.push("--playground");
     if (routes) scanArgs.push("--routes", routes);
     if (colorScheme) scanArgs.push("--color-scheme", colorScheme);
 

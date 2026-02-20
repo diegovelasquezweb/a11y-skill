@@ -33,6 +33,10 @@ const CONFIG_SCHEMA = {
   // Emulation
   colorScheme: { type: "string" },
   viewports: { type: "array" },
+  // Visibility & Playground
+  headless: { type: "boolean" },
+  playground: { type: "boolean" },
+  slowMo: { type: "number" },
 };
 
 function validateConfig(userConfig) {
@@ -74,6 +78,10 @@ export function loadConfig() {
     accentColor: "#6366f1", // Indigo-500
     colorScheme: "light",
     viewports: [{ width: 1280, height: 800, name: "Desktop" }],
+    // Visibility & Playground Defaults
+    headless: true,
+    playground: false,
+    slowMo: 0,
   };
 
   if (fs.existsSync(configPath)) {
@@ -83,7 +91,9 @@ export function loadConfig() {
       const merged = { ...defaults, ...userConfig };
       const hexColorRe = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
       if (merged.accentColor && !hexColorRe.test(merged.accentColor)) {
-        log.warn(`a11y.config.json: invalid accentColor "${merged.accentColor}" — must be a 3 or 6-digit hex (e.g. #6366f1). Using default.`);
+        log.warn(
+          `a11y.config.json: invalid accentColor "${merged.accentColor}" — must be a 3 or 6-digit hex (e.g. #6366f1). Using default.`,
+        );
         merged.accentColor = defaults.accentColor;
       }
       return merged;

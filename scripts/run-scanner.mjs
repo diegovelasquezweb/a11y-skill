@@ -36,9 +36,11 @@ function parseArgs(argv, config) {
     maxRoutes: config.maxRoutes,
     waitMs: 2000,
     timeoutMs: 30000,
-    headless: true,
+    headless: config.headless !== undefined ? config.headless : true,
     colorScheme: null,
     screenshotsDir: null,
+    slowMo: config.slowMo || 0,
+    playground: config.playground || false,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -53,6 +55,9 @@ function parseArgs(argv, config) {
     if (key === "--wait-ms") args.waitMs = Number.parseInt(value, 10);
     if (key === "--timeout-ms") args.timeoutMs = Number.parseInt(value, 10);
     if (key === "--headless") args.headless = value !== "false";
+    if (key === "--headed") args.headless = false;
+    if (key === "--slow-mo") args.slowMo = Number.parseInt(value, 10);
+    if (key === "--playground") args.playground = true;
     if (key === "--color-scheme") args.colorScheme = value;
     if (key === "--screenshots-dir") args.screenshotsDir = value;
     i += 1;
@@ -196,7 +201,10 @@ async function main() {
       ? { width: config.viewports[0].width, height: config.viewports[0].height }
       : pwConfig.viewport || { width: 1280, height: 720 };
 
-  const browser = await chromium.launch({ headless: args.headless });
+  const browser = await chromium.launch({
+    headless: args.headless,
+    slowMo: args.slowMo,
+  });
   const context = await browser.newContext({
     viewport: primaryViewport,
     reducedMotion: pwConfig.reducedMotion || "no-preference",
@@ -279,7 +287,14 @@ async function main() {
     results.push({ path: routePath, ...result });
   }
 
-  await browser.close();
+  if (args.playground) {
+    log.info("Playground mode active. Keeping browser open for inspection...");
+    log.info("Press Ctrl+C in the terminal to close the browser and exit.");
+    // Keep internal process alive
+    await new Promise(() => {});
+  } else {
+    await browser.close();
+  }
 
   const payload = {
     generated_at: new Date().toISOString(),

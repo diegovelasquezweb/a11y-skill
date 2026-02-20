@@ -9,5 +9,8 @@
   "ignoreFindings": [],
   "excludeSelectors": [],
   "outputDir": "audit",
-  "axeRules": {}
+  "axeRules": {},
+  "headless": true,
+  "playground": false,
+  "slowMo": 0
 }
