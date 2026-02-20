@@ -2,25 +2,18 @@
 
 Perform automated accessibility audits that empower AI agents to resolve issues with data-driven precision. This skill generates structured technical data including selectors, code evidence, and remediation logic, allowing AI to identify and patch WCAG 2.2 AA violations directly in your codebase with targeted remediation and minimal manual oversight.
 
-## Key Features
+## Why this Skill?
 
-- **Engineered for AI Agents** — Generates a remediation guide prioritizing findings by severity and grouping them by route. It provides surgical DOM selectors and search hints specifically designed for AI agents to locate and patch source code securely.
-- **Zero-Config Route Discovery** — Point it at a URL and it scouts same-origin routes from the entry point. Finds internal links automatically, no sitemap or route list required.
-- **Three-Level Manual Check Coverage** — 24 checks across three verification levels: WCAG A/AA criteria verifiable with DevTools, and Assistive Technology checks requiring VoiceOver or NVDA. Step-by-step instructions are built into the report with per-site progress saved in the browser.
-- **Multi-Source a11y Intelligence** — Automatically links findings to W3C Patterns (Implementation), Deque University (Rule Logic), A11ySupport.io (Browser Support), and Inclusive Components (Design).
+Traditional accessibility tools are built for visual browsing or broad metrics. This skill is surgically engineered to automate the **remediation workflow** specifically for AI agents, providing the structured code evidence and interactive guidance needed to achieve WCAG 2.2 AA compliance.
 
-## Feature Comparison
-
-While traditional tools are excellent for visual learning or broad metrics, this skill is purpose-built to automate the remediation workflow using AI agents.
-
-| Feature / Capability              | `a11y`                                          | Google Lighthouse                          | WebAIM WAVE                              |
-| :-------------------------------- | :---------------------------------------------- | :----------------------------------------- | :--------------------------------------- |
-| **Native AI Agent Integration**   | <small>✅ (Optimized remediation guide)</small> | <small>❌ (Massive JSON/HTML only)</small> | <small>❌ (Visual-only GUI)</small>      |
-| **Headless / CI-Ready Execution** | <small>✅ (Playwright included)</small>         | <small>✅ (CLI available)</small>          | <small>⚠️ (Paid API/Runner only)</small> |
-| **Multi-Route Discovery**         | <small>✅ (Automated site crawling)</small>     | <small>❌ (Single URL per run)</small>     | <small>❌ (Single URL per run)</small>   |
-| **Premium Executive Reports**     | <small>✅ (Custom branding & PDF)</small>       | <small>❌ (Standard tech report)</small>   | <small>❌ (Visual overlays only)</small> |
-| **Direct Code Remediation**       | <small>✅ (AI-ready code evidence)</small>      | <small>❌ (Diagnostic only)</small>        | <small>❌ (Diagnostic only)</small>      |
-| **Depth of Standard**             | <small>WCAG 2.2 AA (Axe-Core 4.10+)</small>     | <small>WCAG 2.1 AA (Axe subset)</small>    | <small>WCAG 2.2 AA</small>               |
+| Feature / Capability            | `a11y`                                                                         | Google Lighthouse                                  | WebAIM WAVE                                  |
+| :------------------------------ | :----------------------------------------------------------------------------- | :------------------------------------------------- | :------------------------------------------- |
+| **Native AI Agent Integration** | <small>✅ (Surgical DOM selectors & hints)</small>                             | <small>⚠️ (High token cost / Massive JSON)</small> | <small>❌ (Visual GUI only)</small>          |
+| **Site-Wide Route Scouting**    | <small>✅ (Automated zero-config crawler)</small>                              | <small>❌ (Single URL per run)</small>             | <small>❌ (Single URL per run)</small>       |
+| **Auditor-Grade Risk Analysis** | <small>✅ (Persona impact & Remediation roadmap)</small>                       | <small>❌ (Standard tech report)</small>           | <small>❌ (Visual overlays only)</small>     |
+| **Remediation Intelligence**    | <small>✅ (AI-optimized resolution patterns & multi-source blueprints)</small> | <small>⚠️ (Diagnostic hints only)</small>          | <small>⚠️ (Documentation links only)</small> |
+| **Guided Manual Verification**  | <small>✅ (Comprehensive DevTools, Keyboard & AT checks)</small>               | <small>❌ (Static link list only)</small>          | <small>⚠️ (Passive visual overlays)</small>  |
+| **Depth of Standard**           | <small>WCAG 2.2 AA (Axe-Core 4.10+)</small>                                    | <small>WCAG 2.1 AA (Axe subset)</small>            | <small>WCAG 2.2 AA</small>                   |
 
 ## Installation
 
