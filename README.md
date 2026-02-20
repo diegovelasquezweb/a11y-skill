@@ -1,10 +1,10 @@
-# Web Accessibility Audit Agent Skill
+# a11y — Web Accessibility Skill for AI Agents
 
-Perform automated accessibility audits that empower AI agents to resolve issues with data-driven precision. This skill generates structured technical data including selectors, code evidence, and remediation logic, allowing AI to identify and patch WCAG 2.2 AA violations directly in your codebase with targeted remediation and minimal manual oversight.
+This skill executes comprehensive WCAG 2.2 AA audits and generates surgical remediation roadmaps, providing AI agents with the precise selectors and fix patterns needed to patch vulnerabilities directly in the source code.
 
 ## Why this Skill?
 
-Traditional accessibility tools are built for visual browsing or broad metrics. This skill is surgically engineered to automate the **remediation workflow** specifically for AI agents, providing the structured code evidence and interactive guidance needed to achieve WCAG 2.2 AA compliance.
+Traditional accessibility tools focus on visual inspection or surface-level scores. This skill bridges the gap between **knowing** a problem exists and **fixing** it by providing professional-grade risk analysis and the interactive verification logic needed to ship truly accessible products.
 
 | Feature / Capability            | `a11y`                                                                         | Google Lighthouse                                  | WebAIM WAVE                                  |
 | :------------------------------ | :----------------------------------------------------------------------------- | :------------------------------------------------- | :------------------------------------------- |
