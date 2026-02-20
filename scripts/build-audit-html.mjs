@@ -141,6 +141,57 @@ function buildHtml(args, findings) {
     },
   };
 
+  // Smart Mapping: Define rules and keywords for accurate persona categorization
+  const SMART_MAP = {
+    screenReader: {
+      rules: [
+        "frame-title",
+        "aria-dialog-name",
+        "landmark-unique",
+        "aria-allowed-role",
+        "nested-interactive",
+        "aria-hidden-focus",
+        "aria-valid-attr",
+      ],
+      keywords: [
+        "screen reader",
+        "assistive technology",
+        "aria",
+        "label",
+        "announced",
+      ],
+    },
+    keyboard: {
+      rules: [
+        "nested-interactive",
+        "scrollable-region-focusable",
+        "focus-order-semantics",
+        "tabindex",
+      ],
+      keywords: ["keyboard", "focusable", "tab order", "interactive"],
+    },
+    vision: {
+      rules: ["color-contrast", "image-redundant-alt", "image-alt"],
+      keywords: ["vision", "color", "contrast", "blind"],
+    },
+    cognitive: {
+      rules: [
+        "heading-order",
+        "empty-heading",
+        "page-has-heading-one",
+        "duplicate-id",
+      ],
+      keywords: [
+        "cognitive",
+        "motor",
+        "heading",
+        "structure",
+        "navigation",
+        "hierarchy",
+      ],
+    },
+  };
+
   const uniqueIssues = {
     screenReader: new Set(),
     keyboard: new Set(),
@@ -150,23 +201,21 @@ function buildHtml(args, findings) {
 
   for (const f of findings) {
     const users = f.impactedUsers.toLowerCase();
+    const ruleId = (f.ruleId || "").toLowerCase();
+    const title = (f.title || "").toLowerCase();
     const issueKey = f.ruleId || f.title;
 
-    if (
-      users.includes("screen reader") ||
-      users.includes("assistive technology")
-    ) {
-      uniqueIssues.screenReader.add(issueKey);
-    }
-    if (users.includes("keyboard")) {
-      uniqueIssues.keyboard.add(issueKey);
-    }
-    if (users.includes("vision") || users.includes("color")) {
-      uniqueIssues.vision.add(issueKey);
-    }
-    if (users.includes("cognitive") || users.includes("motor")) {
-      uniqueIssues.cognitive.add(issueKey);
-    }
+    Object.keys(SMART_MAP).forEach((persona) => {
+      const { rules, keywords } = SMART_MAP[persona];
+      const matchRule = rules.some((r) => ruleId.includes(r));
+      const matchKeyword = keywords.some(
+        (k) => users.includes(k) || title.includes(k),
+      );
+
+      if (matchRule || matchKeyword) {
+        uniqueIssues[persona].add(issueKey);
+      }
+    });
   }
 
   personaGroups.screenReader.count = uniqueIssues.screenReader.size;
