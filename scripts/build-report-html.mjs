@@ -3,6 +3,7 @@
 import { log, readJson, getInternalPath } from "./a11y-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   normalizeFindings,
   buildSummary,
@@ -10,10 +11,13 @@ import {
   scoreLabel,
 } from "./report/core-findings.mjs";
 import { escapeHtml } from "./report/core-utils.mjs";
-import { MANUAL_CHECKS } from "./report/data-manual-checks.mjs";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const manualChecksPath = path.join(__dirname, "../assets/manual-checks.json");
+const MANUAL_CHECKS = JSON.parse(fs.readFileSync(manualChecksPath, "utf-8"));
 import {
   buildIssueCard,
   buildManualChecksSection,
+  buildGlobalReferencesSection,
 } from "./report/format-html.mjs";
 import {
   buildPdfExecutiveSummary,

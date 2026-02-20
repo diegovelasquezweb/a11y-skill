@@ -10,80 +10,20 @@ import {
 import { createHash } from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
+const INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
 
 function makeFindingId(ruleId, url, selector) {
   const key = `${ruleId}||${url}||${selector}`;
   return `A11Y-${createHash("sha256").update(key).digest("hex").slice(0, 6)}`;
 }
 
-const APG_PATTERNS = {
-  alert: "https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
-  alertdialog: "https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/",
-  button: "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
-  carousel: "https://www.w3.org/WAI/ARIA/apg/patterns/carousel/",
-  checkbox: "https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/",
-  combobox: "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/",
-  dialog: "https://www.w3.org/WAI/ARIA/apg/patterns/dialogmodal/",
-  disclosure: "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
-  feed: "https://www.w3.org/WAI/ARIA/apg/patterns/feed/",
-  grid: "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
-  link: "https://www.w3.org/WAI/ARIA/apg/patterns/link/",
-  listbox: "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
-  menu: "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
-  menubar: "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
-  menuitem: "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
-  meter: "https://www.w3.org/WAI/ARIA/apg/patterns/meter/",
-  radio: "https://www.w3.org/WAI/ARIA/apg/patterns/radiobutton/",
-  radiogroup: "https://www.w3.org/WAI/ARIA/apg/patterns/radiobutton/",
-  slider: "https://www.w3.org/WAI/ARIA/apg/patterns/slider/",
-  spinbutton: "https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/",
-  switch: "https://www.w3.org/WAI/ARIA/apg/patterns/switch/",
-  table: "https://www.w3.org/WAI/ARIA/apg/patterns/table/",
-  tab: "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/",
-  tablist: "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/",
-  tabpanel: "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/",
-  toolbar: "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
-  tooltip: "https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/",
-  treeview: "https://www.w3.org/WAI/ARIA/apg/patterns/treeview/",
-  treegrid: "https://www.w3.org/WAI/ARIA/apg/patterns/treegrid/",
-};
-
-
-const A11Y_SUPPORT = {
-  alert: "https://a11ysupport.io/tech/aria/alert_role",
-  alertdialog: "https://a11ysupport.io/tech/aria/alertdialog_role",
-  button: "https://a11ysupport.io/tech/aria/button_role",
-  checkbox: "https://a11ysupport.io/tech/aria/checkbox_role",
-  combobox: "https://a11ysupport.io/tech/aria/combobox_role",
-  dialog: "https://a11ysupport.io/tech/aria/dialog_role",
-  grid: "https://a11ysupport.io/tech/aria/grid_role",
-  link: "https://a11ysupport.io/tech/aria/link_role",
-  listbox: "https://a11ysupport.io/tech/aria/listbox_role",
-  menu: "https://a11ysupport.io/tech/aria/menu_role",
-  menubar: "https://a11ysupport.io/tech/aria/menubar_role",
-  meter: "https://a11ysupport.io/tech/aria/meter_role",
-  radio: "https://a11ysupport.io/tech/aria/radio_role",
-  slider: "https://a11ysupport.io/tech/aria/slider_role",
-  switch: "https://a11ysupport.io/tech/aria/switch_role",
-  tab: "https://a11ysupport.io/tech/aria/tab_role",
-  tabpanel: "https://a11ysupport.io/tech/aria/tabpanel_role",
-  tooltip: "https://a11ysupport.io/tech/aria/tooltip_role",
-  tree: "https://a11ysupport.io/tech/aria/tree_role",
-};
-
-const INCLUSIVE_COMPONENTS = {
-  button: "https://inclusive-components.design/toggle-button/",
-  card: "https://inclusive-components.design/cards/",
-  dialog: "https://inclusive-components.design/modal-dialogues/",
-  menu: "https://inclusive-components.design/menus-menu-buttons/",
-  menubar: "https://inclusive-components.design/menus-menu-buttons/",
-  notifications: "https://inclusive-components.design/notifications/",
-  slider: "https://inclusive-components.design/content-sliders/",
-  tab: "https://inclusive-components.design/tabbed-interfaces/",
-  tablist: "https://inclusive-components.design/tabbed-interfaces/",
-  tooltip: "https://inclusive-components.design/tooltips-toggletips/",
-  switch: "https://inclusive-components.design/toggle-button/",
-};
+const APG_PATTERNS = INTELLIGENCE.apgPatterns;
+const A11Y_SUPPORT = INTELLIGENCE.a11ySupport;
+const INCLUSIVE_COMPONENTS = INTELLIGENCE.inclusiveComponents;
 
 const US_REGULATORY = {
   default: "https://accessibility.18f.gov/checklist/",
@@ -465,7 +405,10 @@ function detectImplicitRole(tag, html) {
 function extractSearchHint(selector) {
   if (!selector || selector === "N/A") return selector;
   const specific =
-    selector.split(/[\s>+~]+/).filter(Boolean).pop() || selector;
+    selector
+      .split(/[\s>+~]+/)
+      .filter(Boolean)
+      .pop() || selector;
   const id = specific.match(/#([\w-]+)/)?.[1];
   if (id) return `id="${id}"`;
   const cls = specific.match(/\.([\w-]+)/)?.[1];
@@ -487,7 +430,9 @@ function buildFindings(inputPayload) {
         const firstNode = nodes[0];
         const explicitRole =
           firstNode?.html?.match(/role=["']([^"']+)["']/)?.[1] ?? null;
-        const tag = firstNode?.html?.match(/^<([a-z][a-z0-9-]*)/i)?.[1]?.toLowerCase() ?? null;
+        const tag =
+          firstNode?.html?.match(/^<([a-z][a-z0-9-]*)/i)?.[1]?.toLowerCase() ??
+          null;
         const role = explicitRole ?? detectImplicitRole(tag, firstNode?.html);
         const apgUrl = role ? APG_PATTERNS[role] : null;
         const supportUrl = role ? A11Y_SUPPORT[role] : null;
@@ -543,7 +488,11 @@ function buildFindings(inputPayload) {
     const axeRuleIds = (route.violations || []).map((v) => v.id);
 
     const meta = route.metadata || {};
-    if (meta.h1Count !== undefined && meta.h1Count !== 1 && !axeRuleIds.includes("page-has-heading-one")) {
+    if (
+      meta.h1Count !== undefined &&
+      meta.h1Count !== 1 &&
+      !axeRuleIds.includes("page-has-heading-one")
+    ) {
       findings.push({
         id: "",
         title: "Page must have exactly one h1",
@@ -560,7 +509,11 @@ function buildFindings(inputPayload) {
       });
     }
 
-    if (meta.mainCount !== undefined && meta.mainCount !== 1 && !axeRuleIds.includes("landmark-one-main")) {
+    if (
+      meta.mainCount !== undefined &&
+      meta.mainCount !== 1 &&
+      !axeRuleIds.includes("landmark-one-main")
+    ) {
       findings.push({
         id: "",
         title: "Page must have exactly one main landmark",

@@ -1,5 +1,11 @@
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import { escapeHtml, formatMultiline, linkify } from "./core-utils.mjs";
-import { MANUAL_CHECKS } from "./data-manual-checks.mjs";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const manualChecksPath = join(__dirname, "../../assets/manual-checks.json");
+const MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
 
 /**
  * Renders technical evidence (HTML snippets and failure summaries) for the dashboard.

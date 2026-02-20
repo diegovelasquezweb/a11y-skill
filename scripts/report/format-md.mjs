@@ -1,5 +1,11 @@
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
 import { buildSummary } from "./core-findings.mjs";
-import { MANUAL_CHECKS } from "./data-manual-checks.mjs";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const manualChecksPath = join(__dirname, "../../assets/manual-checks.json");
+const MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
 
 /**
  * Builds the manual checks section in Markdown format for AI agents.

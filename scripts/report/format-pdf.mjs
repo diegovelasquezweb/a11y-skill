@@ -1,4 +1,5 @@
-import { escapeHtml, SEVERITY_ORDER } from "./core-findings.mjs";
+import { SEVERITY_ORDER } from "./core-findings.mjs";
+import { escapeHtml } from "./core-utils.mjs";
 import { buildIssueCard } from "./format-html.mjs";
 
 /**

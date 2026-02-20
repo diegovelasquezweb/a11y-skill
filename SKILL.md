@@ -5,7 +5,7 @@ compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL
 license: MIT
 metadata:
   author: diegovelasquezweb
-  version: "1.0"
+  version: "0.2.1"
   hint: "[url]"
 ---
 
