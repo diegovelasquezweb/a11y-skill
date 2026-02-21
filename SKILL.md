@@ -196,11 +196,10 @@ Execution discipline for the agent:
 
 ## 9) Fix-First Output Rules
 
-1. **Evidence First**: When an audit completes, open the HTML report immediately as visual evidence.
-2. **The Resolution is the Goal**: In the chat, prioritize the **Remediation Roadmap**. Do not just say "here is the report"; instead, say "The report is open as evidence, here are the fixes I am ready to apply."
-3. **Surgical Precision**: Use the exact selectors and "Search Hints" provided by the analyzer to locate code.
-4. **Group by Component**: Present fixes grouped by component or page area to make review easier for the user.
-5. **Clear Impact**: Briefly explain _why_ the fix is needed (e.g., "Fixes screen reader access for the main nav").
+1. **The Resolution is the Goal**: In the chat, prioritize the **Remediation Roadmap**. Do not just link the report; instead, say "The audit is complete, here are the fixes I am ready to apply."
+2. **Surgical Precision**: Use the exact selectors and "Search Hints" provided by the analyzer to locate code.
+3. **Group by Component**: Present fixes grouped by component or page area to make review easier for the user.
+4. **Clear Impact**: Briefly explain _why_ the fix is needed (e.g., "Fixes screen reader access for the main nav").
 
 ## 10) Platform-Specific Installation
 
@@ -239,7 +238,10 @@ When the user grants permission to apply fixes, follow this strict sequential pr
 4. **If a finding has a "Managed Component Warning"**, verify the element is not rendered by a UI library (Radix, Headless UI, etc.) before applying ARIA fixes.
 5. **Apply one severity group at a time**, starting with Critical.
 6. **Checkpoint after each group**: stop, list every file modified and every fix applied, then ask the user to test and confirm before continuing. Example prompt: _"Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."_
-7. **Verify each group** using the targeted re-scan command from the finding instead of re-running the full audit: `pnpm a11y --base-url <URL> --routes <route> --only-rule <rule-id> --max-routes 1`
+7. **Verify each group** using the targeted re-scan command: `pnpm a11y --base-url <URL> --routes <route> --only-rule <rule-id> --max-routes 1`
+   - **WARNING (State Loss)**: Targeted scans overwrite `a11y-findings.json` with a filtered list. If the fix passes, the report will show **0 issues**.
+   - **DISCIPLINE**: Do **NOT** tell the user "all errors are gone" based on a targeted scan. Only confirm that the specific rule(s) you just fixed are resolved.
+   - **MANDATORY**: Maintain an internal tracker of which issues from the _original_ audit are still pending.
 8. **Wait for explicit user confirmation** before moving to the next severity group. Never auto-advance.
 9. **If any fix fails**: stop immediately, report the exact error and the file/line affected, and ask the user how to proceed. Do not skip ahead.
 10. **Never mix severity groups** in a single application step.
