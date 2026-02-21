@@ -57,13 +57,9 @@ While the primary output for the AI agent is the Remediation Guide, the skill ge
 | **Executive Summary** | `.pdf`  | Clients    | Formal compliance evidence for clients or stakeholders.   |
 | **Technical Data**    | `.json` | Systems    | Raw findings in `internal/` for custom integration.       |
 
-## Advanced Configuration
+## Configuration
 
-The a11y skill is built for deep flexibility. While defaults are safe for most projects, you can fine-tune every aspect of the engine's behavior.
-
-### How to Update Configuration
-
-You can manage the skill's settings through the AI agent using natural language:
+You can manage settings through the AI agent using natural language:
 
 ```bash
 "Ignore the 'color-contrast' rule in the a11y configuration."
@@ -73,38 +69,7 @@ You can manage the skill's settings through the AI agent using natural language:
 "Configure the scanner to use a Mobile viewport (375x812) and dark mode."
 ```
 
-Changes to `a11y.config.json` are dynamic and automatically applied during the next audit execution.
-
-### Configuration Reference
-
-The audit engine supports granular control through the following parameters:
-
-#### 1. Targeting & Scope
-
-| Capability          | CLI Flag           | JSON Key    | Default    |
-| :------------------ | :----------------- | :---------- | :--------- |
-| **Target URL**      | `--base-url <url>` | —           | _Required_ |
-| **Max Routes**      | `--max-routes <n>` | `maxRoutes` | `10`       |
-| **Specific Routes** | `--routes <csv>`   | `routes`    | —          |
-
-#### 2. Engine Intelligence
-
-| Capability            | CLI Flag                    | JSON Key           | Default         |
-| :-------------------- | :-------------------------- | :----------------- | :-------------- |
-| **Compliance Target** | `--target <text>`           | `complianceTarget` | `"WCAG 2.2 AA"` |
-| **Targeted Rule**     | `--only-rule <id>`          | `onlyRule`         | —               |
-| **Ignore Findings**   | `--ignore-findings <csv>`   | `ignoreFindings`   | `[]`            |
-| **Exclude Selectors** | `--exclude-selectors <csv>` | `excludeSelectors` | `[]`            |
-
-#### 3. Execution & Emulation
-
-| Capability          | CLI Flag               | JSON Key      | Default             |
-| :------------------ | :--------------------- | :------------ | :------------------ |
-| **Output Path**     | `--output <path>`      | `outputDir`   | `audit/report.html` |
-| **Headless Mode**   | `--headless <bool>`    | `headless`    | `true`              |
-| **Color Scheme**    | `--color-scheme <val>` | `colorScheme` | —                   |
-| **Stability Wait**  | `--wait-ms <num>`      | `waitMs`      | `2000`              |
-| **Network Timeout** | `--timeout-ms <num>`   | `timeoutMs`   | `30000`             |
+Changes to `a11y.config.json` are dynamic and automatically applied during the next audit run. For the full CLI flag and JSON key reference, see [CLI Handbook](docs/cli-handbook.md) and [Configuration](docs/configuration.md).
 
 ## Audit Engine (CI/CD & Local Validation)
 
@@ -114,39 +79,11 @@ Execute the audit script directly from the skill directory:
 
 ```bash
 # Audit a specific URL with custom limit and visible browser
-pnpm run audit -- --base-url localhost:3000 --max-routes 20 --headed
+pnpm audit --base-url localhost:3000 --max-routes 20 --headed
 
 # Run ONLY the color-contrast check
-pnpm run audit -- --base-url https://mysite.com --only-rule color-contrast
+pnpm audit --base-url https://mysite.com --only-rule color-contrast
 ```
-
-## Audit Pipeline
-
-All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
-
-1. **Preflight**: `check-toolchain.mjs` verifies local dependencies and browsers.
-2. **Scan**: `run-scanner.mjs` crawls the site and executes automated Axe-Core checks.
-3. **Analyze**: `run-analyzer.mjs` processes raw data into normalized, rule-based findings.
-4. **Build Reports**:
-   - `build-report-html.mjs` generates the interactive dashboard.
-   - `build-report-md.mjs` creates the AI-optimized remediation guide.
-   - `build-report-pdf.mjs` exports the formal executive summary.
-
-## Testing
-
-```bash
-pnpm test
-```
-
-67 unit tests covering the core pipeline logic and intelligence:
-
-| Engine Capability            | Tests | What's validated                                           |
-| :--------------------------- | :---- | :--------------------------------------------------------- |
-| **Scouting & Discovery**     | 21    | URL normalization, route deduplication, asset filtering.   |
-| **Remediation Intelligence** | 30    | Implicit ARIA roles, surgical CSS selector extraction.     |
-| **Compliance & Scoring**     | 7     | Weighted risk calculation, severity sorting, grade labels. |
-| **Reporting Utilities**      | 5     | HTML escaping, line formatting, linkification.             |
-| **System & Configuration**   | 4     | Config merging, JSON schema validation, toolchain health.  |
 
 ## Technical Reference
 
@@ -159,7 +96,7 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 | 🧠 [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing and surgical fix pattern matching via `intelligence.json`. |
 | 📖 [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.            |
 | ⚙️ [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                    |
-| 🛡️ [**Testing Strategy**](docs/testing.md)                | Documentation of the 67+ tests and logic verification coverage.            |
+| 🛡️ [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                   |
 
 ## External Resources
 

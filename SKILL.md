@@ -2,7 +2,7 @@
 name: a11y
 description: Detect and autonomously fix WCAG 2.2 AA accessibility issues. Use when the user says "audit [url]", "fix accessibility", "make my site accessible", or asks to scan for compliance. The primary goal is finding vulnerabilities for the AI to patch.
 compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL. Playwright + Chromium are installed automatically on first run.
-license: MIT
+license: MPL 2.0
 metadata:
   author: diegovelasquezweb
   version: "0.2.1"

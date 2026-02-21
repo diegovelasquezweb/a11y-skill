@@ -55,7 +55,7 @@ graph TD
 
 ```mermaid
 sequenceDiagram
-    participant CLI as pnpm audit
+    participant CLI as Audit Trigger
     participant S as Scanner
     participant A as Analyzer
     participant B as Builder
