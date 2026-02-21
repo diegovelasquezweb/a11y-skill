@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -8,14 +8,43 @@ import {
 } from "../scripts/run-analyzer.mjs";
 
 describe("assets/intelligence.json schema", () => {
-  it("has required top-level keys and critical mappings", () => {
+  let intelligence;
+
+  beforeAll(() => {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
-    const intelligence = JSON.parse(
+    intelligence = JSON.parse(
       fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"),
     );
+  });
+
+  it("has all required top-level keys", () => {
+    expect(intelligence).toHaveProperty("axeVersion");
+    expect(intelligence).toHaveProperty("wcagCriterionMap");
     expect(intelligence).toHaveProperty("apgPatterns");
     expect(intelligence).toHaveProperty("a11ySupport");
     expect(intelligence).toHaveProperty("inclusiveComponents");
+    expect(intelligence).toHaveProperty("rules");
+  });
+
+  it("axeVersion is a non-empty string", () => {
+    expect(typeof intelligence.axeVersion).toBe("string");
+    expect(intelligence.axeVersion.length).toBeGreaterThan(0);
+  });
+
+  it("wcagCriterionMap maps known rules to WCAG criterion strings", () => {
+    expect(intelligence.wcagCriterionMap["image-alt"]).toBe("1.1.1");
+    expect(intelligence.wcagCriterionMap["color-contrast"]).toBe("1.4.3");
+    expect(intelligence.wcagCriterionMap["button-name"]).toBe("4.1.2");
+    expect(intelligence.wcagCriterionMap["label"]).toBe("1.3.1");
+  });
+
+  it("wcagCriterionMap covers all rules defined in the rules object", () => {
+    const ruleIds = Object.keys(intelligence.rules);
+    const missingFromMap = ruleIds.filter((id) => !intelligence.wcagCriterionMap[id]);
+    expect(missingFromMap).toEqual([]);
+  });
+
+  it("apgPatterns and inclusiveComponents have correct mappings", () => {
     expect(intelligence.apgPatterns.dialog).toContain("apg/patterns/dialogmodal");
     expect(intelligence.inclusiveComponents.tab).toContain("tabbed-interfaces");
   });

@@ -1,4 +1,4 @@
-# a11y — Autonomous Accessibility Fixer for AI Agents
+# a11y - Accessibility Audit & Remediation Skill
 
 This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with surgical remediation blueprints including precise DOM selectors and fix patterns to autonomously patch vulnerabilities directly in the source code.
 

@@ -34,9 +34,23 @@ describe("core-findings logic", () => {
   describe("scoreLabel", () => {
     it("returns Excellent for scores >= 95", () => {
       expect(scoreLabel(95)).toBe("Excellent");
+      expect(scoreLabel(100)).toBe("Excellent");
+    });
+    it("returns Good for scores 85–94", () => {
+      expect(scoreLabel(85)).toBe("Good");
+      expect(scoreLabel(90)).toBe("Good");
+    });
+    it("returns Fair for scores 70–84", () => {
+      expect(scoreLabel(70)).toBe("Fair");
+      expect(scoreLabel(80)).toBe("Fair");
+    });
+    it("returns Needs Improvement for scores 50–69", () => {
+      expect(scoreLabel(50)).toBe("Needs Improvement");
+      expect(scoreLabel(60)).toBe("Needs Improvement");
     });
     it("returns Poor for scores < 50", () => {
       expect(scoreLabel(49)).toBe("Poor");
+      expect(scoreLabel(0)).toBe("Poor");
     });
   });
 
@@ -53,6 +67,55 @@ describe("core-findings logic", () => {
       expect(normalized[0].severity).toBe("Critical");
       expect(normalized[1].severity).toBe("High");
       expect(normalized[2].severity).toBe("Low");
+    });
+
+    it("passes through wcagCriterionId, falsePositiveRisk, fixDifficultyNotes, frameworkNotes", () => {
+      const raw = {
+        findings: [
+          {
+            id: "A11Y-abc123",
+            severity: "High",
+            title: "Test",
+            wcag_criterion_id: "4.1.2",
+            false_positive_risk: "medium",
+            fix_difficulty_notes: "Check context before fixing.",
+            framework_notes: { react: "Use aria-label prop." },
+          },
+        ],
+      };
+      const [f] = normalizeFindings(raw);
+      expect(f.wcagCriterionId).toBe("4.1.2");
+      expect(f.falsePositiveRisk).toBe("medium");
+      expect(f.fixDifficultyNotes).toBe("Check context before fixing.");
+      expect(f.frameworkNotes).toEqual({ react: "Use aria-label prop." });
+    });
+
+    it("defaults new fields to null when absent", () => {
+      const raw = {
+        findings: [{ id: "A11Y-xyz", severity: "Low", title: "Test" }],
+      };
+      const [f] = normalizeFindings(raw);
+      expect(f.wcagCriterionId).toBeNull();
+      expect(f.falsePositiveRisk).toBeNull();
+      expect(f.fixDifficultyNotes).toBeNull();
+      expect(f.frameworkNotes).toBeNull();
+    });
+
+    it("defaults relatedRules to [] when absent", () => {
+      const raw = {
+        findings: [{ id: "A11Y-xyz", severity: "Low", title: "Test" }],
+      };
+      const [f] = normalizeFindings(raw);
+      expect(f.relatedRules).toEqual([]);
+    });
+
+    it("throws on invalid payload (null, missing findings array)", () => {
+      expect(() => normalizeFindings(null)).toThrow();
+      expect(() => normalizeFindings({})).toThrow();
+    });
+
+    it("returns empty array for empty findings list", () => {
+      expect(normalizeFindings({ findings: [] })).toEqual([]);
     });
   });
 });
