@@ -57,58 +57,9 @@ While the primary output for the AI agent is the Remediation Guide, the skill ge
 | **Executive Summary** | `.pdf`  | Clients    | Formal compliance evidence for clients or stakeholders.   |
 | **Technical Data**    | `.json` | Systems    | Raw findings in `internal/` for custom integration.       |
 
-## Standalone CLI
+## Advanced Configuration
 
-**Best for:** CI/CD pipelines and local automation without spending AI tokens or agent intervention.
-
-Execute the audit script directly from the skill directory:
-
-```bash
-# Example: Audit a specific URL with custom limit and visible browser
-pnpm run audit -- --base-url localhost:3000 --max-routes 20 --headed
-
-# Diagnostic: Run ONLY the color-contrast check
-pnpm run audit -- --base-url https://mysite.com --only-rule color-contrast
-```
-
-### Configuration Reference
-
-All flags can be persisted in `a11y.config.json`. CLI flags **always override** file settings.
-
-| Capability            | CLI Flag                    | JSON Key           | Default             |
-| :-------------------- | :-------------------------- | :----------------- | :------------------ |
-| **Target URL**        | `--base-url <url>`          | —                  | _Required_          |
-| **Max Routes**        | `--max-routes <num>`        | `maxRoutes`        | `10`                |
-| **Targeted Rule**     | `--only-rule <id>`          | `onlyRule`         | —                   |
-| **Ignore Rules**      | `--ignore-findings <csv>`   | `ignoreFindings`   | `[]`                |
-| **Exclude Selectors** | `--exclude-selectors <csv>` | `excludeSelectors` | `[]`                |
-| **Output Path**       | `--output <path>`           | `outputDir`        | `audit/report.html` |
-| **Compliance**        | `--target <text>`           | `complianceTarget` | `"WCAG 2.2 AA"`     |
-| **Headless**          | `--headless <bool>`         | `headless`         | `true`              |
-| **Wait (Stability)**  | `--wait-ms <num>`           | `waitMs`           | `2000`              |
-| **Timeout**           | `--timeout-ms <num>`        | `timeoutMs`        | `30000`             |
-
-### Common Use Cases
-
-**1. Custom Emulation (Mobile Viewport):**
-
-```json
-{
-  "colorScheme": "dark",
-  "viewports": [{ "width": 375, "height": 812, "name": "Mobile" }]
-}
-```
-
-**2. Ignore Specific Findings & Selectors:**
-
-```json
-{
-  "ignoreFindings": ["color-contrast-enhanced"],
-  "excludeSelectors": [".third-party-widget"]
-}
-```
-
-## How to Update Configuration
+### How to Update Configuration
 
 You can manage the skill's settings through the AI agent using natural language:
 
@@ -121,6 +72,51 @@ You can manage the skill's settings through the AI agent using natural language:
 ```
 
 Changes to `a11y.config.json` are dynamic and automatically applied during the next audit execution.
+
+### Configuration Reference
+
+The audit engine supports granular control through the following parameters:
+
+#### 1. Targeting & Scope
+
+| Capability          | CLI Flag           | JSON Key    | Default    |
+| :------------------ | :----------------- | :---------- | :--------- |
+| **Target URL**      | `--base-url <url>` | —           | _Required_ |
+| **Max Routes**      | `--max-routes <n>` | `maxRoutes` | `10`       |
+| **Specific Routes** | `--routes <csv>`   | `routes`    | —          |
+
+#### 2. Engine Intelligence
+
+| Capability            | CLI Flag                    | JSON Key           | Default         |
+| :-------------------- | :-------------------------- | :----------------- | :-------------- |
+| **Compliance Target** | `--target <text>`           | `complianceTarget` | `"WCAG 2.2 AA"` |
+| **Targeted Rule**     | `--only-rule <id>`          | `onlyRule`         | —               |
+| **Ignore Findings**   | `--ignore-findings <csv>`   | `ignoreFindings`   | `[]`            |
+| **Exclude Selectors** | `--exclude-selectors <csv>` | `excludeSelectors` | `[]`            |
+
+#### 3. Execution & Emulation
+
+| Capability          | CLI Flag               | JSON Key      | Default             |
+| :------------------ | :--------------------- | :------------ | :------------------ |
+| **Output Path**     | `--output <path>`      | `outputDir`   | `audit/report.html` |
+| **Headless Mode**   | `--headless <bool>`    | `headless`    | `true`              |
+| **Color Scheme**    | `--color-scheme <val>` | `colorScheme` | —                   |
+| **Stability Wait**  | `--wait-ms <num>`      | `waitMs`      | `2000`              |
+| **Network Timeout** | `--timeout-ms <num>`   | `timeoutMs`   | `30000`             |
+
+## Audit Engine (CI/CD & Local Validation)
+
+The technical core of the skill is a decoupled audit engine. It is ideal for automated pipelines and local verification where you need rapid diagnostics without spending AI tokens or agent intervention.
+
+Execute the audit script directly from the skill directory:
+
+```bash
+# Diagnostic: Audit a specific URL with custom limit and visible browser
+pnpm run audit -- --base-url localhost:3000 --max-routes 20 --headed
+
+# Diagnostic: Run ONLY the color-contrast check
+pnpm run audit -- --base-url https://mysite.com --only-rule color-contrast
+```
 
 ## Audit Pipeline
 
