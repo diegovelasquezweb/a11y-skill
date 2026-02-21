@@ -1,19 +1,4 @@
-[← Back to Index](README.md)
-
 # Engine Intelligence
-
-## Table of Contents
-
-- [The Intelligence Database](#the-intelligence-database-assetsintelligencejson)
-  - [Core Intelligence Fields](#core-intelligence-fields)
-  - [WCAG Criterion Map](#wcag-criterion-map-wcagcriterionmap)
-- [Surgical Patch Generation](#surgical-patch-generation)
-- [Example: The "Fix-First" Flow](#example-the-fix-first-flow)
-- [Manual Checks](#manual-checks-assetsmanual-checksjson)
-  - [What each check contains](#what-each-check-contains)
-  - [Coverage breakdown](#coverage-breakdown)
-  - [How to add a new manual check](#how-to-add-a-new-manual-check)
-- [Reference Links](#reference-links)
 
 The "Intelligence" of the a11y skill revolves around **Autonomous Remediation**. It transforms a diagnostic finding into an actionable code patch.
 
