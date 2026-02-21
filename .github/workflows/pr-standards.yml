@@ -12,13 +12,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Check PR Title
-        run: node scripts/check-pr-title.mjs "${{ github.event.pull_request.title }}"
+      - name: Check PR Title (Conventional Commits)
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          REGEX="^(feat|fix|chore|refactor|docs|style|test|perf|build|ci)(\([a-z0-9-]+\))?:\s.{5,}$"
+          if [[ ! "$TITLE" =~ $REGEX ]]; then
+            echo "❌ PR title does NOT follow standard naming conventions."
+            echo "Expected format: <type>(<optional-scope>): <description>"
+            echo "Example: 'feat: add accessibility audit engine'"
+            exit 1
+          fi
+          echo "✅ PR title follows standards."
 
   verify-integrity:
     name: Verify Project Integrity
