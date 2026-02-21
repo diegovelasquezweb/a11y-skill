@@ -58,6 +58,10 @@ export function normalizeFindings(payload) {
       falsePositiveRisk: item.false_positive_risk ?? null,
       fixDifficultyNotes: item.fix_difficulty_notes ?? null,
       frameworkNotes: item.framework_notes ?? null,
+      fileSearchPattern: item.file_search_pattern ?? null,
+      managedByLibrary: item.managed_by_library ?? null,
+      componentHint: item.component_hint ?? null,
+      verificationCommand: item.verification_command ?? null,
     }))
     .sort((a, b) => {
       const sa = SEVERITY_ORDER[a.severity] ?? 99;

@@ -22,8 +22,8 @@ async function generatePdf() {
     const fileUrl = `file://${path.resolve(inputPath)}`;
     await page.goto(fileUrl, { waitUntil: "load" });
 
-    // Wait a bit for Tailwind and fonts to settle
-    await page.waitForTimeout(1000);
+    // Wait for web fonts to finish loading (replaces fixed 1s delay)
+    await page.evaluate(() => document.fonts.ready);
 
     // Generate PDF
     await page.pdf({

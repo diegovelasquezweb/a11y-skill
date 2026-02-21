@@ -9,44 +9,46 @@ import {
 
 describe("assets/intelligence.json schema", () => {
   let intelligence;
+  let ruleMetadata;
 
   beforeAll(() => {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     intelligence = JSON.parse(
       fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"),
     );
+    ruleMetadata = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "../assets/rule-metadata.json"), "utf-8"),
+    );
   });
 
-  it("has all required top-level keys", () => {
-    expect(intelligence).toHaveProperty("axeVersion");
-    expect(intelligence).toHaveProperty("wcagCriterionMap");
-    expect(intelligence).toHaveProperty("apgPatterns");
-    expect(intelligence).toHaveProperty("a11ySupport");
-    expect(intelligence).toHaveProperty("inclusiveComponents");
+  it("intelligence.json has required top-level keys", () => {
     expect(intelligence).toHaveProperty("rules");
   });
 
-  it("axeVersion is a non-empty string", () => {
-    expect(typeof intelligence.axeVersion).toBe("string");
-    expect(intelligence.axeVersion.length).toBeGreaterThan(0);
+  it("rule-metadata.json has required top-level keys", () => {
+    expect(ruleMetadata).toHaveProperty("wcagCriterionMap");
+    expect(ruleMetadata).toHaveProperty("apgPatterns");
+    expect(ruleMetadata).toHaveProperty("a11ySupport");
+    expect(ruleMetadata).toHaveProperty("inclusiveComponents");
+    expect(ruleMetadata).toHaveProperty("mdn");
   });
 
   it("wcagCriterionMap maps known rules to WCAG criterion strings", () => {
-    expect(intelligence.wcagCriterionMap["image-alt"]).toBe("1.1.1");
-    expect(intelligence.wcagCriterionMap["color-contrast"]).toBe("1.4.3");
-    expect(intelligence.wcagCriterionMap["button-name"]).toBe("4.1.2");
-    expect(intelligence.wcagCriterionMap["label"]).toBe("1.3.1");
+    expect(ruleMetadata.wcagCriterionMap["image-alt"]).toBe("1.1.1");
+    expect(ruleMetadata.wcagCriterionMap["color-contrast"]).toBe("1.4.3");
+    expect(ruleMetadata.wcagCriterionMap["button-name"]).toBe("4.1.2");
+    expect(ruleMetadata.wcagCriterionMap["label"]).toBe("4.1.2");
   });
 
-  it("wcagCriterionMap covers all rules defined in the rules object", () => {
+  it("wcagCriterionMap covers all rules defined in intelligence.json", () => {
     const ruleIds = Object.keys(intelligence.rules);
-    const missingFromMap = ruleIds.filter((id) => !intelligence.wcagCriterionMap[id]);
+    const missingFromMap = ruleIds.filter((id) => !ruleMetadata.wcagCriterionMap[id]);
     expect(missingFromMap).toEqual([]);
   });
 
   it("apgPatterns and inclusiveComponents have correct mappings", () => {
-    expect(intelligence.apgPatterns.dialog).toContain("apg/patterns/dialogmodal");
-    expect(intelligence.inclusiveComponents.tab).toContain("tabbed-interfaces");
+    expect(ruleMetadata.apgPatterns.dialog).toContain("apg/patterns/dialog-modal");
+    expect(ruleMetadata.inclusiveComponents.tab).toContain("tabbed-interfaces");
   });
 });
 

@@ -14,12 +14,21 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
+const ruleMetadataPath = path.join(__dirname, "../assets/rule-metadata.json");
 let INTELLIGENCE;
+let RULE_METADATA;
 try {
   INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
 } catch {
   throw new Error(
     `Missing or invalid intelligence.json at ${intelligencePath} — run pnpm install to reinstall.`,
+  );
+}
+try {
+  RULE_METADATA = JSON.parse(fs.readFileSync(ruleMetadataPath, "utf-8"));
+} catch {
+  throw new Error(
+    `Missing or invalid rule-metadata.json at ${ruleMetadataPath} — run pnpm install to reinstall.`,
   );
 }
 
@@ -30,10 +39,18 @@ function makeFindingId(ruleId, url, selector) {
 }
 
 const RULES = INTELLIGENCE.rules || {};
-const APG_PATTERNS = INTELLIGENCE.apgPatterns;
-const A11Y_SUPPORT = INTELLIGENCE.a11ySupport;
-const INCLUSIVE_COMPONENTS = INTELLIGENCE.inclusiveComponents;
-const WCAG_CRITERION_MAP = INTELLIGENCE.wcagCriterionMap || {};
+const APG_PATTERNS = RULE_METADATA.apgPatterns;
+const A11Y_SUPPORT = RULE_METADATA.a11ySupport;
+const INCLUSIVE_COMPONENTS = RULE_METADATA.inclusiveComponents;
+const MDN = RULE_METADATA.mdn || {};
+const WCAG_CRITERION_MAP = RULE_METADATA.wcagCriterionMap || {};
+
+function detectCodeLang(code) {
+  if (!code) return "html";
+  if (/\.(tsx?|jsx?)\b|className=|useState|useRef|<>\s*<\/>/i.test(code)) return "jsx";
+  if (/^\s*[.#][\w-]+\s*\{|:\s*var\(|@media|display\s*:/m.test(code)) return "css";
+  return "html";
+}
 
 const US_REGULATORY = {
   default: "https://accessibility.18f.gov/checklist/",
@@ -41,8 +58,11 @@ const US_REGULATORY = {
   "18f": "https://accessibility.18f.gov/tools/",
 };
 
+const IMPACTED_USERS = RULE_METADATA.impactedUsers || {};
+const EXPECTED = RULE_METADATA.expected || {};
+
 function getImpactedUsers(ruleId, tags) {
-  if (RULES[ruleId]?.impacted_users) return RULES[ruleId].impacted_users;
+  if (IMPACTED_USERS[ruleId]) return IMPACTED_USERS[ruleId];
   if (tags.includes("cat.color"))
     return "Users with low vision or color blindness";
   if (tags.includes("cat.keyboard")) return "Keyboard-only users";
@@ -58,7 +78,53 @@ function getImpactedUsers(ruleId, tags) {
 }
 
 function getExpected(ruleId) {
-  return RULES[ruleId]?.expected || "WCAG accessibility check must pass.";
+  return EXPECTED[ruleId] || "WCAG accessibility check must pass.";
+}
+
+const FRAMEWORK_GLOBS = {
+  nextjs:    { components: "app/**/*.tsx, components/**/*.tsx", styles: "**/*.module.css, app/globals.css" },
+  gatsby:    { components: "src/**/*.tsx, src/**/*.jsx", styles: "src/**/*.css, src/**/*.module.css" },
+  react:     { components: "src/**/*.tsx, src/**/*.jsx", styles: "src/**/*.css, src/**/*.module.css" },
+  nuxt:      { components: "pages/**/*.vue, components/**/*.vue", styles: "**/*.css, assets/**/*.scss" },
+  vue:       { components: "src/**/*.vue", styles: "src/**/*.css" },
+  angular:   { components: "src/**/*.component.html, src/**/*.component.ts", styles: "src/**/*.component.css" },
+  astro:     { components: "src/**/*.astro, src/components/**/*.tsx", styles: "src/**/*.css" },
+  svelte:    { components: "src/**/*.svelte", styles: "src/**/*.css" },
+  shopify:   { components: "sections/**/*.liquid, snippets/**/*.liquid", styles: "assets/**/*.css" },
+  wordpress: { components: "wp-content/themes/**/*.php", styles: "wp-content/themes/**/*.css" },
+};
+
+const ARIA_MANAGED_RULES = new Set([
+  "aria-required-attr", "aria-required-children", "aria-required-parent",
+  "aria-valid-attr", "aria-valid-attr-value", "aria-allowed-attr",
+  "aria-allowed-role", "aria-dialog-name", "aria-toggle-field-name",
+  "aria-prohibited-attr",
+]);
+
+const MANAGED_LIBS = new Set(["radix", "headless-ui", "chakra", "mantine", "material-ui"]);
+
+function getFileSearchPattern(framework, codeLang) {
+  const globs = FRAMEWORK_GLOBS[framework];
+  if (!globs) return null;
+  return codeLang === "css" ? globs.styles : globs.components;
+}
+
+function getManagedByLibrary(ruleId, uiLibraries) {
+  if (!ARIA_MANAGED_RULES.has(ruleId)) return null;
+  const managed = uiLibraries.filter((lib) => MANAGED_LIBS.has(lib));
+  if (managed.length === 0) return null;
+  return managed.join(", ");
+}
+
+function extractComponentHint(selector) {
+  if (!selector || selector === "N/A") return null;
+  const bemMatch = selector.match(/\.([\w-]+?)(?:__|--)/);
+  if (bemMatch) return bemMatch[1];
+  const classMatch = selector.match(/\.([\w-]+)/);
+  if (classMatch) return classMatch[1];
+  const idMatch = selector.match(/#([\w-]+)/);
+  if (idMatch) return idMatch[1];
+  return null;
 }
 
 function printUsage() {
@@ -169,6 +235,7 @@ export function extractSearchHint(selector) {
 function buildFindings(inputPayload) {
   const onlyRule = inputPayload.onlyRule;
   const routes = inputPayload.routes || [];
+  const ctx = inputPayload.projectContext || { framework: null, uiLibraries: [] };
   const findings = [];
 
   for (const route of routes) {
@@ -207,6 +274,8 @@ function buildFindings(inputPayload) {
             recFix += `- **Browser/AT Support Data**: ${supportUrl}\n`;
         }
 
+        const codeLang = detectCodeLang(fixInfo.code);
+
         findings.push({
           id: "",
           rule_id: v.id,
@@ -230,11 +299,11 @@ function buildFindings(inputPayload) {
           expected: getExpected(v.id),
           fix_description: fixInfo.description ?? null,
           fix_code: fixInfo.code ?? null,
-          fix_code_lang: ruleInfo.fix_code_lang ?? "html",
+          fix_code_lang: codeLang,
           recommended_fix: recFix.trim(),
-          mdn: ruleInfo.mdn ?? null,
+          mdn: MDN[v.id] ?? null,
           manual_test: ruleInfo.manual_test ?? null,
-          effort: ruleInfo.effort ?? null,
+          effort: null,
           related_rules: Array.isArray(ruleInfo.related_rules) ? ruleInfo.related_rules : [],
           false_positive_risk: ruleInfo.false_positive_risk ?? null,
           fix_difficulty_notes: ruleInfo.fix_difficulty_notes ?? null,
@@ -246,6 +315,10 @@ function buildFindings(inputPayload) {
             failureSummary: n.failureSummary,
           })),
           screenshot_path: v.screenshot_path || null,
+          file_search_pattern: getFileSearchPattern(ctx.framework, codeLang),
+          managed_by_library: getManagedByLibrary(v.id, ctx.uiLibraries),
+          component_hint: extractComponentHint(bestSelector),
+          verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
         });
       }
     }
@@ -307,6 +380,7 @@ function buildFindings(inputPayload) {
       scanDate: new Date().toISOString(),
       regulatory: US_REGULATORY,
       checklist: "https://www.a11yproject.com/checklist/",
+      projectContext: ctx,
     },
   };
 }

@@ -59,12 +59,13 @@ ${entries}
 `;
 }
 
-function detectFramework(baseUrl = "", configFramework = null) {
+function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
   if (configFramework) return configFramework.toLowerCase();
+  const detected = metadata.projectContext?.framework;
+  if (detected) return detected;
   const url = baseUrl.toLowerCase();
   if (url.includes("myshopify.com") || url.includes(".myshopify.")) return "shopify";
   if (url.includes("wp-content") || url.includes("wordpress")) return "wordpress";
-  if (url.includes("drupal")) return "drupal";
   return "generic";
 }
 
@@ -148,6 +149,18 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       ? `**Rule Logic:** https://dequeuniversity.com/rules/axe/4.10/${f.ruleId}`
       : null;
 
+    const searchPatternBlock = f.fileSearchPattern
+      ? `**Search in:** \`${f.fileSearchPattern}\``
+      : null;
+
+    const managedBlock = f.managedByLibrary
+      ? `> ⚠️ **Managed Component Warning:** This project uses **${f.managedByLibrary}** — verify this element is not a library-managed component before applying ARIA fixes.`
+      : null;
+
+    const verifyBlock = f.verificationCommand
+      ? `**Quick verify:** \`${f.verificationCommand}\``
+      : null;
+
     return [
       `---`,
       `### ID: ${f.id || f.ruleId} · ${f.severity} · \`${f.title}\``,
@@ -158,6 +171,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `- **Persona Impact:** ${f.impactedUsers}`,
       f.priorityScore != null ? `- **Priority Score:** ${f.priorityScore}/100` : null,
       ``,
+      managedBlock ? `${managedBlock}\n` : null,
       `**Why it matters:** ${f.impact || "This violation creates barriers for users with disabilities."}`,
       ``,
       `**Expected Behavior:** ${f.expected}`,
@@ -165,6 +179,8 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `**Observed Violation:** ${f.actual}`,
       reproBlock ? `` : null,
       reproBlock,
+      searchPatternBlock ? `` : null,
+      searchPatternBlock,
       ``,
       fixBlock,
       difficultyBlock ? `` : null,
@@ -183,6 +199,8 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         : null,
       relatedBlock ? `` : null,
       relatedBlock,
+      verifyBlock ? `` : null,
+      verifyBlock,
     ]
       .filter((line) => line !== null)
       .join("\n");
@@ -206,6 +224,30 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
 
   const blockers = findingsByPage(["Critical", "High"]);
   const deferred = findingsByPage(["Medium", "Low"]);
+
+  function buildComponentMap() {
+    const groups = {};
+    for (const f of findings) {
+      const hint = f.componentHint || "other";
+      if (!groups[hint]) groups[hint] = [];
+      groups[hint].push(f);
+    }
+    const sorted = Object.entries(groups).sort((a, b) => b[1].length - a[1].length);
+    if (sorted.length <= 1) return "";
+    const rows = sorted.map(([component, items]) => {
+      const severities = [...new Set(items.map((i) => i.severity))].join(", ");
+      const rules = [...new Set(items.map((i) => i.ruleId))].join(", ");
+      return `| \`${component}\` | ${items.length} | ${severities} | ${rules} |`;
+    });
+    return `## 🧩 Fixes by Component
+
+> Fix all issues in the same component before moving to the next — reduces file switching.
+
+| Component | Issues | Severities | Rules |
+|---|---|---|---|
+${rows.join("\n")}
+`;
+  }
 
   const referencesSection = metadata.regulatory
     ? `
@@ -246,11 +288,11 @@ Total findings: **${findings.length} issues**
 
 **FOLLOW THESE RULES TO PREVENT REGRESSIONS AND HALLUCINATIONS:**
 
-${buildGuardrails(detectFramework(args.baseUrl, args.framework ?? null))}
+${buildGuardrails(resolveFramework(metadata, args.baseUrl, args.framework ?? null))}
 
 ---
 
-${blockers ? `## 🔴 Priority Fixes (Critical & High)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or high severity issues found."}
+${buildComponentMap()}${blockers ? `## 🔴 Priority Fixes (Critical & High)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or high severity issues found."}
 
 ${deferred ? `## 🔵 Deferred Issues (Medium & Low)\n\n${deferred}` : "## Deferred Issues\n\nNo medium or low severity issues found."}
 

@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function printUsage() {
   log.info(`Usage:
-  pnpm audit --base-url <url> [options]
+  pnpm a11y --base-url <url> [options]
 
 Targeting & Scope:
   --base-url <url>        (Required) The target website to audit.
@@ -180,21 +180,24 @@ async function main() {
     const buildArgs = ["--output", output, "--base-url", baseUrl];
     if (target) buildArgs.push("--target", target);
 
-    await runScript("build-report-html.mjs", buildArgs);
-
     const mdOutput = path.join(
       path.dirname(absoluteOutputPath),
       "remediation.md",
     );
     const mdArgs = ["--output", mdOutput, "--base-url", baseUrl];
     if (target) mdArgs.push("--target", target);
-    await runScript("build-report-md.mjs", mdArgs);
+
+    await Promise.all([
+      runScript("build-report-html.mjs", buildArgs),
+      runScript("build-report-md.mjs", mdArgs),
+    ]);
 
     const pdfOutput = output.replace(".html", ".pdf");
     await runScript("build-report-pdf.mjs", [output, pdfOutput]);
 
     log.success(`🎉 Audit complete!`);
     console.log(`REPORT_PATH=${absoluteOutputPath}`);
+    console.log(`GITIGNORE_REMINDER=Add "audit/" to your project .gitignore to avoid committing generated reports.`);
   } catch (error) {
     log.error(error.message);
     process.exit(1);

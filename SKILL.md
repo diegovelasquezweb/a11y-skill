@@ -5,7 +5,7 @@ compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL
 license: Proprietary (All Rights Reserved)
 metadata:
   author: diegovelasquezweb
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Web Accessibility Audit
@@ -234,7 +234,32 @@ Follow these steps in order when executing an audit:
    - **MANDATORY**: Present a list of "Proposed Fixes" with the specific code changes found in `audit/remediation.md`.
    - Ask for explicit permission to apply the fixes: "Should I apply these patches for you?"
 
-6. **Suggest `.gitignore` update**: If a `.gitignore` exists in the project root and does not already contain `audit/`, mention to the user that they may want to add `audit/` to avoid committing generated reports. Do not edit `.gitignore` automatically.
+6. **Suggest `.gitignore` update**: **MANDATORY — always do this, no exceptions.** After every audit, tell the user to add `audit/` to the project's `.gitignore` to avoid committing generated reports. Do not check whether the entry already exists — just always surface the reminder. Do not edit `.gitignore` automatically.
+
+## 12) Fix Application Workflow
+
+When the user grants permission to apply fixes, follow this strict sequential protocol. **Never apply all fixes in a single batch.**
+
+1. **Group fixes by severity** before touching any file: Critical → High → Medium → Low.
+2. **Use the "Fixes by Component" table** (if present) to batch edits per component — fix all issues in the same file before moving to the next.
+3. **Use "Search in"** glob patterns from each finding to locate the correct source file. Do not grep the entire project blindly.
+4. **If a finding has a "Managed Component Warning"**, verify the element is not rendered by a UI library (Radix, Headless UI, etc.) before applying ARIA fixes.
+5. **Apply one severity group at a time**, starting with Critical.
+6. **Checkpoint after each group**: stop, list every file modified and every fix applied, then ask the user to test and confirm before continuing. Example prompt: _"Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."_
+7. **Verify each group** using the targeted re-scan command from the finding instead of re-running the full audit: `pnpm a11y --base-url <URL> --routes <route> --only-rule <rule-id> --max-routes 1`
+8. **Wait for explicit user confirmation** before moving to the next severity group. Never auto-advance.
+9. **If any fix fails**: stop immediately, report the exact error and the file/line affected, and ask the user how to proceed. Do not skip ahead.
+10. **Never mix severity groups** in a single application step.
+
+## 13) Manual Checks — Source Code Scan
+
+After all automated fixes are applied and confirmed, process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`. These are violations that axe-core cannot detect automatically.
+
+1. **Read the manual checks** from the remediation guide — each check includes a pattern to search for, verification steps, and a before/after code example.
+2. **Search the project source code** for the pattern described in each check. Use the verification steps to determine if the project is affected.
+3. **Skip checks that don't apply** — if the codebase has no `<video>` elements, skip the media caption checks. Do not report false findings.
+4. **For each confirmed violation**, propose the fix using the before/after code example from the check. Group all manual check findings together and present them to the user as a separate batch: _"I found N additional issues from manual WCAG checks that axe-core cannot detect. Here are the proposed fixes."_
+5. **Wait for user permission** before applying. Follow the same checkpoint protocol as Section 12.
 
 ### `a11y.config.json` Reference
 

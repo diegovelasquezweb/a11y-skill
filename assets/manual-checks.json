@@ -439,7 +439,7 @@
       "before": "<!-- BEFORE — status updated silently, screen reader not notified -->\n<div id=\"status\"></div>\n<script>\n  document.getElementById('status').textContent = '12 results found';\n</script>",
       "after": "<!-- AFTER — aria-live announces update without requiring focus change -->\n<div id=\"status\" role=\"status\" aria-live=\"polite\" aria-atomic=\"true\"></div>\n<script>\n  // Screen reader announces '12 results found' automatically\n  document.getElementById('status').textContent = '12 results found';\n</script>"
     },
-    "ref": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Live_Regions"
+    "ref": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Guides/Live_regions"
   },
   {
     "criterion": "AT-6",

@@ -206,6 +206,50 @@ async function discoverRoutes(page, baseUrl, maxRoutes) {
   return [...routes];
 }
 
+async function detectProjectContext(page) {
+  const framework = await page.evaluate(() => {
+    if (document.getElementById("__next") || window.__NEXT_DATA__) return "nextjs";
+    if (document.getElementById("__nuxt") || window.__NUXT__) return "nuxt";
+    if (document.querySelector("[ng-version]")) return "angular";
+    if (document.getElementById("___gatsby")) return "gatsby";
+    if (document.querySelector("[data-astro-cid]") || document.querySelector("astro-island")) return "astro";
+    if (document.querySelector("[data-reactroot]")) return "react";
+    if (document.querySelector("[data-v-]") || document.querySelector("[data-server-rendered]")) return "vue";
+    if (window.Shopify || document.querySelector("[data-shopify]")) return "shopify";
+    if (document.querySelector('link[href*="wp-content"]') || document.querySelector('meta[name="generator"][content*="WordPress"]')) return "wordpress";
+    return null;
+  });
+
+  const uiLibraries = [];
+  try {
+    const pkgPath = path.join(process.cwd(), "package.json");
+    if (fs.existsSync(pkgPath)) {
+      const deps = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+      const allDeps = Object.keys({ ...deps.dependencies, ...deps.devDependencies });
+      const LIB_SIGNALS = [
+        ["@radix-ui", "radix"],
+        ["@headlessui", "headless-ui"],
+        ["@chakra-ui", "chakra"],
+        ["@mantine", "mantine"],
+        ["@mui", "material-ui"],
+        ["antd", "ant-design"],
+      ];
+      for (const [prefix, name] of LIB_SIGNALS) {
+        if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
+          uiLibraries.push(name);
+        }
+      }
+    }
+  } catch {
+    // package.json not available — running against remote URL
+  }
+
+  if (framework) log.info(`Detected framework: ${framework}`);
+  if (uiLibraries.length) log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
+
+  return { framework, uiLibraries };
+}
+
 async function analyzeRoute(
   page,
   routeUrl,
@@ -225,7 +269,7 @@ async function analyzeRoute(
         waitUntil,
         timeout: timeoutMs,
       });
-      await page.waitForTimeout(waitMs);
+      await page.waitForLoadState("networkidle", { timeout: waitMs }).catch(() => {});
 
       const builder = new AxeBuilder({ page });
 
@@ -330,11 +374,14 @@ async function main() {
   const page = await context.newPage();
 
   let routes = [];
+  let projectContext = { framework: null, uiLibraries: [] };
   try {
     await page.goto(baseUrl, {
       waitUntil: args.waitUntil,
       timeout: args.timeoutMs,
     });
+
+    projectContext = await detectProjectContext(page);
 
     const cliRoutes = parseRoutesArg(args.routes, origin);
     const configRoutes =
@@ -367,7 +414,7 @@ async function main() {
 
   const SKIP_SELECTORS = new Set(["html", "body", "head", ":root", "document"]);
 
-  async function captureElementScreenshot(violation, routeIndex) {
+  async function captureElementScreenshot(tabPage, violation, routeIndex) {
     if (!args.screenshotsDir) return;
     const firstNode = violation.nodes?.[0];
     if (!firstNode || firstNode.target.length > 1) return;
@@ -378,19 +425,41 @@ async function main() {
       const safeRuleId = violation.id.replace(/[^a-z0-9-]/g, "-");
       const filename = `${routeIndex}-${safeRuleId}.png`;
       const screenshotPath = path.join(args.screenshotsDir, filename);
-      await page
-        .locator(selector)
-        .first()
-        .screenshot({ path: screenshotPath, timeout: 3000 });
+      await tabPage.locator(selector).first().scrollIntoViewIfNeeded({ timeout: 3000 });
+      await tabPage.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const overlay = document.createElement("div");
+        overlay.id = "__a11y_highlight__";
+        Object.assign(overlay.style, {
+          position: "fixed",
+          top: `${rect.top}px`,
+          left: `${rect.left}px`,
+          width: `${rect.width || 40}px`,
+          height: `${rect.height || 20}px`,
+          outline: "3px solid #ef4444",
+          outlineOffset: "2px",
+          backgroundColor: "rgba(239,68,68,0.12)",
+          zIndex: "2147483647",
+          pointerEvents: "none",
+          boxSizing: "border-box",
+        });
+        document.body.appendChild(overlay);
+      }, selector);
+      await tabPage.screenshot({ path: screenshotPath });
       violation.screenshot_path = `screenshots/${filename}`;
+      await tabPage.evaluate(() => document.getElementById("__a11y_highlight__")?.remove());
     } catch (err) {
       log.warn(
         `Screenshot skipped for "${violation.id}" (${selector}): ${err.message}`,
       );
+      await tabPage.evaluate(() => document.getElementById("__a11y_highlight__")?.remove()).catch(() => {});
     }
   }
 
-  const results = [];
+  const TAB_CONCURRENCY = 3;
+  const results = new Array(routes.length);
   const total = routes.length;
 
   try {
@@ -403,31 +472,42 @@ async function main() {
         log.info(`robots.txt: ${skipped} route(s) excluded (Disallow rules)`);
     }
 
-    log.info(`Targeting ${routes.length} routes: ${routes.join(", ")}`);
+    log.info(`Targeting ${routes.length} routes (${Math.min(TAB_CONCURRENCY, routes.length)} parallel tabs): ${routes.join(", ")}`);
 
-    for (let i = 0; i < total; i++) {
-      const routePath = routes[i];
-      log.info(`[${i + 1}/${total}] Scanning: ${routePath}`);
-      const targetUrl = new URL(routePath, baseUrl).toString();
-      const result = await analyzeRoute(
-        page,
-        targetUrl,
-        args.waitMs,
-        config.axeRules,
-        config.excludeSelectors,
-        args.onlyRule,
-        args.timeoutMs,
-        2,
-        args.waitUntil,
-      );
-      if (args.screenshotsDir && result.violations) {
-        await Promise.all(
-          result.violations.map((violation) =>
-            captureElementScreenshot(violation, i),
-          ),
-        );
+    const tabPages = [page];
+    for (let t = 1; t < Math.min(TAB_CONCURRENCY, routes.length); t++) {
+      tabPages.push(await context.newPage());
+    }
+
+    for (let i = 0; i < routes.length; i += tabPages.length) {
+      const batch = [];
+      for (let j = 0; j < tabPages.length && i + j < routes.length; j++) {
+        const idx = i + j;
+        const tabPage = tabPages[j];
+        batch.push((async () => {
+          const routePath = routes[idx];
+          log.info(`[${idx + 1}/${total}] Scanning: ${routePath}`);
+          const targetUrl = new URL(routePath, baseUrl).toString();
+          const result = await analyzeRoute(
+            tabPage,
+            targetUrl,
+            args.waitMs,
+            config.axeRules,
+            config.excludeSelectors,
+            args.onlyRule,
+            args.timeoutMs,
+            2,
+            args.waitUntil,
+          );
+          if (args.screenshotsDir && result.violations) {
+            for (const violation of result.violations) {
+              await captureElementScreenshot(tabPage, violation, idx);
+            }
+          }
+          results[idx] = { path: routePath, ...result };
+        })());
       }
-      results.push({ path: routePath, ...result });
+      await Promise.all(batch);
     }
   } finally {
     await browser.close();
@@ -437,6 +517,7 @@ async function main() {
     generated_at: new Date().toISOString(),
     base_url: baseUrl,
     onlyRule: args.onlyRule || null,
+    projectContext,
     routes: results,
   };
 
