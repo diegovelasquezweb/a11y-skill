@@ -9,44 +9,46 @@ import {
 
 describe("assets/intelligence.json schema", () => {
   let intelligence;
+  let references;
 
   beforeAll(() => {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     intelligence = JSON.parse(
       fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"),
     );
+    references = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "../assets/references.json"), "utf-8"),
+    );
   });
 
-  it("has all required top-level keys", () => {
-    expect(intelligence).toHaveProperty("axeVersion");
-    expect(intelligence).toHaveProperty("wcagCriterionMap");
-    expect(intelligence).toHaveProperty("apgPatterns");
-    expect(intelligence).toHaveProperty("a11ySupport");
-    expect(intelligence).toHaveProperty("inclusiveComponents");
+  it("intelligence.json has required top-level keys", () => {
     expect(intelligence).toHaveProperty("rules");
   });
 
-  it("axeVersion is a non-empty string", () => {
-    expect(typeof intelligence.axeVersion).toBe("string");
-    expect(intelligence.axeVersion.length).toBeGreaterThan(0);
+  it("references.json has required top-level keys", () => {
+    expect(references).toHaveProperty("wcagCriterionMap");
+    expect(references).toHaveProperty("apgPatterns");
+    expect(references).toHaveProperty("a11ySupport");
+    expect(references).toHaveProperty("inclusiveComponents");
+    expect(references).toHaveProperty("mdn");
   });
 
   it("wcagCriterionMap maps known rules to WCAG criterion strings", () => {
-    expect(intelligence.wcagCriterionMap["image-alt"]).toBe("1.1.1");
-    expect(intelligence.wcagCriterionMap["color-contrast"]).toBe("1.4.3");
-    expect(intelligence.wcagCriterionMap["button-name"]).toBe("4.1.2");
-    expect(intelligence.wcagCriterionMap["label"]).toBe("1.3.1");
+    expect(references.wcagCriterionMap["image-alt"]).toBe("1.1.1");
+    expect(references.wcagCriterionMap["color-contrast"]).toBe("1.4.3");
+    expect(references.wcagCriterionMap["button-name"]).toBe("4.1.2");
+    expect(references.wcagCriterionMap["label"]).toBe("1.3.1");
   });
 
-  it("wcagCriterionMap covers all rules defined in the rules object", () => {
+  it("wcagCriterionMap covers all rules defined in intelligence.json", () => {
     const ruleIds = Object.keys(intelligence.rules);
-    const missingFromMap = ruleIds.filter((id) => !intelligence.wcagCriterionMap[id]);
+    const missingFromMap = ruleIds.filter((id) => !references.wcagCriterionMap[id]);
     expect(missingFromMap).toEqual([]);
   });
 
   it("apgPatterns and inclusiveComponents have correct mappings", () => {
-    expect(intelligence.apgPatterns.dialog).toContain("apg/patterns/dialogmodal");
-    expect(intelligence.inclusiveComponents.tab).toContain("tabbed-interfaces");
+    expect(references.apgPatterns.dialog).toContain("apg/patterns/dialogmodal");
+    expect(references.inclusiveComponents.tab).toContain("tabbed-interfaces");
   });
 });
 

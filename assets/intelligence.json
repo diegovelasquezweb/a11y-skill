@@ -116,6 +116,10 @@
         {
           "id": "aria-valid-attr-value",
           "reason": "After fixing prohibited attrs, check that remaining ARIA attribute values are valid tokens."
+        },
+        {
+          "id": "aria-roles",
+          "reason": "Often co-located — fix the role first, then verify required attributes are present and prohibited ones are removed."
         }
       ],
       "effort": "low",
@@ -150,6 +154,14 @@
         {
           "id": "aria-valid-attr-value",
           "reason": "After adding required attributes, verify their values are valid."
+        },
+        {
+          "id": "aria-prohibited-attr",
+          "reason": "After adding required attributes, verify no prohibited attributes remain for the fixed role."
+        },
+        {
+          "id": "aria-toggle-field-name",
+          "reason": "role=\"switch\" requires aria-checked — fix accessible name and required attributes together."
         }
       ],
       "effort": "low",
@@ -183,6 +195,10 @@
         },
         {
           "id": "aria-prohibited-attr",
+          "reason": "After fixing the role, verify no ARIA attributes are prohibited for the new role."
+        },
+        {
+          "id": "aria-valid-attr-value",
           "reason": "After fixing the role, verify no ARIA attributes are prohibited for the new role."
         }
       ],
@@ -218,6 +234,10 @@
         {
           "id": "aria-required-attr",
           "reason": "role='switch' requires aria-checked — fix the accessible name and required attributes together."
+        },
+        {
+          "id": "aria-input-field-name",
+          "reason": "Fix all ARIA field naming violations together — they share the same accessible name patterns."
         }
       ],
       "effort": "low",
@@ -252,6 +272,10 @@
         {
           "id": "aria-roles",
           "reason": "An invalid role produces invalid attribute values — fix the role before the attribute values."
+        },
+        {
+          "id": "aria-prohibited-attr",
+          "reason": "After removing prohibited attrs, verify remaining attribute values are valid tokens."
         }
       ],
       "effort": "low",
@@ -310,7 +334,13 @@
       },
       "effort": "low",
       "impacted_users": "Users with motor disabilities and cognitive disabilities",
-      "expected": "Inputs collecting personal data must have a valid autocomplete attribute per WCAG 1.3.5."
+      "expected": "Inputs collecting personal data must have a valid autocomplete attribute per WCAG 1.3.5.",
+      "related_rules": [
+        {
+          "id": "label",
+          "reason": "Properly labeled inputs should also have correct autocomplete tokens — fix label association and autocomplete together."
+        }
+      ]
     },
     "button-name": {
       "fix": {
@@ -369,6 +399,10 @@
         {
           "id": "landmark-one-main",
           "reason": "The skip link target (#main-content) must point to the <main> landmark."
+        },
+        {
+          "id": "landmark-unique",
+          "reason": "Unique landmark labels enhance skip navigation — users can jump directly to a specific landmark."
         }
       ],
       "effort": "low",
@@ -663,6 +697,14 @@
         {
           "id": "page-has-heading-one",
           "reason": "Fixing the h1 establishes the root of the hierarchy — resolve it first."
+        },
+        {
+          "id": "empty-heading",
+          "reason": "Empty headings disrupt the heading hierarchy — resolve them together."
+        },
+        {
+          "id": "p-as-heading",
+          "reason": "After converting p-as-heading to real headings, verify they fit the existing heading hierarchy."
         }
       ],
       "effort": "medium",
@@ -793,6 +835,10 @@
         {
           "id": "image-redundant-alt",
           "reason": "When adding alt text, avoid duplicating visible adjacent text — fixing one can trigger the other."
+        },
+        {
+          "id": "object-alt",
+          "reason": "The same text alternative requirement applies to <object> — audit both together."
         }
       ],
       "effort": "medium",
@@ -821,7 +867,17 @@
       },
       "effort": "low",
       "impacted_users": "Screen reader users (redundant announcements increase cognitive load)",
-      "expected": "Image alt text must not duplicate adjacent visible text. If adjacent text fully describes the image, use alt='' to mark it as decorative."
+      "expected": "Image alt text must not duplicate adjacent visible text. If adjacent text fully describes the image, use alt='' to mark it as decorative.",
+      "related_rules": [
+        {
+          "id": "image-alt",
+          "reason": "When adding alt text, avoid duplicating visible adjacent text — fixing one can trigger the other."
+        },
+        {
+          "id": "svg-img-alt",
+          "reason": "When adding aria-label to SVGs, avoid duplicating visible adjacent text."
+        }
+      ]
     },
     "input-button-name": {
       "fix": {
@@ -921,6 +977,14 @@
         {
           "id": "label-content-name-mismatch",
           "reason": "The visible label text must match the accessible name — fix label association and name mismatch together."
+        },
+        {
+          "id": "aria-input-field-name",
+          "reason": "ARIA input field naming and native label association address the same accessible name gap — fix together."
+        },
+        {
+          "id": "aria-toggle-field-name",
+          "reason": "The same label association pattern resolves both label and aria-toggle-field-name violations."
         }
       ],
       "effort": "low",
@@ -990,6 +1054,10 @@
         {
           "id": "landmark-one-main",
           "reason": "Landmark structure issues are often co-located — fix them as a group."
+        },
+        {
+          "id": "landmark-unique",
+          "reason": "Unique landmark labels are the fix for duplicate banner violations — add aria-label to distinguish them."
         }
       ],
       "effort": "low",
@@ -1058,6 +1126,14 @@
         {
           "id": "region",
           "reason": "Adding <main> may resolve orphan-content region violations."
+        },
+        {
+          "id": "landmark-no-duplicate-banner",
+          "reason": "Landmark structure issues are often co-located — fix them as a group."
+        },
+        {
+          "id": "landmark-no-duplicate-main",
+          "reason": "Duplicate main violations are the inverse of the single <main> requirement — fix together."
         }
       ],
       "effort": "low",
@@ -1372,6 +1448,10 @@
         {
           "id": "heading-order",
           "reason": "Fixing the missing h1 anchors the heading hierarchy and may cascade-resolve heading-order violations."
+        },
+        {
+          "id": "p-as-heading",
+          "reason": "If converting a p-as-heading introduces a new h1, verify it is the only h1 on the page."
         }
       ],
       "effort": "low",
@@ -1520,6 +1600,10 @@
         {
           "id": "image-redundant-alt",
           "reason": "When adding aria-label to SVGs, avoid duplicating visible adjacent text."
+        },
+        {
+          "id": "input-image-alt",
+          "reason": "The same alt text requirement applies to <input type=\"image\"> — fix all alt text violations together."
         }
       ],
       "effort": "medium",
