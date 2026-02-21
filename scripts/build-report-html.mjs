@@ -50,7 +50,6 @@ function parseArgs(argv) {
   const config = loadConfig();
   const args = {
     input: getInternalPath("a11y-findings.json"),
-    scanResults: getInternalPath("a11y-scan-results.json"),
     output: path.join(process.cwd(), config.outputDir, "report.html"),
     baseUrl: "",
     target: config.complianceTarget,
@@ -62,7 +61,6 @@ function parseArgs(argv) {
     if (!key.startsWith("--") || value === undefined) continue;
 
     if (key === "--input") args.input = value;
-    if (key === "--scan-results") args.scanResults = value;
     if (key === "--output") args.output = value;
     if (key === "--base-url") args.baseUrl = value;
     if (key === "--target") args.target = value;
@@ -124,7 +122,7 @@ function buildHtml(args, findings, metadata = {}) {
 
   const score = computeComplianceScore(totals);
   const label = scoreLabel(score);
-  const scoreHue = score >= 90 ? 142 : score >= 75 ? 142 : score >= 55 ? 38 : 0;
+  const scoreHue = score >= 75 ? 142 : score >= 55 ? 38 : 0;
 
   const personaGroups = {
     screenReader: {
@@ -1014,8 +1012,14 @@ function buildHtml(args, findings, metadata = {}) {
                 btn.innerHTML = original;
                 btn.classList.remove('bg-emerald-500');
             }, 2000);
-        } catch (err) {
-            console.error('Failed to copy!', err);
+        } catch {
+            btn.textContent = 'Failed';
+            btn.classList.add('bg-red-500');
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('bg-red-500');
+                btn.classList.add('bg-emerald-500');
+            }, 2000);
         }
     }
   </script>

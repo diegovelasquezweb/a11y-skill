@@ -19,7 +19,7 @@ try {
   INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
 } catch {
   throw new Error(
-    "Missing or invalid assets/intelligence.json — reinstall the skill.",
+    `Missing or invalid intelligence.json at ${intelligencePath} — run pnpm install to reinstall.`,
   );
 }
 

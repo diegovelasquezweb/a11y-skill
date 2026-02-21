@@ -32,6 +32,8 @@ Execution & Emulation:
 `);
 }
 
+const SCRIPT_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+
 async function runScript(scriptName, args = []) {
   return new Promise((resolve, reject) => {
     const scriptPath = path.join(__dirname, scriptName);
@@ -42,11 +44,28 @@ async function runScript(scriptName, args = []) {
       cwd: SKILL_ROOT,
     });
 
+    const timer = setTimeout(() => {
+      proc.kill("SIGTERM");
+      reject(
+        new Error(
+          `Script ${scriptName} timed out after ${SCRIPT_TIMEOUT_MS / 1000}s`,
+        ),
+      );
+    }, SCRIPT_TIMEOUT_MS);
+
+    proc.on("error", (err) => {
+      clearTimeout(timer);
+      reject(new Error(`Failed to start ${scriptName}: ${err.message}`));
+    });
+
     proc.on("close", (code) => {
+      clearTimeout(timer);
       if (code === 0) {
         resolve();
       } else {
-        reject(new Error(`Script ${scriptName} failed with code ${code}`));
+        reject(
+          new Error(`Script ${scriptName} failed with exit code ${code}`),
+        );
       }
     });
   });
@@ -98,6 +117,15 @@ async function main() {
   if (!baseUrl) {
     log.error("Missing required argument: --base-url");
     console.log("Usage: node scripts/run-audit.mjs --base-url <url> [options]");
+    process.exit(1);
+  }
+
+  try {
+    new URL(baseUrl);
+  } catch {
+    log.error(
+      `Invalid URL: "${baseUrl}". Provide a full URL including protocol (e.g., https://example.com).`,
+    );
     process.exit(1);
   }
 

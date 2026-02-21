@@ -7,7 +7,7 @@ vi.mock("node:fs");
 
 describe("a11y-utils", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   describe("loadConfig", () => {

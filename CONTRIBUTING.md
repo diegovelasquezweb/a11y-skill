@@ -16,6 +16,7 @@ pnpm install
 
 - Ensure all tests pass: `pnpm test`.
 - New features must include unit tests.
+- **pnpm Only**: Use `pnpm` for all dependency management. Do not commit `package-lock.json` or `yarn.lock`.
 - Keep implementations concise — avoid unnecessary abstractions.
 
 ### 2. Security & Privacy
@@ -27,6 +28,18 @@ pnpm install
 
 - All changes must go through a Pull Request reviewed before merging to `main`.
 - Ensure all tests pass before opening a PR.
+
+### Branch Naming
+
+Use the following prefixes to keep the repository organized:
+
+- `feature/` (Features)
+- `fix/` (Bugs)
+- `refactor/` (Cleanup)
+- `docs/` (Documentation)
+- `chore/` (Maintenance)
+
+Example: `feat/new-audit-rule`.
 
 ## PR Checklist
 
