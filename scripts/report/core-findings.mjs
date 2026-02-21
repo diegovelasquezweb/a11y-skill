@@ -96,9 +96,9 @@ export function computeComplianceScore(totals) {
  * Returns a human-readable grade based on the score.
  */
 export function scoreLabel(score) {
-  if (score >= 95) return "Excellent";
-  if (score >= 85) return "Good";
-  if (score >= 70) return "Fair";
-  if (score >= 50) return "Needs Improvement";
-  return "Poor";
+  if (score >= 90) return "Excellent";
+  if (score >= 75) return "Good";
+  if (score >= 55) return "Fair";
+  if (score >= 35) return "Poor";
+  return "Critical";
 }

@@ -32,25 +32,25 @@ describe("core-findings logic", () => {
   });
 
   describe("scoreLabel", () => {
-    it("returns Excellent for scores >= 95", () => {
-      expect(scoreLabel(95)).toBe("Excellent");
+    it("returns Excellent for scores >= 90", () => {
+      expect(scoreLabel(90)).toBe("Excellent");
       expect(scoreLabel(100)).toBe("Excellent");
     });
-    it("returns Good for scores 85–94", () => {
-      expect(scoreLabel(85)).toBe("Good");
-      expect(scoreLabel(90)).toBe("Good");
+    it("returns Good for scores 75–89", () => {
+      expect(scoreLabel(75)).toBe("Good");
+      expect(scoreLabel(89)).toBe("Good");
     });
-    it("returns Fair for scores 70–84", () => {
-      expect(scoreLabel(70)).toBe("Fair");
-      expect(scoreLabel(80)).toBe("Fair");
+    it("returns Fair for scores 55–74", () => {
+      expect(scoreLabel(55)).toBe("Fair");
+      expect(scoreLabel(74)).toBe("Fair");
     });
-    it("returns Needs Improvement for scores 50–69", () => {
-      expect(scoreLabel(50)).toBe("Needs Improvement");
-      expect(scoreLabel(60)).toBe("Needs Improvement");
+    it("returns Poor for scores 35–54", () => {
+      expect(scoreLabel(35)).toBe("Poor");
+      expect(scoreLabel(54)).toBe("Poor");
     });
-    it("returns Poor for scores < 50", () => {
-      expect(scoreLabel(49)).toBe("Poor");
-      expect(scoreLabel(0)).toBe("Poor");
+    it("returns Critical for scores < 35", () => {
+      expect(scoreLabel(34)).toBe("Critical");
+      expect(scoreLabel(0)).toBe("Critical");
     });
   });
 

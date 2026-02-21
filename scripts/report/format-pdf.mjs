@@ -1,17 +1,25 @@
-import { SEVERITY_ORDER, computeComplianceScore } from "./core-findings.mjs";
+import {
+  SEVERITY_ORDER,
+  computeComplianceScore,
+  scoreLabel,
+} from "./core-findings.mjs";
 import { escapeHtml } from "./core-utils.mjs";
 import { buildIssueCard } from "./format-html.mjs";
 
-export function scoreLabel(score) {
-  if (score >= 90) return { label: "Excellent", risk: "Minimal Risk" };
-  if (score >= 75) return { label: "Good", risk: "Low Risk" };
-  if (score >= 55) return { label: "Fair", risk: "Moderate Risk" };
-  if (score >= 35) return { label: "Poor", risk: "High Risk" };
-  return { label: "Critical", risk: "Severe Risk" };
+const RISK_LABELS = {
+  Excellent: "Minimal Risk",
+  Good: "Low Risk",
+  Fair: "Moderate Risk",
+  Poor: "High Risk",
+  Critical: "Severe Risk",
+};
+
+export function scoreMetrics(score) {
+  const label = scoreLabel(score);
+  return { label, risk: RISK_LABELS[label] };
 }
 
 export function buildPdfExecutiveSummary(args, findings, totals) {
-  const score = computeComplianceScore(totals);
   const blockers = findings.filter(
     (f) => f.severity === "Critical" || f.severity === "High",
   );
@@ -342,20 +350,6 @@ export function buildPageGroupedSection(findings) {
 
   return sorted
     .map(([page, pageFinding]) => {
-      const worstSeverity = pageFinding.reduce((worst, f) => {
-        return (SEVERITY_ORDER[f.severity] ?? 99) <
-          (SEVERITY_ORDER[worst] ?? 99)
-          ? f.severity
-          : worst;
-      }, "Low");
-      const badgeColor =
-        {
-          Critical: "bg-rose-100 text-rose-700 border-rose-200",
-          High: "bg-orange-100 text-orange-700 border-orange-200",
-          Medium: "bg-amber-100 text-amber-700 border-amber-200",
-          Low: "bg-emerald-100 text-emerald-700 border-emerald-200",
-        }[worstSeverity] || "bg-slate-100 text-slate-700 border-slate-200";
-
       const cards = pageFinding
         .sort(
           (a, b) =>
