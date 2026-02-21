@@ -5,7 +5,7 @@ compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL
 license: Proprietary (All Rights Reserved)
 metadata:
   author: diegovelasquezweb
-  version: "0.2.1"
+  version: "0.3.0"
 ---
 
 # Web Accessibility Audit

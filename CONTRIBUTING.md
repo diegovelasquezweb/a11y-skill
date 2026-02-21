@@ -1,6 +1,6 @@
 # Contribution Guidelines
 
-This is an open-source skill maintained by [diegovelasquezweb](https://github.com/diegovelasquezweb). Contributions, bug reports, and improvements are welcome.
+This is a source-available skill maintained by [diegovelasquezweb](https://github.com/diegovelasquezweb). Bug reports and improvement suggestions are welcome. See [LICENSE](LICENSE) for usage terms.
 
 ## Development Setup
 

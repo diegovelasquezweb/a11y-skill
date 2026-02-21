@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.3.0] — 2026-02-20
+
 ### Removed
 - `reportTitle`, `companyName`, and `accentColor` configuration keys — report branding is now static and no longer configurable via `a11y.config.json`
 - `a11y.config.json.example` reference file — superseded by the full schema documented in `docs/configuration.md`
