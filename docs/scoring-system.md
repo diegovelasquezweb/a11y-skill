@@ -4,6 +4,13 @@
 
 ---
 
+## Table of Contents
+
+- [Penalty Weights](#penalty-weights)
+- [The Formula](#the-formula)
+- [Grade Thresholds](#grade-thresholds)
+- [Calculation Logic](#calculation-logic-scriptsreportcore-findingsmjs)
+
 The a11y skill uses a **Weighted Debt Model** to calculate the Compliance Score. Instead of a simple percentage of passed rules, it penalizes the score based on the severity and frequency of issues.
 
 ## Penalty Weights

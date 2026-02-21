@@ -4,6 +4,13 @@
 
 ---
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Test Categories](#test-categories)
+- [Running Tests](#running-tests)
+- [Adding a New Rule Test](#adding-a-new-rule-test)
+
 The a11y skill maintains a robust test suite to ensure the **Audit Engine** remains reliable and precise. We prioritize unit tests for engine logic and intelligence mapping.
 
 ## Overview

@@ -4,6 +4,13 @@
 
 ---
 
+## Table of Contents
+
+- [Schema Overview](#schema-overview)
+- [Key Definitions](#key-definitions)
+- [Precedence Logic](#precedence-logic)
+- [Example Config](#example-config-for-a-complex-spa)
+
 The skill uses an optional `a11y.config.json` file in the project root to persist settings across audit runs. This file allows you to define project-specific guardrails and preferences.
 
 ## Schema Overview
