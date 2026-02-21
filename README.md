@@ -136,17 +136,15 @@ All steps are orchestrated by `run-audit.mjs`, which executes them in sequence:
 pnpm test
 ```
 
-39 unit tests covering the core pipeline functions:
+67 unit tests covering the core pipeline logic and intelligence:
 
-| Module                        | What's tested                                                                             |
-| :---------------------------- | :---------------------------------------------------------------------------------------- |
-| `detectImplicitRole`          | Native HTML → ARIA role mapping (`<button>`, `<a>`, `<input>` variants, case-insensitive) |
-| `extractSearchHint`           | CSS selector → source-code search pattern (ID > class > tag > attribute selector)         |
-| `normalizeFindings`           | Finding schema normalization and severity sort order                                      |
-| `computeComplianceScore`      | Weighted score calculation and clamping                                                   |
-| `buildSummary` / `scoreLabel` | Severity totals and grade labels                                                          |
-| `escapeHtml` / `linkify`      | HTML escaping and URL linkification                                                       |
-| `loadConfig`                  | Config parsing, unknown key warnings, type validation                                     |
+| Engine Capability            | Tests | What's validated                                           |
+| :--------------------------- | :---- | :--------------------------------------------------------- |
+| **Scouting & Discovery**     | 21    | URL normalization, route deduplication, asset filtering.   |
+| **Remediation Intelligence** | 30    | Implicit ARIA roles, surgical CSS selector extraction.     |
+| **Compliance & Scoring**     | 7     | Weighted risk calculation, severity sorting, grade labels. |
+| **Reporting Utilities**      | 5     | HTML escaping, line formatting, linkification.             |
+| **System & Configuration**   | 4     | Config merging, JSON schema validation, toolchain health.  |
 
 ## Reference
 

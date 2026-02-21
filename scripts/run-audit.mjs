@@ -9,31 +9,26 @@ const SKILL_ROOT = path.dirname(__dirname);
 
 function printUsage() {
   log.info(`Usage:
-  node scripts/run-audit.mjs --base-url <url> [options]
+  pnpm audit --base-url <url> [options]
 
-Options:
+Targeting & Scope:
   --base-url <url>        (Required) The target website to audit.
   --max-routes <num>      Max routes to discover and scan (default: 10).
   --routes <csv>          Custom list of paths to scan.
-  --only-rule <id>        Only check for this specific rule ID.
-  --output <path>         Final HTML report location (default: audit/report.html).
-  --wait-ms <num>         Time to wait after page load (default: 2000).
-  --timeout-ms <num>      Network timeout (default: 30000).
-  --headless <bool>       Run browser in background (default: true).
-  --headed                Run browser in visible mode.
-  --color-scheme <value>  Emulate color scheme: "light" or "dark".
+
+Audit Intelligence:
   --target <text>         Compliance target label (default: "WCAG 2.2 AA").
+  --only-rule <id>        Only check for this specific rule ID.
   --ignore-findings <csv> Ignore specific rule IDs.
   --exclude-selectors <csv> Exclude CSS selectors from scan.
-  -h, --help              Show this help.
 
-Guardrails for Remediation:
-  1.  **Framework & CMS Awareness**: This project may use React, Vue, Next.js, Astro, **Shopify** (.liquid), **WordPress** (.php), or **Drupal** (.twig).
-    - **NEVER** edit compiled, minified, or cached files (e.g., \`dist/\`, \`.next/\`, \`build/\`, \`wp-content/cache/\`, \`assets/*.min.js\`).
-    - **WordPress**: Work only in \`wp-content/themes/\` or \`plugins/\`. **NEVER** edit \`wp-admin/\` or \`wp-includes/\`.
-    - **Shopify**: Edit \`.liquid\` files in \`sections/\`, \`snippets/\`, or \`layout/\`. Avoid minified assets.
-    - **Drupal**: Search for \`.html.twig\` in \`themes/\`. Clear cache with \`drush cr\` after changes.
-    - **Source of Truth**: Traced DOM violations must be fixed at the **Source Component** or **Server-side Template**. Edit the origin, not the output.
+Execution & Emulation:
+  --output <path>         Final HTML report location (default: audit/report.html).
+  --color-scheme <val>    Emulate color scheme: "light" or "dark".
+  --headed                Run browser in visible mode (overrides headless).
+  --wait-ms <num>         Time to wait after page load (default: 2000).
+  --timeout-ms <num>      Network timeout (default: 30000).
+  -h, --help              Show this help.
 `);
 }
 
@@ -96,7 +91,9 @@ async function main() {
     (config.ignoreFindings?.length ? config.ignoreFindings.join(",") : null);
   const excludeSelectors =
     getArgValue("exclude-selectors") ||
-    (config.excludeSelectors?.length ? config.excludeSelectors.join(",") : null);
+    (config.excludeSelectors?.length
+      ? config.excludeSelectors.join(",")
+      : null);
 
   if (!baseUrl) {
     log.error("Missing required argument: --base-url");
