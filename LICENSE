@@ -1,11 +1,23 @@
-# Proprietary License - All Rights Reserved
+# License
 
-Copyright (c) 2026 diegovelasquezweb
+Copyright (c) 2026 diegovelasquezweb. All rights reserved.
 
-This software and its documentation are the confidential and proprietary information of diegovelasquezweb. You shall not disclose such confidential information and shall use it only in accordance with the terms of the license agreement you entered into with diegovelasquezweb.
+## Permissions
 
-Unauthorized copying, distribution, or use of this file, via any medium, is strictly prohibited.
+You are free to:
 
-## Usage Limitations
-- This skill is for internal and authorized use only.
-- It may not be redistributed, sold, or modified for distribution without explicit written consent.
+- **Install** this skill in your AI agent or development environment.
+- **Use** this skill to run accessibility audits on any website or project.
+
+## Restrictions
+
+You may **not**:
+
+- Modify, adapt, or create derivative works based on this software.
+- Redistribute, sublicense, or re-publish this software or any portion of it.
+- Sell, rent, or commercially exploit this software as a standalone product or service.
+- Remove or alter this copyright notice.
+
+## Disclaimer
+
+This software is provided "as is", without warranty of any kind, express or implied. The author is not liable for any damages arising from its use.
