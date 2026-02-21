@@ -21,18 +21,20 @@ To install this skill, provide the following prompt to your AI agent:
 "Install skill https://github.com/diegovelasquezweb/a11y"
 ```
 
+Restart your CLI-based agent session after installation to ensure the new skill are loaded correctly.
+
 ## Compatibility & Paths
 
 This skill follows the [Agent Skills standard](https://agentskills.io).
 
-| Agent / IDE     | Skill Install Path (Global/User)                | Config & Rules             | Extended Workflow          |
-| :-------------- | :---------------------------------------------- | :------------------------- | :------------------------- |
-| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`            | —                          | `.agent/`, `workflows/`    |
-| **Codex**       | `~/.codex/skills/a11y/`                         | `agents/openai.yaml`       | `workflows/`               |
-| **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`, `.claude/`    | `workflows/`               |
-| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  | `.cursor/rules/`           | `workflows/`               |
-| **Gemini CLI**  | `~/.gemini/skills/a11y/` (or `.agents/skills/`) | `~/.gemini/settings.json`  | —                          |
-| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`              | —                          | `.windsurf/`, `workflows/` |
+| Agent / IDE     | Skill Install Path (Global/User)                | Config & Rules            | Extended Workflow          |
+| :-------------- | :---------------------------------------------- | :------------------------ | :------------------------- |
+| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`            | —                         | `.agent/`, `workflows/`    |
+| **Codex**       | `~/.codex/skills/a11y/`                         | `agents/openai.yaml`      | `workflows/`               |
+| **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`, `.claude/`   | `workflows/`               |
+| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  | `.cursor/rules/`          | `workflows/`               |
+| **Gemini CLI**  | `~/.gemini/skills/a11y/` (or `.agents/skills/`) | `~/.gemini/settings.json` | —                          |
+| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`              | —                         | `.windsurf/`, `workflows/` |
 
 ## How to Use
 

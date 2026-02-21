@@ -2,10 +2,9 @@ import { spawn, execSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
-import { log, loadConfig } from "./a11y-utils.mjs";
+import { log, loadConfig, SKILL_ROOT } from "./a11y-utils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SKILL_ROOT = path.dirname(__dirname);
 
 function printUsage() {
   log.info(`Usage:
@@ -116,7 +115,7 @@ async function main() {
 
   if (!baseUrl) {
     log.error("Missing required argument: --base-url");
-    console.log("Usage: node scripts/run-audit.mjs --base-url <url> [options]");
+    log.info("Usage: node scripts/run-audit.mjs --base-url <url> [options]");
     process.exit(1);
   }
 
