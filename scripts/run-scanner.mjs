@@ -225,7 +225,7 @@ async function analyzeRoute(
         waitUntil,
         timeout: timeoutMs,
       });
-      await page.waitForTimeout(waitMs);
+      await page.waitForLoadState("networkidle", { timeout: waitMs }).catch(() => {});
 
       const builder = new AxeBuilder({ page });
 
@@ -367,7 +367,7 @@ async function main() {
 
   const SKIP_SELECTORS = new Set(["html", "body", "head", ":root", "document"]);
 
-  async function captureElementScreenshot(violation, routeIndex) {
+  async function captureElementScreenshot(tabPage, violation, routeIndex) {
     if (!args.screenshotsDir) return;
     const firstNode = violation.nodes?.[0];
     if (!firstNode || firstNode.target.length > 1) return;
@@ -378,8 +378,8 @@ async function main() {
       const safeRuleId = violation.id.replace(/[^a-z0-9-]/g, "-");
       const filename = `${routeIndex}-${safeRuleId}.png`;
       const screenshotPath = path.join(args.screenshotsDir, filename);
-      await page.locator(selector).first().scrollIntoViewIfNeeded({ timeout: 3000 });
-      await page.evaluate((sel) => {
+      await tabPage.locator(selector).first().scrollIntoViewIfNeeded({ timeout: 3000 });
+      await tabPage.evaluate((sel) => {
         const el = document.querySelector(sel);
         if (!el) return;
         const rect = el.getBoundingClientRect();
@@ -400,18 +400,19 @@ async function main() {
         });
         document.body.appendChild(overlay);
       }, selector);
-      await page.screenshot({ path: screenshotPath });
+      await tabPage.screenshot({ path: screenshotPath });
       violation.screenshot_path = `screenshots/${filename}`;
-      await page.evaluate(() => document.getElementById("__a11y_highlight__")?.remove());
+      await tabPage.evaluate(() => document.getElementById("__a11y_highlight__")?.remove());
     } catch (err) {
       log.warn(
         `Screenshot skipped for "${violation.id}" (${selector}): ${err.message}`,
       );
-      await page.evaluate(() => document.getElementById("__a11y_highlight__")?.remove()).catch(() => {});
+      await tabPage.evaluate(() => document.getElementById("__a11y_highlight__")?.remove()).catch(() => {});
     }
   }
 
-  const results = [];
+  const TAB_CONCURRENCY = 3;
+  const results = new Array(routes.length);
   const total = routes.length;
 
   try {
@@ -424,31 +425,42 @@ async function main() {
         log.info(`robots.txt: ${skipped} route(s) excluded (Disallow rules)`);
     }
 
-    log.info(`Targeting ${routes.length} routes: ${routes.join(", ")}`);
+    log.info(`Targeting ${routes.length} routes (${Math.min(TAB_CONCURRENCY, routes.length)} parallel tabs): ${routes.join(", ")}`);
 
-    for (let i = 0; i < total; i++) {
-      const routePath = routes[i];
-      log.info(`[${i + 1}/${total}] Scanning: ${routePath}`);
-      const targetUrl = new URL(routePath, baseUrl).toString();
-      const result = await analyzeRoute(
-        page,
-        targetUrl,
-        args.waitMs,
-        config.axeRules,
-        config.excludeSelectors,
-        args.onlyRule,
-        args.timeoutMs,
-        2,
-        args.waitUntil,
-      );
-      if (args.screenshotsDir && result.violations) {
-        await Promise.all(
-          result.violations.map((violation) =>
-            captureElementScreenshot(violation, i),
-          ),
-        );
+    const tabPages = [page];
+    for (let t = 1; t < Math.min(TAB_CONCURRENCY, routes.length); t++) {
+      tabPages.push(await context.newPage());
+    }
+
+    for (let i = 0; i < routes.length; i += tabPages.length) {
+      const batch = [];
+      for (let j = 0; j < tabPages.length && i + j < routes.length; j++) {
+        const idx = i + j;
+        const tabPage = tabPages[j];
+        batch.push((async () => {
+          const routePath = routes[idx];
+          log.info(`[${idx + 1}/${total}] Scanning: ${routePath}`);
+          const targetUrl = new URL(routePath, baseUrl).toString();
+          const result = await analyzeRoute(
+            tabPage,
+            targetUrl,
+            args.waitMs,
+            config.axeRules,
+            config.excludeSelectors,
+            args.onlyRule,
+            args.timeoutMs,
+            2,
+            args.waitUntil,
+          );
+          if (args.screenshotsDir && result.violations) {
+            for (const violation of result.violations) {
+              await captureElementScreenshot(tabPage, violation, idx);
+            }
+          }
+          results[idx] = { path: routePath, ...result };
+        })());
       }
-      results.push({ path: routePath, ...result });
+      await Promise.all(batch);
     }
   } finally {
     await browser.close();

@@ -180,15 +180,17 @@ async function main() {
     const buildArgs = ["--output", output, "--base-url", baseUrl];
     if (target) buildArgs.push("--target", target);
 
-    await runScript("build-report-html.mjs", buildArgs);
-
     const mdOutput = path.join(
       path.dirname(absoluteOutputPath),
       "remediation.md",
     );
     const mdArgs = ["--output", mdOutput, "--base-url", baseUrl];
     if (target) mdArgs.push("--target", target);
-    await runScript("build-report-md.mjs", mdArgs);
+
+    await Promise.all([
+      runScript("build-report-html.mjs", buildArgs),
+      runScript("build-report-md.mjs", mdArgs),
+    ]);
 
     const pdfOutput = output.replace(".html", ".pdf");
     await runScript("build-report-pdf.mjs", [output, pdfOutput]);
