@@ -39,13 +39,13 @@ Final Score = Max(0, 100 - Total_Penalties)
 
 The score is mapped to a letter grade for quick stakeholder communication:
 
-| Score        | Grade                 | Technical Health               |
-| :----------- | :-------------------- | :----------------------------- |
-| **95 - 100** | **Excellent**         | Compliance Target Met          |
-| **85 - 94**  | **Good**              | Minor remediation needed       |
-| **70 - 84**  | **Fair**              | Noticeable barriers present    |
-| **50 - 69**  | **Needs Improvement** | Significant accessibility debt |
-| **0 - 49**   | **Poor**              | Critical blockers detected     |
+| Score        | Grade          | Technical Health               |
+| :----------- | :------------- | :----------------------------- |
+| **90 - 100** | **Excellent**  | Compliance Target Met          |
+| **75 - 89**  | **Good**       | Minor remediation needed       |
+| **55 - 74**  | **Fair**       | Noticeable barriers present    |
+| **35 - 54**  | **Poor**       | Significant accessibility debt |
+| **0 - 34**   | **Critical**   | Critical blockers detected     |
 
 ## Calculation Logic (`scripts/report/core-findings.mjs`)
 

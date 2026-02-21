@@ -14,9 +14,9 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
-const referencesPath = path.join(__dirname, "../assets/rule-metadata.json");
+const ruleMetadataPath = path.join(__dirname, "../assets/rule-metadata.json");
 let INTELLIGENCE;
-let REFERENCES;
+let RULE_METADATA;
 try {
   INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
 } catch {
@@ -25,10 +25,10 @@ try {
   );
 }
 try {
-  REFERENCES = JSON.parse(fs.readFileSync(referencesPath, "utf-8"));
+  RULE_METADATA = JSON.parse(fs.readFileSync(ruleMetadataPath, "utf-8"));
 } catch {
   throw new Error(
-    `Missing or invalid rule-metadata.json at ${referencesPath} — run pnpm install to reinstall.`,
+    `Missing or invalid rule-metadata.json at ${ruleMetadataPath} — run pnpm install to reinstall.`,
   );
 }
 
@@ -39,11 +39,11 @@ function makeFindingId(ruleId, url, selector) {
 }
 
 const RULES = INTELLIGENCE.rules || {};
-const APG_PATTERNS = REFERENCES.apgPatterns;
-const A11Y_SUPPORT = REFERENCES.a11ySupport;
-const INCLUSIVE_COMPONENTS = REFERENCES.inclusiveComponents;
-const MDN = REFERENCES.mdn || {};
-const WCAG_CRITERION_MAP = REFERENCES.wcagCriterionMap || {};
+const APG_PATTERNS = RULE_METADATA.apgPatterns;
+const A11Y_SUPPORT = RULE_METADATA.a11ySupport;
+const INCLUSIVE_COMPONENTS = RULE_METADATA.inclusiveComponents;
+const MDN = RULE_METADATA.mdn || {};
+const WCAG_CRITERION_MAP = RULE_METADATA.wcagCriterionMap || {};
 
 function detectCodeLang(code) {
   if (!code) return "html";
@@ -58,8 +58,8 @@ const US_REGULATORY = {
   "18f": "https://accessibility.18f.gov/tools/",
 };
 
-const IMPACTED_USERS = REFERENCES.impactedUsers || {};
-const EXPECTED = REFERENCES.expected || {};
+const IMPACTED_USERS = RULE_METADATA.impactedUsers || {};
+const EXPECTED = RULE_METADATA.expected || {};
 
 function getImpactedUsers(ruleId, tags) {
   if (IMPACTED_USERS[ruleId]) return IMPACTED_USERS[ruleId];

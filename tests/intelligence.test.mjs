@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intel = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"));
-const refs  = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/rule-metadata.json"), "utf-8"));
+const ruleMetadata  = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/rule-metadata.json"), "utf-8"));
 
 const VALID_FP_RISK = new Set(["low", "medium", "high"]);
 const VALID_FW_KEYS = new Set(["react", "vue", "angular", "shopify", "wordpress", "drupal", "generic"]);
@@ -75,12 +75,12 @@ describe("intelligence.json — schema", () => {
 // ── 2. rule-metadata.json schema ──────────────────────────────────────────────
 describe("rule-metadata.json — schema", () => {
   it("every rule has impactedUsers", () => {
-    const missing = [...ruleIds].filter(id => !refs.impactedUsers?.[id]?.trim());
+    const missing = [...ruleIds].filter(id => !ruleMetadata.impactedUsers?.[id]?.trim());
     expect(missing).toEqual([]);
   });
 
   it("every rule has expected", () => {
-    const missing = [...ruleIds].filter(id => !refs.expected?.[id]?.trim());
+    const missing = [...ruleIds].filter(id => !ruleMetadata.expected?.[id]?.trim());
     expect(missing).toEqual([]);
   });
 });
@@ -156,14 +156,14 @@ describe("rule-metadata.json — WCAG criterion mapping", () => {
   const WCAG22_OBSOLETE_OVERRIDE = new Set(["duplicate-id"]);
 
   it("every intelligence rule has a wcagCriterionMap entry", () => {
-    const missing = [...ruleIds].filter(id => !refs.wcagCriterionMap?.[id]);
+    const missing = [...ruleIds].filter(id => !ruleMetadata.wcagCriterionMap?.[id]);
     expect(missing).toEqual([]);
   });
 
   it("wcagCriterionMap values match axe-core WCAG tags", () => {
     if (!axeRules) return;
     const mismatches = [];
-    for (const [ruleId, criterion] of Object.entries(refs.wcagCriterionMap)) {
+    for (const [ruleId, criterion] of Object.entries(ruleMetadata.wcagCriterionMap)) {
       if (BEST_PRACTICE_MAPPED.has(ruleId)) continue;
       if (WCAG22_PROACTIVE.has(ruleId)) continue;
       if (WCAG22_OBSOLETE_OVERRIDE.has(ruleId)) continue;
@@ -182,7 +182,7 @@ describe("rule-metadata.json — WCAG criterion mapping", () => {
   });
 
   it("every intelligence rule has an MDN reference", () => {
-    const missing = [...ruleIds].filter(id => !refs.mdn?.[id]?.trim());
+    const missing = [...ruleIds].filter(id => !ruleMetadata.mdn?.[id]?.trim());
     expect(missing).toEqual([]);
   });
 });
