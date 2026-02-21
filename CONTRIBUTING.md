@@ -16,7 +16,7 @@ Playwright browsers install automatically via the `postinstall` hook.
 pnpm test
 ```
 
-39 unit tests cover the core pipeline functions. All tests must pass before opening a PR.
+79 unit tests cover the core pipeline functions. All tests must pass before opening a PR.
 
 ## Project structure
 
@@ -59,3 +59,8 @@ Edit `assets/intelligence.json` and add the role key to any of `apgPatterns`, `a
 2. Make your changes and ensure `pnpm test` passes.
 3. Update `CHANGELOG.md` under `[Unreleased]`.
 4. Open a PR — the template will guide you through the checklist.
+
+## Community & Standards
+
+- **Code of Conduct**: This project adheres to the [Contributor Covenant](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+- **License**: By contributing, you agree that your contributions will be licensed under the [Mozilla Public License 2.0](LICENSE). Note that any modifications to existing skill files must be shared under the same license if distributed.
