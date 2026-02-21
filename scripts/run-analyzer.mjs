@@ -43,7 +43,7 @@ const APG_PATTERNS = REFERENCES.apgPatterns;
 const A11Y_SUPPORT = REFERENCES.a11ySupport;
 const INCLUSIVE_COMPONENTS = REFERENCES.inclusiveComponents;
 const MDN = REFERENCES.mdn || {};
-const WCAG_CRITERION_MAP = INTELLIGENCE.wcagCriterionMap || {};
+const WCAG_CRITERION_MAP = REFERENCES.wcagCriterionMap || {};
 
 const US_REGULATORY = {
   default: "https://accessibility.18f.gov/checklist/",
