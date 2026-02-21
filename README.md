@@ -167,7 +167,7 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 - [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
 - [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
 - [Agent Skills Standard](https://agentskills.io/)
-- [Claude Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/)
+- [Claude Skills](https://docs.anthropic.com/en/docs/claude-code/skills)
 - [Antigravity Skills](https://antigravity.google/docs/skills)
 - [Codex Skills](https://developers.openai.com/codex/skills/)
 - [Cursor Skills](https://cursor.com/docs/context/skills)
