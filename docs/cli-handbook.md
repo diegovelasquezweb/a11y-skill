@@ -14,10 +14,10 @@ The a11y skill provides a decoupled **Audit Engine** that can be run independent
 
 ## Basic Usage
 
-The primary command is `pnpm audit`. It is an alias for `node scripts/run-audit.mjs`.
+The primary command is `pnpm a11y`. It is an alias for `node scripts/run-audit.mjs`.
 
 ```bash
-pnpm audit --base-url https://example.com
+pnpm a11y --base-url https://example.com
 ```
 
 ## Command Categories
@@ -65,7 +65,7 @@ Flags used to control the _browser_ and _output_.
 If you are only working on a specific issue, like color contrast, you can save time by isolating it:
 
 ```bash
-pnpm audit --base-url http://localhost:3000 --only-rule color-contrast --max-routes 1
+pnpm a11y --base-url http://localhost:3000 --only-rule color-contrast --max-routes 1
 ```
 
 ### Testing Dark Mode Accessibility
@@ -73,7 +73,7 @@ pnpm audit --base-url http://localhost:3000 --only-rule color-contrast --max-rou
 Ensure your site meets contrast requirements in both themes:
 
 ```bash
-pnpm audit --base-url http://localhost:3000 --color-scheme dark --output audit/report-dark.html
+pnpm a11y --base-url http://localhost:3000 --color-scheme dark --output audit/report-dark.html
 ```
 
 ### Scripting with the CLI

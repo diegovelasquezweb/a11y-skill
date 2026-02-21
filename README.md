@@ -82,10 +82,10 @@ Execute the audit script directly from the skill directory:
 
 ```bash
 # Audit a specific URL with custom limit and visible browser
-pnpm audit --base-url http://localhost:3000 --max-routes 20 --headed
+pnpm a11y --base-url http://localhost:3000 --max-routes 20 --headed
 
 # Run ONLY the color-contrast check
-pnpm audit --base-url https://mysite.com --only-rule color-contrast
+pnpm a11y --base-url https://mysite.com --only-rule color-contrast
 ```
 
 ## Technical Reference

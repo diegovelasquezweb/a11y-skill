@@ -4,7 +4,7 @@
   "description": "WCAG 2.2 AA accessibility audit skill for AI coding agents",
   "type": "module",
   "scripts": {
-    "audit": "node scripts/run-audit.mjs",
+    "a11y": "node scripts/run-audit.mjs",
     "test": "vitest run",
     "validate-urls": "node scripts/validate-urls.mjs",
     "postinstall": "npx playwright install chromium"

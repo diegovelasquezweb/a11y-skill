@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function printUsage() {
   log.info(`Usage:
-  pnpm audit --base-url <url> [options]
+  pnpm a11y --base-url <url> [options]
 
 Targeting & Scope:
   --base-url <url>        (Required) The target website to audit.
