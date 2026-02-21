@@ -8,6 +8,10 @@ labels: bug
 
 A clear description of what the bug is.
 
+## Accessibility Impact
+
+Which WCAG criteria or assistive technologies are affected by this bug?
+
 ## Steps to reproduce
 
 1. Target URL audited (or `localhost:XXXX`)

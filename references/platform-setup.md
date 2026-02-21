@@ -77,6 +77,12 @@ node scripts/run-audit.mjs --base-url <URL>
 
 ---
 
+## [Codex Only] No Local Setup
+
+Codex activates the skill automatically via `agents/openai.yaml` and `workflows/a11y.md`, both bundled inside the skill installation at `~/.codex/skills/a11y/`. No project-level files are required or allowed to be created by the agent during Codex sessions.
+
+---
+
 ## [Gemini CLI Only] No Local Setup
 
 Gemini CLI utilizes autonomous activation based on `SKILL.md`. No project-level files or workflows are required or allowed to be created by the agent during Gemini CLI sessions. After activation, the agent should suggest the user to refresh the skills registry by running `/skills reload` if the skill is not immediately available.

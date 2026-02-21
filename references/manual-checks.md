@@ -1,6 +1,6 @@
-# Manual Checks — WCAG 2.2 Static Code Verification
+# Manual Checks — WCAG 2.2 Manual Verification
 
-These criteria are not detectable by axe-core. Search the source code for the patterns below and apply fixes where missing.
+These criteria are not detectable by axe-core. Verify each one through browser interaction and source code inspection, then apply fixes where missing.
 
 ---
 
