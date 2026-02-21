@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] — 2026-02-21
+
+### Added
+- `assets/references.json` — WCAG criterion mapping for accessibility patterns and support
+- Visual overlay on screenshots for accessibility violations
+- Manual checks for WCAG 2.2 static code violations after automated fixes
+- `intelligence.json` schema validation with comprehensive tests (`tests/intelligence.test.mjs`)
+- GitHub Actions workflow for PR title and project integrity validation (`pr-standards.yml`)
+
+### Changed
+- Score labeling logic and compliance metrics updated in reports
+- Code language detection improved for fix code snippets
+- Accessibility rules and references refactored for clarity and structure
+- Audit script reliability enhanced with timeouts, URL validation, and improved error handling
+- `SKILL_ROOT` constant refactored for consistency
+
+### Fixed
+- `localStorage` key escaping corrected in HTML report
+
+---
+
 ## [0.3.0] — 2026-02-20
 
 ### Removed
