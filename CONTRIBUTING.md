@@ -25,9 +25,8 @@ pnpm install
 
 ### 3. Merging Policy
 
-- All changes must go through a Pull Request.
-- PRs require at least one approval from a lead maintainer.
-- Branch protection on `main` is mandatory (see [Governance docs](docs/governance.md)).
+- All changes must go through a Pull Request or direct commit to main.
+- Ensure all tests pass before pushing.
 
 ## PR Checklist
 

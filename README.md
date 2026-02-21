@@ -102,7 +102,6 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 ## Internal Resources
 
 - [Internal Architecture](docs/architecture.md)
-- [Governance Guide](docs/governance.md)
 - [Agent Skills Standard](https://agentskills.io/)
 
 ---

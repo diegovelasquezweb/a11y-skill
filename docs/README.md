@@ -10,8 +10,7 @@ Welcome to the internal technical reference for the **a11y** skill. This directo
 | 🧠 [**Engine Intelligence**](engine-intelligence.md) | Rule processing logic, fix patterns, and the manual checks system.            |
 | 🧮 [**Scoring System**](scoring-system.md)           | Documentation of the weighted penalty math and grade threshold logic.         |
 | 📖 [**CLI Handbook**](cli-handbook.md)               | Advanced guide to every CLI flag, exit codes, and interaction patterns.       |
-| ⚙️ [**Configuration**](configuration.md)             | Complete JSON schema reference for `a11y.config.json`.                        |
-| ⚖️ [**Governance**](governance.md)                   | Repository standards, branch protection rules, and merge policies.            |
+| ⚙️ [**Configuration**](docs/configuration.md)        | Complete JSON schema reference for `a11y.config.json`.                        |
 | 🛡️ [**Testing Strategy**](testing.md)                | Breakdown of the test suite coverage and instructions for adding new tests.   |
 
 ---

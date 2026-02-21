@@ -33,13 +33,13 @@ Follow this workflow to audit and report website accessibility issues with consi
 - Never create or modify `package.json`, lockfiles, or `node_modules` in the audited project during audit runs.
 - Never install dependencies in any directory during audits (including internal storage such as `audit/internal/`).
 
-4. **Navigation scope**:
+5. **Navigation scope**:
 
 - Audit URLs/routes provided by the user.
 - If the user does not provide routes, auto-discover same-origin routes from the current app (navigation links, key flow links, and core pages).
 - Do not open unrelated external sites (for example search engines) during the audit flow.
 
-5. **Environment discipline**:
+6. **Environment discipline**:
 
 - Use the base URL provided by the user when available.
 - If no base URL is provided in the user's message, ask for it immediately before doing anything else.
@@ -48,21 +48,21 @@ Follow this workflow to audit and report website accessibility issues with consi
 - Do not apply runtime URL fallbacks or alternate hosts automatically.
 - If no reachable target exists after user-requested detection, report the blocker and request a URL.
 
-6. **Reporting language**:
+7. **Reporting language**:
    - Write all outputs in English.
 
-7. **Shareable reporting**:
+8. **Shareable reporting**:
 
 - In final findings, use route paths as the primary location (`/`, `/products`, `/account/login`).
 - If local URLs are used during testing, place them under a separate `Test Environment` note, not as the canonical issue location.
 
-8. **Scope questions**:
+9. **Scope questions**:
 
 - Do not ask scope questionnaires by default.
 - Start auditing immediately with discovered scope.
 - Ask the user only when blocked (no reachable app URL, auth needed, or hard access restrictions).
 
-9. **Evidence quality**:
+10. **Evidence quality**:
 
 - Do not capture generic full-page screenshots by default.
 - Use technical evidence first (DOM snippet, selector-level check, tool output).
@@ -128,13 +128,15 @@ Each finding must include:
 | `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                                              |
 | `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                                          |
 | `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                                           |
-| `axeRules`         | `object`  | fine-grained Axe configuration.                                                                                                  |
+| `axeRules`         | `object`  | Fine-grained Axe-Core rule configuration passed directly to the scanner.                                                         |
 | `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                                         |
 | `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                                                |
 | `onlyRule`         | `string`  | Targeted Audit: Only check for this specific rule ID.                                                                            |
 | `waitMs`           | `number`  | Time to wait for dynamic content (default: 2000).                                                                                |
 | `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                                                 |
+| `waitUntil`        | `string`  | Playwright page load event: `"domcontentloaded"` \| `"load"` \| `"networkidle"` (default: `"domcontentloaded"`).                |
 | `headless`         | `boolean` | Run browser in background (default: true).                                                                                       |
+| `framework`        | `string`  | Override auto-detected framework for guardrail context in the remediation guide. Accepted: `"shopify"` \| `"wordpress"` \| `"drupal"` \| `"generic"`. |
 
 ## 5) Required Deliverables
 
