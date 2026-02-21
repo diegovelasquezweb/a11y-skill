@@ -23,7 +23,7 @@ To install this skill, provide the following prompt to your AI agent:
 
 ## Compatibility & Paths
 
-This skill follows the [Agent Skills standard](https://agentskills.io). Below are the supported agents and their default installation paths:
+This skill follows the [Agent Skills standard](https://agentskills.io).
 
 | Agent / IDE     | Skill Install Path (Global/User)                | Config & Rules             | Extended Workflow          |
 | :-------------- | :---------------------------------------------- | :------------------------- | :------------------------- |
@@ -89,14 +89,14 @@ pnpm audit --base-url https://mysite.com --only-rule color-contrast
 
 For a comprehensive understanding of the a11y engine, explore the following technical manuals:
 
-| Resource                                                  | Description                                                                |
-| :-------------------------------------------------------- | :------------------------------------------------------------------------- |
-| 🏗️ [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.      |
-| 🧮 [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.      |
+| Resource                                                  | Description                                                                  |
+| :-------------------------------------------------------- | :--------------------------------------------------------------------------- |
+| 🏗️ [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.        |
+| 🧮 [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.        |
 | 🧠 [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system. |
-| 📖 [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.            |
-| ⚙️ [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                    |
-| 🛡️ [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                   |
+| 📖 [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.              |
+| ⚙️ [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                      |
+| 🛡️ [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                     |
 
 ## External Resources
 
