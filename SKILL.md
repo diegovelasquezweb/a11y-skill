@@ -228,7 +228,7 @@ Follow these steps in order when executing an audit. Prioritize showing the solu
 
 5. **Provide Report Evidence**: Only after proposing the fixes, provide the absolute path to `audit/report.html` as the visual proof for the user's records.
 
-6. **Suggest `.gitignore` update**: **MANDATORY.** Remind the user to add `audit/` to `.gitignore`.
+6. **Suggest `.gitignore` update**: **MANDATORY.** Always remind the user to add `audit/` to their `.gitignore`. The audit pipeline auto-appends it when a `.gitignore` already exists, but if the project has none, explicitly tell the user to create one or add the entry manually.
 
 ## 12) Fix Application Workflow
 

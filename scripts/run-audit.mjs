@@ -143,6 +143,15 @@ async function main() {
 
     await runScript("check-toolchain.mjs");
 
+    const gitignorePath = path.join(process.cwd(), ".gitignore");
+    if (fs.existsSync(gitignorePath)) {
+      const content = fs.readFileSync(gitignorePath, "utf-8");
+      if (!/^audit\/?$/m.test(content)) {
+        fs.appendFileSync(gitignorePath, "\n# Generated accessibility reports\naudit/\n");
+        log.success(".gitignore updated — added audit/ entry.");
+      }
+    }
+
     const absoluteOutputPath = path.isAbsolute(output)
       ? output
       : path.join(process.cwd(), output);
@@ -204,9 +213,12 @@ async function main() {
     log.success(`🎉 Audit complete! Remediation Roadmap ready.`);
     console.log(`REMEDIATION_PATH=${mdOutput}`);
     if (!skipReports) console.log(`REPORT_PATH=${absoluteOutputPath}`);
-    console.log(
-      `GITIGNORE_REMINDER=Add "audit/" to your project .gitignore to avoid committing generated reports.`,
-    );
+    const gitignoreExists = fs.existsSync(gitignorePath);
+    if (!gitignoreExists) {
+      console.log(
+        `GITIGNORE_WARNING=No .gitignore found. Add "audit/" manually to avoid committing generated reports.`,
+      );
+    }
   } catch (error) {
     log.error(error.message);
     process.exit(1);
