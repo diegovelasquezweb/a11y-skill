@@ -26,7 +26,7 @@ import {
   buildPdfRemediationRoadmap,
   buildPdfAuditLimitations,
   buildPageGroupedSection,
-  scoreLabel as pdfScoreLabel,
+  scoreMetrics,
 } from "./report/format-pdf.mjs";
 
 function printUsage() {
@@ -50,7 +50,6 @@ function parseArgs(argv) {
   const config = loadConfig();
   const args = {
     input: getInternalPath("a11y-findings.json"),
-    scanResults: getInternalPath("a11y-scan-results.json"),
     output: path.join(process.cwd(), config.outputDir, "report.html"),
     baseUrl: "",
     target: config.complianceTarget,
@@ -62,7 +61,6 @@ function parseArgs(argv) {
     if (!key.startsWith("--") || value === undefined) continue;
 
     if (key === "--input") args.input = value;
-    if (key === "--scan-results") args.scanResults = value;
     if (key === "--output") args.output = value;
     if (key === "--base-url") args.baseUrl = value;
     if (key === "--target") args.target = value;
@@ -124,7 +122,7 @@ function buildHtml(args, findings, metadata = {}) {
 
   const score = computeComplianceScore(totals);
   const label = scoreLabel(score);
-  const scoreHue = score >= 90 ? 142 : score >= 75 ? 142 : score >= 55 ? 38 : 0;
+  const scoreHue = score >= 75 ? 142 : score >= 55 ? 38 : 0;
 
   const personaGroups = {
     screenReader: {
@@ -604,7 +602,7 @@ function buildHtml(args, findings, metadata = {}) {
           <div style="min-width: 7cm;">
             <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 5pt 0;">Compliance Score</p>
             <p style="font-family: 'Inter', sans-serif; font-size: 40pt; font-weight: 900; line-height: 1; margin: 0; color: ${score >= 75 ? "#16a34a" : score >= 55 ? "#d97706" : "#dc2626"};">${score}<span style="font-size: 16pt; font-weight: 400; color: #9ca3af;"> / 100</span></p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 9.5pt; font-weight: 700; color: #374151; margin: 5pt 0 0 0;">${pdfScoreLabel(score).label} &mdash; ${pdfScoreLabel(score).risk}</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 9.5pt; font-weight: 700; color: #374151; margin: 5pt 0 0 0;">${scoreMetrics(score).label} &mdash; ${scoreMetrics(score).risk}</p>
           </div>
           <div style="border-left: 1pt solid #e5e7eb; padding-left: 2cm;">
             <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 4pt 0;">Standard</p>
@@ -680,7 +678,7 @@ function buildHtml(args, findings, metadata = {}) {
 
   <script>
     // ── Manual checks — localStorage persistence ──────────────────────────
-    const STORAGE_KEY = 'a11y-manual:${escapeHtml(args.baseUrl)}';
+    const STORAGE_KEY = ${JSON.stringify(`a11y-manual:${args.baseUrl}`)};
     const TOTAL_CHECKS = ${MANUAL_CHECKS.length};
 
     function getState() {
@@ -1014,8 +1012,14 @@ function buildHtml(args, findings, metadata = {}) {
                 btn.innerHTML = original;
                 btn.classList.remove('bg-emerald-500');
             }, 2000);
-        } catch (err) {
-            console.error('Failed to copy!', err);
+        } catch {
+            btn.textContent = 'Failed';
+            btn.classList.add('bg-red-500');
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.classList.remove('bg-red-500');
+                btn.classList.add('bg-emerald-500');
+            }, 2000);
         }
     }
   </script>

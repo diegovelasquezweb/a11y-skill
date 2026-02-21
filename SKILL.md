@@ -5,7 +5,7 @@ compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL
 license: Proprietary (All Rights Reserved)
 metadata:
   author: diegovelasquezweb
-  version: "0.2.1"
+  version: "0.3.0"
 ---
 
 # Web Accessibility Audit
@@ -80,10 +80,8 @@ See [references/baseline-checks.md](references/baseline-checks.md) for the full 
 
 Run automated tests using the bundled robust scanner (Playwright + Axe-Core).
 
-1. Automated pass (bundled scanner).
-
 - The skill uses `scripts/run-scanner.mjs` which launches a headless browser.
-- It scans the DOM using Axe-Core for WCAG 2.0/2.1/2.2 A/AA compliance.
+- It scans the DOM using Axe-Core for WCAG 2.2 A/AA compliance.
 - It supports SPAs (Single Page Applications) and complex JS-driven UIs.
 - Dependencies are isolated in the skill directory; **NO** installation occurs in the target project.
 - Auto-discover same-origin routes if not provided.
@@ -93,7 +91,7 @@ Run automated tests using the bundled robust scanner (Playwright + Axe-Core).
 
 Classify each finding using this scale:
 
-- `Critical/Blocker`: User cannot complete a core task.
+- `Critical`: User cannot complete a core task — treat as a release blocker.
 - `High`: Core task is significantly impaired.
 - `Medium`: Noticeable barrier with workaround.
 - `Low`: Minor gap or best-practice issue.
@@ -118,25 +116,6 @@ Each finding must include:
 6. Severity.
 7. Recommended fix.
 8. QA retest notes.
-
-### `a11y.config.json` Reference
-
-| Key                | Type      | Description                                                                                                                      |
-| :----------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------- |
-| `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                                                   |
-| `viewports`        | `array`   | List of `{ width, height, name }` objects. Only the first entry is used for scanning. To change viewport, update `viewports[0]`. |
-| `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                                              |
-| `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                                          |
-| `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                                           |
-| `axeRules`         | `object`  | Fine-grained Axe-Core rule configuration passed directly to the scanner.                                                         |
-| `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                                         |
-| `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                                                |
-| `onlyRule`         | `string`  | Targeted Audit: Only check for this specific rule ID.                                                                            |
-| `waitMs`           | `number`  | Time to wait for dynamic content (default: 2000).                                                                                |
-| `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                                                 |
-| `waitUntil`        | `string`  | Playwright page load event: `"domcontentloaded"` \| `"load"` \| `"networkidle"` (default: `"domcontentloaded"`).                |
-| `headless`         | `boolean` | Run browser in background (default: true).                                                                                       |
-| `framework`        | `string`  | Override auto-detected framework for guardrail context in the remediation guide. Accepted: `"shopify"` \| `"wordpress"` \| `"drupal"` \| `"generic"`. |
 
 ## 5) Required Deliverables
 
@@ -203,7 +182,7 @@ Execution discipline for the agent:
 - Do not generate dated versions of the report (e.g., `audit/index-2026-01-01.html`).
 - Do not generate per-issue markdown files.
 - `audit/report.html` must include the completed findings with evidence and linked finding IDs.
-- Follow the WS Accessibility standard for issue severity (Critical, High, Medium, Low).
+- Use the severity scale defined in Section 3 (Critical, High, Medium, Low).
 - Do not keep any JSON files in `audit/`.
 - Use `audit/internal/a11y-scan-results.json` and `audit/internal/a11y-findings.json` for pipeline JSON files.
 
@@ -226,7 +205,7 @@ Execution discipline for the agent:
 
 ## 10) Platform-Specific Installation
 
-For Antigravity, Windsurf, and Gemini CLI setup instructions, see [references/platform-setup.md](references/platform-setup.md).
+For Antigravity, Windsurf, Codex, and Gemini CLI setup instructions, see [references/platform-setup.md](references/platform-setup.md).
 
 ## 11) Execution Workflow
 
@@ -256,3 +235,24 @@ Follow these steps in order when executing an audit:
    - Ask for explicit permission to apply the fixes: "Should I apply these patches for you?"
 
 6. **Suggest `.gitignore` update**: If a `.gitignore` exists in the project root and does not already contain `audit/`, mention to the user that they may want to add `audit/` to avoid committing generated reports. Do not edit `.gitignore` automatically.
+
+### `a11y.config.json` Reference
+
+Persist scan settings across runs by placing this file in the audited project root. All keys are optional — the engine merges with internal defaults. CLI flags always take precedence.
+
+| Key                | Type      | Description                                                                                                                      |
+| :----------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                                                   |
+| `viewports`        | `array`   | List of `{ width, height, name }` objects. Only the first entry is used for scanning. To change viewport, update `viewports[0]`. |
+| `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                                              |
+| `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                                          |
+| `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                                           |
+| `axeRules`         | `object`  | Fine-grained Axe-Core rule configuration passed directly to the scanner.                                                         |
+| `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                                         |
+| `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                                                |
+| `onlyRule`         | `string`  | Targeted Audit: Only check for this specific rule ID.                                                                            |
+| `waitMs`           | `number`  | Time to wait for dynamic content (default: 2000).                                                                                |
+| `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                                                 |
+| `waitUntil`        | `string`  | Playwright page load event: `"domcontentloaded"` \| `"load"` \| `"networkidle"` (default: `"domcontentloaded"`).                |
+| `headless`         | `boolean` | Run browser in background (default: true).                                                                                       |
+| `framework`        | `string`  | Override auto-detected framework for guardrail context in the remediation guide. Accepted: `"shopify"` \| `"wordpress"` \| `"drupal"` \| `"generic"`. |

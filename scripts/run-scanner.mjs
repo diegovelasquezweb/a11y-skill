@@ -260,6 +260,12 @@ async function analyzeRoute(
 
       const axeResults = await builder.analyze();
 
+      if (!Array.isArray(axeResults?.violations)) {
+        throw new Error(
+          "axe-core returned an unexpected response — violations array missing.",
+        );
+      }
+
       const metadata = await page.evaluate(() => {
         return {
           h1Count: document.querySelectorAll("h1").length,
@@ -359,17 +365,6 @@ async function main() {
     process.exit(1);
   }
 
-  const disallowed = await fetchDisallowedPaths(origin);
-  if (disallowed.size > 0) {
-    const before = routes.length;
-    routes = routes.filter((r) => !isDisallowedPath(r, disallowed));
-    const skipped = before - routes.length;
-    if (skipped > 0)
-      log.info(`robots.txt: ${skipped} route(s) excluded (Disallow rules)`);
-  }
-
-  log.info(`Targeting ${routes.length} routes: ${routes.join(", ")}`);
-
   const SKIP_SELECTORS = new Set(["html", "body", "head", ":root", "document"]);
 
   async function captureElementScreenshot(violation, routeIndex) {
@@ -388,37 +383,55 @@ async function main() {
         .first()
         .screenshot({ path: screenshotPath, timeout: 3000 });
       violation.screenshot_path = `screenshots/${filename}`;
-    } catch {
-      // skip silently — element may be hidden or off-screen
+    } catch (err) {
+      log.warn(
+        `Screenshot skipped for "${violation.id}" (${selector}): ${err.message}`,
+      );
     }
   }
 
   const results = [];
   const total = routes.length;
-  for (let i = 0; i < total; i++) {
-    const routePath = routes[i];
-    log.info(`[${i + 1}/${total}] Scanning: ${routePath}`);
-    const targetUrl = new URL(routePath, baseUrl).toString();
-    const result = await analyzeRoute(
-      page,
-      targetUrl,
-      args.waitMs,
-      config.axeRules,
-      config.excludeSelectors,
-      args.onlyRule,
-      args.timeoutMs,
-      2,
-      args.waitUntil,
-    );
-    if (args.screenshotsDir && result.violations) {
-      for (const violation of result.violations) {
-        await captureElementScreenshot(violation, i);
-      }
-    }
-    results.push({ path: routePath, ...result });
-  }
 
-  await browser.close();
+  try {
+    const disallowed = await fetchDisallowedPaths(origin);
+    if (disallowed.size > 0) {
+      const before = routes.length;
+      routes = routes.filter((r) => !isDisallowedPath(r, disallowed));
+      const skipped = before - routes.length;
+      if (skipped > 0)
+        log.info(`robots.txt: ${skipped} route(s) excluded (Disallow rules)`);
+    }
+
+    log.info(`Targeting ${routes.length} routes: ${routes.join(", ")}`);
+
+    for (let i = 0; i < total; i++) {
+      const routePath = routes[i];
+      log.info(`[${i + 1}/${total}] Scanning: ${routePath}`);
+      const targetUrl = new URL(routePath, baseUrl).toString();
+      const result = await analyzeRoute(
+        page,
+        targetUrl,
+        args.waitMs,
+        config.axeRules,
+        config.excludeSelectors,
+        args.onlyRule,
+        args.timeoutMs,
+        2,
+        args.waitUntil,
+      );
+      if (args.screenshotsDir && result.violations) {
+        await Promise.all(
+          result.violations.map((violation) =>
+            captureElementScreenshot(violation, i),
+          ),
+        );
+      }
+      results.push({ path: routePath, ...result });
+    }
+  } finally {
+    await browser.close();
+  }
 
   const payload = {
     generated_at: new Date().toISOString(),

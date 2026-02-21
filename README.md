@@ -21,18 +21,20 @@ To install this skill, provide the following prompt to your AI agent:
 "Install skill https://github.com/diegovelasquezweb/a11y"
 ```
 
+Restart your CLI-based agent session after installation to ensure the new skill are loaded correctly.
+
 ## Compatibility & Paths
 
 This skill follows the [Agent Skills standard](https://agentskills.io).
 
-| Agent / IDE     | Skill Install Path (Global/User)                | Config & Rules             | Extended Workflow          |
-| :-------------- | :---------------------------------------------- | :------------------------- | :------------------------- |
-| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`            | —                          | `.agent/`, `workflows/`    |
-| **Codex**       | `~/.codex/skills/a11y/`                         | `agents/openai.yaml`       | `workflows/`               |
-| **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`, `.claude/`    | `workflows/`               |
-| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  | `.cursorrules`, `.cursor/` | `workflows/`               |
-| **Gemini CLI**  | `~/.gemini/skills/a11y/` (or `.agents/skills/`) | `~/.gemini/settings.json`  | —                          |
-| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`              | —                          | `.windsurf/`, `workflows/` |
+| Agent / IDE     | Skill Install Path (Global/User)                | Config & Rules            | Extended Workflow          |
+| :-------------- | :---------------------------------------------- | :------------------------ | :------------------------- |
+| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`            | —                         | `.agent/`, `workflows/`    |
+| **Codex**       | `~/.codex/skills/a11y/`                         | `agents/openai.yaml`      | `workflows/`               |
+| **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`, `.claude/`   | `workflows/`               |
+| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  | `.cursor/rules/`          | `workflows/`               |
+| **Gemini CLI**  | `~/.gemini/skills/a11y/` (or `.agents/skills/`) | `~/.gemini/settings.json` | —                          |
+| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`              | —                         | `.windsurf/`, `workflows/` |
 
 ## How to Use
 
@@ -79,7 +81,7 @@ Execute the audit script directly from the skill directory:
 
 ```bash
 # Audit a specific URL with custom limit and visible browser
-pnpm audit --base-url localhost:3000 --max-routes 20 --headed
+pnpm audit --base-url http://localhost:3000 --max-routes 20 --headed
 
 # Run ONLY the color-contrast check
 pnpm audit --base-url https://mysite.com --only-rule color-contrast
@@ -91,19 +93,22 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 
 | Resource                                                  | Description                                                                  |
 | :-------------------------------------------------------- | :--------------------------------------------------------------------------- |
-| 🏗️ [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.        |
-| 🧮 [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.        |
-| 🧠 [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system. |
 | 📖 [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.              |
 | ⚙️ [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                      |
-| ⚖️ [**Governance**](docs/governance.md)                   | Repository standards, branch protection, and merging rules.                  |
+| 🧠 [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system. |
+| 🧮 [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.        |
+| 🏗️ [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.        |
 | 🛡️ [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                     |
 
-## Internal Resources
+## External Resources
 
-- [Internal Architecture](docs/architecture.md)
+- [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
+- [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.11)
+- [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
 - [Agent Skills Standard](https://agentskills.io/)
-
----
-
-**© 2026 diegovelasquezweb. All Rights Reserved. Confidential & Proprietary.**
+- [Claude Skills](https://docs.anthropic.com/en/docs/claude-code/skills)
+- [Antigravity Skills](https://antigravity.google/docs/skills)
+- [Codex Skills](https://developers.openai.com/codex/skills/)
+- [Cursor Skills](https://cursor.com/docs/context/skills)
+- [Gemini CLI Skills](https://geminicli.com/docs/cli/skills/)
+- [Windsurf Skills](https://docs.windsurf.com/windsurf/cascade/skills)

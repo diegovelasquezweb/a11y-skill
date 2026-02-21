@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.3.0] — 2026-02-20
+
+### Removed
+- `reportTitle`, `companyName`, and `accentColor` configuration keys — report branding is now static and no longer configurable via `a11y.config.json`
+- `a11y.config.json.example` reference file — superseded by the full schema documented in `docs/configuration.md`
+
 ### Fixed
 - PDF generation now uses `waitUntil: "load"` instead of `"networkidle"` — faster and more reliable for local `file://` URLs
 - `parseArgs` in `check-toolchain.mjs` no longer returns a dead empty object
@@ -20,13 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.1] — 2026-02-20
 
 ### Added
-- `a11y.config.json` supports `reportTitle`, `companyName`, `accentColor`, `colorScheme`, and `viewports` for dynamic report customization
-- `a11y.config.json.example` as a reference template
+- `a11y.config.json` supports `colorScheme` and `viewports` for scan emulation configuration
 - Vitest unit tests covering `core-findings`, `a11y-utils`, `core-utils`, and `run-analyzer` (39 tests)
 - `detectImplicitRole()` — resolves implicit ARIA roles for native HTML elements (`<button>`, `<a>`, `<input>`, etc.)
 - `extractSearchHint()` — converts CSS selectors into source-code search patterns for AI agent reproduction steps
 - Asset loading guards: missing `intelligence.json` or `manual-checks.json` now produce actionable error messages
-- `accentColor` hex validation in `loadConfig()` with fallback to default
 - `references/` directory with progressive disclosure files: `baseline-checks.md`, `manual-checks.md`, `platform-setup.md`
 
 ### Changed

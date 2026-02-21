@@ -1,6 +1,14 @@
-[← Back to Index](README.md)
-
 # Audit Engine Architecture
+
+**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Testing](testing.md)
+
+---
+
+## Table of Contents
+
+- [High-Level Pipeline](#high-level-pipeline)
+- [Internal Component Roles](#internal-component-roles)
+- [Data Flow Diagram](#data-flow-diagram)
 
 The a11y skill operates as a three-stage pipeline designed for **Autonomous Remediation**. It transforms a URL into a surgical roadmap of code fixes.
 
@@ -8,28 +16,33 @@ The a11y skill operates as a three-stage pipeline designed for **Autonomous Reme
 
 ```mermaid
 graph TD
-    A["Target URL / Project"] --> B["1. Scanner (Playwright + Axe)"]
-    B --> C["2. Analyzer (Fix Intelligence)"]
-    C --> D["3. Builder (Multi-format Reports)"]
+    A["Target URL / Project"]
 
-    subgraph "Phase 1: Scouting"
-        B1["Route Discovery"]
-        B2["WCAG 2.2 AA Scan"]
-        B3["DOM Snapshot"]
+    subgraph P1["Phase 1: Scouting"]
+        B["1. Scanner (Playwright + Axe)"]
+        B --> B1["Route Discovery"]
+        B --> B2["WCAG 2.2 AA Scan"]
+        B --> B3["DOM Snapshot"]
     end
 
-    subgraph "Phase 2: Intelligence"
-        C1["Rule Mapping"]
-        C2["Surgical Selector Extraction"]
-        C3["Patch Generation (Liquid/JSX/HTML)"]
+    subgraph P2["Phase 2: Intelligence"]
+        C["2. Analyzer (Fix Intelligence)"]
+        C --> C1["Rule Mapping"]
+        C --> C2["Surgical Selector Extraction"]
+        C --> C3["Patch Generation (HTML/JSX/Liquid)"]
     end
 
-    subgraph "Phase 3: Delivery"
-        D1["AI Roadmap (Markdown)"]
-        D2["Client Report (HTML)"]
-        D3["Executive Summary (PDF)"]
-        D4["System Data (JSON)"]
+    subgraph P3["Phase 3: Delivery"]
+        D["3. Builder (Multi-format Reports)"]
+        D --> D1["AI Roadmap (Markdown)"]
+        D --> D2["Client Report (HTML)"]
+        D --> D3["Executive Summary (PDF)"]
+        D --> D4["Internal Data (JSON)"]
     end
+
+    A --> B
+    B --> C
+    C --> D
 ```
 
 ## Internal Component Roles
