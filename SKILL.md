@@ -275,6 +275,7 @@ To maintain the reliability of the accessibility audit, agents must adhere to th
 4. **No Verification Hallucinations**: A targeted verification scan (`--only-rule`) only confirms the fix for that specific rule. Do not declare a project "100% accessible" based on a partial scan. Total victory can only be declared after a **Final Certification Audit**.
 5. **No Intentional Downgrading**: Never downgrade core dependencies like `axe-core` in `package.json` to suppress new rules or findings. Maintain the latest stable engine for maximum compliance.
 6. **Complacent Ignores Prohibited**: Never add a rule to `ignoreFindings` in `a11y.config.json` just to bypass a difficult fix. Any addition to the ignore list requires explicit user confirmation and a valid technical reason.
+7. **No Visual Changes Without Approval**: Never modify colors, fonts, spacing, layouts, animations, or any other visual/styling property as part of an accessibility fix unless the user explicitly approves. Fixes must be structural and semantic (HTML attributes, ARIA roles, DOM order, alt text, labels). If a fix genuinely requires a style change (e.g., color-contrast), propose the exact change and wait for approval before applying.
 
 ### `a11y.config.json` Reference
 
