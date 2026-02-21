@@ -96,13 +96,20 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 | 🧠 [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system. |
 | 📖 [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.              |
 | ⚙️ [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                      |
-| ⚖️ [**Governance**](docs/governance.md)                   | Repository standards, branch protection, and merging rules.                  |
 | 🛡️ [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                     |
 
-## Internal Resources
+## External Resources
 
-- [Internal Architecture](docs/architecture.md)
+- [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
+- [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
+- [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
 - [Agent Skills Standard](https://agentskills.io/)
+- [Claude Skills](https://docs.anthropic.com/en/docs/claude-code/skills)
+- [Antigravity Skills](https://antigravity.google/docs/skills)
+- [Codex Skills](https://developers.openai.com/codex/skills/)
+- [Cursor Skills](https://cursor.com/docs/context/skills)
+- [Gemini CLI Skills](https://geminicli.com/docs/cli/skills/)
+- [Windsurf Skills](https://docs.windsurf.com/windsurf/cascade/skills)
 
 ---
 

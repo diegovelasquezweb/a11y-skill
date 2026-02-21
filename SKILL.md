@@ -203,7 +203,7 @@ Execution discipline for the agent:
 - Do not generate dated versions of the report (e.g., `audit/index-2026-01-01.html`).
 - Do not generate per-issue markdown files.
 - `audit/report.html` must include the completed findings with evidence and linked finding IDs.
-- Follow the WS Accessibility standard for issue severity (Critical, High, Medium, Low).
+- Use the severity scale defined in Section 3 (Critical, High, Medium, Low).
 - Do not keep any JSON files in `audit/`.
 - Use `audit/internal/a11y-scan-results.json` and `audit/internal/a11y-findings.json` for pipeline JSON files.
 
@@ -226,7 +226,7 @@ Execution discipline for the agent:
 
 ## 10) Platform-Specific Installation
 
-For Antigravity, Windsurf, and Gemini CLI setup instructions, see [references/platform-setup.md](references/platform-setup.md).
+For Antigravity, Windsurf, Codex, and Gemini CLI setup instructions, see [references/platform-setup.md](references/platform-setup.md).
 
 ## 11) Execution Workflow
 
