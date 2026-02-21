@@ -10,7 +10,7 @@
 - [Internal Component Roles](#internal-component-roles)
 - [Data Flow Diagram](#data-flow-diagram)
 
-The a11y skill operates as a three-stage pipeline designed for **Autonomous Remediation**. It transforms a URL into a surgical roadmap of code fixes.
+The a11y skill operates as a three-stage pipeline designed for **Autonomous Remediation**. It transforms a URL into a surgical roadmap of code fixes, prioritizing action over passive reporting.
 
 ## High-Level Pipeline
 
@@ -34,8 +34,8 @@ graph TD
 
     subgraph P3["Phase 3: Delivery"]
         D["3. Builder (Multi-format Reports)"]
-        D --> D1["AI Roadmap (Markdown)"]
-        D --> D2["Client Report (HTML)"]
+        D --> D1["PRIMARY: AI Roadmap (Markdown)"]
+        D --> D2["Visual Evidence (HTML)"]
         D --> D3["Executive Summary (PDF)"]
         D --> D4["Internal Data (JSON)"]
     end
@@ -72,7 +72,7 @@ graph TD
 ### 3. The Builder (`run-audit.mjs` orchestrator)
 
 - **Assembly**: Coordinates the execution of the Scanner and Analyzer.
-- **Formatting**: Triggers all three report builders: `build-report-html.mjs`, `build-report-md.mjs`, and `build-report-pdf.mjs`. HTML and Markdown reports build in parallel.
+- **Formatting**: Triggers the report builders. In a "Fix-First" flow (or via `--skip-reports`), it prioritizes the **Remediation Guide** (`remediation.md`) over visual artifacts.
 - **Persistence**: Ensures the `audit/` folder is updated with the latest findings.
 
 ### 4. The Remediation Guide (`audit/remediation.md`)

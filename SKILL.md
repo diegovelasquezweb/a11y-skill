@@ -1,6 +1,6 @@
 ---
 name: a11y
-description: Detect and autonomously fix WCAG 2.2 AA accessibility issues. Use when the user says "audit [url]", "fix accessibility", "make my site accessible", or asks to scan for compliance. The primary goal is finding vulnerabilities for the AI to patch.
+description: Detect and autonomously fix WCAG 2.2 AA accessibility issues. Build for resolution, not just reporting. The primary goal is generating and applying surgical code patches to resolve compliance vulnerabilities.
 compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL. Playwright + Chromium are installed automatically on first run.
 license: Proprietary (All Rights Reserved)
 metadata:
@@ -15,10 +15,9 @@ Follow this workflow to audit and report website accessibility issues with consi
 ## Operating Guardrails
 
 1. **Environment Awareness (Gemini CLI)**: This skill relies on autonomous activation. If `ReadFile` fails with "Path not in workspace" when reading resources from the skills directory (`~/.gemini/skills/a11y/`), immediately fall back to a shell command — e.g., `cat ~/.gemini/skills/a11y/SKILL.md` — without asking the user. Do not attempt `ReadFile` again. Use `/skills reload` if the skill name is not recognized at activation time.
-2. **Setup Readiness**:
-   - **Antigravity**: On first activation in any project, ensure `.agent/workflows/a11y.md` exists to enable the `/a11y` command.
-   - **Windsurf**: On first activation in any project, ensure `.windsurf/workflows/a11y.md` exists to enable the `/a11y` command.
-   - **General**: Do not execute the actual audit pipeline until explicitly requested by the user.
+2. **Setup Readiness & Philosophy**:
+   - **Antigravity/Windsurf**: Ensure the `/a11y` command is enabled via project-specific workflow files.
+   - **Philosophy (Fix-First)**: While reports are generated as visual evidence, the **Resolution is the Core Objective**. Do not wait for the user to "read the report" before proposing specific, technical fixes in the chat.
 
 3. **Tailwind Version Awareness**: When inspecting project color tokens or design variables for contrast analysis, check `package.json` for the `tailwindcss` version first, then locate tokens accordingly:
    - **v3**: tokens are in `tailwind.config.ts` or `tailwind.config.js`.
@@ -207,34 +206,28 @@ Execution discipline for the agent:
 
 For Antigravity, Windsurf, Codex, and Gemini CLI setup instructions, see [references/platform-setup.md](references/platform-setup.md).
 
-## 11) Execution Workflow
+## 11) Execution Workflow (Fix-First)
 
-Follow these steps in order when executing an audit:
+Follow these steps in order when executing an audit. Prioritize showing the solution over the report.
 
-1. **Get the target URL.** If not provided in the user's message, ask for it immediately before proceeding. Do not auto-detect unless the user explicitly asks you to.
+1. **Get the target URL.** If not provided, ask immediately.
 
-2. **Run the audit pipeline** using the bundled orchestrator script from the skill directory:
+2. **Run the audit pipeline** using the bundled orchestrator:
 
    ```bash
    node scripts/run-audit.mjs --base-url <URL>
    ```
 
-   This runs the full pipeline: toolchain check → route scanning → findings processing → HTML report. Dependencies install automatically on first run.
+3. **Display the Remediation Roadmap immediately.** Do not just link the HTML report.
+   - Read `audit/remediation.md`.
+   - **MANDATORY**: Summarize the findings by severity.
+   - **MANDATORY**: Propose the specific "Proposed Fixes" found in the remediation guide immediately in the chat.
 
-3. **Parse the report path** from the `REPORT_PATH=<path>` line in the script output.
+4. **Request permission to patch**: "I have detected N issues and have the patches ready. Should I apply them now?"
 
-4. **Open the report** in the browser using the appropriate method for the current environment:
-   - macOS: `open "<path>"`
-   - Windows: `start "" "<path>"`
-   - Linux: `xdg-open "<path>"`
-   - If the open command fails or is sandboxed, tell the user the exact absolute path so they can open it manually.
+5. **Provide Report Evidence**: Only after proposing the fixes, provide the absolute path to `audit/report.html` as the visual proof for the user's records.
 
-5. **Summarize and Propose Fixes**:
-   - Report the location and total issues by severity.
-   - **MANDATORY**: Present a list of "Proposed Fixes" with the specific code changes found in `audit/remediation.md`.
-   - Ask for explicit permission to apply the fixes: "Should I apply these patches for you?"
-
-6. **Suggest `.gitignore` update**: **MANDATORY — always do this, no exceptions.** After every audit, tell the user to add `audit/` to the project's `.gitignore` to avoid committing generated reports. Do not check whether the entry already exists — just always surface the reminder. Do not edit `.gitignore` automatically.
+6. **Suggest `.gitignore` update**: **MANDATORY.** Remind the user to add `audit/` to `.gitignore`.
 
 ## 12) Fix Application Workflow
 
@@ -265,19 +258,19 @@ After all automated fixes are applied and confirmed, process the "WCAG 2.2 Stati
 
 Persist scan settings across runs by placing this file in the audited project root. All keys are optional — the engine merges with internal defaults. CLI flags always take precedence.
 
-| Key                | Type      | Description                                                                                                                      |
-| :----------------- | :-------- | :------------------------------------------------------------------------------------------------------------------------------- |
-| `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                                                   |
-| `viewports`        | `array`   | List of `{ width, height, name }` objects. Only the first entry is used for scanning. To change viewport, update `viewports[0]`. |
-| `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                                              |
-| `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                                          |
-| `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                                           |
-| `axeRules`         | `object`  | Fine-grained Axe-Core rule configuration passed directly to the scanner.                                                         |
-| `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                                         |
-| `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                                                |
-| `onlyRule`         | `string`  | Targeted Audit: Only check for this specific rule ID.                                                                            |
-| `waitMs`           | `number`  | Time to wait for dynamic content (default: 2000).                                                                                |
-| `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                                                 |
-| `waitUntil`        | `string`  | Playwright page load event: `"domcontentloaded"` \| `"load"` \| `"networkidle"` (default: `"domcontentloaded"`).                |
-| `headless`         | `boolean` | Run browser in background (default: true).                                                                                       |
+| Key                | Type      | Description                                                                                                                                           |
+| :----------------- | :-------- | :---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                                                                        |
+| `viewports`        | `array`   | List of `{ width, height, name }` objects. Only the first entry is used for scanning. To change viewport, update `viewports[0]`.                      |
+| `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                                                                   |
+| `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                                                               |
+| `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                                                                |
+| `axeRules`         | `object`  | Fine-grained Axe-Core rule configuration passed directly to the scanner.                                                                              |
+| `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                                                              |
+| `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                                                                     |
+| `onlyRule`         | `string`  | Targeted Audit: Only check for this specific rule ID.                                                                                                 |
+| `waitMs`           | `number`  | Time to wait for dynamic content (default: 2000).                                                                                                     |
+| `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                                                                      |
+| `waitUntil`        | `string`  | Playwright page load event: `"domcontentloaded"` \| `"load"` \| `"networkidle"` (default: `"domcontentloaded"`).                                      |
+| `headless`         | `boolean` | Run browser in background (default: true).                                                                                                            |
 | `framework`        | `string`  | Override auto-detected framework for guardrail context in the remediation guide. Accepted: `"shopify"` \| `"wordpress"` \| `"drupal"` \| `"generic"`. |

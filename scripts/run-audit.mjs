@@ -25,6 +25,7 @@ Execution & Emulation:
   --output <path>         Final HTML report location (default: audit/report.html).
   --color-scheme <val>    Emulate color scheme: "light" or "dark".
   --headed                Run browser in visible mode (overrides headless).
+  --skip-reports          Omit HTML and PDF report generation (Focus on AI resolution).
   --wait-ms <num>         Time to wait after page load (default: 2000).
   --timeout-ms <num>      Network timeout (default: 30000).
   -h, --help              Show this help.
@@ -62,9 +63,7 @@ async function runScript(scriptName, args = []) {
       if (code === 0) {
         resolve();
       } else {
-        reject(
-          new Error(`Script ${scriptName} failed with exit code ${code}`),
-        );
+        reject(new Error(`Script ${scriptName} failed with exit code ${code}`));
       }
     });
   });
@@ -104,6 +103,8 @@ async function main() {
       : config.headless;
 
   const onlyRule = getArgValue("only-rule") || config.onlyRule;
+  const skipReports =
+    argv.includes("--skip-reports") || config.skipReports || false;
   const ignoreFindings =
     getArgValue("ignore-findings") ||
     (config.ignoreFindings?.length ? config.ignoreFindings.join(",") : null);
@@ -187,17 +188,25 @@ async function main() {
     const mdArgs = ["--output", mdOutput, "--base-url", baseUrl];
     if (target) mdArgs.push("--target", target);
 
-    await Promise.all([
-      runScript("build-report-html.mjs", buildArgs),
-      runScript("build-report-md.mjs", mdArgs),
-    ]);
+    if (skipReports) {
+      log.info("Skipping HTML and PDF reports per --skip-reports flag.");
+      await runScript("build-report-md.mjs", mdArgs);
+    } else {
+      await Promise.all([
+        runScript("build-report-html.mjs", buildArgs),
+        runScript("build-report-md.mjs", mdArgs),
+      ]);
 
-    const pdfOutput = output.replace(".html", ".pdf");
-    await runScript("build-report-pdf.mjs", [output, pdfOutput]);
+      const pdfOutput = output.replace(".html", ".pdf");
+      await runScript("build-report-pdf.mjs", [output, pdfOutput]);
+    }
 
-    log.success(`🎉 Audit complete!`);
-    console.log(`REPORT_PATH=${absoluteOutputPath}`);
-    console.log(`GITIGNORE_REMINDER=Add "audit/" to your project .gitignore to avoid committing generated reports.`);
+    log.success(`🎉 Audit complete! Remediation Roadmap ready.`);
+    console.log(`REMEDIATION_PATH=${mdOutput}`);
+    if (!skipReports) console.log(`REPORT_PATH=${absoluteOutputPath}`);
+    console.log(
+      `GITIGNORE_REMINDER=Add "audit/" to your project .gitignore to avoid committing generated reports.`,
+    );
   } catch (error) {
     log.error(error.message);
     process.exit(1);
