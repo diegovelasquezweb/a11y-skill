@@ -50,7 +50,7 @@ graph TD
 ### 1. The Scanner (`run-scanner.mjs`)
 
 - **Engine**: Uses Playwright to emulate a real user environment (Light/Dark mode, Viewport).
-- **Compliance**: Injects `axe-core` to run 90+ accessibility rules.
+- **Compliance**: Injects `axe-core` to run 106 accessibility rules (100% of axe-core WCAG A/AA + best-practice coverage).
 - **Discovery**: Crawls the site starting from the `base-url` up to `max-routes`.
 - **Output**: Generates a raw `a11y-scan-results.json` containing every violation found in the DOM.
 

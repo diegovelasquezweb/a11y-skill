@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Manual checks for WCAG 2.2 static code violations after automated fixes
 - `intelligence.json` schema validation with comprehensive tests (`tests/intelligence.test.mjs`)
 - GitHub Actions workflow for PR title and project integrity validation (`pr-standards.yml`)
+- 48 new intelligence rules: 29 WCAG A/AA + 19 best-practice — achieving 100% axe-core coverage (106 total rules)
+- Reciprocal `related_rules` links across all 106 rules for bidirectional navigation
 
 ### Changed
 - Score labeling logic and compliance metrics updated in reports
@@ -24,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Accessibility rules and references refactored for clarity and structure
 - Audit script reliability enhanced with timeouts, URL validation, and improved error handling
 - `SKILL_ROOT` constant refactored for consistency
+- Test suite expanded from 79 to 593 tests (514 in intelligence validation alone)
 
 ### Fixed
 - `localStorage` key escaping corrected in HTML report
