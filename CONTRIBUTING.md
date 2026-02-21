@@ -33,13 +33,11 @@ pnpm install
 
 Use the following prefixes to keep the repository organized:
 
-- `feature/` (Features)
+- `feature/ or feat/` (Features)
 - `fix/` (Bugs)
 - `refactor/` (Cleanup)
 - `docs/` (Documentation)
 - `chore/` (Maintenance)
-
-Example: `feat/new-audit-rule`.
 
 ## PR Checklist
 
