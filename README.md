@@ -9,6 +9,7 @@ Traditional accessibility tools are built for humans to read reports. This skill
 | Feature / Capability         | `a11y`                                                          | Google Lighthouse                               | WebAIM WAVE                                  |
 | :--------------------------- | :-------------------------------------------------------------- | :---------------------------------------------- | :------------------------------------------- |
 | **Autonomous AI Resolution** | <small>✅ (Surgical DOM selectors & fix-ready patterns)</small> | <small>⚠️ (Basic diagnostic hints only)</small> | <small>❌ (Manual inspection only)</small>   |
+| **Accessibility Rule Coverage** | <small>✅ (100% of axe-core WCAG A/AA + best-practice)</small> | <small>⚠️ (Curated subset)</small>              | <small>⚠️ (Proprietary engine)</small>       |
 | **Site-Wide Route Scouting** | <small>✅ (Automated zero-config crawler)</small>               | <small>❌ (Single URL per run)</small>          | <small>❌ (Single URL per run)</small>       |
 | **Remediation Intelligence** | <small>✅ (AI-optimized blueprints & W3C APG patterns)</small>  | <small>⚠️ (Diagnostic links only)</small>       | <small>⚠️ (Documentation links only)</small> |
 | **Interactive QA Evidence**  | <small>✅ (Premium dashboard for visual verification)</small>   | <small>❌ (Static link list only)</small>       | <small>⚠️ (Passive visual overlays)</small>  |
@@ -21,7 +22,7 @@ To install this skill, provide the following prompt to your AI agent:
 "Install skill https://github.com/diegovelasquezweb/a11y"
 ```
 
-Restart your CLI-based agent session after installation to ensure the new skill are loaded correctly.
+Restart your CLI-based agent session after installation to ensure the new skill is loaded correctly.
 
 ## Compatibility & Paths
 
@@ -41,7 +42,7 @@ This skill follows the [Agent Skills standard](https://agentskills.io).
 Once installed, the skill is available to your agent in any conversation:
 
 ```bash
-"Audit my local dev server
+"Audit my local dev server"
 ```
 
 ```bash
@@ -54,10 +55,10 @@ While the primary output for the AI agent is the Remediation Guide, the skill ge
 
 | Deliverable           | Format  | Audience   | Key Value                                                 |
 | :-------------------- | :------ | :--------- | :-------------------------------------------------------- |
-| Remediation Guide     | `.md`   | AI Agents  | AI-optimized patching guide with surgical selectors.      |
+| Remediation Guide     | `.md`   | AI Agents  | AI-optimized patching guide with full fix intelligence.   |
 | **Audit Dashboard**   | `.html` | Developers | Visual evidence and interactive verification of findings. |
 | **Executive Summary** | `.pdf`  | Clients    | Formal compliance evidence for clients or stakeholders.   |
-| **Technical Data**    | `.json` | Systems    | Raw findings in `internal/` for custom integration.       |
+| **Technical Data**    | `.json` | Systems    | Enriched findings for custom integrations.                |
 
 ## Configuration
 
