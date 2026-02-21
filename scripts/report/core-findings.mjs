@@ -31,6 +31,7 @@ export function normalizeFindings(payload) {
       title: String(item.title ?? "Untitled finding"),
       severity: String(item.severity ?? "Unknown"),
       wcag: String(item.wcag ?? ""),
+      wcagCriterionId: item.wcag_criterion_id ?? null,
       area: String(item.area ?? ""),
       url: String(item.url ?? ""),
       selector: String(item.selector ?? ""),

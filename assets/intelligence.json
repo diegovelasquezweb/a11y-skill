@@ -1,4 +1,65 @@
 {
+  "axeVersion": "4.10",
+  "wcagCriterionMap": {
+    "image-alt":                    "1.1.1",
+    "input-image-alt":              "1.1.1",
+    "object-alt":                   "1.1.1",
+    "svg-img-alt":                  "1.1.1",
+    "image-redundant-alt":          "1.1.1",
+    "audio-caption":                "1.2.2",
+    "video-caption":                "1.2.2",
+    "no-autoplay-audio":            "1.4.2",
+    "color-contrast":               "1.4.3",
+    "meta-viewport":                "1.4.4",
+    "autocomplete-valid":           "1.3.5",
+    "landmark-one-main":            "1.3.6",
+    "region":                       "1.3.6",
+    "landmark-no-duplicate-banner": "1.3.6",
+    "landmark-no-duplicate-main":   "1.3.6",
+    "landmark-unique":              "1.3.6",
+    "label":                        "1.3.1",
+    "select-name":                  "1.3.1",
+    "heading-order":                "1.3.1",
+    "list":                         "1.3.1",
+    "listitem":                     "1.3.1",
+    "td-headers-attr":              "1.3.1",
+    "th-has-data-cells":            "1.3.1",
+    "table-duplicate-name":         "1.3.1",
+    "p-as-heading":                 "1.3.1",
+    "html-has-lang":                "3.1.1",
+    "html-lang-valid":              "3.1.1",
+    "valid-lang":                   "3.1.2",
+    "bypass":                       "2.4.1",
+    "document-title":               "2.4.2",
+    "tabindex":                     "2.4.3",
+    "link-name":                    "2.4.4",
+    "identical-links-same-purpose": "2.4.9",
+    "page-has-heading-one":         "2.4.6",
+    "empty-heading":                "2.4.6",
+    "focus-appearance":             "2.4.11",
+    "scrollable-region-focusable":  "2.1.1",
+    "aria-hidden-focus":            "2.1.1",
+    "meta-refresh":                 "2.2.1",
+    "form-field-multiple-labels":   "3.3.2",
+    "label-content-name-mismatch":  "2.5.3",
+    "target-size":                  "2.5.8",
+    "dragging-movements":           "2.5.7",
+    "redundant-entry":              "3.3.7",
+    "accessible-auth-minimum":      "3.3.8",
+    "consistent-help":              "3.2.6",
+    "duplicate-id":                 "4.1.1",
+    "duplicate-id-aria":            "4.1.1",
+    "button-name":                  "4.1.2",
+    "input-button-name":            "4.1.2",
+    "frame-title":                  "4.1.2",
+    "aria-required-attr":           "4.1.2",
+    "aria-valid-attr-value":        "4.1.2",
+    "aria-prohibited-attr":         "4.1.2",
+    "aria-roles":                   "4.1.2",
+    "aria-toggle-field-name":       "4.1.2",
+    "aria-input-field-name":        "4.1.2",
+    "nested-interactive":           "4.1.2"
+  },
   "apgPatterns": {
     "alert": "https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
     "alertdialog": "https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/",
@@ -188,7 +249,10 @@
           "Tab to the button.",
           "Listen to the announced name; ensure it matches the button's action."
         ]
-      }
+      },
+      "related_rules": [
+        { "id": "input-button-name", "reason": "The same accessible name requirement applies to <input type='button'/'submit'/'reset'> — fix all button naming violations together." }
+      ]
     },
     "link-name": {
       "fix": {
@@ -237,7 +301,8 @@
         "angular": "Use [for]=\"inputId\" binding or wrap the input inside the label element to avoid explicit ID linking."
       },
       "related_rules": [
-        { "id": "select-name", "reason": "The same label association pattern resolves select-name violations." }
+        { "id": "select-name", "reason": "The same label association pattern resolves select-name violations." },
+        { "id": "autocomplete-valid", "reason": "Properly labeled inputs should also have correct autocomplete tokens — fix label association and autocomplete together." }
       ],
       "manual_test": {
         "description": "Click the label text to ensure focus moves to the input.",
@@ -294,6 +359,9 @@
         "vue": "Bind a unique key to IDs: <label :for=\"`field-${uid}`\"> where uid is a prop or generated value (e.g., Math.random().toString(36)).",
         "angular": "Inject a counter service or use the CDK's uniqueId utility to generate stable, unique IDs per component instance."
       },
+      "related_rules": [
+        { "id": "duplicate-id-aria", "reason": "Duplicate IDs that are referenced by ARIA attributes (aria-labelledby, aria-controls) are highest priority — fix them first as they break accessibility relationships." }
+      ],
       "manual_test": {
         "description": "Verify no duplicate id values exist, especially across dynamically rendered components.",
         "steps": [
@@ -1288,6 +1356,466 @@
           "Use NVDA/JAWS (H key) or VoiceOver (Cmd+Fn+Right) to jump between headings.",
           "If a visually prominent section label is skipped (not reachable by heading navigation), it is a p-as-heading violation.",
           "Visually inspect large, bold text that appears section-like — compare its element type in DevTools."
+        ]
+      }
+    },
+    "audio-caption": {
+      "fix": {
+        "description": "Add a <track kind='captions'> element inside every <audio> element, or provide a text transcript linked adjacent to the player.",
+        "code": "<audio controls>\n  <source src=\"podcast.mp3\" type=\"audio/mpeg\">\n  <track kind=\"captions\" src=\"podcast.vtt\" srclang=\"en\" label=\"English captions\" default>\n</audio>\n\n<!-- Alternative: linked transcript -->\n<audio controls src=\"podcast.mp3\"></audio>\n<p><a href=\"podcast-transcript.html\">Read the full transcript</a></p>"
+      },
+      "fix_code_lang": "html",
+      "effort": "high",
+      "impacted_users": "Deaf users and users with hearing disabilities",
+      "expected": "All <audio> elements with speech or meaningful audio must provide synchronized captions or a full transcript.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/track",
+      "wcag_techniques": ["G158", "G159", "H95"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "Captions must be synchronized with the audio — a plain text page is a transcript, not captions. VTT (WebVTT) is the standard format for <track> elements and is supported in all modern browsers. Generating captions retroactively is effort-intensive; tools like Whisper (OpenAI), Adobe Premiere, or Rev.com can auto-generate VTT files that require human review before publishing.",
+      "framework_notes": {
+        "react": "In React, pass <track> as a child of the <audio> JSX element. React requires a key prop on <track> when rendered in a list. Use the default prop (boolean) to set the default caption track.",
+        "vue": "In Vue, nest <track> inside <audio> in the template. For dynamic caption src, bind :src='captionsSrc'. The default boolean attribute is passed as a plain HTML attribute without binding.",
+        "angular": "In Angular, the native <audio> element with nested <track> works in component templates. For dynamic caption URLs, use [attr.src]='captionsSrc' on the <track> element."
+      },
+      "related_rules": [
+        { "id": "video-caption", "reason": "If the site has audio content, it likely has video — fix both media types together." }
+      ],
+      "manual_test": {
+        "description": "Play the audio content and verify captions or transcript accurately reflect all spoken content.",
+        "steps": [
+          "Play the audio with captions enabled — confirm every spoken word is captioned, including speaker identification if multiple speakers are present.",
+          "If a transcript is provided instead of captions, verify it covers 100% of spoken content in readable order.",
+          "Check that captions are synchronized — they must appear at the correct time, not delayed or early."
+        ]
+      }
+    },
+    "video-caption": {
+      "fix": {
+        "description": "Add a <track kind='captions'> inside every <video> element. Captions must cover all speech and meaningful audio.",
+        "code": "<video controls>\n  <source src=\"presentation.mp4\" type=\"video/mp4\">\n  <track kind=\"captions\" src=\"presentation.vtt\" srclang=\"en\" label=\"English\" default>\n  <track kind=\"captions\" src=\"presentation-es.vtt\" srclang=\"es\" label=\"Español\">\n</video>"
+      },
+      "fix_code_lang": "html",
+      "effort": "high",
+      "impacted_users": "Deaf users and users with hearing disabilities",
+      "expected": "All <video> elements with audio content must have synchronized captions via a <track kind='captions'> element.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/track",
+      "wcag_techniques": ["G87", "G93", "H95"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "axe cannot verify whether existing captions are accurate or synchronized — it only detects the presence of a <track kind='captions'> element. A <track> pointing to an empty or inaccurate VTT file technically passes axe but still violates WCAG 1.2.2. Always review caption content manually. For YouTube/Vimeo embeds inside <iframe>, this rule does not apply — the embedded player's caption controls are the platform's responsibility.",
+      "framework_notes": {
+        "react": "In React, include <track> as a child of <video>. React warns if <track> lacks a key prop when rendered in a list. Use the crossOrigin prop (camelCase) if serving captions from a different domain.",
+        "vue": "In Vue, nest <track> inside <video> in the template. For dynamically loaded captions, use :src='captionUrl'. Note that Vue does not reload <track> on src change alone — recreate the video element when switching sources.",
+        "angular": "In Angular, include static or dynamic <track> elements inside the <video> template. For dynamically switching caption languages, use [attr.src] binding and reload the video source programmatically."
+      },
+      "related_rules": [
+        { "id": "audio-caption", "reason": "Fix all media caption violations together — audio and video share the same caption infrastructure (WebVTT)." }
+      ],
+      "manual_test": {
+        "description": "Play the video with captions enabled and verify all spoken content is accurately captioned.",
+        "steps": [
+          "Enable captions in the player and play the full video — verify all dialogue, narration, and meaningful sound effects are captioned.",
+          "Confirm captions are synchronized — they must appear when the corresponding audio plays.",
+          "For third-party embeds (YouTube, Vimeo), verify the embed enables captions by default via URL parameters."
+        ]
+      }
+    },
+    "no-autoplay-audio": {
+      "fix": {
+        "description": "Remove the autoplay attribute from audio elements, or provide a clearly visible pause/stop control that activates before 3 seconds of audio plays.",
+        "code": "<!-- Remove autoplay: -->\n<audio controls src=\"background.mp3\"></audio>\n\n<!-- Background video: muted is acceptable -->\n<video autoplay muted loop src=\"bg-video.mp4\"></video>\n\n<!-- If autoplay with sound is required, provide an immediate stop control: -->\n<audio autoplay id=\"bg-audio\" src=\"jingle.mp3\"></audio>\n<button onclick=\"document.getElementById('bg-audio').pause()\" style=\"position:fixed;top:1rem;right:1rem\">Stop audio</button>"
+      },
+      "fix_code_lang": "html",
+      "effort": "low",
+      "impacted_users": "Screen reader users (audio conflicts with AT speech), users with cognitive disabilities, users with vestibular disorders",
+      "expected": "Audio that plays automatically must stop within 3 seconds, or a mechanism to pause/stop/mute it must be provided at the start of the page (WCAG 1.4.2).",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autoplay",
+      "wcag_techniques": ["G60", "G170", "G171"],
+      "false_positive_risk": "medium",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "axe detects the autoplay attribute but cannot determine whether the audio is muted — muted autoplay is acceptable. A <video autoplay muted loop> for decorative background video does not violate WCAG 1.4.2. The violation is specifically audio content that plays without user interaction and cannot be immediately stopped. Browser autoplay policies (especially Chrome) often block autoplay with sound anyway — verify the audio actually plays in the target browser before treating it as a confirmed violation.",
+      "framework_notes": {
+        "react": "In React, never set the autoPlay prop on <audio> for content with meaningful audio. Background decorative video with autoPlay muted is acceptable. Trigger audio playback programmatically via user interaction events, not in useEffect on mount.",
+        "vue": "In Vue, avoid :autoplay='true' on audio elements. Trigger audio playback via @click handlers. Background video with autoplay muted as static attributes is acceptable.",
+        "angular": "In Angular, do not bind [autoplay]='true' on audio elements. Trigger .play() calls inside (click) event handlers, not in ngOnInit lifecycle hooks."
+      },
+      "manual_test": {
+        "description": "Load the page and immediately test whether audio plays without user interaction.",
+        "steps": [
+          "Open the page with a screen reader active — if audio plays, it will conflict with the AT speech.",
+          "Check for a visible stop/pause control that appears before the audio has played for 3 seconds.",
+          "Inspect the page source for <audio autoplay> or JavaScript .play() calls on page load.",
+          "Confirm muted autoplay video produces no sound — muted is WCAG-compliant."
+        ]
+      }
+    },
+    "td-headers-attr": {
+      "fix": {
+        "description": "Ensure every ID referenced in a td's headers attribute matches an existing th element in the same table.",
+        "code": "<table>\n  <thead>\n    <tr>\n      <th id=\"col-name\">Name</th>\n      <th id=\"col-dept\">Department</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td headers=\"col-name\">Alice</td>\n      <td headers=\"col-dept\">Engineering</td>\n    </tr>\n  </tbody>\n</table>"
+      },
+      "fix_code_lang": "html",
+      "effort": "medium",
+      "impacted_users": "Screen reader users navigating complex tables",
+      "expected": "When the headers attribute is used on <td>, every referenced ID must point to a valid <th> element in the same table.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td#headers",
+      "wcag_techniques": ["H43", "H63"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "The headers attribute is only needed for complex tables where a single cell spans multiple headers or the column/row relationship is ambiguous. For simple tables (one header row, one header column), use <th scope='col'> and <th scope='row'> instead — it is simpler and better supported across AT. Only use the headers attribute when scope is insufficient.",
+      "framework_notes": {
+        "react": "In React, generate table IDs programmatically: const colId = `col-${column.key}`; <th id={colId}> and <td headers={colId}>. Ensure IDs are unique if multiple table instances render on the same page.",
+        "vue": "In Vue, bind unique IDs: :id='`col-${col.key}`' on <th> and :headers='`col-${col.key}`' on <td>. Use a table-scoped unique prefix if multiple tables exist.",
+        "angular": "In Angular, generate IDs in the component: colId = (col: Column) => `col-${col.key}`; and bind [attr.id]='colId(col)' on th and [attr.headers]='colId(col)' on td."
+      },
+      "related_rules": [
+        { "id": "th-has-data-cells", "reason": "Fix td-headers-attr and th-has-data-cells together — they are complementary table structure rules." }
+      ],
+      "manual_test": {
+        "description": "Navigate a complex table with a screen reader and verify column/row headers are announced for each cell.",
+        "steps": [
+          "Navigate into a table cell with NVDA or JAWS — the AT must announce the associated column and row header.",
+          "In DevTools, inspect each <td headers='...'> — confirm every referenced ID exists as a <th id='...'> in the same table.",
+          "For simple tables, verify <th scope='col'> and <th scope='row'> are used instead of the headers attribute."
+        ]
+      }
+    },
+    "th-has-data-cells": {
+      "fix": {
+        "description": "Ensure every <th> element has at least one associated data cell (<td>). Remove header cells for empty columns or convert them to <td> if they contain data rather than labels.",
+        "code": "<table>\n  <thead>\n    <tr>\n      <th scope=\"col\">Name</th>\n      <th scope=\"col\">Role</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>Alice</td>\n      <td>Engineer</td>\n    </tr>\n  </tbody>\n</table>"
+      },
+      "fix_code_lang": "html",
+      "effort": "medium",
+      "impacted_users": "Screen reader users navigating tables",
+      "expected": "Every <th> must have at least one associated data cell — a header with no data cells is meaningless structure.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th",
+      "wcag_techniques": ["H43", "H63", "F46"],
+      "false_positive_risk": "medium",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "This rule commonly fires on dynamically rendered tables that show an empty state (loading spinner or 'No data' row). axe flags the <th> elements as having no data cells when the table body is empty or renders a colspan'd message. Guard the table to only display headers when data is present, or use a non-table element for the empty state.",
+      "framework_notes": {
+        "react": "In React, render a fallback when the data array is empty: if (!rows.length) return <p>No results found.</p>. Do not render the <table> with headers and an empty <tbody>.",
+        "vue": "In Vue, use v-if='rows.length' on the <table> element. Provide an empty-state <p> or <div> with v-else outside the table.",
+        "angular": "In Angular, use *ngIf='rows.length' on the <table> element and provide an alternative empty-state template with *ngIf='!rows.length'."
+      },
+      "related_rules": [
+        { "id": "td-headers-attr", "reason": "Fix table structure rules together — td-headers-attr and th-has-data-cells are complementary." }
+      ],
+      "manual_test": {
+        "description": "Verify every column and row header has corresponding data cells in the rendered table.",
+        "steps": [
+          "Inspect the table in DevTools — count <th> elements in the header row and confirm the same number of columns exist in each data row.",
+          "Navigate into each cell with a screen reader — the AT must announce the associated header for every data cell.",
+          "Check tables rendered in an empty state — if <th> headers exist but <tbody> is empty, the violation is present."
+        ]
+      }
+    },
+    "table-duplicate-name": {
+      "fix": {
+        "description": "Remove the summary attribute or change the caption text so the table caption and summary do not contain the same text.",
+        "code": "<!-- Remove summary entirely (deprecated in HTML5) -->\n<table>\n  <caption>Sales data by region and quarter — columns are quarters Q1–Q4, rows are regions</caption>\n  ...\n</table>\n\n<!-- Or if summary must remain, use different text: -->\n<table summary=\"Use arrow keys to navigate rows and columns.\">\n  <caption>Sales data by region and quarter</caption>\n  ...\n</table>"
+      },
+      "fix_code_lang": "html",
+      "effort": "low",
+      "impacted_users": "Screen reader users (duplicate announcement of table description creates cognitive load)",
+      "expected": "The <caption> and summary attribute of a table must not contain identical text — this causes screen readers to announce the same description twice.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption",
+      "wcag_techniques": ["H39", "H73"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "The summary attribute is deprecated in HTML5 and should not be used in new code. The preferred pattern is to put all necessary description in the <caption> element. If legacy code uses both, the simplest fix is to remove the summary attribute entirely. For complex tables requiring navigation instructions, use aria-describedby pointing to a visible description paragraph adjacent to the table.",
+      "framework_notes": {
+        "react": "In React table components, avoid passing both caption and summary props with the same content. Remove the summary attribute entirely — it is deprecated.",
+        "vue": "In Vue, do not bind :summary on <table>. Use <caption> for all table descriptions.",
+        "angular": "In Angular, remove [attr.summary] bindings from table components. Migrate to <caption> with descriptive text or aria-describedby pointing to an adjacent description."
+      },
+      "manual_test": {
+        "description": "Navigate to the table with a screen reader and verify the table description is announced only once.",
+        "steps": [
+          "Move screen reader focus into the table — the AT will announce the caption and/or summary.",
+          "If the same text is announced twice in sequence, both caption and summary are set identically.",
+          "Inspect the <table> element in DevTools for both a <caption> child and a summary attribute — remove the summary."
+        ]
+      }
+    },
+    "landmark-no-duplicate-banner": {
+      "fix": {
+        "description": "Ensure only one <header> element (or role='banner') exists at the top level of the page, outside of sectioning elements.",
+        "code": "<body>\n  <!-- One top-level header (banner landmark): -->\n  <header><!-- site-wide header --></header>\n  <main>\n    <!-- Nested headers inside article/section do NOT create banner landmarks: -->\n    <article>\n      <header>Article header — not a banner landmark</header>\n    </article>\n  </main>\n  <footer>...</footer>\n</body>"
+      },
+      "fix_code_lang": "html",
+      "effort": "low",
+      "impacted_users": "Screen reader users navigating by landmarks",
+      "expected": "A page must not have more than one banner landmark (<header> at top level or role='banner').",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header",
+      "wcag_techniques": ["ARIA11"],
+      "false_positive_risk": "medium",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "A <header> element only creates a banner landmark when it is a direct child of <body> (not nested inside <article>, <aside>, <main>, <nav>, or <section>). axe may flag this when a layout component renders two <header> tags at body level — one for a skip link area and one for the visible site header. Consolidate them into one top-level <header>.",
+      "framework_notes": {
+        "react": "In Next.js App Router, the root layout (layout.tsx) should have exactly one <header> at the top level. Page components must not add a second top-level <header> — use <section> or <div> for page-specific header areas.",
+        "vue": "In Nuxt, the global <header> belongs in layouts/default.vue. Individual page components must not render a top-level <header> — use <section aria-labelledby='...'>.",
+        "angular": "In Angular, app.component.html should contain exactly one top-level <header>. Route components must not add a second <header> at the document root level."
+      },
+      "related_rules": [
+        { "id": "landmark-no-duplicate-main", "reason": "Fix all duplicate landmark violations together — they share the same root cause in layout architecture." },
+        { "id": "landmark-one-main", "reason": "Landmark structure issues are often co-located — fix them as a group." }
+      ],
+      "manual_test": {
+        "description": "Verify only one banner landmark exists using screen reader landmark navigation.",
+        "steps": [
+          "In NVDA, press D to cycle through landmarks — 'banner' should appear only once.",
+          "In VoiceOver, use Ctrl+Opt+U, navigate to Landmarks — 'banner' or 'header' must be listed only once.",
+          "In DevTools Console: document.querySelectorAll('body > header, [role=\"banner\"]').length — expect 1."
+        ]
+      }
+    },
+    "landmark-no-duplicate-main": {
+      "fix": {
+        "description": "Ensure only one <main> element (or role='main') exists on the page. If multiple content areas are needed, use <section> with unique aria-labelledby.",
+        "code": "<main id=\"main-content\">\n  <!-- all primary page content -->\n  <section aria-labelledby=\"section-a-heading\">\n    <h2 id=\"section-a-heading\">Section A</h2>\n  </section>\n  <section aria-labelledby=\"section-b-heading\">\n    <h2 id=\"section-b-heading\">Section B</h2>\n  </section>\n</main>"
+      },
+      "fix_code_lang": "html",
+      "effort": "low",
+      "impacted_users": "Screen reader users navigating by landmarks",
+      "expected": "A page must not have more than one main landmark (<main> or role='main'). Multiple main landmarks break skip navigation.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main",
+      "wcag_techniques": ["ARIA11"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "In SPAs, a second <main> commonly appears when a layout component defines one and a page component adds another. The fix is to ensure only the layout component owns the <main> wrapper, and page components render their content inside it without adding a second <main>.",
+      "framework_notes": {
+        "react": "In Next.js App Router, <main> belongs in layout.tsx, not in page.tsx. Individual page components render content inside the layout's <main> — never add a second <main> inside a page component.",
+        "vue": "In Nuxt, <main> belongs in layouts/default.vue wrapping <slot />. Page components must not add a <main> wrapper.",
+        "angular": "In Angular, <main> belongs in app.component.html wrapping <router-outlet>. Route component templates must not contain a second <main>."
+      },
+      "related_rules": [
+        { "id": "landmark-one-main", "reason": "landmark-one-main requires exactly one <main> — duplicate main violations are the inverse of the same requirement." },
+        { "id": "landmark-no-duplicate-banner", "reason": "Fix all duplicate landmark violations together." }
+      ],
+      "manual_test": {
+        "description": "Confirm only one main landmark exists on the page.",
+        "steps": [
+          "Run in DevTools Console: document.querySelectorAll('main, [role=\"main\"]').length — expect 1.",
+          "Navigate landmarks with a screen reader — 'main' should appear only once.",
+          "For SPAs, check after each route transition — a second <main> may appear on specific routes."
+        ]
+      }
+    },
+    "landmark-unique": {
+      "fix": {
+        "description": "Add unique accessible labels to landmarks of the same type using aria-label or aria-labelledby.",
+        "code": "<nav aria-label=\"Primary navigation\">\n  <!-- main site links -->\n</nav>\n\n<nav aria-label=\"Breadcrumb\">\n  <!-- breadcrumb trail -->\n</nav>\n\n<nav aria-label=\"Footer links\">\n  <!-- footer navigation -->\n</nav>"
+      },
+      "fix_code_lang": "html",
+      "effort": "low",
+      "impacted_users": "Screen reader users navigating by landmarks",
+      "expected": "When multiple landmarks of the same type exist (e.g., multiple <nav> elements), each must have a unique accessible label.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav",
+      "wcag_techniques": ["ARIA11", "ARIA13"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "This applies to nav, aside, section with role, and form landmarks — any type appearing more than once. Keep labels short and descriptive: 'Primary', 'Footer', 'Breadcrumb'. Do not add aria-label to <main> or <header> unless they are duplicated (which is itself a separate violation). The label becomes part of the AT announcement: 'Primary navigation, navigation landmark'.",
+      "framework_notes": {
+        "react": "In React, pass the aria-label prop to navigation components: <Nav aria-label='Primary navigation'>. Ensure the component forwards the prop to the native <nav> element via spread or explicit prop.",
+        "vue": "In Vue, bind aria-label directly on <nav>: <nav aria-label='Primary navigation'>. Navigation components should accept and forward an aria-label prop to the root <nav>.",
+        "angular": "In Angular, use aria-label='Primary navigation' or [attr.aria-label]='navLabel' on <nav> elements. Shared navigation components should accept an @Input() ariaLabel string and bind it."
+      },
+      "related_rules": [
+        { "id": "landmark-no-duplicate-banner", "reason": "If duplicate banners exist, add aria-label to each — or eliminate the duplicate." },
+        { "id": "bypass", "reason": "Unique landmark labels enhance skip navigation — users can jump directly to a specific landmark." }
+      ],
+      "manual_test": {
+        "description": "Navigate all landmarks and verify each has a unique, descriptive label.",
+        "steps": [
+          "In VoiceOver, press Ctrl+Opt+U and navigate to Landmarks — confirm each entry has a distinct label.",
+          "In NVDA, press R to cycle through regions — duplicate labels (two unlabeled 'navigation' entries) indicate missing aria-label.",
+          "Identify all <nav>, <aside>, and <section> elements — verify each has a unique aria-label or aria-labelledby."
+        ]
+      }
+    },
+    "aria-roles": {
+      "fix": {
+        "description": "Replace invalid ARIA role values with valid roles from the WAI-ARIA specification, or remove the role attribute if it is not needed.",
+        "code": "<!-- Invalid roles: -->\n<!-- role=\"text\" — not a valid ARIA role -->\n<!-- role=\"container\" — not a valid ARIA role -->\n<!-- role=\"button\" on a <button> — redundant, not a violation but unnecessary -->\n\n<!-- Valid replacements: -->\n<div role=\"region\" aria-labelledby=\"section-heading\">...</div>\n<span role=\"status\" aria-live=\"polite\">Saved successfully</span>\n<div role=\"alert\">Error: field is required</div>"
+      },
+      "fix_code_lang": "html",
+      "effort": "low",
+      "impacted_users": "Screen reader users (invalid roles are ignored or misinterpreted by AT)",
+      "expected": "All role attribute values must be valid ARIA roles from the WAI-ARIA specification.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles",
+      "wcag_techniques": ["ARIA4", "ARIA5"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "Common invalid roles: 'text' (not valid — use role='paragraph' or remove the role), 'input' (not valid — use native <input>), 'container' (not valid — use role='group'). Also watch for typos: 'dialouge' instead of 'dialog'. Adding a role that matches the element's implicit role (e.g., role='button' on <button>) is not a violation but is unnecessary — remove it for cleaner markup.",
+      "framework_notes": {
+        "react": "In React, ARIA roles are passed as the role prop. Use eslint-plugin-jsx-a11y (aria-role rule) to catch invalid role values at build time — there is no runtime validation.",
+        "vue": "In Vue, invalid role values are passed through to the DOM without validation. Use eslint-plugin-vuejs-accessibility to catch invalid role attributes in templates.",
+        "angular": "In Angular, @angular-eslint includes aria-role lint rules. Enable them in .eslintrc to validate role attribute values at compile time."
+      },
+      "related_rules": [
+        { "id": "aria-required-attr", "reason": "After fixing an invalid role, verify the replacement role has all required ARIA attributes." },
+        { "id": "aria-prohibited-attr", "reason": "After fixing the role, verify no ARIA attributes are prohibited for the new role." }
+      ],
+      "manual_test": {
+        "description": "Verify the corrected role is announced correctly by a screen reader.",
+        "steps": [
+          "Navigate to the element with VoiceOver or NVDA — the role must be announced (e.g., 'button', 'alert', 'region').",
+          "If no role is announced or 'group' is announced unexpectedly, the role attribute may be invalid.",
+          "Cross-reference the role value against https://www.w3.org/TR/wai-aria/#role_definitions."
+        ]
+      }
+    },
+    "aria-toggle-field-name": {
+      "fix": {
+        "description": "Add an accessible name to toggle input fields (checkbox, radio, switch) via a <label>, aria-label, or aria-labelledby.",
+        "code": "<!-- Checkbox with associated label: -->\n<label for=\"subscribe\">\n  <input type=\"checkbox\" id=\"subscribe\"> Subscribe to newsletter\n</label>\n\n<!-- Custom ARIA switch with aria-label: -->\n<button role=\"switch\" aria-checked=\"false\" aria-label=\"Enable dark mode\">\n  <span class=\"toggle-knob\" aria-hidden=\"true\"></span>\n</button>"
+      },
+      "fix_code_lang": "html",
+      "effort": "low",
+      "impacted_users": "Screen reader users and voice control users",
+      "expected": "Toggle fields (checkbox, radio, role='switch') must have an accessible name so AT can announce what is being toggled.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox",
+      "wcag_techniques": ["H44", "ARIA14", "G167"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
+      "fix_difficulty_notes": "Custom toggle switches built with role='switch' require both aria-label AND aria-checked. Missing either triggers a violation. For checkbox inputs, a label must be associated via for/id or by wrapping — visually adjacent text without a <label> element is not sufficient for AT.",
+      "framework_notes": {
+        "react": "In React, custom toggle components must spread aria-label and aria-checked to the underlying element. For native checkboxes, use htmlFor on <label>. For switches: <button role='switch' aria-checked={isOn} aria-label='Enable notifications'>.",
+        "vue": "In Vue, custom toggle components must pass aria-label and aria-checked to the root element. For native checkboxes, use <label :for='id'> with matching :id on the <input>.",
+        "angular": "In Angular, use <label [for]='checkboxId'> for native checkboxes. For custom switches, bind [attr.aria-label]='label' and [attr.aria-checked]='isChecked' on the role='switch' element."
+      },
+      "related_rules": [
+        { "id": "label", "reason": "The same label association pattern resolves both label and aria-toggle-field-name violations." },
+        { "id": "aria-required-attr", "reason": "role='switch' requires aria-checked — fix the accessible name and required attributes together." }
+      ],
+      "manual_test": {
+        "description": "Tab to each toggle and verify the screen reader announces both its name and current state.",
+        "steps": [
+          "Tab to the checkbox or toggle — the AT must announce the label and state (e.g., 'Subscribe to newsletter, unchecked').",
+          "Toggle the control — the state change must be announced ('checked' / 'unchecked').",
+          "For custom switches, confirm aria-checked is updated programmatically when the toggle state changes."
+        ]
+      }
+    },
+    "aria-input-field-name": {
+      "fix": {
+        "description": "Add an accessible name to ARIA input fields (role='textbox', role='searchbox', role='spinbutton', role='slider', role='combobox') via aria-label or aria-labelledby.",
+        "code": "<!-- ARIA textbox with aria-labelledby: -->\n<span id=\"search-label\">Search</span>\n<div role=\"textbox\" contenteditable=\"true\"\n  aria-labelledby=\"search-label\"\n  aria-multiline=\"false\">\n</div>\n\n<!-- Prefer native input (simpler, better AT support): -->\n<label for=\"search\">Search</label>\n<input type=\"search\" id=\"search\">"
+      },
+      "fix_code_lang": "html",
+      "effort": "low",
+      "impacted_users": "Screen reader users and voice control users",
+      "expected": "ARIA input roles (textbox, searchbox, spinbutton, slider, combobox) must have an accessible name.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/textbox_role",
+      "wcag_techniques": ["ARIA14", "ARIA16", "H44"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
+      "fix_difficulty_notes": "The best fix is almost always to replace the ARIA input with a native HTML input — native elements have implicit roles, built-in keyboard support, and do not require manual ARIA attribute management. Use ARIA input roles only when a native equivalent is technically impossible (e.g., a rich text editor with contenteditable).",
+      "framework_notes": {
+        "react": "Rich text editors (Draft.js, Slate, Quill) use contenteditable divs with role='textbox'. Ensure the editor component exposes an aria-label prop and applies it to the root contenteditable element. For standard inputs, always use <label htmlFor='id'>.",
+        "vue": "WYSIWYG editor components (Tiptap, Quill) wrap role='textbox' elements. Pass aria-label via the component's label prop. For standard inputs, use <label :for='id'>.",
+        "angular": "Angular CDK or ProseMirror-based editors use contenteditable with ARIA roles. Bind [attr.aria-label]='editorLabel' on the root element. For standard inputs, use mat-label or <label [for]='id'>."
+      },
+      "related_rules": [
+        { "id": "label", "reason": "If a native input can replace the ARIA input, the standard label association pattern resolves both." },
+        { "id": "aria-toggle-field-name", "reason": "Fix all ARIA field naming violations together — they share the same accessible name patterns." }
+      ],
+      "manual_test": {
+        "description": "Tab to the ARIA input and verify the screen reader announces both the label and its role.",
+        "steps": [
+          "Tab to the element — the AT must announce the label and role (e.g., 'Search, text field').",
+          "Type into the field — typed characters must be echoed by the screen reader.",
+          "For custom editors, verify aria-multiline is set correctly ('true' for multiline, 'false' for single-line)."
+        ]
+      }
+    },
+    "image-redundant-alt": {
+      "fix": {
+        "description": "Remove or shorten the alt text when it duplicates adjacent visible text. Use alt='' to mark the image as decorative when adjacent text fully explains it.",
+        "code": "<!-- Before: alt duplicates adjacent figcaption -->\n<figure>\n  <img src=\"chart.png\" alt=\"Bar chart showing Q1 2024 sales by region\">\n  <figcaption>Bar chart showing Q1 2024 sales by region</figcaption>\n</figure>\n\n<!-- After: empty alt — caption provides the description -->\n<figure>\n  <img src=\"chart.png\" alt=\"\">\n  <figcaption>Bar chart showing Q1 2024 sales by region</figcaption>\n</figure>"
+      },
+      "fix_code_lang": "html",
+      "effort": "low",
+      "impacted_users": "Screen reader users (redundant announcements increase cognitive load)",
+      "expected": "Image alt text must not duplicate adjacent visible text. If adjacent text fully describes the image, use alt='' to mark it as decorative.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#alt",
+      "wcag_techniques": ["H2", "H67"],
+      "false_positive_risk": "medium",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "axe flags exact or near-exact matches between alt and adjacent text — but verify the adjacent text is truly sufficient before setting alt=''. For charts, the figcaption may describe the title but not the data values — the image alt may still be needed. In <figure>/<figcaption> pairs, the figcaption typically replaces the alt for descriptive images, but for complex diagrams, consider aria-describedby pointing to a detailed description.",
+      "framework_notes": {
+        "react": "In React, CMS-driven content often auto-populates alt from the image title, which duplicates the adjacent heading. Use conditional alt: alt={caption ? '' : imageAlt} when a caption is present.",
+        "vue": "In Vue, compute the alt conditionally: :alt='caption ? \"\" : imageAlt'. Avoid binding the same string to both alt and a figcaption.",
+        "angular": "In Angular, use conditional binding: [attr.alt]='caption ? \"\" : imageAlt' to suppress redundant alt when a visible caption is present."
+      },
+      "manual_test": {
+        "description": "Navigate to each image with a screen reader and verify the alt text adds value beyond adjacent visible text.",
+        "steps": [
+          "Navigate over each image — the screen reader announces the alt text.",
+          "If the same text was already announced as adjacent content (heading, caption, paragraph), the alt is redundant — set alt=''.",
+          "Verify that images with alt='' are truly decorative and their full context is communicated by surrounding visible text."
+        ]
+      }
+    },
+    "identical-links-same-purpose": {
+      "fix": {
+        "description": "Ensure links with identical visible text lead to the same destination, or differentiate them with unique text or aria-label to clarify their distinct purposes.",
+        "code": "<!-- Before: two 'Read more' links with different destinations -->\n<a href=\"/article-1\">Read more</a>\n<a href=\"/article-2\">Read more</a>\n\n<!-- After: descriptive link text -->\n<a href=\"/article-1\">Read more about accessibility</a>\n<a href=\"/article-2\">Read more about inclusive design</a>\n\n<!-- Or: extend with aria-label (preserves visual design) -->\n<a href=\"/article-1\" aria-label=\"Read more about accessibility\">Read more</a>\n<a href=\"/article-2\" aria-label=\"Read more about inclusive design\">Read more</a>"
+      },
+      "fix_code_lang": "html",
+      "effort": "medium",
+      "impacted_users": "Screen reader users navigating the links list and voice control users",
+      "expected": "Links with the same accessible name must have the same destination, or their distinct purpose must be distinguishable from context or accessible name.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
+      "wcag_techniques": ["G91", "H30", "SCR30"],
+      "false_positive_risk": "high",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking"],
+      "fix_difficulty_notes": "axe uses heuristics to detect this — it flags links with identical text pointing to different URLs. False positives are common when 'Read more' links in a card grid are accompanied by a heading that provides context. WCAG 2.4.4 allows disambiguation through programmatic context (e.g., an aria-labelledby relationship between a card heading and its link). Check whether this is already satisfied before fixing. The simplest fix that avoids template changes is aria-label.",
+      "framework_notes": {
+        "react": "In React, card components with 'Read more' links should accept a linkLabel prop: <a href={href} aria-label={`Read more about ${title}`}>Read more</a>. This preserves visual design while adding screen reader context.",
+        "vue": "In Vue, pass the article or card title into the link: <a :href='url' :aria-label='`Read more about ${title}`'>Read more</a>.",
+        "angular": "In Angular, use [attr.aria-label]='\"Read more about \" + card.title' on the link element within the card component."
+      },
+      "manual_test": {
+        "description": "Open the links list in a screen reader and verify each link is distinguishable without surrounding context.",
+        "steps": [
+          "In JAWS, press Ctrl+Insert+F7 to open the links list — scan for duplicate link text pointing to different URLs.",
+          "In VoiceOver, use Ctrl+Opt+U and navigate to Links — duplicate entries indicate this violation.",
+          "For each duplicate, verify whether programmatic context (heading, list item, aria-labelledby) makes the purpose clear without reading the link in isolation."
+        ]
+      }
+    },
+    "input-button-name": {
+      "fix": {
+        "description": "Add a value attribute or aria-label to every <input type='button'>, <input type='submit'>, and <input type='reset'>.",
+        "code": "<!-- Input buttons use value as accessible name: -->\n<input type=\"submit\" value=\"Submit order\">\n<input type=\"reset\" value=\"Clear form\">\n<input type=\"button\" value=\"Load more results\">\n\n<!-- If value must stay empty for visual reasons, use aria-label: -->\n<input type=\"submit\" value=\"\" aria-label=\"Submit order\">"
+      },
+      "fix_code_lang": "html",
+      "effort": "low",
+      "impacted_users": "Screen reader users and voice control users",
+      "expected": "Input elements with type 'button', 'submit', or 'reset' must have a non-empty accessible name via the value attribute or aria-label.",
+      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/submit",
+      "wcag_techniques": ["H91", "ARIA14"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
+      "fix_difficulty_notes": "For <input type='submit'> and <input type='reset'>, browsers provide default labels ('Submit' and 'Reset') when value is omitted — axe may or may not flag these depending on context. Prefer explicit value attributes over browser defaults, as default labels are not consistently translated across locales. Prefer <button type='submit'> over <input type='submit'> for new code — it is more flexible.",
+      "framework_notes": {
+        "react": "In React, use the value prop: <input type='submit' value='Submit order' />. For modern React, prefer <button type='submit'>Submit order</button> — it supports child elements (icons, spans) and is more styleable.",
+        "vue": "In Vue, use value='Submit order' or :value='submitLabel' for dynamic labels. Prefer <button type='submit'> over <input type='submit'> for greater flexibility.",
+        "angular": "In Angular, use [value]='submitLabel' or a static value attribute. Angular Material's mat-button directives work on <button> — prefer <button> for all interactive controls."
+      },
+      "related_rules": [
+        { "id": "button-name", "reason": "The same accessible name requirement applies to <button> elements — fix all button naming violations together." }
+      ],
+      "manual_test": {
+        "description": "Tab to the input button and verify the screen reader announces a meaningful label.",
+        "steps": [
+          "Tab to the <input type='submit'> or <input type='button'>.",
+          "The AT must announce the button label and role (e.g., 'Submit order, button').",
+          "If only 'button' is announced with no label, the value attribute is missing or empty."
         ]
       }
     }

@@ -33,6 +33,7 @@ const RULES = INTELLIGENCE.rules || {};
 const APG_PATTERNS = INTELLIGENCE.apgPatterns;
 const A11Y_SUPPORT = INTELLIGENCE.a11ySupport;
 const INCLUSIVE_COMPONENTS = INTELLIGENCE.inclusiveComponents;
+const WCAG_CRITERION_MAP = INTELLIGENCE.wcagCriterionMap || {};
 
 const US_REGULATORY = {
   default: "https://accessibility.18f.gov/checklist/",
@@ -212,6 +213,7 @@ function buildFindings(inputPayload) {
           title: v.help,
           severity: IMPACT_MAP[v.impact] || "Medium",
           wcag: mapWcag(v.tags),
+          wcag_criterion_id: WCAG_CRITERION_MAP[v.id] ?? null,
           area: `${route.path}`,
           url: route.url,
           selector: selectors.join(", "),
