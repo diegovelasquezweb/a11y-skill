@@ -6,13 +6,13 @@ This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with
 
 Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between **knowing** a problem exists and **fixing** it by providing the exact intelligence an agent needs to resolve issues with surgical precision.
 
-| Feature / Capability         | `a11y`                                                          | Google Lighthouse                               | WebAIM WAVE                                  |
-| :--------------------------- | :-------------------------------------------------------------- | :---------------------------------------------- | :------------------------------------------- |
-| **Autonomous AI Resolution** | <small>✅ (Surgical DOM selectors & fix-ready patterns)</small> | <small>⚠️ (Basic diagnostic hints only)</small> | <small>❌ (Manual inspection only)</small>   |
-| **Accessibility Rule Coverage** | <small>✅ (100% of axe-core WCAG A/AA + best-practice)</small> | <small>⚠️ (Curated subset)</small>              | <small>⚠️ (Proprietary engine)</small>       |
-| **Site-Wide Route Scouting** | <small>✅ (Automated zero-config crawler)</small>               | <small>❌ (Single URL per run)</small>          | <small>❌ (Single URL per run)</small>       |
-| **Remediation Intelligence** | <small>✅ (AI-optimized blueprints & W3C APG patterns)</small>  | <small>⚠️ (Diagnostic links only)</small>       | <small>⚠️ (Documentation links only)</small> |
-| **Interactive QA Evidence**  | <small>✅ (Premium dashboard for visual verification)</small>   | <small>❌ (Static link list only)</small>       | <small>⚠️ (Passive visual overlays)</small>  |
+| Feature / Capability            | `a11y`                                                          | Google Lighthouse                               | WebAIM WAVE                                  |
+| :------------------------------ | :-------------------------------------------------------------- | :---------------------------------------------- | :------------------------------------------- |
+| **Autonomous AI Resolution**    | <small>✅ (Surgical DOM selectors & fix-ready patterns)</small> | <small>⚠️ (Basic diagnostic hints only)</small> | <small>❌ (Manual inspection only)</small>   |
+| **Accessibility Rule Coverage** | <small>✅ (100% of axe-core WCAG A/AA + best-practice)</small>  | <small>⚠️ (Curated subset)</small>              | <small>⚠️ (Proprietary engine)</small>       |
+| **Site-Wide Route Scouting**    | <small>✅ (Automated zero-config crawler)</small>               | <small>❌ (Single URL per run)</small>          | <small>❌ (Single URL per run)</small>       |
+| **Remediation Intelligence**    | <small>✅ (AI-optimized blueprints & W3C APG patterns)</small>  | <small>⚠️ (Diagnostic links only)</small>       | <small>⚠️ (Documentation links only)</small> |
+| **Interactive QA Evidence**     | <small>✅ (Premium dashboard for visual verification)</small>   | <small>❌ (Static link list only)</small>       | <small>⚠️ (Passive visual overlays)</small>  |
 
 ## Installation
 
@@ -37,9 +37,9 @@ This skill follows the [Agent Skills standard](https://agentskills.io).
 | **Gemini CLI**  | `~/.gemini/skills/a11y/` (or `.agents/skills/`) | `~/.gemini/settings.json` | —                          |
 | **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`              | —                         | `.windsurf/`, `workflows/` |
 
-## How to Use
+## How to Audit
 
-Once installed, the skill is available to your agent in any conversation:
+Initialize a scan to discover vulnerabilities and generate a compliance baseline:
 
 ```bash
 "Audit my local dev server"
@@ -47,6 +47,18 @@ Once installed, the skill is available to your agent in any conversation:
 
 ```bash
 "Check accessibility localhost:3000"
+```
+
+## How to Fix
+
+Trigger autonomous repairs using the surgical blueprints from the remediation roadmap:
+
+```bash
+"Fix accessibility issues"
+```
+
+```bash
+"Fix only critical issues"
 ```
 
 ## Deliverables
