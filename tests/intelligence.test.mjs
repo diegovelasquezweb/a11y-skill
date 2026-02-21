@@ -7,7 +7,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intel = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"));
 const refs  = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/references.json"), "utf-8"));
 
-const VALID_EFFORT  = new Set(["low", "medium", "high"]);
 const VALID_FP_RISK = new Set(["low", "medium", "high"]);
 const VALID_FW_KEYS = new Set(["react", "vue", "angular", "shopify", "wordpress", "drupal", "generic"]);
 const WCAG22_PROACTIVE = new Set([
@@ -29,7 +28,7 @@ beforeAll(async () => {
   }
 });
 
-// ── 1. Schema ──────────────────────────────────────────────────────────────
+// ── 1. intelligence.json schema ────────────────────────────────────────────
 describe("intelligence.json — schema", () => {
   for (const [id, rule] of Object.entries(rules)) {
     describe(id, () => {
@@ -41,18 +40,6 @@ describe("intelligence.json — schema", () => {
 
       it("has valid false_positive_risk", () => {
         expect(VALID_FP_RISK.has(rule.false_positive_risk)).toBe(true);
-      });
-
-      it("has valid effort", () => {
-        expect(VALID_EFFORT.has(rule.effort)).toBe(true);
-      });
-
-      it("has non-empty impacted_users", () => {
-        expect(rule.impacted_users?.trim()).toBeTruthy();
-      });
-
-      it("has non-empty expected", () => {
-        expect(rule.expected?.trim()).toBeTruthy();
       });
 
       if (rule.framework_notes) {
@@ -85,7 +72,20 @@ describe("intelligence.json — schema", () => {
   }
 });
 
-// ── 2. Internal integrity ──────────────────────────────────────────────────
+// ── 2. references.json schema ──────────────────────────────────────────────
+describe("references.json — schema", () => {
+  it("every rule has impactedUsers", () => {
+    const missing = [...ruleIds].filter(id => !refs.impactedUsers?.[id]?.trim());
+    expect(missing).toEqual([]);
+  });
+
+  it("every rule has expected", () => {
+    const missing = [...ruleIds].filter(id => !refs.expected?.[id]?.trim());
+    expect(missing).toEqual([]);
+  });
+});
+
+// ── 3. Internal integrity ──────────────────────────────────────────────────
 describe("intelligence.json — integrity", () => {
   it("all related_rules reference existing rule IDs", () => {
     const broken = [];
@@ -117,7 +117,7 @@ describe("intelligence.json — integrity", () => {
   });
 });
 
-// ── 3. Axe-core coverage ───────────────────────────────────────────────────
+// ── 4. Axe-core coverage ───────────────────────────────────────────────────
 describe("intelligence.json — axe-core coverage", () => {
   it("has no stale rules (rules not in axe-core)", () => {
     if (!axeRules) return;
@@ -126,7 +126,7 @@ describe("intelligence.json — axe-core coverage", () => {
   });
 });
 
-// ── 4. Content quality ─────────────────────────────────────────────────────
+// ── 5. Content quality ─────────────────────────────────────────────────────
 describe("intelligence.json — content quality", () => {
   it("every rule has fix.code or manual_test", () => {
     const noGuidance = Object.entries(rules)

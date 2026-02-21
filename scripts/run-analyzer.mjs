@@ -58,8 +58,11 @@ const US_REGULATORY = {
   "18f": "https://accessibility.18f.gov/tools/",
 };
 
+const IMPACTED_USERS = REFERENCES.impactedUsers || {};
+const EXPECTED = REFERENCES.expected || {};
+
 function getImpactedUsers(ruleId, tags) {
-  if (RULES[ruleId]?.impacted_users) return RULES[ruleId].impacted_users;
+  if (IMPACTED_USERS[ruleId]) return IMPACTED_USERS[ruleId];
   if (tags.includes("cat.color"))
     return "Users with low vision or color blindness";
   if (tags.includes("cat.keyboard")) return "Keyboard-only users";
@@ -75,7 +78,7 @@ function getImpactedUsers(ruleId, tags) {
 }
 
 function getExpected(ruleId) {
-  return RULES[ruleId]?.expected || "WCAG accessibility check must pass.";
+  return EXPECTED[ruleId] || "WCAG accessibility check must pass.";
 }
 
 function printUsage() {
@@ -251,7 +254,7 @@ function buildFindings(inputPayload) {
           recommended_fix: recFix.trim(),
           mdn: MDN[v.id] ?? null,
           manual_test: ruleInfo.manual_test ?? null,
-          effort: ruleInfo.effort ?? null,
+          effort: null,
           related_rules: Array.isArray(ruleInfo.related_rules) ? ruleInfo.related_rules : [],
           false_positive_risk: ruleInfo.false_positive_risk ?? null,
           fix_difficulty_notes: ruleInfo.fix_difficulty_notes ?? null,

@@ -19,10 +19,7 @@
           "If a CAPTCHA is present, verify an audio alternative is offered and functional.",
           "Attempt login using passkey or magic link — no cognitive puzzle should be required."
         ]
-      },
-      "effort": "high",
-      "impacted_users": "Users with cognitive disabilities (dyslexia, memory impairments)",
-      "expected": "Authentication processes must not require solving a cognitive function test without providing an accessible alternative method (WCAG 3.3.8)."
+      }
     },
     "aria-hidden-focus": {
       "fix": {
@@ -49,10 +46,7 @@
           "id": "scrollable-region-focusable",
           "reason": "Both affect keyboard focus — audit all focusability violations together to avoid conflicts."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Keyboard-only users and screen reader users",
-      "expected": "Elements with aria-hidden=\"true\" must not be focusable."
+      ]
     },
     "aria-input-field-name": {
       "fix": {
@@ -83,10 +77,7 @@
           "id": "aria-toggle-field-name",
           "reason": "Fix all ARIA field naming violations together — they share the same accessible name patterns."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users and voice control users",
-      "expected": "ARIA input roles (textbox, searchbox, spinbutton, slider, combobox) must have an accessible name."
+      ]
     },
     "aria-prohibited-attr": {
       "fix": {
@@ -121,10 +112,7 @@
           "id": "aria-roles",
           "reason": "Often co-located — fix the role first, then verify required attributes are present and prohibited ones are removed."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users",
-      "expected": "ARIA attributes must only be used on roles that allow them per the WAI-ARIA specification."
+      ]
     },
     "aria-required-attr": {
       "fix": {
@@ -163,10 +151,7 @@
           "id": "aria-toggle-field-name",
           "reason": "role=\"switch\" requires aria-checked — fix accessible name and required attributes together."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users",
-      "expected": "ARIA roles must include all required attributes defined in the WAI-ARIA spec."
+      ]
     },
     "aria-roles": {
       "fix": {
@@ -201,10 +186,7 @@
           "id": "aria-valid-attr-value",
           "reason": "After fixing the role, verify no ARIA attributes are prohibited for the new role."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users (invalid roles are ignored or misinterpreted by AT)",
-      "expected": "All role attribute values must be valid ARIA roles from the WAI-ARIA specification."
+      ]
     },
     "aria-toggle-field-name": {
       "fix": {
@@ -239,10 +221,7 @@
           "id": "aria-input-field-name",
           "reason": "Fix all ARIA field naming violations together — they share the same accessible name patterns."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users and voice control users",
-      "expected": "Toggle fields (checkbox, radio, role='switch') must have an accessible name so AT can announce what is being toggled."
+      ]
     },
     "aria-valid-attr-value": {
       "fix": {
@@ -277,10 +256,7 @@
           "id": "aria-prohibited-attr",
           "reason": "After removing prohibited attrs, verify remaining attribute values are valid tokens."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users",
-      "expected": "ARIA attributes must use only valid values defined in the WAI-ARIA spec."
+      ]
     },
     "audio-caption": {
       "fix": {
@@ -307,10 +283,7 @@
           "id": "video-caption",
           "reason": "Both require media captions — fix all media accessibility violations together."
         }
-      ],
-      "effort": "high",
-      "impacted_users": "Deaf users and users with hearing disabilities",
-      "expected": "All <audio> elements with speech or meaningful audio must provide synchronized captions or a full transcript."
+      ]
     },
     "autocomplete-valid": {
       "fix": {
@@ -332,9 +305,6 @@
           "Check DevTools: the autocomplete attribute value must be a valid token from the WCAG 1.3.5 list."
         ]
       },
-      "effort": "low",
-      "impacted_users": "Users with motor disabilities and cognitive disabilities",
-      "expected": "Inputs collecting personal data must have a valid autocomplete attribute per WCAG 1.3.5.",
       "related_rules": [
         {
           "id": "label",
@@ -370,10 +340,7 @@
           "id": "link-name",
           "reason": "The same accessible name requirement applies to links — fix all interactive element naming together."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users and voice control users",
-      "expected": "Every <button> and [role=\"button\"] must have a non-empty accessible name."
+      ]
     },
     "bypass": {
       "fix": {
@@ -404,10 +371,7 @@
           "id": "landmark-unique",
           "reason": "Unique landmark labels enhance skip navigation — users can jump directly to a specific landmark."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Keyboard-only users and screen reader users",
-      "expected": "Page must provide a mechanism to skip repetitive navigation (e.g., a skip link)."
+      ]
     },
     "color-contrast": {
       "fix": {
@@ -428,10 +392,7 @@
           "Focus interactive elements with Tab — verify the focused state maintains sufficient contrast.",
           "Check text rendered over images or gradients using the DevTools color picker."
         ]
-      },
-      "effort": "high",
-      "impacted_users": "Users with low vision or color blindness",
-      "expected": "Text contrast ratio must be at least 4.5:1 for normal text, 3:1 for large text."
+      }
     },
     "consistent-help": {
       "fix": {
@@ -453,10 +414,7 @@
           "Visit 2 more pages and confirm the help mechanisms appear in the same order and position.",
           "If any page hides or repositions the help mechanism, it violates WCAG 3.2.6."
         ]
-      },
-      "effort": "medium",
-      "impacted_users": "Users with cognitive disabilities who rely on consistent page layouts",
-      "expected": "Help mechanisms must appear in the same relative order on every page where they are provided (WCAG 3.2.6)."
+      }
     },
     "document-title": {
       "fix": {
@@ -477,10 +435,7 @@
           "Confirm each title is different and reflects the specific page (not just the site name).",
           "For SPAs, confirm the title updates dynamically after route changes."
         ]
-      },
-      "effort": "low",
-      "impacted_users": "Screen reader users and users with cognitive disabilities",
-      "expected": "Page must have a descriptive, unique <title> element."
+      }
     },
     "dragging-movements": {
       "fix": {
@@ -501,10 +456,7 @@
           "Complete the full task using only keyboard or single clicks — no drag gesture.",
           "Confirm the result is identical to what the drag interaction would produce."
         ]
-      },
-      "effort": "high",
-      "impacted_users": "Users with motor disabilities who cannot perform drag gestures",
-      "expected": "All drag-and-drop functionality must have an equivalent single-pointer alternative operable without dragging (WCAG 2.5.7)."
+      }
     },
     "duplicate-id": {
       "fix": {
@@ -531,10 +483,7 @@
           "id": "duplicate-id-aria",
           "reason": "Duplicate IDs break both element references and ARIA relationships — fix all ID uniqueness violations together."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users (broken element references)",
-      "expected": "All id attributes must be unique within the document."
+      ]
     },
     "duplicate-id-aria": {
       "fix": {
@@ -561,10 +510,7 @@
           "id": "duplicate-id",
           "reason": "Duplicate IDs break both element references and ARIA relationships — fix all ID uniqueness violations together."
         }
-      ],
-      "effort": "medium",
-      "impacted_users": "Screen reader users (broken accessible name, description, or widget relationships)",
-      "expected": "All IDs referenced by ARIA attributes must be unique within the document. Duplicate ARIA-referenced IDs cause AT to resolve to the first matching element, breaking all subsequent references."
+      ]
     },
     "empty-heading": {
       "fix": {
@@ -591,10 +537,7 @@
           "id": "heading-order",
           "reason": "Empty headings disrupt the heading hierarchy — resolve them together."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users navigating by headings",
-      "expected": "Every heading element must contain non-empty, meaningful text content."
+      ]
     },
     "focus-appearance": {
       "fix": {
@@ -610,10 +553,7 @@
           "Check that the focus indicator contrasts at least 3:1 against the adjacent unfocused background.",
           "Verify the outline is not clipped by overflow:hidden on a parent container."
         ]
-      },
-      "effort": "medium",
-      "impacted_users": "Keyboard-only users and users with low vision",
-      "expected": "Focus indicators must be clearly visible, with a minimum area of the component perimeter × 2 CSS px and a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11)."
+      }
     },
     "form-field-multiple-labels": {
       "fix": {
@@ -644,10 +584,7 @@
           "id": "label-content-name-mismatch",
           "reason": "Multiple labels often cause the accessible name to diverge from visible text."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users",
-      "expected": "Each form input must have exactly one accessible name source (label, aria-label, or aria-labelledby)."
+      ]
     },
     "frame-title": {
       "fix": {
@@ -668,10 +605,7 @@
           "Confirm the title describes the frame's purpose (e.g., 'Google Maps — Store Location'), not a generic label ('iframe').",
           "For hidden or off-screen iframes (e.g., third-party scripts), add title=\"\" to suppress SR announcement."
         ]
-      },
-      "effort": "low",
-      "impacted_users": "Screen reader users",
-      "expected": "Every <iframe> must have a descriptive title attribute."
+      }
     },
     "heading-order": {
       "fix": {
@@ -706,10 +640,7 @@
           "id": "p-as-heading",
           "reason": "After converting p-as-heading to real headings, verify they fit the existing heading hierarchy."
         }
-      ],
-      "effort": "medium",
-      "impacted_users": "Screen reader users navigating by headings",
-      "expected": "Heading levels must not skip (h1 → h2 → h3, no gaps allowed)."
+      ]
     },
     "html-has-lang": {
       "fix": {
@@ -740,10 +671,7 @@
           "id": "valid-lang",
           "reason": "Child elements with lang attributes must also use valid tags — audit all lang values at once."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users (language detection for pronunciation)",
-      "expected": "The <html> element must have a lang attribute."
+      ]
     },
     "html-lang-valid": {
       "fix": {
@@ -774,10 +702,7 @@
           "id": "valid-lang",
           "reason": "The same BCP 47 validity requirement applies to lang attributes on child elements."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users (language detection for pronunciation)",
-      "expected": "The lang attribute on <html> must be a valid BCP 47 language tag."
+      ]
     },
     "identical-links-same-purpose": {
       "fix": {
@@ -798,10 +723,7 @@
           "In VoiceOver, use Ctrl+Opt+U and navigate to Links — duplicate entries indicate this violation.",
           "For each duplicate, verify whether programmatic context (heading, list item, aria-labelledby) makes the purpose clear without reading the link in isolation."
         ]
-      },
-      "effort": "medium",
-      "impacted_users": "Screen reader users navigating the links list and voice control users",
-      "expected": "Links with the same accessible name must have the same destination, or their distinct purpose must be distinguishable from context or accessible name."
+      }
     },
     "image-alt": {
       "fix": {
@@ -840,10 +762,7 @@
           "id": "object-alt",
           "reason": "The same text alternative requirement applies to <object> — audit both together."
         }
-      ],
-      "effort": "medium",
-      "impacted_users": "Blind users relying on screen readers",
-      "expected": "Every <img> must have an alt attribute. Decorative images use alt=\"\"."
+      ]
     },
     "image-redundant-alt": {
       "fix": {
@@ -865,9 +784,6 @@
           "Verify that images with alt='' are truly decorative and their full context is communicated by surrounding visible text."
         ]
       },
-      "effort": "low",
-      "impacted_users": "Screen reader users (redundant announcements increase cognitive load)",
-      "expected": "Image alt text must not duplicate adjacent visible text. If adjacent text fully describes the image, use alt='' to mark it as decorative.",
       "related_rules": [
         {
           "id": "image-alt",
@@ -908,10 +824,7 @@
           "id": "link-name",
           "reason": "The same accessible name requirement applies to links — fix all interactive element naming together."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users and voice control users",
-      "expected": "Input elements with type 'button', 'submit', or 'reset' must have a non-empty accessible name via the value attribute or aria-label."
+      ]
     },
     "input-image-alt": {
       "fix": {
@@ -937,10 +850,7 @@
           "id": "svg-img-alt",
           "reason": "SVGs used as images share the same accessible name requirement."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Blind users relying on screen readers",
-      "expected": "Every <input type=\"image\"> must have an alt attribute describing the button's action."
+      ]
     },
     "label": {
       "fix": {
@@ -986,10 +896,7 @@
           "id": "aria-toggle-field-name",
           "reason": "The same label association pattern resolves both label and aria-toggle-field-name violations."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users and voice control users",
-      "expected": "Every form input must have an associated <label>, aria-label, or aria-labelledby."
+      ]
     },
     "label-content-name-mismatch": {
       "fix": {
@@ -1021,10 +928,7 @@
           "id": "form-field-multiple-labels",
           "reason": "Multiple labels frequently cause accessible name to differ from visible label text."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Voice control users (Dragon NaturallySpeaking, iOS Voice Control)",
-      "expected": "The accessible name of interactive elements must contain the visible label text (WCAG 2.5.3)."
+      ]
     },
     "landmark-no-duplicate-banner": {
       "fix": {
@@ -1059,10 +963,7 @@
           "id": "landmark-unique",
           "reason": "Unique landmark labels are the fix for duplicate banner violations — add aria-label to distinguish them."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users navigating by landmarks",
-      "expected": "A page must not have more than one banner landmark (<header> at top level or role='banner')."
+      ]
     },
     "landmark-no-duplicate-main": {
       "fix": {
@@ -1093,10 +994,7 @@
           "id": "landmark-no-duplicate-banner",
           "reason": "Fix all duplicate landmark violations together."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users navigating by landmarks",
-      "expected": "A page must not have more than one main landmark (<main> or role='main'). Multiple main landmarks break skip navigation."
+      ]
     },
     "landmark-one-main": {
       "fix": {
@@ -1135,10 +1033,7 @@
           "id": "landmark-no-duplicate-main",
           "reason": "Duplicate main violations are the inverse of the single <main> requirement — fix together."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users navigating by landmarks",
-      "expected": "Page must contain exactly one <main> landmark element."
+      ]
     },
     "landmark-unique": {
       "fix": {
@@ -1169,10 +1064,7 @@
           "id": "bypass",
           "reason": "Unique landmark labels enhance skip navigation — users can jump directly to a specific landmark."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users navigating by landmarks",
-      "expected": "When multiple landmarks of the same type exist (e.g., multiple <nav> elements), each must have a unique accessible label."
+      ]
     },
     "link-name": {
       "fix": {
@@ -1202,10 +1094,7 @@
           "id": "input-button-name",
           "reason": "The same accessible name requirement applies to <input type=\"button\"> — fix all naming violations together."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users and voice control users",
-      "expected": "Every <a href> must have descriptive, non-empty text content or an aria-label."
+      ]
     },
     "list": {
       "fix": {
@@ -1232,10 +1121,7 @@
           "id": "listitem",
           "reason": "The inverse rule — li elements must be inside a ul/ol. Fix list structure violations together."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users (list item count and navigation)",
-      "expected": "<ul> and <ol> must only contain <li> elements as direct children. Screen readers use this structure to announce the list count and enable list navigation."
+      ]
     },
     "listitem": {
       "fix": {
@@ -1262,10 +1148,7 @@
           "id": "list",
           "reason": "Inverse rule — fix list/listitem violations together to restore correct list semantics."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users (invalid list structure causes incorrect announcements)",
-      "expected": "<li> elements must be direct children of <ul>, <ol>, or <menu> elements."
+      ]
     },
     "meta-refresh": {
       "fix": {
@@ -1286,10 +1169,7 @@
           "Check the <head> for <meta http-equiv=\"refresh\"> with a non-zero delay.",
           "Search JavaScript for setInterval/setTimeout calls that trigger window.location changes."
         ]
-      },
-      "effort": "low",
-      "impacted_users": "Users with cognitive disabilities and screen reader users",
-      "expected": "Pages must not auto-refresh or auto-redirect with a non-zero delay (WCAG 2.2.2)."
+      }
     },
     "meta-viewport": {
       "fix": {
@@ -1310,10 +1190,7 @@
           "Confirm all content reflows vertically — no horizontal scrollbar should appear.",
           "On a mobile device, pinch-to-zoom must not be blocked."
         ]
-      },
-      "effort": "low",
-      "impacted_users": "Users who need to zoom (low vision, motor disabilities)",
-      "expected": "Viewport meta must not disable user scaling (user-scalable=no is forbidden)."
+      }
     },
     "nested-interactive": {
       "fix": {
@@ -1335,10 +1212,7 @@
           "Press Enter or Space on each — confirm they perform their intended actions independently.",
           "Test with a screen reader: both the link and the button should be announced as separate interactive elements."
         ]
-      },
-      "effort": "medium",
-      "impacted_users": "Keyboard-only users and screen reader users",
-      "expected": "Interactive elements (a, button, input, select, textarea) must not be nested inside other interactive elements."
+      }
     },
     "no-autoplay-audio": {
       "fix": {
@@ -1360,10 +1234,7 @@
           "Inspect the page source for <audio autoplay> or JavaScript .play() calls on page load.",
           "Confirm muted autoplay video produces no sound — muted is WCAG-compliant."
         ]
-      },
-      "effort": "low",
-      "impacted_users": "Screen reader users (audio conflicts with AT speech), users with cognitive disabilities, users with vestibular disorders",
-      "expected": "Audio that plays automatically must stop within 3 seconds, or a mechanism to pause/stop/mute it must be provided at the start of the page (WCAG 1.4.2)."
+      }
     },
     "object-alt": {
       "fix": {
@@ -1385,10 +1256,7 @@
           "id": "image-alt",
           "reason": "The same text alternative requirement applies to <img> — audit both together."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Blind users relying on screen readers",
-      "expected": "Every <object> must have an accessible name via aria-label or aria-labelledby."
+      ]
     },
     "p-as-heading": {
       "fix": {
@@ -1419,10 +1287,7 @@
           "id": "page-has-heading-one",
           "reason": "If converting a p-as-heading introduces a new h1, verify it is the only h1 on the page."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users navigating by headings",
-      "expected": "Text that visually functions as a section heading must be marked up with a heading element (<h1>–<h6>), not a styled paragraph."
+      ]
     },
     "page-has-heading-one": {
       "fix": {
@@ -1453,10 +1318,7 @@
           "id": "p-as-heading",
           "reason": "If converting a p-as-heading introduces a new h1, verify it is the only h1 on the page."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users navigating by headings",
-      "expected": "Page must have exactly one <h1> element as the primary heading."
+      ]
     },
     "redundant-entry": {
       "fix": {
@@ -1477,10 +1339,7 @@
           "On step 2 (e.g., shipping), check if the same data is pre-populated or a 'same as above' option is provided.",
           "If neither is present, the WCAG 3.3.7 violation stands."
         ]
-      },
-      "effort": "high",
-      "impacted_users": "Users with cognitive disabilities and motor disabilities",
-      "expected": "Information already submitted during the same session must be auto-populated or selectable without requiring re-entry (WCAG 3.3.7)."
+      }
     },
     "region": {
       "fix": {
@@ -1506,10 +1365,7 @@
           "id": "landmark-one-main",
           "reason": "Adding a <main> landmark is typically the primary fix for orphan content."
         }
-      ],
-      "effort": "medium",
-      "impacted_users": "Screen reader users navigating by landmarks",
-      "expected": "All visible page content must be contained within a landmark element (main, nav, header, footer, aside)."
+      ]
     },
     "scrollable-region-focusable": {
       "fix": {
@@ -1536,10 +1392,7 @@
           "id": "aria-hidden-focus",
           "reason": "Both affect keyboard focus — audit all focusability violations together to avoid conflicts."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Keyboard-only users",
-      "expected": "Any element with scrollable overflow must be reachable via keyboard (tabindex=\"0\" or natively focusable)."
+      ]
     },
     "select-name": {
       "fix": {
@@ -1566,10 +1419,7 @@
           "id": "label",
           "reason": "The same label association pattern applies — fix label rule to resolve both."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users and voice control users",
-      "expected": "Every <select> must have an accessible name via <label>, aria-label, or aria-labelledby."
+      ]
     },
     "svg-img-alt": {
       "fix": {
@@ -1605,10 +1455,7 @@
           "id": "input-image-alt",
           "reason": "The same alt text requirement applies to <input type=\"image\"> — fix all alt text violations together."
         }
-      ],
-      "effort": "medium",
-      "impacted_users": "Blind users relying on screen readers",
-      "expected": "SVG elements used as images must have an accessible name (aria-label or aria-labelledby). Decorative SVGs must be hidden from AT with aria-hidden='true'."
+      ]
     },
     "tabindex": {
       "fix": {
@@ -1629,10 +1476,7 @@
           "If focus jumps unexpectedly, inspect the tabindex attribute on the focused element.",
           "Confirm no element has tabindex > 0 in the source."
         ]
-      },
-      "effort": "low",
-      "impacted_users": "Keyboard-only users",
-      "expected": "tabindex values must be 0 or -1. Positive values disrupt natural focus order."
+      }
     },
     "table-duplicate-name": {
       "fix": {
@@ -1653,10 +1497,7 @@
           "If the same text is announced twice in sequence, both caption and summary are set identically.",
           "Inspect the <table> element in DevTools for both a <caption> child and a summary attribute — remove the summary."
         ]
-      },
-      "effort": "low",
-      "impacted_users": "Screen reader users (duplicate announcement of table description creates cognitive load)",
-      "expected": "The <caption> and summary attribute of a table must not contain identical text — this causes screen readers to announce the same description twice."
+      }
     },
     "target-size": {
       "fix": {
@@ -1672,10 +1513,7 @@
           "Check the computed width and height including padding in the Box Model panel.",
           "On a touch device or with DevTools device emulation, attempt to tap small targets to confirm they are hittable."
         ]
-      },
-      "effort": "medium",
-      "impacted_users": "Mobile/touch users and users with motor disabilities",
-      "expected": "All interactive targets must be at least 24×24 CSS pixels (WCAG 2.5.8). Spacing or a larger equivalent target is an acceptable alternative."
+      }
     },
     "td-headers-attr": {
       "fix": {
@@ -1702,10 +1540,7 @@
           "id": "th-has-data-cells",
           "reason": "Fix td-headers-attr and th-has-data-cells together — they are complementary table structure rules."
         }
-      ],
-      "effort": "medium",
-      "impacted_users": "Screen reader users navigating complex tables",
-      "expected": "When the headers attribute is used on <td>, every referenced ID must point to a valid <th> element in the same table."
+      ]
     },
     "th-has-data-cells": {
       "fix": {
@@ -1732,10 +1567,7 @@
           "id": "td-headers-attr",
           "reason": "Fix table structure rules together — td-headers-attr and th-has-data-cells are complementary."
         }
-      ],
-      "effort": "medium",
-      "impacted_users": "Screen reader users navigating tables",
-      "expected": "Every <th> must have at least one associated data cell — a header with no data cells is meaningless structure."
+      ]
     },
     "valid-lang": {
       "fix": {
@@ -1766,10 +1598,7 @@
           "id": "html-lang-valid",
           "reason": "The same BCP 47 validity requirement applies to the root lang attribute."
         }
-      ],
-      "effort": "low",
-      "impacted_users": "Screen reader users (language detection for pronunciation)",
-      "expected": "All lang attributes must use valid BCP 47 language codes."
+      ]
     },
     "video-caption": {
       "fix": {
@@ -1796,10 +1625,7 @@
           "id": "audio-caption",
           "reason": "Both require media captions — fix all media accessibility violations together."
         }
-      ],
-      "effort": "high",
-      "impacted_users": "Deaf users and users with hearing disabilities",
-      "expected": "All <video> elements with audio content must have synchronized captions via a <track kind='captions'> element."
+      ]
     }
   }
 }
