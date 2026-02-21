@@ -247,6 +247,16 @@ When the user grants permission to apply fixes, follow this strict sequential pr
 5. **If any fix fails**: stop immediately, report the exact error and the file/line affected, and ask the user how to proceed. Do not skip ahead.
 6. **Never mix severity groups** in a single application step.
 
+## 13) Manual Checks — Source Code Scan
+
+After all automated fixes are applied and confirmed, process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`. These are violations that axe-core cannot detect automatically.
+
+1. **Read the manual checks** from the remediation guide — each check includes a pattern to search for, verification steps, and a before/after code example.
+2. **Search the project source code** for the pattern described in each check. Use the verification steps to determine if the project is affected.
+3. **Skip checks that don't apply** — if the codebase has no `<video>` elements, skip the media caption checks. Do not report false findings.
+4. **For each confirmed violation**, propose the fix using the before/after code example from the check. Group all manual check findings together and present them to the user as a separate batch: _"I found N additional issues from manual WCAG checks that axe-core cannot detect. Here are the proposed fixes."_
+5. **Wait for user permission** before applying. Follow the same checkpoint protocol as Section 12.
+
 ### `a11y.config.json` Reference
 
 Persist scan settings across runs by placing this file in the audited project root. All keys are optional — the engine merges with internal defaults. CLI flags always take precedence.
