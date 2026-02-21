@@ -26,10 +26,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Accessibility rules and references refactored for clarity and structure
 - Audit script reliability enhanced with timeouts, URL validation, and improved error handling
 - `SKILL_ROOT` constant refactored for consistency
-- Test suite expanded from 79 to 593 tests (514 in intelligence validation alone)
+- Renamed `assets/references.json` → `assets/rule-metadata.json` to eliminate naming confusion with `references/` folder
+- Renamed `pnpm audit` → `pnpm a11y` to avoid collision with pnpm built-in audit command
+- Variable naming consistency: `refs`/`references` → `ruleMetadata` across analyzer and tests
+- Grade thresholds in `docs/scoring-system.md` aligned with code (90/75/55/35)
+- Scanner: replaced fixed `waitMs` delay with `networkidle` signal for faster route scanning
+- Scanner: parallel tab pool (3 concurrent tabs) for route scanning (~2-3x faster)
+- PDF generation: replaced fixed 1s font settle with `document.fonts.ready`
+- Report generation: HTML + Markdown reports now build in parallel
+- Moved `data-validation.md` from `references/` to `docs/` (maintenance doc, not agent-facing)
+- Test suite expanded from 79 to 764 tests
 
 ### Fixed
 - `localStorage` key escaping corrected in HTML report
+- README: grammar fix ("skill are" → "skill is"), missing closing quote on example command
+- README: deliverables table corrected ("Raw findings" → "Enriched findings", "surgical selectors" → "full fix intelligence")
+- README: comparison table accuracy (Lighthouse "Curated subset", WAVE "Proprietary engine")
 
 ---
 
