@@ -378,15 +378,36 @@ async function main() {
       const safeRuleId = violation.id.replace(/[^a-z0-9-]/g, "-");
       const filename = `${routeIndex}-${safeRuleId}.png`;
       const screenshotPath = path.join(args.screenshotsDir, filename);
-      await page
-        .locator(selector)
-        .first()
-        .screenshot({ path: screenshotPath, timeout: 3000 });
+      await page.locator(selector).first().scrollIntoViewIfNeeded({ timeout: 3000 });
+      await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const overlay = document.createElement("div");
+        overlay.id = "__a11y_highlight__";
+        Object.assign(overlay.style, {
+          position: "fixed",
+          top: `${rect.top}px`,
+          left: `${rect.left}px`,
+          width: `${rect.width || 40}px`,
+          height: `${rect.height || 20}px`,
+          outline: "3px solid #ef4444",
+          outlineOffset: "2px",
+          backgroundColor: "rgba(239,68,68,0.12)",
+          zIndex: "2147483647",
+          pointerEvents: "none",
+          boxSizing: "border-box",
+        });
+        document.body.appendChild(overlay);
+      }, selector);
+      await page.screenshot({ path: screenshotPath });
       violation.screenshot_path = `screenshots/${filename}`;
+      await page.evaluate(() => document.getElementById("__a11y_highlight__")?.remove());
     } catch (err) {
       log.warn(
         `Screenshot skipped for "${violation.id}" (${selector}): ${err.message}`,
       );
+      await page.evaluate(() => document.getElementById("__a11y_highlight__")?.remove()).catch(() => {});
     }
   }
 
