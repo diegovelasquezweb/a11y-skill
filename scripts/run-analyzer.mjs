@@ -14,12 +14,21 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
+const referencesPath = path.join(__dirname, "../assets/references.json");
 let INTELLIGENCE;
+let REFERENCES;
 try {
   INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
 } catch {
   throw new Error(
     `Missing or invalid intelligence.json at ${intelligencePath} — run pnpm install to reinstall.`,
+  );
+}
+try {
+  REFERENCES = JSON.parse(fs.readFileSync(referencesPath, "utf-8"));
+} catch {
+  throw new Error(
+    `Missing or invalid references.json at ${referencesPath} — run pnpm install to reinstall.`,
   );
 }
 
@@ -30,9 +39,10 @@ function makeFindingId(ruleId, url, selector) {
 }
 
 const RULES = INTELLIGENCE.rules || {};
-const APG_PATTERNS = INTELLIGENCE.apgPatterns;
-const A11Y_SUPPORT = INTELLIGENCE.a11ySupport;
-const INCLUSIVE_COMPONENTS = INTELLIGENCE.inclusiveComponents;
+const APG_PATTERNS = REFERENCES.apgPatterns;
+const A11Y_SUPPORT = REFERENCES.a11ySupport;
+const INCLUSIVE_COMPONENTS = REFERENCES.inclusiveComponents;
+const MDN = REFERENCES.mdn || {};
 const WCAG_CRITERION_MAP = INTELLIGENCE.wcagCriterionMap || {};
 
 const US_REGULATORY = {
@@ -232,7 +242,7 @@ function buildFindings(inputPayload) {
           fix_code: fixInfo.code ?? null,
           fix_code_lang: ruleInfo.fix_code_lang ?? "html",
           recommended_fix: recFix.trim(),
-          mdn: ruleInfo.mdn ?? null,
+          mdn: MDN[v.id] ?? null,
           manual_test: ruleInfo.manual_test ?? null,
           effort: ruleInfo.effort ?? null,
           related_rules: Array.isArray(ruleInfo.related_rules) ? ruleInfo.related_rules : [],

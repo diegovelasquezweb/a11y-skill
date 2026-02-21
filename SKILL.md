@@ -234,7 +234,18 @@ Follow these steps in order when executing an audit:
    - **MANDATORY**: Present a list of "Proposed Fixes" with the specific code changes found in `audit/remediation.md`.
    - Ask for explicit permission to apply the fixes: "Should I apply these patches for you?"
 
-6. **Suggest `.gitignore` update**: If a `.gitignore` exists in the project root and does not already contain `audit/`, mention to the user that they may want to add `audit/` to avoid committing generated reports. Do not edit `.gitignore` automatically.
+6. **Suggest `.gitignore` update**: **MANDATORY — always do this, no exceptions.** After every audit, tell the user to add `audit/` to the project's `.gitignore` to avoid committing generated reports. Do not check whether the entry already exists — just always surface the reminder. Do not edit `.gitignore` automatically.
+
+## 12) Fix Application Workflow
+
+When the user grants permission to apply fixes, follow this strict sequential protocol. **Never apply all fixes in a single batch.**
+
+1. **Group fixes by severity** before touching any file: Critical → High → Medium → Low.
+2. **Apply one severity group at a time**, starting with Critical.
+3. **Checkpoint after each group**: stop, list every file modified and every fix applied, then ask the user to test and confirm before continuing. Example prompt: _"Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."_
+4. **Wait for explicit user confirmation** before moving to the next severity group. Never auto-advance.
+5. **If any fix fails**: stop immediately, report the exact error and the file/line affected, and ask the user how to proceed. Do not skip ahead.
+6. **Never mix severity groups** in a single application step.
 
 ### `a11y.config.json` Reference
 

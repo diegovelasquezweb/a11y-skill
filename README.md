@@ -41,11 +41,11 @@ This skill follows the [Agent Skills standard](https://agentskills.io).
 Once installed, the skill is available to your agent in any conversation:
 
 ```bash
-"Audit my local dev server at localhost:3000"
+"Audit my local dev server
 ```
 
 ```bash
-"Check accessibility for https://mysite.com"
+"Check accessibility localhost:3000"
 ```
 
 ## Deliverables

@@ -195,6 +195,7 @@ async function main() {
 
     log.success(`🎉 Audit complete!`);
     console.log(`REPORT_PATH=${absoluteOutputPath}`);
+    console.log(`GITIGNORE_REMINDER=Add "audit/" to your project .gitignore to avoid committing generated reports.`);
   } catch (error) {
     log.error(error.message);
     process.exit(1);

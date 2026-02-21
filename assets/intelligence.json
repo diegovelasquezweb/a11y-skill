@@ -1,137 +1,64 @@
 {
   "axeVersion": "4.10",
   "wcagCriterionMap": {
-    "image-alt":                    "1.1.1",
-    "input-image-alt":              "1.1.1",
-    "object-alt":                   "1.1.1",
-    "svg-img-alt":                  "1.1.1",
-    "image-redundant-alt":          "1.1.1",
-    "audio-caption":                "1.2.2",
-    "video-caption":                "1.2.2",
-    "no-autoplay-audio":            "1.4.2",
-    "color-contrast":               "1.4.3",
-    "meta-viewport":                "1.4.4",
-    "autocomplete-valid":           "1.3.5",
-    "landmark-one-main":            "1.3.6",
-    "region":                       "1.3.6",
+    "image-alt": "1.1.1",
+    "input-image-alt": "1.1.1",
+    "object-alt": "1.1.1",
+    "svg-img-alt": "1.1.1",
+    "image-redundant-alt": "1.1.1",
+    "audio-caption": "1.2.2",
+    "video-caption": "1.2.2",
+    "no-autoplay-audio": "1.4.2",
+    "color-contrast": "1.4.3",
+    "meta-viewport": "1.4.4",
+    "autocomplete-valid": "1.3.5",
+    "landmark-one-main": "1.3.6",
+    "region": "1.3.6",
     "landmark-no-duplicate-banner": "1.3.6",
-    "landmark-no-duplicate-main":   "1.3.6",
-    "landmark-unique":              "1.3.6",
-    "label":                        "1.3.1",
-    "select-name":                  "1.3.1",
-    "heading-order":                "1.3.1",
-    "list":                         "1.3.1",
-    "listitem":                     "1.3.1",
-    "td-headers-attr":              "1.3.1",
-    "th-has-data-cells":            "1.3.1",
-    "table-duplicate-name":         "1.3.1",
-    "p-as-heading":                 "1.3.1",
-    "html-has-lang":                "3.1.1",
-    "html-lang-valid":              "3.1.1",
-    "valid-lang":                   "3.1.2",
-    "bypass":                       "2.4.1",
-    "document-title":               "2.4.2",
-    "tabindex":                     "2.4.3",
-    "link-name":                    "2.4.4",
+    "landmark-no-duplicate-main": "1.3.6",
+    "landmark-unique": "1.3.6",
+    "label": "1.3.1",
+    "select-name": "1.3.1",
+    "heading-order": "1.3.1",
+    "list": "1.3.1",
+    "listitem": "1.3.1",
+    "td-headers-attr": "1.3.1",
+    "th-has-data-cells": "1.3.1",
+    "table-duplicate-name": "1.3.1",
+    "p-as-heading": "1.3.1",
+    "html-has-lang": "3.1.1",
+    "html-lang-valid": "3.1.1",
+    "valid-lang": "3.1.2",
+    "bypass": "2.4.1",
+    "document-title": "2.4.2",
+    "tabindex": "2.4.3",
+    "link-name": "2.4.4",
     "identical-links-same-purpose": "2.4.9",
-    "page-has-heading-one":         "2.4.6",
-    "empty-heading":                "2.4.6",
-    "focus-appearance":             "2.4.11",
-    "scrollable-region-focusable":  "2.1.1",
-    "aria-hidden-focus":            "2.1.1",
-    "meta-refresh":                 "2.2.1",
-    "form-field-multiple-labels":   "3.3.2",
-    "label-content-name-mismatch":  "2.5.3",
-    "target-size":                  "2.5.8",
-    "dragging-movements":           "2.5.7",
-    "redundant-entry":              "3.3.7",
-    "accessible-auth-minimum":      "3.3.8",
-    "consistent-help":              "3.2.6",
-    "duplicate-id":                 "4.1.1",
-    "duplicate-id-aria":            "4.1.1",
-    "button-name":                  "4.1.2",
-    "input-button-name":            "4.1.2",
-    "frame-title":                  "4.1.2",
-    "aria-required-attr":           "4.1.2",
-    "aria-valid-attr-value":        "4.1.2",
-    "aria-prohibited-attr":         "4.1.2",
-    "aria-roles":                   "4.1.2",
-    "aria-toggle-field-name":       "4.1.2",
-    "aria-input-field-name":        "4.1.2",
-    "nested-interactive":           "4.1.2"
-  },
-  "apgPatterns": {
-    "alert": "https://www.w3.org/WAI/ARIA/apg/patterns/alert/",
-    "alertdialog": "https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/",
-    "button": "https://www.w3.org/WAI/ARIA/apg/patterns/button/",
-    "carousel": "https://www.w3.org/WAI/ARIA/apg/patterns/carousel/",
-    "checkbox": "https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/",
-    "combobox": "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/",
-    "dialog": "https://www.w3.org/WAI/ARIA/apg/patterns/dialogmodal/",
-    "disclosure": "https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/",
-    "feed": "https://www.w3.org/WAI/ARIA/apg/patterns/feed/",
-    "grid": "https://www.w3.org/WAI/ARIA/apg/patterns/grid/",
-    "link": "https://www.w3.org/WAI/ARIA/apg/patterns/link/",
-    "listbox": "https://www.w3.org/WAI/ARIA/apg/patterns/listbox/",
-    "menu": "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
-    "menubar": "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
-    "menuitem": "https://www.w3.org/WAI/ARIA/apg/patterns/menubar/",
-    "meter": "https://www.w3.org/WAI/ARIA/apg/patterns/meter/",
-    "radio": "https://www.w3.org/WAI/ARIA/apg/patterns/radiobutton/",
-    "radiogroup": "https://www.w3.org/WAI/ARIA/apg/patterns/radiobutton/",
-    "slider": "https://www.w3.org/WAI/ARIA/apg/patterns/slider/",
-    "spinbutton": "https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/",
-    "switch": "https://www.w3.org/WAI/ARIA/apg/patterns/switch/",
-    "table": "https://www.w3.org/WAI/ARIA/apg/patterns/table/",
-    "tab": "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/",
-    "tablist": "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/",
-    "tabpanel": "https://www.w3.org/WAI/ARIA/apg/patterns/tabs/",
-    "toolbar": "https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/",
-    "tooltip": "https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/",
-    "treeview": "https://www.w3.org/WAI/ARIA/apg/patterns/treeview/",
-    "treegrid": "https://www.w3.org/WAI/ARIA/apg/patterns/treegrid/",
-    "navigation": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/navigation.html",
-    "banner": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/banner.html",
-    "contentinfo": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/contentinfo.html",
-    "complementary": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/complementary.html",
-    "main": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/main.html",
-    "form": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/form.html",
-    "heading": "https://www.w3.org/WAI/ARIA/apg/practices/structural-roles/",
-    "group": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/form.html"
-  },
-  "a11ySupport": {
-    "alert": "https://a11ysupport.io/tech/aria/alert_role",
-    "alertdialog": "https://a11ysupport.io/tech/aria/alertdialog_role",
-    "button": "https://a11ysupport.io/tech/aria/button_role",
-    "checkbox": "https://a11ysupport.io/tech/aria/checkbox_role",
-    "combobox": "https://a11ysupport.io/tech/aria/combobox_role",
-    "dialog": "https://a11ysupport.io/tech/aria/dialog_role",
-    "grid": "https://a11ysupport.io/tech/aria/grid_role",
-    "link": "https://a11ysupport.io/tech/aria/link_role",
-    "listbox": "https://a11ysupport.io/tech/aria/listbox_role",
-    "menu": "https://a11ysupport.io/tech/aria/menu_role",
-    "menubar": "https://a11ysupport.io/tech/aria/menubar_role",
-    "meter": "https://a11ysupport.io/tech/aria/meter_role",
-    "radio": "https://a11ysupport.io/tech/aria/radio_role",
-    "slider": "https://a11ysupport.io/tech/aria/slider_role",
-    "switch": "https://a11ysupport.io/tech/aria/switch_role",
-    "tab": "https://a11ysupport.io/tech/aria/tab_role",
-    "tabpanel": "https://a11ysupport.io/tech/aria/tabpanel_role",
-    "tooltip": "https://a11ysupport.io/tech/aria/tooltip_role",
-    "tree": "https://a11ysupport.io/tech/aria/tree_role"
-  },
-  "inclusiveComponents": {
-    "button": "https://inclusive-components.design/toggle-button/",
-    "card": "https://inclusive-components.design/cards/",
-    "dialog": "https://inclusive-components.design/modal-dialogues/",
-    "menu": "https://inclusive-components.design/menus-menu-buttons/",
-    "menubar": "https://inclusive-components.design/menus-menu-buttons/",
-    "notifications": "https://inclusive-components.design/notifications/",
-    "slider": "https://inclusive-components.design/content-sliders/",
-    "tab": "https://inclusive-components.design/tabbed-interfaces/",
-    "tablist": "https://inclusive-components.design/tabbed-interfaces/",
-    "tooltip": "https://inclusive-components.design/tooltips-toggletips/",
-    "switch": "https://inclusive-components.design/toggle-button/"
+    "page-has-heading-one": "2.4.6",
+    "empty-heading": "2.4.6",
+    "focus-appearance": "2.4.11",
+    "scrollable-region-focusable": "2.1.1",
+    "aria-hidden-focus": "2.1.1",
+    "meta-refresh": "2.2.1",
+    "form-field-multiple-labels": "3.3.2",
+    "label-content-name-mismatch": "2.5.3",
+    "target-size": "2.5.8",
+    "dragging-movements": "2.5.7",
+    "redundant-entry": "3.3.7",
+    "accessible-auth-minimum": "3.3.8",
+    "consistent-help": "3.2.6",
+    "duplicate-id": "4.1.1",
+    "duplicate-id-aria": "4.1.1",
+    "button-name": "4.1.2",
+    "input-button-name": "4.1.2",
+    "frame-title": "4.1.2",
+    "aria-required-attr": "4.1.2",
+    "aria-valid-attr-value": "4.1.2",
+    "aria-prohibited-attr": "4.1.2",
+    "aria-roles": "4.1.2",
+    "aria-toggle-field-name": "4.1.2",
+    "aria-input-field-name": "4.1.2",
+    "nested-interactive": "4.1.2"
   },
   "rules": {
     "landmark-one-main": {
@@ -143,10 +70,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users navigating by landmarks",
       "expected": "Page must contain exactly one <main> landmark element.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main",
-      "wcag_techniques": ["ARIA11", "H69"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "SPAs often render the <main> landmark conditionally — in React, Vue Router, and Angular, the layout shell may not include <main> if each page component is responsible for its own layout. Ensure the root layout component (e.g., layout.tsx in Next.js, App.vue in Vue, app.component.html in Angular) always wraps page content in <main>, not individual page components. Axe may also flag SPA routes where <main> is rendered client-side after the initial snapshot.",
       "framework_notes": {
         "react": "Place <main id='main-content'> in the root layout component (app/layout.tsx in Next.js App Router, or the root App component). Do not place <main> in individual page components — it will be missing for routes that render before the layout mounts.",
@@ -154,8 +78,14 @@
         "angular": "Add <main id='main-content'> in app.component.html wrapping <router-outlet>. This ensures the landmark is present for all routes and the skip link target resolves correctly."
       },
       "related_rules": [
-        { "id": "bypass", "reason": "The skip link target (#main-content) should reference the <main> landmark." },
-        { "id": "region", "reason": "Adding <main> may resolve orphan-content region violations." }
+        {
+          "id": "bypass",
+          "reason": "The skip link target (#main-content) should reference the <main> landmark."
+        },
+        {
+          "id": "region",
+          "reason": "Adding <main> may resolve orphan-content region violations."
+        }
       ],
       "manual_test": {
         "description": "Verify that the page content is structurally contained within the main landmark.",
@@ -175,10 +105,7 @@
       "effort": "medium",
       "impacted_users": "Screen reader users navigating by landmarks",
       "expected": "All visible page content must be contained within a landmark element (main, nav, header, footer, aside).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header",
-      "wcag_techniques": ["ARIA11", "G1"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Decorative separators, spacer divs, and background containers do not need to be inside landmarks. Only meaningful visible content requires landmark wrapping. Review each flagged element before adding a landmark.",
       "framework_notes": {
         "react": "Use semantic JSX elements: <header>, <main>, <nav>, <aside>, <footer> instead of <div> wrappers. In Next.js App Router, landmarks naturally fall into layout.tsx (header/footer) and page.tsx (main content).",
@@ -186,7 +113,10 @@
         "angular": "Angular adds a custom element wrapper (<app-root>, <app-header>) — ensure the semantic landmark element (<header>, <main>) is inside the component template, not expected to be provided by the custom wrapper."
       },
       "related_rules": [
-        { "id": "landmark-one-main", "reason": "Adding a <main> landmark is typically the primary fix for orphan content." }
+        {
+          "id": "landmark-one-main",
+          "reason": "Adding a <main> landmark is typically the primary fix for orphan content."
+        }
       ],
       "manual_test": {
         "description": "Check for content outside of landmarks using a screen reader or landmark extension.",
@@ -205,10 +135,7 @@
       "effort": "medium",
       "impacted_users": "Blind users relying on screen readers",
       "expected": "Every <img> must have an alt attribute. Decorative images use alt=\"\".",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#alt",
-      "wcag_techniques": ["H37", "H67", "G94", "G95"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "axe-core confirms alt presence but cannot evaluate alt quality. An alt='photo.jpg' or alt='image' passes axe but violates 1.1.1. Always verify that alt text is descriptive and conveys the image's purpose. For decorative images, use alt='' (empty, not omitted — omitting alt causes some screen readers to announce the filename).",
       "framework_notes": {
         "react": "Use the alt prop directly on <img>: <img src={src} alt=\"Description\" />. For decorative images: alt=\"\".",
@@ -233,10 +160,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every <button> and [role=\"button\"] must have a non-empty accessible name.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/button_role",
-      "wcag_techniques": ["G108", "ARIA14"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack", "Dragon NaturallySpeaking", "Voice Control"],
       "fix_difficulty_notes": "Using aria-label on a button with visible text creates a label mismatch — voice control users speak the visible text, not the aria-label. If visible text exists, keep it and remove aria-label. Only use aria-label for icon-only buttons with no visible text.",
       "framework_notes": {
         "react": "Use aria-label prop: <button aria-label=\"Close dialog\">. Prefer visible text children whenever possible.",
@@ -251,7 +175,10 @@
         ]
       },
       "related_rules": [
-        { "id": "input-button-name", "reason": "The same accessible name requirement applies to <input type='button'/'submit'/'reset'> — fix all button naming violations together." }
+        {
+          "id": "input-button-name",
+          "reason": "The same accessible name requirement applies to <input type='button'/'submit'/'reset'> — fix all button naming violations together."
+        }
       ]
     },
     "link-name": {
@@ -263,10 +190,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every <a href> must have descriptive, non-empty text content or an aria-label.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
-      "wcag_techniques": ["H30", "G91", "ARIA7"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
       "fix_difficulty_notes": "Adding aria-label to a link that already has visible text creates a mismatch — voice control users speak the visible text, not the aria-label, and activation may fail. Use aria-label only for icon links with no visible text, or use aria-labelledby to reference visible content.",
       "framework_notes": {
         "react": "In React Router, use <Link to='/path'>Descriptive text</Link>. For icon links, add aria-label directly: <Link to='/search' aria-label='Search products'>. Avoid wrapping <Link> around empty or icon-only elements without an aria-label.",
@@ -290,10 +214,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every form input must have an associated <label>, aria-label, or aria-labelledby.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
-      "wcag_techniques": ["H44", "H65", "G167", "ARIA16"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
       "fix_difficulty_notes": "aria-label works technically but voice control users cannot target the field by speaking the label — they need a visible text match. Prefer a visible <label> over aria-label for all inputs. placeholder is not a substitute for a label — it disappears on input and is not reliably announced by screen readers.",
       "framework_notes": {
         "react": "Use htmlFor prop (not 'for') on <label>: <label htmlFor=\"email\">Email</label>. The 'for' attribute is reserved in JSX.",
@@ -301,8 +222,14 @@
         "angular": "Use [for]=\"inputId\" binding or wrap the input inside the label element to avoid explicit ID linking."
       },
       "related_rules": [
-        { "id": "select-name", "reason": "The same label association pattern resolves select-name violations." },
-        { "id": "autocomplete-valid", "reason": "Properly labeled inputs should also have correct autocomplete tokens — fix label association and autocomplete together." }
+        {
+          "id": "select-name",
+          "reason": "The same label association pattern resolves select-name violations."
+        },
+        {
+          "id": "autocomplete-valid",
+          "reason": "Properly labeled inputs should also have correct autocomplete tokens — fix label association and autocomplete together."
+        }
       ],
       "manual_test": {
         "description": "Click the label text to ensure focus moves to the input.",
@@ -321,10 +248,7 @@
       "effort": "high",
       "impacted_users": "Users with low vision or color blindness",
       "expected": "Text contrast ratio must be at least 4.5:1 for normal text, 3:1 for large text.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Perceivable#contrast_minimum",
-      "wcag_techniques": ["G18", "G145", "G174"],
       "false_positive_risk": "high",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "False positives are common on text rendered over gradient backgrounds, images, or when color is set dynamically via JavaScript or CSS variables resolved at runtime. axe-core samples a single point of the background — text on gradients may appear to fail even when contrast is sufficient. Verify each flagged instance visually using the browser DevTools color picker or https://webaim.org/resources/contrastchecker/ before fixing.",
       "framework_notes": {
         "react": "In Tailwind (including shadcn/ui), verify that HSL CSS custom properties resolve to accessible values in both light and dark themes. CSS-in-JS libraries (styled-components, Emotion) compute colors at runtime — axe audits the computed value, not the source variable.",
@@ -349,10 +273,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users (broken element references)",
       "expected": "All id attributes must be unique within the document.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id",
-      "wcag_techniques": ["H93"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "In component-based frameworks, duplicate IDs typically occur when the same component renders multiple times on the same page. Use framework-native ID generation: useId() in React 18+, a unique :id binding per instance in Vue, or a service-based ID generator in Angular.",
       "framework_notes": {
         "react": "Use the useId() hook (React 18+) to generate unique IDs per component instance: const id = useId(); return <label htmlFor={id}>.",
@@ -360,7 +281,10 @@
         "angular": "Inject a counter service or use the CDK's uniqueId utility to generate stable, unique IDs per component instance."
       },
       "related_rules": [
-        { "id": "duplicate-id-aria", "reason": "Duplicate IDs that are referenced by ARIA attributes (aria-labelledby, aria-controls) are highest priority — fix them first as they break accessibility relationships." }
+        {
+          "id": "duplicate-id-aria",
+          "reason": "Duplicate IDs that are referenced by ARIA attributes (aria-labelledby, aria-controls) are highest priority — fix them first as they break accessibility relationships."
+        }
       ],
       "manual_test": {
         "description": "Verify no duplicate id values exist, especially across dynamically rendered components.",
@@ -380,10 +304,7 @@
       "effort": "medium",
       "impacted_users": "Screen reader users navigating by headings",
       "expected": "Heading levels must not skip (h1 → h2 → h3, no gaps allowed).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements",
-      "wcag_techniques": ["G130", "G141", "H42"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Never use heading elements purely for visual sizing (e.g., using <h4> because it renders smaller). Use CSS classes for font size. The heading level must reflect document structure, not visual hierarchy. Resolve page-has-heading-one first — a missing h1 often causes cascading heading-order violations.",
       "framework_notes": {
         "react": "In component libraries (shadcn/ui, Radix), heading levels are often hardcoded (e.g., CardTitle always renders as h3). Use the 'as' prop to override the level based on context: <CardTitle as='h2'> when the component appears as a top-level section heading.",
@@ -391,7 +312,10 @@
         "angular": "In Angular Material, headings inside mat-card and mat-expansion-panel are often rendered as <div> or <span>. Add the appropriate heading element explicitly inside the component template rather than relying on implicit heading structure."
       },
       "related_rules": [
-        { "id": "page-has-heading-one", "reason": "Fixing the h1 establishes the root of the hierarchy — resolve it first." }
+        {
+          "id": "page-has-heading-one",
+          "reason": "Fixing the h1 establishes the root of the hierarchy — resolve it first."
+        }
       ],
       "manual_test": {
         "description": "Verify headings describe their sections meaningfully, not just maintain numeric order.",
@@ -411,10 +335,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users navigating by headings",
       "expected": "Page must have exactly one <h1> element as the primary heading.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements",
-      "wcag_techniques": ["H42", "G130"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "In SPAs and SSR frameworks, the h1 may be injected client-side after the initial DOM snapshot axe evaluates. Ensure the h1 is server-side rendered or present in the initial HTML payload. In Next.js, place the h1 directly in the page component, not behind a loading state.",
       "framework_notes": {
         "react": "In Next.js App Router, place the h1 directly in page.tsx, not in a client component that renders conditionally or inside a Suspense loading state — axe evaluates the initial HTML payload before client hydration fills the loading boundary.",
@@ -422,7 +343,10 @@
         "angular": "With Angular Universal (SSR), the h1 must be part of the component template, not inserted via JavaScript after hydration. Verify the h1 is visible in the pre-rendered HTML using View Source."
       },
       "related_rules": [
-        { "id": "heading-order", "reason": "Fixing the missing h1 anchors the heading hierarchy and may cascade-resolve heading-order violations." }
+        {
+          "id": "heading-order",
+          "reason": "Fixing the missing h1 anchors the heading hierarchy and may cascade-resolve heading-order violations."
+        }
       ],
       "manual_test": {
         "description": "Confirm there is exactly one h1 per page — not zero, not two.",
@@ -442,10 +366,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users",
       "expected": "ARIA roles must include all required attributes defined in the WAI-ARIA spec.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes",
-      "wcag_techniques": ["ARIA5"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "Required attributes vary per role — consult https://www.w3.org/TR/wai-aria/#role_definitions. The most frequent mistake: using role='combobox' without aria-expanded, or role='slider' without aria-valuenow/aria-valuemin/aria-valuemax. When in doubt, prefer native HTML elements (e.g., <select> instead of role='listbox') which carry implicit semantics.",
       "framework_notes": {
         "react": "Headless component libraries (Radix UI, Headless UI, Ark UI) handle required ARIA attributes internally — do not duplicate or override them. If building a custom ARIA widget from scratch, consult the WAI-ARIA spec for each role's required attributes before binding props.",
@@ -470,10 +391,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users",
       "expected": "ARIA attributes must use only valid values defined in the WAI-ARIA spec.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes",
-      "wcag_techniques": ["ARIA5"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "The most common mistake is using incorrect types for boolean attributes: aria-expanded='0' or aria-expanded='yes' instead of 'true'/'false'. In template engines, ensure dynamic state is coerced to the string 'true' or 'false', not a JavaScript boolean. React spreads boolean props correctly — aria-expanded={isOpen} renders 'true'/'false' — but aria-expanded={isOpen ? 1 : 0} does not.",
       "framework_notes": {
         "react": "React coerces aria-expanded={isOpen} to the string 'true'/'false' correctly. Do not use aria-expanded={isOpen ? '1' : '0'} or other non-token values. Use aria-expanded={undefined} to omit the attribute entirely when the role does not require it.",
@@ -498,10 +416,7 @@
       "effort": "low",
       "impacted_users": "Keyboard-only users and screen reader users",
       "expected": "Elements with aria-hidden=\"true\" must not be focusable.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-hidden",
-      "wcag_techniques": ["ARIA7"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Setting aria-hidden='true' on a parent hides all its descendants from AT but does not remove their keyboard focusability. Interactive children (buttons, links, inputs) inside an aria-hidden container will still receive Tab focus, creating 'ghost focus'. Apply tabindex='-1' to each interactive descendant, or restructure so no focusable elements exist inside the aria-hidden container.",
       "framework_notes": {
         "react": "In React portals (modals, dialogs, tooltips), aria-hidden='true' is commonly applied to the app root during open state. Ensure portals render outside the aria-hidden subtree (e.g., appended to <body>). Libraries like Radix UI handle this correctly via the inert attribute and portal rendering.",
@@ -526,10 +441,7 @@
       "effort": "low",
       "impacted_users": "Keyboard-only users",
       "expected": "tabindex values must be 0 or -1. Positive values disrupt natural focus order.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex",
-      "wcag_techniques": ["H4", "G59"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "Positive tabindex values (tabindex='1', tabindex='2') create a separate focus sequence that runs before the natural DOM order. All positive-tabindex elements are visited first, then everything else. This almost always breaks focus flow. Remove all positive tabindex values and reorder the DOM instead if a different focus sequence is needed.",
       "framework_notes": {
         "react": "In JSX, the attribute is camelCase: tabIndex={0} or tabIndex={-1}. Never use positive integers. For programmatically managed focus (e.g., opening a modal), call element.focus() instead of relying on tabIndex values greater than 0.",
@@ -554,10 +466,7 @@
       "effort": "low",
       "impacted_users": "Users with motor disabilities and cognitive disabilities",
       "expected": "Inputs collecting personal data must have a valid autocomplete attribute per WCAG 1.3.5.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete",
-      "wcag_techniques": ["H98"],
       "false_positive_risk": "low",
-      "affected_at": ["Dragon NaturallySpeaking", "Voice Control", "JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "Acceptable autocomplete tokens are strictly defined by the HTML Living Standard. Custom or invented values (e.g., autocomplete='my-app-email') are invalid even if they help password managers. Use only the tokens listed at https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute. Verify you are applying the token to the right field type — autocomplete='email' on a phone number field is invalid.",
       "framework_notes": {
         "react": "Pass autocomplete as a string prop in JSX: <input autoComplete='email' />. Note: React uses camelCase autoComplete, which renders as the autocomplete HTML attribute. React Hook Form does not intercept it — set it directly on the input element.",
@@ -582,10 +491,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users",
       "expected": "Each form input must have exactly one accessible name source (label, aria-label, or aria-labelledby).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
-      "wcag_techniques": ["H44"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "aria-labelledby can legitimately reference multiple IDs to concatenate a compound label (e.g., aria-labelledby='label1 label2'). axe may flag this pattern. Review whether both sources are intentional — if so, it is valid and the finding is a false positive. Remove one reference only if the concatenated announcement is redundant.",
       "framework_notes": {
         "react": "In React, multiple labeling sources are introduced accidentally when a component applies both htmlFor on a <label> and aria-label on the input itself. Choose exactly one labeling strategy per input — prefer a visible <label htmlFor='id'> and remove aria-label.",
@@ -610,10 +516,7 @@
       "effort": "low",
       "impacted_users": "Keyboard-only users",
       "expected": "Any element with scrollable overflow must be reachable via keyboard (tabindex=\"0\" or natively focusable).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/CSS/overflow",
-      "wcag_techniques": ["G202"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "This rule fires on any element with overflow:auto or overflow:scroll — including CSS clip containers, masked elements, and carousels that overflow visually but have no actual scrollable content. Before adding tabindex='0', confirm the element is genuinely scrollable (has overflow content) and that keyboard users need to scroll it. Adding tabindex='0' to a non-scrollable container adds unnecessary tab stops.",
       "manual_test": {
         "description": "Tab to the scrollable region and verify arrow keys scroll it.",
@@ -633,10 +536,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every <select> must have an accessible name via <label>, aria-label, or aria-labelledby.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select",
-      "wcag_techniques": ["H44"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
       "fix_difficulty_notes": "In design systems, <select> is commonly replaced with a custom dropdown (a div/button combination). If the custom dropdown lacks role='listbox', aria-expanded, and aria-labelledby pointing to the visible label, none of the standard label association patterns apply. Prefer the native <select> element wherever possible — it carries all required implicit accessibility semantics.",
       "framework_notes": {
         "react": "Use htmlFor on <label> pointing to the select's id. For custom select components (react-select, Headless UI Listbox), pass the accessible name via their label prop or aria-labelledby — these components use the combobox/listbox ARIA pattern internally.",
@@ -644,7 +544,10 @@
         "angular": "In Angular Material, <mat-select> is labeled via <mat-label> inside <mat-form-field>. For standalone <select> elements, use <label [for]='selectId'>Label</label>."
       },
       "related_rules": [
-        { "id": "label", "reason": "The same label association pattern applies — fix label rule to resolve both." }
+        {
+          "id": "label",
+          "reason": "The same label association pattern applies — fix label rule to resolve both."
+        }
       ],
       "manual_test": {
         "description": "Focus the select and verify the screen reader announces its label.",
@@ -664,10 +567,7 @@
       "effort": "low",
       "impacted_users": "Blind users relying on screen readers",
       "expected": "Every <input type=\"image\"> must have an alt attribute describing the button's action.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/image",
-      "wcag_techniques": ["H36"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "The alt must describe the button's action, not the image appearance. 'Submit form' is correct; 'Blue arrow pointing right' is not.",
       "manual_test": {
         "description": "Tab to the image input and verify the screen reader announces the action.",
@@ -687,10 +587,7 @@
       "effort": "low",
       "impacted_users": "Blind users relying on screen readers",
       "expected": "Every <object> must have an accessible name via aria-label or aria-labelledby.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object",
-      "wcag_techniques": ["G92", "H53"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "The <object> element is rarely used in modern development — most use cases (SVG, PDF, media) are better served by <img>, <video>, <embed>, or <iframe>. If <object> is used, the aria-label must describe what the embedded content communicates to the user (not just the file type or format). If the object is purely decorative, consider replacing it with an accessible equivalent (e.g., an <img> with alt='').",
       "manual_test": {
         "description": "Verify a screen reader announces the object's accessible name.",
@@ -710,10 +607,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users",
       "expected": "Every <iframe> must have a descriptive title attribute.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#title",
-      "wcag_techniques": ["H64"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "Hidden or off-screen iframes used for third-party scripts (analytics, chat SDKs, A/B testing) should use title='' (empty) to suppress screen reader announcement — not a descriptive title. Only visible, interactive iframes that users would encounter need a meaningful title.",
       "framework_notes": {
         "react": "When embedding iframes (Google Maps, YouTube, Stripe), add the title prop directly: <iframe title='Google Maps — store location' src='...' />. Third-party React wrapper components that embed iframes should expose a title prop passthrough.",
@@ -738,10 +632,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users and users with cognitive disabilities",
       "expected": "Page must have a descriptive, unique <title> element.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title",
-      "wcag_techniques": ["H25", "G88"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "In SPAs, the <title> is often set only on initial load. After client-side route changes, the title must be updated programmatically — the browser tab title stays stale otherwise. Each page title should follow the pattern 'Page Name — Site Name' so users understand context without reading page content.",
       "framework_notes": {
         "react": "Use document.title in a useEffect, or react-helmet for declarative title management. In Next.js, use <title> inside <Head> from 'next/head' — it is server-side rendered.",
@@ -766,10 +657,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users (language detection for pronunciation)",
       "expected": "The <html> element must have a lang attribute.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang",
-      "wcag_techniques": ["H57"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "The lang attribute must be on the <html> element itself, not on a meta tag or the <body>. In framework app templates, the <html> tag is typically in an index.html or document template file outside of component scope — not in a React/Vue/Angular component. For multilingual SPAs, update document.documentElement.lang programmatically on each route change to reflect the current content language.",
       "framework_notes": {
         "react": "In Next.js App Router, set lang in the root layout: export default function RootLayout() { return <html lang='en'>...</html>; } in app/layout.tsx. For i18n, derive the lang from the locale route segment.",
@@ -794,10 +682,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users (language detection for pronunciation)",
       "expected": "The lang attribute on <html> must be a valid BCP 47 language tag.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang",
-      "wcag_techniques": ["H57"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Common mistakes: using underscore separator ('en_US') instead of hyphen ('en-US'), or spelling out the full language name ('english') instead of the BCP 47 subtag ('en'). Verify against https://www.iana.org/assignments/language-subtag-registry/.",
       "framework_notes": {
         "react": "Same fix location as html-has-lang — set lang in app/layout.tsx: <html lang='en-US'>. Ensure the value is a valid BCP 47 tag, not a locale string from your i18n library (e.g., 'en_US' with underscore is invalid).",
@@ -805,7 +690,10 @@
         "angular": "Same as html-has-lang — set in index.html or via Angular Universal's locale injection. Confirm the value uses hyphen separators (en-US), not underscore (en_US)."
       },
       "related_rules": [
-        { "id": "html-has-lang", "reason": "html-has-lang and html-lang-valid are often co-located — fix the lang attribute once to resolve both." }
+        {
+          "id": "html-has-lang",
+          "reason": "html-has-lang and html-lang-valid are often co-located — fix the lang attribute once to resolve both."
+        }
       ],
       "manual_test": {
         "description": "Verify the lang value is a recognised BCP 47 tag.",
@@ -825,10 +713,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users (language detection for pronunciation)",
       "expected": "All lang attributes must use valid BCP 47 language codes.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang",
-      "wcag_techniques": ["H58"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "This rule checks inline lang attributes on child elements (e.g., <p lang='es'>), not the root <html>. The most common mistake is copying locale codes from i18n libraries (e.g., 'en_US' with underscore) — only hyphenated BCP 47 tags are valid (e.g., 'en-US', 'es', 'fr-CA'). Verify each value against https://www.iana.org/assignments/language-subtag-registry/.",
       "framework_notes": {
         "react": "Add the lang attribute to HTML elements in JSX: <p lang='es'>Hola</p>. Works identically to plain HTML — no special React syntax needed.",
@@ -853,10 +738,7 @@
       "effort": "low",
       "impacted_users": "Keyboard-only users and screen reader users",
       "expected": "Page must provide a mechanism to skip repetitive navigation (e.g., a skip link).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
-      "wcag_techniques": ["G1", "H64"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "The skip link must be visible on focus — hiding it with display:none or visibility:hidden prevents keyboard users from seeing or activating it. The correct pattern is to position it off-screen by default (position:absolute; left:-9999px) and bring it on-screen on :focus (left:0; top:0). The target anchor (#main-content) must be a real element — if it's missing or the href is broken, the skip link appears to work but focus doesn't actually move.",
       "framework_notes": {
         "react": "In Next.js, add the skip link as the first element in the root layout (app/layout.tsx), before the <header> or navigation components. Style it with CSS to appear only on :focus. The target #main-content must reference the <main id='main-content'> in the same layout.",
@@ -864,7 +746,10 @@
         "angular": "Add the skip link as the first element inside app.component.html, before <app-header> or navigation. The target #main-content must match the id on the <main> element rendered inside the page — typically adjacent to <router-outlet>."
       },
       "related_rules": [
-        { "id": "landmark-one-main", "reason": "The skip link target (#main-content) must point to the <main> landmark." }
+        {
+          "id": "landmark-one-main",
+          "reason": "The skip link target (#main-content) must point to the <main> landmark."
+        }
       ],
       "manual_test": {
         "description": "Verify the skip link is functional, not just present in the DOM.",
@@ -884,10 +769,7 @@
       "effort": "low",
       "impacted_users": "Users with cognitive disabilities and screen reader users",
       "expected": "Pages must not auto-refresh or auto-redirect with a non-zero delay (WCAG 2.2.2).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/http-equiv",
-      "wcag_techniques": ["G110", "H76"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Server-side HTTP redirects (301/302) do not use <meta http-equiv='refresh'> and are not flagged by this rule. The violation only occurs when a timed redirect is implemented in the HTML <head>. A delay of 0 (instant redirect) is the only permitted use — it is commonly used for canonical URL normalization and is WCAG-compliant.",
       "framework_notes": {
         "react": "In Next.js, use redirect() in server components or middleware for redirects, and useRouter().replace() for client-side navigation. Neither uses <meta http-equiv='refresh'>. Never insert a meta refresh tag.",
@@ -912,10 +794,7 @@
       "effort": "low",
       "impacted_users": "Users who need to zoom (low vision, motor disabilities)",
       "expected": "Viewport meta must not disable user scaling (user-scalable=no is forbidden).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag",
-      "wcag_techniques": ["G142", "G179"],
       "false_positive_risk": "low",
-      "affected_at": ["VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "iOS Safari (10+) ignores user-scalable=no as an accessibility override, but Android browsers may enforce it. Remove it unconditionally — there is no valid accessibility reason to block zoom, and it is explicitly forbidden by WCAG 1.4.4.",
       "framework_notes": {
         "react": "In Next.js App Router, manage the viewport meta via the Metadata API: export const viewport: Viewport = { width: 'device-width', initialScale: 1 }; in layout.tsx. Never set maximumScale: 1 or userScalable: false — these block zoom.",
@@ -940,10 +819,7 @@
       "effort": "medium",
       "impacted_users": "Mobile/touch users and users with motor disabilities",
       "expected": "All interactive targets must be at least 24×24 CSS pixels (WCAG 2.5.8). Spacing or a larger equivalent target is an acceptable alternative.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Operable#guideline_2.5_%E2%80%94_input_modalities",
-      "wcag_techniques": ["G220"],
       "false_positive_risk": "medium",
-      "affected_at": ["Dragon NaturallySpeaking", "Voice Control", "TalkBack", "VoiceOver"],
       "fix_difficulty_notes": "WCAG 2.5.8 provides an exception for inline text links within a sentence (e.g., 'see our privacy policy') where sufficient spacing around the link satisfies the criterion. axe may flag these — verify whether the exception applies before adding padding that could break the text flow.",
       "manual_test": {
         "description": "Measure the rendered size of small interactive elements — CSS values alone can be misleading.",
@@ -963,10 +839,7 @@
       "effort": "medium",
       "impacted_users": "Keyboard-only users and users with low vision",
       "expected": "Focus indicators must be clearly visible, with a minimum area of the component perimeter × 2 CSS px and a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible",
-      "wcag_techniques": ["G149", "C15", "G195"],
       "false_positive_risk": "high",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "outline:none does not necessarily mean no focus indicator — a visible box-shadow, background-color change, or border change can fully satisfy WCAG 2.4.11. axe may flag outline:none even when a compliant custom indicator is present. Verify visually that a focus indicator exists before applying a fix. When suppressing the outline, always provide a replacement via box-shadow or border.",
       "manual_test": {
         "description": "Tab through every interactive element and verify the focus indicator is visible and distinct.",
@@ -986,10 +859,7 @@
       "effort": "high",
       "impacted_users": "Users with motor disabilities who cannot perform drag gestures",
       "expected": "All drag-and-drop functionality must have an equivalent single-pointer alternative operable without dragging (WCAG 2.5.7).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Operable",
-      "wcag_techniques": ["G219"],
       "false_positive_risk": "high",
-      "affected_at": ["Dragon NaturallySpeaking", "Voice Control"],
       "fix_difficulty_notes": "axe detects drag interactions heuristically based on event listeners — it may flag elements that listen to drag events but do not actually require dragging for their core function. Verify that the flagged element genuinely has drag-only functionality before implementing an alternative. WCAG 2.5.7 includes an exception when the dragging motion is 'essential' (e.g., a signature pad or freehand drawing tool).",
       "framework_notes": {
         "react": "Libraries like @dnd-kit/core provide keyboard-accessible drag-and-drop out of the box. react-beautiful-dnd also supports keyboard dragging. If using a custom drag implementation with mousedown/mousemove events, add keyboard event handlers (Arrow keys for movement, Space/Enter to confirm drop) as an accessible alternative.",
@@ -1014,10 +884,7 @@
       "effort": "high",
       "impacted_users": "Users with cognitive disabilities and motor disabilities",
       "expected": "Information already submitted during the same session must be auto-populated or selectable without requiring re-entry (WCAG 3.3.7).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Understandable",
-      "wcag_techniques": ["G221"],
       "false_positive_risk": "high",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "Automated tools cannot reliably detect this violation — they scan the static DOM of a single page without session context. Treat axe findings for this rule as a prompt for manual review, not a confirmed violation. Walk through multi-step flows manually to determine if previously entered data is unnecessarily re-requested.",
       "framework_notes": {
         "react": "Use React Context or a form state library (React Hook Form, Formik) to preserve data across multi-step flows. In Next.js, persist form state in URL search params or session storage to survive route transitions without requiring re-entry.",
@@ -1042,10 +909,7 @@
       "effort": "high",
       "impacted_users": "Users with cognitive disabilities (dyslexia, memory impairments)",
       "expected": "Authentication processes must not require solving a cognitive function test without providing an accessible alternative method (WCAG 3.3.8).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Understandable",
-      "wcag_techniques": ["G218"],
       "false_positive_risk": "high",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Automated tools can detect the presence of a CAPTCHA but cannot verify whether an accessible alternative is functional. Treat findings as a prompt for manual review. The WCAG 3.3.8 exception allows cognitive tests if an accessible alternative (audio CAPTCHA, passkey, magic link, email OTP) is offered alongside.",
       "framework_notes": {
         "react": "When using NextAuth.js, prefer magic link (email provider) or passkey authentication — these eliminate cognitive tests entirely. If CAPTCHA is required, use hCaptcha with accessibility mode enabled, or Google reCAPTCHA v3 (which requires no user interaction).",
@@ -1070,10 +934,7 @@
       "effort": "medium",
       "impacted_users": "Users with cognitive disabilities who rely on consistent page layouts",
       "expected": "Help mechanisms must appear in the same relative order on every page where they are provided (WCAG 3.2.6).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Understandable",
-      "wcag_techniques": ["G220"],
       "false_positive_risk": "high",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Automated tools can only scan one page at a time and cannot compare help mechanism position across pages. axe findings for this rule are heuristic — they identify potential consistency issues but cannot confirm a violation without cross-page comparison. Manually verify across at least 3 page templates.",
       "manual_test": {
         "description": "Navigate between at least 3 different pages and verify help links appear in the same position.",
@@ -1093,10 +954,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users navigating by headings",
       "expected": "Every heading element must contain non-empty, meaningful text content.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements",
-      "wcag_techniques": ["H42", "G130", "G141"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Empty headings commonly occur in CMS-driven layouts where a heading tag is part of a section template but the author left the field blank. In component libraries, empty headings can also result from a conditional slot that renders nothing. Check both the template and the content source — the fix may be in the CMS content, not the code.",
       "framework_notes": {
         "react": "In React, a heading with dynamic content like <h2>{title}</h2> renders an empty heading if title is undefined, null, or an empty string. Guard with: {title && <h2>{title}</h2>} or provide a fallback string.",
@@ -1104,7 +962,10 @@
         "angular": "In Angular, <h2>{{ title }}</h2> renders empty if title is undefined. Use *ngIf='title' on the heading element, or provide a default value in the component."
       },
       "related_rules": [
-        { "id": "heading-order", "reason": "Empty headings disrupt the heading hierarchy — resolve them together." }
+        {
+          "id": "heading-order",
+          "reason": "Empty headings disrupt the heading hierarchy — resolve them together."
+        }
       ],
       "manual_test": {
         "description": "Verify every heading has meaningful content that describes its section.",
@@ -1124,10 +985,7 @@
       "effort": "medium",
       "impacted_users": "Blind users relying on screen readers",
       "expected": "SVG elements used as images must have an accessible name (aria-label or aria-labelledby). Decorative SVGs must be hidden from AT with aria-hidden='true'.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/SVG/Element/svg",
-      "wcag_techniques": ["H37", "ARIA6", "G94", "G95"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Most SVGs in UI are decorative (icons next to visible button text, background illustrations). axe may flag them as missing an alt even when the adjacent text is sufficient. The decision is: does this SVG convey meaning that is NOT expressed in adjacent visible text? If yes → aria-label. If no → aria-hidden='true'. Never add aria-label that duplicates adjacent text — this creates redundant announcements.",
       "framework_notes": {
         "react": "In React, SVG components commonly strip accessibility attributes. Add role='img' and aria-label directly on the <svg> element: <svg role='img' aria-label='Close' aria-hidden={undefined}>. Icon libraries like Heroicons and Lucide expose aria-hidden and aria-label props.",
@@ -1153,10 +1011,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users",
       "expected": "ARIA attributes must only be used on roles that allow them per the WAI-ARIA specification.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes",
-      "wcag_techniques": ["ARIA5"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "The most common case is aria-label on role='none' or role='presentation' — the role explicitly removes the element from the accessibility tree, so any ARIA attribute on it has no effect (and axe flags it). Also common: adding aria-expanded or aria-checked to a plain <button> role instead of using role='switch' or role='menuitemcheckbox'. Consult https://www.w3.org/TR/wai-aria/#role_definitions for the 'Inherited States and Properties' list per role.",
       "framework_notes": {
         "react": "In React, ARIA attributes are passed as JSX props — there is no compile-time check for prohibited combinations. Use eslint-plugin-jsx-a11y, which includes the aria-prhibited-attr rule to catch these at build time.",
@@ -1164,8 +1019,14 @@
         "angular": "In Angular, no built-in check prevents prohibited ARIA combinations. The Angular CDK a11y lint rules (via @angular-eslint) flag some cases — enable them in .eslintrc."
       },
       "related_rules": [
-        { "id": "aria-required-attr", "reason": "Often co-located — fix the role first, then verify required attributes are present and prohibited ones are removed." },
-        { "id": "aria-valid-attr-value", "reason": "After fixing prohibited attrs, check that remaining ARIA attribute values are valid tokens." }
+        {
+          "id": "aria-required-attr",
+          "reason": "Often co-located — fix the role first, then verify required attributes are present and prohibited ones are removed."
+        },
+        {
+          "id": "aria-valid-attr-value",
+          "reason": "After fixing prohibited attrs, check that remaining ARIA attribute values are valid tokens."
+        }
       ],
       "manual_test": {
         "description": "Verify ARIA attributes on the flagged element are permitted by its role.",
@@ -1185,10 +1046,7 @@
       "effort": "low",
       "impacted_users": "Voice control users (Dragon NaturallySpeaking, iOS Voice Control)",
       "expected": "The accessible name of interactive elements must contain the visible label text (WCAG 2.5.3).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-label",
-      "wcag_techniques": ["SCR30", "G211"],
       "false_positive_risk": "medium",
-      "affected_at": ["Dragon NaturallySpeaking", "Voice Control"],
       "fix_difficulty_notes": "The accessible name must contain (not just match) the visible text — it can have additional context. For example, aria-label='Search products in catalog' on a button with visible text 'Search products' is valid. The violation is when aria-label completely replaces the visible label with different text (e.g., visible 'Buy now', aria-label='Add to cart'). The simplest fix is often to remove the aria-label and let the visible text serve as the accessible name.",
       "framework_notes": {
         "react": "In React, avoid aria-label props that differ from the button's child text. For icon buttons, if you add visible text alongside the icon, the aria-label becomes unnecessary — remove it.",
@@ -1214,10 +1072,7 @@
       "effort": "medium",
       "impacted_users": "Keyboard-only users and screen reader users",
       "expected": "Interactive elements (a, button, input, select, textarea) must not be nested inside other interactive elements.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button",
-      "wcag_techniques": ["H91"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
       "fix_difficulty_notes": "The most common pattern causing this is a 'card' component where the entire card is wrapped in an <a> tag and a button (e.g., 'Add to cart', 'Save') is placed inside. The HTML spec forbids interactive content inside <a>. Solutions: (1) use the 'stretched link' CSS pattern to make the <a> visually cover the card without wrapping the button, or (2) use JavaScript to handle card-level clicks while keeping elements separate in the DOM.",
       "framework_notes": {
         "react": "In React card components, avoid wrapping the entire JSX tree in <Link> or <a> when it contains interactive children. Use a CSS stretched-link pattern: position the <a> absolutely with ::after covering the card, while the button stays outside the <a> in DOM order.",
@@ -1243,10 +1098,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users (list item count and navigation)",
       "expected": "<ul> and <ol> must only contain <li> elements as direct children. Screen readers use this structure to announce the list count and enable list navigation.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul",
-      "wcag_techniques": ["H48"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Some CSS frameworks (Bootstrap, Tailwind) output <div> wrappers inside list elements via JavaScript-rendered components. axe will flag these. Before fixing, check whether the violation is in source HTML or in framework-rendered output — the fix location differs. Also note: a <ul> with role='none' on all <li> children (to remove list semantics) is an intentional pattern and not a violation of this rule.",
       "framework_notes": {
         "react": "In React, mapping an array to list items is straightforward: {items.map(item => <li key={item.id}>{item.name}</li>)}. Never wrap the map in an extra <div> inside <ul> — use React.Fragment or a flat map.",
@@ -1254,7 +1106,10 @@
         "angular": "In Angular, use *ngFor directly on <li>: <li *ngFor='let item of items'>{{ item.name }}</li>. Component wrappers between <ul> and <li> will introduce invalid children."
       },
       "related_rules": [
-        { "id": "listitem", "reason": "The inverse rule — li elements must be inside a ul/ol. Fix list structure violations together." }
+        {
+          "id": "listitem",
+          "reason": "The inverse rule — li elements must be inside a ul/ol. Fix list structure violations together."
+        }
       ],
       "manual_test": {
         "description": "Verify a screen reader announces the correct list count and enables list navigation.",
@@ -1274,10 +1129,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users (invalid list structure causes incorrect announcements)",
       "expected": "<li> elements must be direct children of <ul>, <ol>, or <menu> elements.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li",
-      "wcag_techniques": ["H48"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "This often occurs in component-based frameworks when a list item component renders <li> at the root but is used outside a parent list component. The fix is either to ensure the parent always provides a <ul>/<ol> context, or to restructure the component so <li> is not the root element when rendered standalone.",
       "framework_notes": {
         "react": "In React, a component that returns <li> must always be rendered inside a <ul> or <ol>. If the component can be used in contexts without a list parent, consider making it return a generic container and letting the parent decide whether to wrap in <ul>.",
@@ -1285,7 +1137,10 @@
         "angular": "In Angular, an <li> component inside <app-list-item> is still a valid <li> in the rendered DOM if the component tag is replaced. Verify the rendered output — Angular component tags are replaced, so check the actual HTML tree."
       },
       "related_rules": [
-        { "id": "list", "reason": "Inverse rule — fix list/listitem violations together to restore correct list semantics." }
+        {
+          "id": "list",
+          "reason": "Inverse rule — fix list/listitem violations together to restore correct list semantics."
+        }
       ],
       "manual_test": {
         "description": "Inspect the rendered DOM to confirm li elements have valid list parents.",
@@ -1305,10 +1160,7 @@
       "effort": "medium",
       "impacted_users": "Screen reader users (broken accessible name, description, or widget relationships)",
       "expected": "All IDs referenced by ARIA attributes must be unique within the document. Duplicate ARIA-referenced IDs cause AT to resolve to the first matching element, breaking all subsequent references.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id",
-      "wcag_techniques": ["H93"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Unlike duplicate-id (which flags all duplicate IDs), this rule specifically targets IDs that are referenced by ARIA attributes — making it higher severity because the duplicate directly breaks an accessibility relationship. In component-based apps, this almost always occurs when the same component renders multiple times with a hardcoded ID in its template. Use framework ID generation utilities to ensure uniqueness per instance.",
       "framework_notes": {
         "react": "Use React 18's useId() hook to generate unique IDs per component instance: const id = useId(); return <><span id={id}>Label</span><input aria-labelledby={id} /></>. Never hardcode IDs in components that render more than once.",
@@ -1316,7 +1168,10 @@
         "angular": "In Angular, inject a counter service or use a module-level incrementing variable to generate stable unique IDs: private static idCounter = 0; readonly fieldId = `field-${++FieldComponent.idCounter}`;. Bind with [attr.id]='fieldId'."
       },
       "related_rules": [
-        { "id": "duplicate-id", "reason": "All duplicate IDs should be fixed — ARIA-referenced duplicates are highest priority because they break accessibility relationships." }
+        {
+          "id": "duplicate-id",
+          "reason": "All duplicate IDs should be fixed — ARIA-referenced duplicates are highest priority because they break accessibility relationships."
+        }
       ],
       "manual_test": {
         "description": "Verify that ARIA-referenced IDs resolve to the correct element on the page.",
@@ -1336,10 +1191,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users navigating by headings",
       "expected": "Text that visually functions as a section heading must be marked up with a heading element (<h1>–<h6>), not a styled paragraph.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements",
-      "wcag_techniques": ["H42", "G130", "G141"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "axe detects this heuristically — it flags <p> elements with large, bold, or otherwise heading-like CSS properties. This can produce false positives on intro paragraphs, pull quotes, or callout boxes that are intentionally styled large. Verify visually: does this text introduce a new section of content? If yes, it should be a heading. If it is decorative, a caption, or a lead-in paragraph, it may not need to be a heading despite the styling.",
       "framework_notes": {
         "react": "In component libraries (shadcn/ui, Radix), heading-like components sometimes render as <p> by default. Use the 'as' prop or the 'asChild' pattern to change the rendered element: <Text as='h2' className='text-2xl font-bold'>Section Title</Text>.",
@@ -1347,8 +1199,14 @@
         "angular": "In Angular, heading-like components often render as <div> or <p>. Use the component's selector or a host element attribute to change the rendered tag, or apply the heading element directly in the template rather than relying on the component's default tag."
       },
       "related_rules": [
-        { "id": "heading-order", "reason": "After converting p-as-heading to real headings, verify the heading hierarchy is correct — new headings must fit the existing order." },
-        { "id": "page-has-heading-one", "reason": "If converting a p-as-heading introduces a new h1, verify it is the only h1 on the page." }
+        {
+          "id": "heading-order",
+          "reason": "After converting p-as-heading to real headings, verify the heading hierarchy is correct — new headings must fit the existing order."
+        },
+        {
+          "id": "page-has-heading-one",
+          "reason": "If converting a p-as-heading introduces a new h1, verify it is the only h1 on the page."
+        }
       ],
       "manual_test": {
         "description": "Navigate the page using only the heading shortcut in a screen reader and confirm all section labels are reachable.",
@@ -1368,10 +1226,7 @@
       "effort": "high",
       "impacted_users": "Deaf users and users with hearing disabilities",
       "expected": "All <audio> elements with speech or meaningful audio must provide synchronized captions or a full transcript.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/track",
-      "wcag_techniques": ["G158", "G159", "H95"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Captions must be synchronized with the audio — a plain text page is a transcript, not captions. VTT (WebVTT) is the standard format for <track> elements and is supported in all modern browsers. Generating captions retroactively is effort-intensive; tools like Whisper (OpenAI), Adobe Premiere, or Rev.com can auto-generate VTT files that require human review before publishing.",
       "framework_notes": {
         "react": "In React, pass <track> as a child of the <audio> JSX element. React requires a key prop on <track> when rendered in a list. Use the default prop (boolean) to set the default caption track.",
@@ -1379,7 +1234,10 @@
         "angular": "In Angular, the native <audio> element with nested <track> works in component templates. For dynamic caption URLs, use [attr.src]='captionsSrc' on the <track> element."
       },
       "related_rules": [
-        { "id": "video-caption", "reason": "If the site has audio content, it likely has video — fix both media types together." }
+        {
+          "id": "video-caption",
+          "reason": "If the site has audio content, it likely has video — fix both media types together."
+        }
       ],
       "manual_test": {
         "description": "Play the audio content and verify captions or transcript accurately reflect all spoken content.",
@@ -1399,10 +1257,7 @@
       "effort": "high",
       "impacted_users": "Deaf users and users with hearing disabilities",
       "expected": "All <video> elements with audio content must have synchronized captions via a <track kind='captions'> element.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/track",
-      "wcag_techniques": ["G87", "G93", "H95"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "axe cannot verify whether existing captions are accurate or synchronized — it only detects the presence of a <track kind='captions'> element. A <track> pointing to an empty or inaccurate VTT file technically passes axe but still violates WCAG 1.2.2. Always review caption content manually. For YouTube/Vimeo embeds inside <iframe>, this rule does not apply — the embedded player's caption controls are the platform's responsibility.",
       "framework_notes": {
         "react": "In React, include <track> as a child of <video>. React warns if <track> lacks a key prop when rendered in a list. Use the crossOrigin prop (camelCase) if serving captions from a different domain.",
@@ -1410,7 +1265,10 @@
         "angular": "In Angular, include static or dynamic <track> elements inside the <video> template. For dynamically switching caption languages, use [attr.src] binding and reload the video source programmatically."
       },
       "related_rules": [
-        { "id": "audio-caption", "reason": "Fix all media caption violations together — audio and video share the same caption infrastructure (WebVTT)." }
+        {
+          "id": "audio-caption",
+          "reason": "Fix all media caption violations together — audio and video share the same caption infrastructure (WebVTT)."
+        }
       ],
       "manual_test": {
         "description": "Play the video with captions enabled and verify all spoken content is accurately captioned.",
@@ -1430,10 +1288,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users (audio conflicts with AT speech), users with cognitive disabilities, users with vestibular disorders",
       "expected": "Audio that plays automatically must stop within 3 seconds, or a mechanism to pause/stop/mute it must be provided at the start of the page (WCAG 1.4.2).",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autoplay",
-      "wcag_techniques": ["G60", "G170", "G171"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "axe detects the autoplay attribute but cannot determine whether the audio is muted — muted autoplay is acceptable. A <video autoplay muted loop> for decorative background video does not violate WCAG 1.4.2. The violation is specifically audio content that plays without user interaction and cannot be immediately stopped. Browser autoplay policies (especially Chrome) often block autoplay with sound anyway — verify the audio actually plays in the target browser before treating it as a confirmed violation.",
       "framework_notes": {
         "react": "In React, never set the autoPlay prop on <audio> for content with meaningful audio. Background decorative video with autoPlay muted is acceptable. Trigger audio playback programmatically via user interaction events, not in useEffect on mount.",
@@ -1459,10 +1314,7 @@
       "effort": "medium",
       "impacted_users": "Screen reader users navigating complex tables",
       "expected": "When the headers attribute is used on <td>, every referenced ID must point to a valid <th> element in the same table.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td#headers",
-      "wcag_techniques": ["H43", "H63"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "The headers attribute is only needed for complex tables where a single cell spans multiple headers or the column/row relationship is ambiguous. For simple tables (one header row, one header column), use <th scope='col'> and <th scope='row'> instead — it is simpler and better supported across AT. Only use the headers attribute when scope is insufficient.",
       "framework_notes": {
         "react": "In React, generate table IDs programmatically: const colId = `col-${column.key}`; <th id={colId}> and <td headers={colId}>. Ensure IDs are unique if multiple table instances render on the same page.",
@@ -1470,7 +1322,10 @@
         "angular": "In Angular, generate IDs in the component: colId = (col: Column) => `col-${col.key}`; and bind [attr.id]='colId(col)' on th and [attr.headers]='colId(col)' on td."
       },
       "related_rules": [
-        { "id": "th-has-data-cells", "reason": "Fix td-headers-attr and th-has-data-cells together — they are complementary table structure rules." }
+        {
+          "id": "th-has-data-cells",
+          "reason": "Fix td-headers-attr and th-has-data-cells together — they are complementary table structure rules."
+        }
       ],
       "manual_test": {
         "description": "Navigate a complex table with a screen reader and verify column/row headers are announced for each cell.",
@@ -1490,10 +1345,7 @@
       "effort": "medium",
       "impacted_users": "Screen reader users navigating tables",
       "expected": "Every <th> must have at least one associated data cell — a header with no data cells is meaningless structure.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th",
-      "wcag_techniques": ["H43", "H63", "F46"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "This rule commonly fires on dynamically rendered tables that show an empty state (loading spinner or 'No data' row). axe flags the <th> elements as having no data cells when the table body is empty or renders a colspan'd message. Guard the table to only display headers when data is present, or use a non-table element for the empty state.",
       "framework_notes": {
         "react": "In React, render a fallback when the data array is empty: if (!rows.length) return <p>No results found.</p>. Do not render the <table> with headers and an empty <tbody>.",
@@ -1501,7 +1353,10 @@
         "angular": "In Angular, use *ngIf='rows.length' on the <table> element and provide an alternative empty-state template with *ngIf='!rows.length'."
       },
       "related_rules": [
-        { "id": "td-headers-attr", "reason": "Fix table structure rules together — td-headers-attr and th-has-data-cells are complementary." }
+        {
+          "id": "td-headers-attr",
+          "reason": "Fix table structure rules together — td-headers-attr and th-has-data-cells are complementary."
+        }
       ],
       "manual_test": {
         "description": "Verify every column and row header has corresponding data cells in the rendered table.",
@@ -1521,10 +1376,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users (duplicate announcement of table description creates cognitive load)",
       "expected": "The <caption> and summary attribute of a table must not contain identical text — this causes screen readers to announce the same description twice.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/caption",
-      "wcag_techniques": ["H39", "H73"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "The summary attribute is deprecated in HTML5 and should not be used in new code. The preferred pattern is to put all necessary description in the <caption> element. If legacy code uses both, the simplest fix is to remove the summary attribute entirely. For complex tables requiring navigation instructions, use aria-describedby pointing to a visible description paragraph adjacent to the table.",
       "framework_notes": {
         "react": "In React table components, avoid passing both caption and summary props with the same content. Remove the summary attribute entirely — it is deprecated.",
@@ -1549,10 +1401,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users navigating by landmarks",
       "expected": "A page must not have more than one banner landmark (<header> at top level or role='banner').",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header",
-      "wcag_techniques": ["ARIA11"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "A <header> element only creates a banner landmark when it is a direct child of <body> (not nested inside <article>, <aside>, <main>, <nav>, or <section>). axe may flag this when a layout component renders two <header> tags at body level — one for a skip link area and one for the visible site header. Consolidate them into one top-level <header>.",
       "framework_notes": {
         "react": "In Next.js App Router, the root layout (layout.tsx) should have exactly one <header> at the top level. Page components must not add a second top-level <header> — use <section> or <div> for page-specific header areas.",
@@ -1560,8 +1409,14 @@
         "angular": "In Angular, app.component.html should contain exactly one top-level <header>. Route components must not add a second <header> at the document root level."
       },
       "related_rules": [
-        { "id": "landmark-no-duplicate-main", "reason": "Fix all duplicate landmark violations together — they share the same root cause in layout architecture." },
-        { "id": "landmark-one-main", "reason": "Landmark structure issues are often co-located — fix them as a group." }
+        {
+          "id": "landmark-no-duplicate-main",
+          "reason": "Fix all duplicate landmark violations together — they share the same root cause in layout architecture."
+        },
+        {
+          "id": "landmark-one-main",
+          "reason": "Landmark structure issues are often co-located — fix them as a group."
+        }
       ],
       "manual_test": {
         "description": "Verify only one banner landmark exists using screen reader landmark navigation.",
@@ -1581,10 +1436,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users navigating by landmarks",
       "expected": "A page must not have more than one main landmark (<main> or role='main'). Multiple main landmarks break skip navigation.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main",
-      "wcag_techniques": ["ARIA11"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "In SPAs, a second <main> commonly appears when a layout component defines one and a page component adds another. The fix is to ensure only the layout component owns the <main> wrapper, and page components render their content inside it without adding a second <main>.",
       "framework_notes": {
         "react": "In Next.js App Router, <main> belongs in layout.tsx, not in page.tsx. Individual page components render content inside the layout's <main> — never add a second <main> inside a page component.",
@@ -1592,8 +1444,14 @@
         "angular": "In Angular, <main> belongs in app.component.html wrapping <router-outlet>. Route component templates must not contain a second <main>."
       },
       "related_rules": [
-        { "id": "landmark-one-main", "reason": "landmark-one-main requires exactly one <main> — duplicate main violations are the inverse of the same requirement." },
-        { "id": "landmark-no-duplicate-banner", "reason": "Fix all duplicate landmark violations together." }
+        {
+          "id": "landmark-one-main",
+          "reason": "landmark-one-main requires exactly one <main> — duplicate main violations are the inverse of the same requirement."
+        },
+        {
+          "id": "landmark-no-duplicate-banner",
+          "reason": "Fix all duplicate landmark violations together."
+        }
       ],
       "manual_test": {
         "description": "Confirm only one main landmark exists on the page.",
@@ -1613,10 +1471,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users navigating by landmarks",
       "expected": "When multiple landmarks of the same type exist (e.g., multiple <nav> elements), each must have a unique accessible label.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/nav",
-      "wcag_techniques": ["ARIA11", "ARIA13"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
       "fix_difficulty_notes": "This applies to nav, aside, section with role, and form landmarks — any type appearing more than once. Keep labels short and descriptive: 'Primary', 'Footer', 'Breadcrumb'. Do not add aria-label to <main> or <header> unless they are duplicated (which is itself a separate violation). The label becomes part of the AT announcement: 'Primary navigation, navigation landmark'.",
       "framework_notes": {
         "react": "In React, pass the aria-label prop to navigation components: <Nav aria-label='Primary navigation'>. Ensure the component forwards the prop to the native <nav> element via spread or explicit prop.",
@@ -1624,8 +1479,14 @@
         "angular": "In Angular, use aria-label='Primary navigation' or [attr.aria-label]='navLabel' on <nav> elements. Shared navigation components should accept an @Input() ariaLabel string and bind it."
       },
       "related_rules": [
-        { "id": "landmark-no-duplicate-banner", "reason": "If duplicate banners exist, add aria-label to each — or eliminate the duplicate." },
-        { "id": "bypass", "reason": "Unique landmark labels enhance skip navigation — users can jump directly to a specific landmark." }
+        {
+          "id": "landmark-no-duplicate-banner",
+          "reason": "If duplicate banners exist, add aria-label to each — or eliminate the duplicate."
+        },
+        {
+          "id": "bypass",
+          "reason": "Unique landmark labels enhance skip navigation — users can jump directly to a specific landmark."
+        }
       ],
       "manual_test": {
         "description": "Navigate all landmarks and verify each has a unique, descriptive label.",
@@ -1645,10 +1506,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users (invalid roles are ignored or misinterpreted by AT)",
       "expected": "All role attribute values must be valid ARIA roles from the WAI-ARIA specification.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles",
-      "wcag_techniques": ["ARIA4", "ARIA5"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "Common invalid roles: 'text' (not valid — use role='paragraph' or remove the role), 'input' (not valid — use native <input>), 'container' (not valid — use role='group'). Also watch for typos: 'dialouge' instead of 'dialog'. Adding a role that matches the element's implicit role (e.g., role='button' on <button>) is not a violation but is unnecessary — remove it for cleaner markup.",
       "framework_notes": {
         "react": "In React, ARIA roles are passed as the role prop. Use eslint-plugin-jsx-a11y (aria-role rule) to catch invalid role values at build time — there is no runtime validation.",
@@ -1656,8 +1514,14 @@
         "angular": "In Angular, @angular-eslint includes aria-role lint rules. Enable them in .eslintrc to validate role attribute values at compile time."
       },
       "related_rules": [
-        { "id": "aria-required-attr", "reason": "After fixing an invalid role, verify the replacement role has all required ARIA attributes." },
-        { "id": "aria-prohibited-attr", "reason": "After fixing the role, verify no ARIA attributes are prohibited for the new role." }
+        {
+          "id": "aria-required-attr",
+          "reason": "After fixing an invalid role, verify the replacement role has all required ARIA attributes."
+        },
+        {
+          "id": "aria-prohibited-attr",
+          "reason": "After fixing the role, verify no ARIA attributes are prohibited for the new role."
+        }
       ],
       "manual_test": {
         "description": "Verify the corrected role is announced correctly by a screen reader.",
@@ -1677,10 +1541,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Toggle fields (checkbox, radio, role='switch') must have an accessible name so AT can announce what is being toggled.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/checkbox",
-      "wcag_techniques": ["H44", "ARIA14", "G167"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
       "fix_difficulty_notes": "Custom toggle switches built with role='switch' require both aria-label AND aria-checked. Missing either triggers a violation. For checkbox inputs, a label must be associated via for/id or by wrapping — visually adjacent text without a <label> element is not sufficient for AT.",
       "framework_notes": {
         "react": "In React, custom toggle components must spread aria-label and aria-checked to the underlying element. For native checkboxes, use htmlFor on <label>. For switches: <button role='switch' aria-checked={isOn} aria-label='Enable notifications'>.",
@@ -1688,8 +1549,14 @@
         "angular": "In Angular, use <label [for]='checkboxId'> for native checkboxes. For custom switches, bind [attr.aria-label]='label' and [attr.aria-checked]='isChecked' on the role='switch' element."
       },
       "related_rules": [
-        { "id": "label", "reason": "The same label association pattern resolves both label and aria-toggle-field-name violations." },
-        { "id": "aria-required-attr", "reason": "role='switch' requires aria-checked — fix the accessible name and required attributes together." }
+        {
+          "id": "label",
+          "reason": "The same label association pattern resolves both label and aria-toggle-field-name violations."
+        },
+        {
+          "id": "aria-required-attr",
+          "reason": "role='switch' requires aria-checked — fix the accessible name and required attributes together."
+        }
       ],
       "manual_test": {
         "description": "Tab to each toggle and verify the screen reader announces both its name and current state.",
@@ -1709,10 +1576,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
       "expected": "ARIA input roles (textbox, searchbox, spinbutton, slider, combobox) must have an accessible name.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/textbox_role",
-      "wcag_techniques": ["ARIA14", "ARIA16", "H44"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
       "fix_difficulty_notes": "The best fix is almost always to replace the ARIA input with a native HTML input — native elements have implicit roles, built-in keyboard support, and do not require manual ARIA attribute management. Use ARIA input roles only when a native equivalent is technically impossible (e.g., a rich text editor with contenteditable).",
       "framework_notes": {
         "react": "Rich text editors (Draft.js, Slate, Quill) use contenteditable divs with role='textbox'. Ensure the editor component exposes an aria-label prop and applies it to the root contenteditable element. For standard inputs, always use <label htmlFor='id'>.",
@@ -1720,8 +1584,14 @@
         "angular": "Angular CDK or ProseMirror-based editors use contenteditable with ARIA roles. Bind [attr.aria-label]='editorLabel' on the root element. For standard inputs, use mat-label or <label [for]='id'>."
       },
       "related_rules": [
-        { "id": "label", "reason": "If a native input can replace the ARIA input, the standard label association pattern resolves both." },
-        { "id": "aria-toggle-field-name", "reason": "Fix all ARIA field naming violations together — they share the same accessible name patterns." }
+        {
+          "id": "label",
+          "reason": "If a native input can replace the ARIA input, the standard label association pattern resolves both."
+        },
+        {
+          "id": "aria-toggle-field-name",
+          "reason": "Fix all ARIA field naming violations together — they share the same accessible name patterns."
+        }
       ],
       "manual_test": {
         "description": "Tab to the ARIA input and verify the screen reader announces both the label and its role.",
@@ -1741,10 +1611,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users (redundant announcements increase cognitive load)",
       "expected": "Image alt text must not duplicate adjacent visible text. If adjacent text fully describes the image, use alt='' to mark it as decorative.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#alt",
-      "wcag_techniques": ["H2", "H67"],
       "false_positive_risk": "medium",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
       "fix_difficulty_notes": "axe flags exact or near-exact matches between alt and adjacent text — but verify the adjacent text is truly sufficient before setting alt=''. For charts, the figcaption may describe the title but not the data values — the image alt may still be needed. In <figure>/<figcaption> pairs, the figcaption typically replaces the alt for descriptive images, but for complex diagrams, consider aria-describedby pointing to a detailed description.",
       "framework_notes": {
         "react": "In React, CMS-driven content often auto-populates alt from the image title, which duplicates the adjacent heading. Use conditional alt: alt={caption ? '' : imageAlt} when a caption is present.",
@@ -1769,10 +1636,7 @@
       "effort": "medium",
       "impacted_users": "Screen reader users navigating the links list and voice control users",
       "expected": "Links with the same accessible name must have the same destination, or their distinct purpose must be distinguishable from context or accessible name.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
-      "wcag_techniques": ["G91", "H30", "SCR30"],
       "false_positive_risk": "high",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking"],
       "fix_difficulty_notes": "axe uses heuristics to detect this — it flags links with identical text pointing to different URLs. False positives are common when 'Read more' links in a card grid are accompanied by a heading that provides context. WCAG 2.4.4 allows disambiguation through programmatic context (e.g., an aria-labelledby relationship between a card heading and its link). Check whether this is already satisfied before fixing. The simplest fix that avoids template changes is aria-label.",
       "framework_notes": {
         "react": "In React, card components with 'Read more' links should accept a linkLabel prop: <a href={href} aria-label={`Read more about ${title}`}>Read more</a>. This preserves visual design while adding screen reader context.",
@@ -1797,10 +1661,7 @@
       "effort": "low",
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Input elements with type 'button', 'submit', or 'reset' must have a non-empty accessible name via the value attribute or aria-label.",
-      "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/submit",
-      "wcag_techniques": ["H91", "ARIA14"],
       "false_positive_risk": "low",
-      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
       "fix_difficulty_notes": "For <input type='submit'> and <input type='reset'>, browsers provide default labels ('Submit' and 'Reset') when value is omitted — axe may or may not flag these depending on context. Prefer explicit value attributes over browser defaults, as default labels are not consistently translated across locales. Prefer <button type='submit'> over <input type='submit'> for new code — it is more flexible.",
       "framework_notes": {
         "react": "In React, use the value prop: <input type='submit' value='Submit order' />. For modern React, prefer <button type='submit'>Submit order</button> — it supports child elements (icons, spans) and is more styleable.",
@@ -1808,7 +1669,10 @@
         "angular": "In Angular, use [value]='submitLabel' or a static value attribute. Angular Material's mat-button directives work on <button> — prefer <button> for all interactive controls."
       },
       "related_rules": [
-        { "id": "button-name", "reason": "The same accessible name requirement applies to <button> elements — fix all button naming violations together." }
+        {
+          "id": "button-name",
+          "reason": "The same accessible name requirement applies to <button> elements — fix all button naming violations together."
+        }
       ],
       "manual_test": {
         "description": "Tab to the input button and verify the screen reader announces a meaningful label.",
