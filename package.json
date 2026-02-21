@@ -6,6 +6,7 @@
   "scripts": {
     "audit": "node scripts/run-audit.mjs",
     "test": "vitest run",
+    "validate-urls": "node scripts/validate-urls.mjs",
     "postinstall": "npx playwright install chromium"
   },
   "dependencies": {

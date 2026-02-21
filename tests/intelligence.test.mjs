@@ -186,3 +186,75 @@ describe("rule-metadata.json — WCAG criterion mapping", () => {
     expect(missing).toEqual([]);
   });
 });
+
+// ── 7. manual-checks.json schema ──────────────────────────────────────────
+const manualChecks = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/manual-checks.json"), "utf-8"));
+const VALID_WCAG_LEVELS = new Set(["A", "AA", "AAA"]);
+
+const wcagChecks = manualChecks.filter(c => /^\d+\.\d+\.\d+$/.test(c.criterion));
+const atChecks = manualChecks.filter(c => /^AT-\d+$/.test(c.criterion));
+
+describe("manual-checks.json — schema", () => {
+  it("is a non-empty array", () => {
+    expect(Array.isArray(manualChecks)).toBe(true);
+    expect(manualChecks.length).toBeGreaterThan(0);
+  });
+
+  it("every entry is either a WCAG or AT check", () => {
+    const unmatched = manualChecks.filter(
+      c => !/^\d+\.\d+\.\d+$/.test(c.criterion) && !/^AT-\d+$/.test(c.criterion),
+    );
+    expect(unmatched.map(c => c.criterion)).toEqual([]);
+  });
+
+  it("has at least one WCAG check and one AT check", () => {
+    expect(wcagChecks.length).toBeGreaterThan(0);
+    expect(atChecks.length).toBeGreaterThan(0);
+  });
+
+  for (const check of manualChecks) {
+    const isAT = /^AT-\d+$/.test(check.criterion);
+
+    describe(check.criterion ?? "unknown", () => {
+      it("has a non-empty title", () => {
+        expect(check.title?.trim()).toBeTruthy();
+      });
+
+      it("has a valid level", () => {
+        if (isAT) {
+          expect(check.level).toBe("AT");
+        } else {
+          expect(VALID_WCAG_LEVELS.has(check.level)).toBe(true);
+        }
+      });
+
+      it("has a non-empty description", () => {
+        expect(check.description?.trim()).toBeTruthy();
+      });
+
+      it("has non-empty steps array", () => {
+        expect(Array.isArray(check.steps)).toBe(true);
+        expect(check.steps.length).toBeGreaterThan(0);
+      });
+
+      it("has non-empty remediation array", () => {
+        expect(Array.isArray(check.remediation)).toBe(true);
+        expect(check.remediation.length).toBeGreaterThan(0);
+      });
+
+      it("has a valid code_example with before and after", () => {
+        expect(check.code_example).toBeDefined();
+        expect(check.code_example.lang?.trim()).toBeTruthy();
+        expect(check.code_example.before?.trim()).toBeTruthy();
+        expect(check.code_example.after?.trim()).toBeTruthy();
+      });
+
+      it("has a valid ref URL", () => {
+        expect(check.ref).toMatch(/^https:\/\//);
+        if (!isAT) {
+          expect(check.ref).toMatch(/^https:\/\/www\.w3\.org\/WAI\/WCAG22\/Understanding\//);
+        }
+      });
+    });
+  }
+});
