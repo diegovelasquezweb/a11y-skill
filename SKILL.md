@@ -17,7 +17,9 @@ Follow this workflow to audit and report website accessibility issues with consi
 1. **Environment Awareness (Gemini CLI)**: This skill relies on autonomous activation. If `ReadFile` fails with "Path not in workspace" when reading resources from the skills directory (`~/.gemini/skills/a11y/`), immediately fall back to a shell command — e.g., `cat ~/.gemini/skills/a11y/SKILL.md` — without asking the user. Do not attempt `ReadFile` again. Use `/skills reload` if the skill name is not recognized at activation time.
 2. **Setup Readiness & Philosophy**:
    - **Antigravity/Windsurf**: Ensure the `/a11y` command is enabled via project-specific workflow files.
-   - **Philosophy (Fix-First)**: While reports are generated as visual evidence, the **Resolution is the Core Objective**. Do not wait for the user to "read the report" before proposing specific, technical fixes in the chat.
+   - **Philosophy (Fix-First & Clean Flow)**: While reports are generated as visual evidence, the **Resolution is the Core Objective**.
+     - **Clean Flow**: Reports (HTML/PDF) must only be generated at the **Start** (Discovery) and at the **End** (Certification).
+     - **Surgery Mode**: All intermediate verifications must use `--skip-reports` to avoid technical noise and unnecessary browser pop-ups.
 
 3. **Tailwind Version Awareness**: When inspecting project color tokens or design variables for contrast analysis, check `package.json` for the `tailwindcss` version first, then locate tokens accordingly:
    - **v3**: tokens are in `tailwind.config.ts` or `tailwind.config.js`.
@@ -238,13 +240,20 @@ When the user grants permission to apply fixes, follow this strict sequential pr
 4. **If a finding has a "Managed Component Warning"**, verify the element is not rendered by a UI library (Radix, Headless UI, etc.) before applying ARIA fixes.
 5. **Apply one severity group at a time**, starting with Critical.
 6. **Checkpoint after each group**: stop, list every file modified and every fix applied, then ask the user to test and confirm before continuing. Example prompt: _"Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."_
-7. **Verify each group** using the targeted re-scan command: `pnpm a11y --base-url <URL> --routes <route> --only-rule <rule-id> --max-routes 1`
-   - **WARNING (State Loss)**: Targeted scans overwrite `a11y-findings.json` with a filtered list. If the fix passes, the report will show **0 issues**.
+7. **Verify each group** using the targeted re-scan command with the silent flag: `pnpm a11y --base-url <URL> --routes <route> --only-rule <rule-id> --max-routes 1 --skip-reports`
+   - **WARNING (State Loss)**: Targeted scans overwrite `a11y-findings.json` with a filtered list. If the fix passes, the report internally will show **0 issues**.
    - **DISCIPLINE**: Do **NOT** tell the user "all errors are gone" based on a targeted scan. Only confirm that the specific rule(s) you just fixed are resolved.
    - **MANDATORY**: Maintain an internal tracker of which issues from the _original_ audit are still pending.
 8. **Wait for explicit user confirmation** before moving to the next severity group. Never auto-advance.
 9. **If any fix fails**: stop immediately, report the exact error and the file/line affected, and ask the user how to proceed. Do not skip ahead.
 10. **Never mix severity groups** in a single application step.
+11. **Final Certification Audit**: Once **all** automated fixes across all severity groups are applied and verified silently, run a final full audit to generate the "After" report:
+
+```bash
+node scripts/run-audit.mjs --base-url <URL>
+```
+
+- This ensures the final `audit/report.html` and `audit/report.pdf` are clean (0 issues) and ready for delivery.
 
 ## 13) Manual Checks — Source Code Scan
 
