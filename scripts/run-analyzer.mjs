@@ -45,6 +45,13 @@ const INCLUSIVE_COMPONENTS = REFERENCES.inclusiveComponents;
 const MDN = REFERENCES.mdn || {};
 const WCAG_CRITERION_MAP = REFERENCES.wcagCriterionMap || {};
 
+function detectCodeLang(code) {
+  if (!code) return "html";
+  if (/\.(tsx?|jsx?)\b|className=|useState|useRef|<>\s*<\/>/i.test(code)) return "jsx";
+  if (/^\s*[.#][\w-]+\s*\{|:\s*var\(|@media|display\s*:/m.test(code)) return "css";
+  return "html";
+}
+
 const US_REGULATORY = {
   default: "https://accessibility.18f.gov/checklist/",
   section508: "https://www.section508.gov/create/software-websites/",
@@ -240,7 +247,7 @@ function buildFindings(inputPayload) {
           expected: getExpected(v.id),
           fix_description: fixInfo.description ?? null,
           fix_code: fixInfo.code ?? null,
-          fix_code_lang: ruleInfo.fix_code_lang ?? "html",
+          fix_code_lang: detectCodeLang(fixInfo.code),
           recommended_fix: recFix.trim(),
           mdn: MDN[v.id] ?? null,
           manual_test: ruleInfo.manual_test ?? null,
