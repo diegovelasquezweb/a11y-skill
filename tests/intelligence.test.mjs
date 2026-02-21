@@ -5,7 +5,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intel = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"));
-const refs  = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/references.json"), "utf-8"));
+const refs  = JSON.parse(fs.readFileSync(path.join(__dirname, "../assets/rule-metadata.json"), "utf-8"));
 
 const VALID_FP_RISK = new Set(["low", "medium", "high"]);
 const VALID_FW_KEYS = new Set(["react", "vue", "angular", "shopify", "wordpress", "drupal", "generic"]);
@@ -72,8 +72,8 @@ describe("intelligence.json — schema", () => {
   }
 });
 
-// ── 2. references.json schema ──────────────────────────────────────────────
-describe("references.json — schema", () => {
+// ── 2. rule-metadata.json schema ──────────────────────────────────────────────
+describe("rule-metadata.json — schema", () => {
   it("every rule has impactedUsers", () => {
     const missing = [...ruleIds].filter(id => !refs.impactedUsers?.[id]?.trim());
     expect(missing).toEqual([]);
@@ -137,7 +137,7 @@ describe("intelligence.json — content quality", () => {
 });
 
 // ── 6. WCAG criterion mapping accuracy ────────────────────────────────────
-describe("references.json — WCAG criterion mapping", () => {
+describe("rule-metadata.json — WCAG criterion mapping", () => {
   // Rules axe-core tags as best-practice (no WCAG tag) but we intentionally map
   const BEST_PRACTICE_MAPPED = new Set([
     "accesskeys", "aria-allowed-role", "aria-dialog-name",

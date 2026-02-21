@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
-const referencesPath = path.join(__dirname, "../assets/references.json");
+const referencesPath = path.join(__dirname, "../assets/rule-metadata.json");
 let INTELLIGENCE;
 let REFERENCES;
 try {
@@ -28,7 +28,7 @@ try {
   REFERENCES = JSON.parse(fs.readFileSync(referencesPath, "utf-8"));
 } catch {
   throw new Error(
-    `Missing or invalid references.json at ${referencesPath} — run pnpm install to reinstall.`,
+    `Missing or invalid rule-metadata.json at ${referencesPath} — run pnpm install to reinstall.`,
   );
 }
 

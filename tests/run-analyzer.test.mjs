@@ -17,7 +17,7 @@ describe("assets/intelligence.json schema", () => {
       fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"),
     );
     references = JSON.parse(
-      fs.readFileSync(path.join(__dirname, "../assets/references.json"), "utf-8"),
+      fs.readFileSync(path.join(__dirname, "../assets/rule-metadata.json"), "utf-8"),
     );
   });
 
@@ -25,7 +25,7 @@ describe("assets/intelligence.json schema", () => {
     expect(intelligence).toHaveProperty("rules");
   });
 
-  it("references.json has required top-level keys", () => {
+  it("rule-metadata.json has required top-level keys", () => {
     expect(references).toHaveProperty("wcagCriterionMap");
     expect(references).toHaveProperty("apgPatterns");
     expect(references).toHaveProperty("a11ySupport");

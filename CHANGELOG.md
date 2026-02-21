@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] — 2026-02-21
 
 ### Added
-- `assets/references.json` — WCAG criterion mapping for accessibility patterns and support
+- `assets/rule-metadata.json` — WCAG criterion mapping, MDN links, impacted users, and expected behavior per rule
 - Visual overlay on screenshots for accessibility violations
 - Manual checks for WCAG 2.2 static code violations after automated fixes
 - `intelligence.json` schema validation with comprehensive tests (`tests/intelligence.test.mjs`)
