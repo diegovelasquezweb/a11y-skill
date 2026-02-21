@@ -111,10 +111,10 @@ The technical core of the skill is a decoupled audit engine. It is ideal for aut
 Execute the audit script directly from the skill directory:
 
 ```bash
-# Diagnostic: Audit a specific URL with custom limit and visible browser
+# Audit a specific URL with custom limit and visible browser
 pnpm run audit -- --base-url localhost:3000 --max-routes 20 --headed
 
-# Diagnostic: Run ONLY the color-contrast check
+# Run ONLY the color-contrast check
 pnpm run audit -- --base-url https://mysite.com --only-rule color-contrast
 ```
 
