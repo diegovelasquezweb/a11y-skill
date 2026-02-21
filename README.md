@@ -59,6 +59,8 @@ While the primary output for the AI agent is the Remediation Guide, the skill ge
 
 ## Advanced Configuration
 
+The a11y skill is built for deep flexibility. While defaults are safe for most projects, you can fine-tune every aspect of the engine's behavior.
+
 ### How to Update Configuration
 
 You can manage the skill's settings through the AI agent using natural language:
@@ -146,7 +148,20 @@ pnpm test
 | **Reporting Utilities**      | 5     | HTML escaping, line formatting, linkification.             |
 | **System & Configuration**   | 4     | Config merging, JSON schema validation, toolchain health.  |
 
-## Reference
+## Technical Reference
+
+For a comprehensive understanding of the a11y engine, explore the following technical manuals:
+
+| Resource                                                  | Description                                                                |
+| :-------------------------------------------------------- | :------------------------------------------------------------------------- |
+| 🏗️ [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.      |
+| 🧮 [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.      |
+| 🧠 [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing and surgical fix pattern matching via `intelligence.json`. |
+| 📖 [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.            |
+| ⚙️ [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                    |
+| 🛡️ [**Testing Strategy**](docs/testing.md)                | Documentation of the 67+ tests and logic verification coverage.            |
+
+## External Resources
 
 - [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
 - [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
