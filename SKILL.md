@@ -265,6 +265,17 @@ After all automated fixes are applied and confirmed, process the "WCAG 2.2 Stati
 4. **For each confirmed violation**, propose the fix using the before/after code example from the check. Group all manual check findings together and present them to the user as a separate batch: _"I found N additional issues from manual WCAG checks that axe-core cannot detect. Here are the proposed fixes."_
 5. **Wait for user permission** before applying. Follow the same checkpoint protocol as Section 12.
 
+## 14) Integrity & Security Protocol
+
+To maintain the reliability of the accessibility audit, agents must adhere to these strict guardrails.
+
+1. **No Manual Report Manipulation**: Never edit files in the `audit/` directory (`report.html`, `remediation.md`, etc.) to manually remove or modify findings. Reports must only change as a result of a re-scan or an update to the reporting scripts.
+2. **No Engine Logic Bypassing**: Do not modify the core engine scripts (`scripts/run-scanner.mjs`, etc.) to hardcode project-specific exclusions. Use `a11y.config.json` or CLI flags for all ignores and configurations.
+3. **Intelligence Hygiene**: Keep `assets/intelligence.json` generic and standards-based. Do not add project-specific context or brand-specific repair notes to the global intelligence database.
+4. **No Verification Hallucinations**: A targeted verification scan (`--only-rule`) only confirms the fix for that specific rule. Do not declare a project "100% accessible" based on a partial scan. Total victory can only be declared after a **Final Certification Audit**.
+5. **No Intentional Downgrading**: Never downgrade core dependencies like `axe-core` in `package.json` to suppress new rules or findings. Maintain the latest stable engine for maximum compliance.
+6. **Complacent Ignores Prohibited**: Never add a rule to `ignoreFindings` in `a11y.config.json` just to bypass a difficult fix. Any addition to the ignore list requires explicit user confirmation and a valid technical reason.
+
 ### `a11y.config.json` Reference
 
 Persist scan settings across runs by placing this file in the audited project root. All keys are optional — the engine merges with internal defaults. CLI flags always take precedence.
