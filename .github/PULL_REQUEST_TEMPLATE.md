@@ -18,7 +18,8 @@ Brief description of the change and why it was made.
 - [ ] Works with `pnpm` exclusively
 - [ ] Tested in multiple browser environments (Chromium/Webkit)
 
-### Legal
+### Legal & Privacy
 
-- [ ] All new files include appropriate license headers (if required by MPL 2.0)
-- [ ] No GPL/Copyleft code introduced
+- [ ] No proprietary client data or secrets committed.
+- [ ] Third-party libraries are internal-safe.
+- [ ] Code follows the internal Proprietary License standards.
