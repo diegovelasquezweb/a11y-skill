@@ -30,7 +30,7 @@ This skill follows the [Agent Skills standard](https://agentskills.io).
 | **Antigravity** | `~/.gemini/antigravity/skills/a11y/`            | —                          | `.agent/`, `workflows/`    |
 | **Codex**       | `~/.codex/skills/a11y/`                         | `agents/openai.yaml`       | `workflows/`               |
 | **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`, `.claude/`    | `workflows/`               |
-| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  | `.cursorrules`, `.cursor/` | `workflows/`               |
+| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  | `.cursor/rules/`           | `workflows/`               |
 | **Gemini CLI**  | `~/.gemini/skills/a11y/` (or `.agents/skills/`) | `~/.gemini/settings.json`  | —                          |
 | **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`              | —                          | `.windsurf/`, `workflows/` |
 
@@ -101,7 +101,7 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 ## External Resources
 
 - [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
-- [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
+- [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.11)
 - [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
 - [Agent Skills Standard](https://agentskills.io/)
 - [Claude Skills](https://docs.anthropic.com/en/docs/claude-code/skills)
