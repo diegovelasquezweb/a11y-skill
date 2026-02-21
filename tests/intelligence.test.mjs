@@ -140,10 +140,17 @@ describe("intelligence.json — content quality", () => {
 describe("references.json — WCAG criterion mapping", () => {
   // Rules axe-core tags as best-practice (no WCAG tag) but we intentionally map
   const BEST_PRACTICE_MAPPED = new Set([
-    "image-redundant-alt", "landmark-one-main", "region",
-    "landmark-no-duplicate-banner", "landmark-no-duplicate-main",
-    "landmark-unique", "heading-order", "table-duplicate-name",
-    "tabindex", "page-has-heading-one", "empty-heading",
+    "accesskeys", "aria-allowed-role", "aria-dialog-name",
+    "aria-text", "aria-treeitem-name", "empty-heading",
+    "empty-table-header", "focus-order-semantics", "frame-tested",
+    "heading-order", "hidden-content", "image-redundant-alt",
+    "label-title-only", "landmark-banner-is-top-level",
+    "landmark-complementary-is-top-level", "landmark-contentinfo-is-top-level",
+    "landmark-main-is-top-level", "landmark-no-duplicate-banner",
+    "landmark-no-duplicate-contentinfo", "landmark-no-duplicate-main",
+    "landmark-one-main", "landmark-unique", "meta-viewport-large",
+    "page-has-heading-one", "presentation-role-conflict", "region",
+    "scope-attr-valid", "skip-link", "table-duplicate-name", "tabindex",
   ]);
   // WCAG 4.1.1 is obsoleted in WCAG 2.2 — axe still tags with wcag411
   const WCAG22_OBSOLETE_OVERRIDE = new Set(["duplicate-id"]);
