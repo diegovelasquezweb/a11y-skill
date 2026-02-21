@@ -1,3 +1,5 @@
+[← Back to Index](README.md)
+
 # Configuration Reference
 
 The skill uses an optional `a11y.config.json` file in the project root to persist settings across audit runs. This file allows you to define project-specific guardrails and preferences.

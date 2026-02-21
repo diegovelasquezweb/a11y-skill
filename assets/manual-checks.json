@@ -32,6 +32,11 @@
     "remediation": [
       "If no keyboard alternative exists, add arrow-key support or button controls to the component."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — drag-only, no keyboard or single-pointer alternative -->\n<ul id=\"sortable\">\n  <li draggable=\"true\" ondragstart=\"drag(event)\">Item 1</li>\n  <li draggable=\"true\" ondragstart=\"drag(event)\">Item 2</li>\n</ul>",
+      "after": "<!-- AFTER — drag + button alternative for keyboard/single-pointer access -->\n<ul id=\"sortable\">\n  <li draggable=\"true\" ondragstart=\"drag(event)\">\n    <span>Item 1</span>\n    <button type=\"button\" aria-label=\"Move Item 1 up\" onclick=\"moveUp(this)\">↑</button>\n    <button type=\"button\" aria-label=\"Move Item 1 down\" onclick=\"moveDown(this)\">↓</button>\n  </li>\n</ul>"
+    },
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html"
   },
   {
@@ -47,6 +52,11 @@
     "remediation": [
       "For icon-only buttons (no text), ensure `padding` is set so the total rendered size is at least 24×24px."
     ],
+    "code_example": {
+      "lang": "css",
+      "before": "/* BEFORE — icon button renders below 24×24 CSS px */\n.icon-btn {\n  width: 16px;\n  height: 16px;\n  padding: 0;\n}",
+      "after": "/* AFTER — minimum 24×24 CSS px via padding */\n.icon-btn {\n  min-width: 24px;\n  min-height: 24px;\n  padding: 4px;\n  box-sizing: content-box;\n}"
+    },
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html"
   },
   {
@@ -62,6 +72,11 @@
     "remediation": [
       "If found on individual pages rather than in a shared layout, move the component to the shared layout to guarantee consistent placement."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — help link embedded per-page, missing on some pages -->\n<!-- about.html -->\n<footer><a href=\"/contact\">Contact Support</a></footer>\n<!-- pricing.html: no footer, help link absent -->",
+      "after": "<!-- AFTER — help link in shared layout, consistent on all pages -->\n<!-- layout.html (shared template) -->\n<footer>\n  <a href=\"/contact\">Contact Support</a>\n</footer>"
+    },
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/consistent-help.html"
   },
   {
@@ -77,6 +92,11 @@
     "remediation": [
       "If later steps re-render fields already collected (name, address, email), pre-populate them from stored state/context instead of showing empty inputs."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — step 2 re-asks for email already submitted in step 1 -->\n<label for=\"email2\">Re-enter your email</label>\n<input type=\"email\" id=\"email2\" name=\"email_confirm\">",
+      "after": "<!-- AFTER — email pre-populated from stored session state -->\n<label for=\"email2\">Email (entered in step 1)</label>\n<input\n  type=\"email\"\n  id=\"email2\"\n  name=\"email_confirm\"\n  value=\"user@example.com\"\n  readonly\n  aria-describedby=\"email2-hint\"\n>\n<p id=\"email2-hint\">Wrong address? <a href=\"/step-1\">Go back to edit it.</a></p>"
+    },
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/redundant-entry.html"
   },
   {
@@ -119,7 +139,7 @@
       "before": "<!-- BEFORE — click only, no keyboard support -->\n<div class=\"dropdown\" onclick=\"toggleMenu()\">\n  Options\n</div>",
       "after": "<!-- AFTER — keyboard accessible with role + tabindex -->\n<button\n  class=\"dropdown\"\n  aria-expanded=\"false\"\n  aria-haspopup=\"menu\"\n  onclick=\"toggleMenu(this)\"\n  onkeydown=\"handleMenuKey(event, this)\"\n>\n  Options\n</button>"
     },
-    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/keyboard.html"
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html"
   },
   {
     "criterion": "2.1.2",
@@ -135,7 +155,12 @@
       "For modals, implement a focus trap that keeps focus inside while open, and releases it when closed with Escape or the close button.",
       "Remove any tabindex or focus logic that prevents Tab from exiting a non-modal component."
     ],
-    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/no-keyboard-trap.html"
+    "code_example": {
+      "lang": "js",
+      "before": "// BEFORE — widget traps all Tab keypresses, focus cannot exit\nwidget.addEventListener('keydown', (e) => {\n  if (e.key === 'Tab') {\n    e.preventDefault(); // blocks exit\n    cycleFocusInternally(e.shiftKey);\n  }\n});",
+      "after": "// AFTER — focus trap only inside open modal dialogs\nwidget.addEventListener('keydown', (e) => {\n  const isModal = widget.getAttribute('role') === 'dialog';\n  if (e.key === 'Tab' && isModal && isOpen) {\n    trapFocusWithin(widget, e);\n  }\n  // Non-modal: let Tab exit naturally\n});"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/no-keyboard-trap.html"
   },
   {
     "criterion": "2.4.3",
@@ -151,7 +176,12 @@
       "Remove positive tabindex values — they override the natural DOM order and create unpredictable sequences.",
       "Reorder DOM elements to match the intended visual and logical reading order."
     ],
-    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/focus-order.html"
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — positive tabindex creates unnatural focus order -->\n<button tabindex=\"3\">Submit</button>\n<input tabindex=\"1\" type=\"text\" placeholder=\"First name\">\n<input tabindex=\"2\" type=\"text\" placeholder=\"Last name\">",
+      "after": "<!-- AFTER — natural DOM order, no positive tabindex -->\n<input type=\"text\" placeholder=\"First name\">\n<input type=\"text\" placeholder=\"Last name\">\n<button type=\"submit\">Submit</button>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html"
   },
   {
     "criterion": "1.4.1",
@@ -172,7 +202,7 @@
       "before": "<!-- BEFORE — error indicated by color only -->\n<input type=\"email\" class=\"input-error\">\n<!-- .input-error { border: 2px solid red; } -->",
       "after": "<!-- AFTER — error indicated by color + icon + text -->\n<div class=\"field\">\n  <input type=\"email\" class=\"input-error\" aria-describedby=\"email-error\">\n  <p id=\"email-error\" class=\"error-message\" role=\"alert\">\n    <svg aria-hidden=\"true\"><!-- error icon --></svg>\n    Please enter a valid email address.\n  </p>\n</div>"
     },
-    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/use-of-color.html"
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html"
   },
   {
     "criterion": "1.4.10",
@@ -188,7 +218,12 @@
       "Use relative units (rem, %, vw) instead of fixed pixel widths for layout containers.",
       "Add a CSS media query at max-width: 320px to collapse multi-column layouts into a single column."
     ],
-    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/reflow.html"
+    "code_example": {
+      "lang": "css",
+      "before": "/* BEFORE — fixed-width layout, causes horizontal scroll at 320px */\n.container {\n  width: 960px;\n}\n.sidebar {\n  width: 300px;\n  float: left;\n}",
+      "after": "/* AFTER — responsive layout, single column at 320px */\n.container {\n  width: 100%;\n  max-width: 960px;\n  padding: 0 1rem;\n  box-sizing: border-box;\n}\n.sidebar { width: 100%; }\n@media (min-width: 640px) {\n  .sidebar {\n    width: 30%;\n    float: left;\n  }\n}"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/reflow.html"
   },
   {
     "criterion": "1.4.11",
@@ -204,7 +239,12 @@
       "Darken input borders, icon strokes, and UI component outlines to meet the 3:1 ratio.",
       "Use the WebAIM Contrast Checker or Colour Contrast Analyser to validate values."
     ],
-    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/non-text-contrast.html"
+    "code_example": {
+      "lang": "css",
+      "before": "/* BEFORE — input border fails 3:1 against white background */\ninput[type=\"text\"] {\n  border: 1px solid #ccc; /* ~1.6:1 contrast */\n}\n.icon { fill: #bbb; } /* ~1.4:1 contrast */",
+      "after": "/* AFTER — border and icon meet 3:1 minimum */\ninput[type=\"text\"] {\n  border: 1px solid #767676; /* ~4.5:1 against white */\n}\n.icon { fill: #595959; } /* ~7:1 against white */"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html"
   },
   {
     "criterion": "1.4.12",
@@ -220,7 +260,12 @@
       "Use min-height instead of fixed height on containers with text.",
       "Avoid overflow:hidden on elements that contain user-readable text."
     ],
-    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/text-spacing.html"
+    "code_example": {
+      "lang": "css",
+      "before": "/* BEFORE — fixed height clips text with custom user spacing */\n.card-header {\n  height: 48px;\n  overflow: hidden;\n}\n.btn {\n  height: 40px;\n  line-height: 40px;\n}",
+      "after": "/* AFTER — min-height allows text to grow with user spacing overrides */\n.card-header {\n  min-height: 48px;\n  overflow: visible;\n}\n.btn {\n  min-height: 40px;\n  padding: 0.5em 1em;\n  line-height: 1.5;\n}"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/text-spacing.html"
   },
   {
     "criterion": "1.4.13",
@@ -236,7 +281,12 @@
       "Ensure tooltip/popover elements are adjacent in DOM so the cursor can move from trigger to content without dismissal.",
       "Add an Escape key handler to close hover content without requiring focus change."
     ],
-    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/content-on-hover-or-focus.html"
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — tooltip closes when cursor moves onto it (pointer-events: none) -->\n<span class=\"tip-trigger\">Help <span class=\"tooltip\">More info.</span></span>\n<!-- CSS: .tooltip { pointer-events: none; } -->",
+      "after": "<!-- AFTER — tooltip is hoverable, keyboard-focusable, Escape dismisses -->\n<span class=\"tip-trigger\">\n  <button type=\"button\" aria-describedby=\"tip1\">Help</button>\n  <span id=\"tip1\" role=\"tooltip\" class=\"tooltip\">More info.</span>\n</span>\n<!-- CSS: .tooltip { pointer-events: auto; } -->\n<!-- JS: document.addEventListener('keydown', e => { if (e.key === 'Escape') hideTooltip(); }); -->"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/content-on-hover-or-focus.html"
   },
   {
     "criterion": "3.3.1",
@@ -254,7 +304,12 @@
       "Use aria-invalid=\"true\" on inputs in an error state.",
       "Move focus to the error summary or first error field on form submission failure."
     ],
-    "ref": "https://www.w3.org/WAI/WCAG21/Understanding/error-identification.html"
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — error indicated only by red border, no text description -->\n<input type=\"email\" name=\"email\" class=\"input-error\">",
+      "after": "<!-- AFTER — error described in text, linked via aria-describedby -->\n<label for=\"email\">Email address</label>\n<input\n  type=\"email\"\n  id=\"email\"\n  name=\"email\"\n  aria-invalid=\"true\"\n  aria-describedby=\"email-err\"\n  class=\"input-error\"\n>\n<p id=\"email-err\" class=\"error-msg\">Please enter a valid email address.</p>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html"
   },
   {
     "criterion": "2.3.3",
@@ -270,6 +325,11 @@
       "Wrap non-essential CSS animations in a @media (prefers-reduced-motion: reduce) query and set them to a simple opacity or instant transition.",
       "Never use animation as the only way to convey state change."
     ],
+    "code_example": {
+      "lang": "css",
+      "before": "/* BEFORE — animation plays regardless of user's motion preference */\n.card {\n  transition: transform 0.5s ease;\n}\n.card:hover {\n  transform: translateY(-8px);\n}",
+      "after": "/* AFTER — motion only when user has not requested reduced motion */\n.card { transition: opacity 0.2s ease; }\n@media (prefers-reduced-motion: no-preference) {\n  .card {\n    transition: transform 0.5s ease, opacity 0.2s ease;\n  }\n  .card:hover {\n    transform: translateY(-8px);\n  }\n}"
+    },
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html"
   },
   {
@@ -287,6 +347,11 @@
       "Ensure visual headings use semantic <h1>–<h6> elements, not styled <div> or <span> elements.",
       "Remove role=\"heading\" from decorative elements."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — visual heading styled as div, not announced by screen reader -->\n<div class=\"section-title\">Product Features</div>",
+      "after": "<!-- AFTER — semantic heading, announced as 'Heading level 2, Product Features' -->\n<h2>Product Features</h2>"
+    },
     "ref": "https://www.w3.org/WAI/test-evaluate/preliminary/#headings"
   },
   {
@@ -304,6 +369,11 @@
       "Add aria-label to disambiguate multiple nav or section elements (e.g. aria-label=\"Main navigation\").",
       "Wrap all visible page content in semantic landmark elements."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — layout divs only, no landmark regions for screen reader navigation -->\n<div class=\"nav-bar\">...</div>\n<div class=\"content\">...</div>\n<div class=\"side\">...</div>",
+      "after": "<!-- AFTER — semantic landmarks, duplicate navs labeled for disambiguation -->\n<nav aria-label=\"Main navigation\">...</nav>\n<main>...</main>\n<aside aria-label=\"Related articles\">...</aside>"
+    },
     "ref": "https://www.w3.org/WAI/test-evaluate/preliminary/#landmarks"
   },
   {
@@ -320,6 +390,11 @@
       "Associate every input with a <label> element using for/id, or use aria-label / aria-labelledby.",
       "Never rely on placeholder as a substitute for a visible label."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — placeholder is the only label (unreliable, disappears on input) -->\n<input type=\"email\" placeholder=\"Email address\">",
+      "after": "<!-- AFTER — explicit visible label associated via for/id -->\n<label for=\"email\">Email address</label>\n<input type=\"email\" id=\"email\" placeholder=\"e.g. name@example.com\">"
+    },
     "ref": "https://www.w3.org/WAI/tutorials/forms/labels/"
   },
   {
@@ -337,6 +412,11 @@
       "Add keydown handlers for Enter and Space on all elements with role=\"button\".",
       "Ensure state changes trigger an accessible announcement via aria-live or focus management."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — div with onclick, not keyboard-operable, announced as generic element -->\n<div class=\"btn\" onclick=\"submitForm()\">Submit</div>",
+      "after": "<!-- AFTER — native button, keyboard-operable, announced as 'Submit, button' -->\n<button type=\"button\" onclick=\"submitForm()\">Submit</button>"
+    },
     "ref": "https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/"
   },
   {
@@ -354,6 +434,11 @@
       "Add aria-live=\"assertive\" only for urgent alerts that must interrupt the user.",
       "Use role=\"status\" for polite messages and role=\"alert\" for urgent ones."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — status updated silently, screen reader not notified -->\n<div id=\"status\"></div>\n<script>\n  document.getElementById('status').textContent = '12 results found';\n</script>",
+      "after": "<!-- AFTER — aria-live announces update without requiring focus change -->\n<div id=\"status\" role=\"status\" aria-live=\"polite\" aria-atomic=\"true\"></div>\n<script>\n  // Screen reader announces '12 results found' automatically\n  document.getElementById('status').textContent = '12 results found';\n</script>"
+    },
     "ref": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Live_Regions"
   },
   {
@@ -372,6 +457,11 @@
       "Add aria-labelledby pointing to the dialog title.",
       "Implement a JavaScript focus trap and restore focus on close."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — visual modal, no ARIA, focus not managed on open -->\n<div class=\"modal\">\n  <h2>Confirm</h2>\n  <button onclick=\"close()\">Cancel</button>\n  <button onclick=\"confirm()\">OK</button>\n</div>",
+      "after": "<!-- AFTER — accessible dialog with focus management and Escape support -->\n<div\n  class=\"modal\"\n  role=\"dialog\"\n  aria-modal=\"true\"\n  aria-labelledby=\"modal-title\"\n  tabindex=\"-1\"\n>\n  <h2 id=\"modal-title\">Confirm</h2>\n  <button onclick=\"close()\">Cancel</button>\n  <button onclick=\"confirm()\">OK</button>\n</div>\n<!-- JS: focus dialog on open, trap Tab within, restore focus to trigger on close -->"
+    },
     "ref": "https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/"
   },
   {
@@ -389,6 +479,11 @@
       "Add a <caption> or aria-label to the <table> element.",
       "Never use tables for layout — only for tabular data."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — table without headers or caption, cells read in isolation -->\n<table>\n  <tr><td>Name</td><td>Role</td></tr>\n  <tr><td>Alice</td><td>Engineer</td></tr>\n</table>",
+      "after": "<!-- AFTER — scoped headers and caption for full screen reader context -->\n<table>\n  <caption>Team Members</caption>\n  <thead>\n    <tr>\n      <th scope=\"col\">Name</th>\n      <th scope=\"col\">Role</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>Alice</td>\n      <td>Engineer</td>\n    </tr>\n  </tbody>\n</table>"
+    },
     "ref": "https://www.w3.org/WAI/tutorials/tables/"
   },
   {
@@ -407,6 +502,11 @@
       "Set aria-invalid=\"true\" and aria-describedby on each invalid input pointing to its error message.",
       "Ensure error messages are visible text nodes — not only communicated via color or icon."
     ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — error displayed visually, screen reader not notified -->\n<input type=\"email\" class=\"invalid\">\n<div class=\"error\">Email is required</div>",
+      "after": "<!-- AFTER — error summary announced via role=alert, field marked invalid -->\n<div role=\"alert\" id=\"error-summary\">\n  <p>1 error: <a href=\"#email\">Email is required</a></p>\n</div>\n<label for=\"email\">Email</label>\n<input\n  type=\"email\"\n  id=\"email\"\n  aria-invalid=\"true\"\n  aria-describedby=\"email-err\"\n  class=\"invalid\"\n>\n<p id=\"email-err\">Email is required.</p>"
+    },
     "ref": "https://www.w3.org/WAI/tutorials/forms/validation/"
   }
 ]

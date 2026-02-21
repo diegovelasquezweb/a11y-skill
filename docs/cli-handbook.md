@@ -1,4 +1,18 @@
+[← Back to Index](README.md)
+
 # CLI Handbook
+
+## Table of Contents
+
+- [Basic Usage](#basic-usage)
+- [Command Categories](#command-categories)
+  - [1. Targeting & Scope](#1-targeting--scope)
+  - [2. Audit Intelligence](#2-audit-intelligence)
+  - [3. Execution & Emulation](#3-execution--emulation)
+- [Advanced Patterns](#advanced-patterns)
+  - [Running a Focused Audit](#running-a-focused-audit)
+  - [Testing Dark Mode Accessibility](#testing-dark-mode-accessibility)
+  - [Scripting with the CLI](#scripting-with-the-cli)
 
 The a11y skill provides a decoupled **Audit Engine** that can be run independently of AI agents for local validation or CI/CD integration.
 

@@ -1,4 +1,19 @@
+[← Back to Index](README.md)
+
 # Engine Intelligence
+
+## Table of Contents
+
+- [The Intelligence Database](#the-intelligence-database-assetsintelligencejson)
+  - [Core Intelligence Fields](#core-intelligence-fields)
+  - [WCAG Criterion Map](#wcag-criterion-map-wcagcriterionmap)
+- [Surgical Patch Generation](#surgical-patch-generation)
+- [Example: The "Fix-First" Flow](#example-the-fix-first-flow)
+- [Manual Checks](#manual-checks-assetsmanual-checksjson)
+  - [What each check contains](#what-each-check-contains)
+  - [Coverage breakdown](#coverage-breakdown)
+  - [How to add a new manual check](#how-to-add-a-new-manual-check)
+- [Reference Links](#reference-links)
 
 The "Intelligence" of the a11y skill revolves around **Autonomous Remediation**. It transforms a diagnostic finding into an actionable code patch.
 
@@ -56,16 +71,16 @@ These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Che
 
 ### What each check contains
 
-| Field | Description |
-|:---|:---|
-| `criterion` | WCAG 2.2 criterion number (e.g., `"2.4.11"`) or screen reader test ID (e.g., `"AT-1"`) |
-| `title` | Human-readable criterion name |
-| `level` | WCAG conformance level (`A` or `AA`) |
-| `description` | What the criterion requires and why it matters |
-| `steps` | Step-by-step verification instructions for a human or agent |
-| `remediation` | Recommended fix patterns if a violation is found |
-| `code_example` | Optional before/after code snippet (`lang`, `before`, `after`) |
-| `ref` | Canonical W3C understanding document URL |
+| Field          | Description                                                                            |
+| :------------- | :------------------------------------------------------------------------------------- |
+| `criterion`    | WCAG 2.2 criterion number (e.g., `"2.4.11"`) or screen reader test ID (e.g., `"AT-1"`) |
+| `title`        | Human-readable criterion name                                                          |
+| `level`        | WCAG conformance level (`A` or `AA`)                                                   |
+| `description`  | What the criterion requires and why it matters                                         |
+| `steps`        | Step-by-step verification instructions for a human or agent                            |
+| `remediation`  | Recommended fix patterns if a violation is found                                       |
+| `code_example` | Optional before/after code snippet (`lang`, `before`, `after`)                         |
+| `ref`          | Canonical W3C understanding document URL                                               |
 
 ### Coverage breakdown
 

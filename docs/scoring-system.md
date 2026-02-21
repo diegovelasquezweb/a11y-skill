@@ -1,3 +1,5 @@
+[← Back to Index](README.md)
+
 # Scoring System
 
 The a11y skill uses a **Weighted Debt Model** to calculate the Compliance Score. Instead of a simple percentage of passed rules, it penalizes the score based on the severity and frequency of issues.

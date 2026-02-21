@@ -99,15 +99,12 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 | ⚖️ [**Governance**](docs/governance.md)                   | Repository standards, branch protection, and merging rules.                  |
 | 🛡️ [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                     |
 
-## External Resources
+## Internal Resources
 
-- [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
-- [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.10)
-- [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
+- [Internal Architecture](docs/architecture.md)
+- [Governance Guide](docs/governance.md)
 - [Agent Skills Standard](https://agentskills.io/)
-- [Claude Skills](https://docs.anthropic.com/en/docs/claude-code/skills)
-- [Antigravity Skills](https://antigravity.google/docs/skills)
-- [Codex Skills](https://developers.openai.com/codex/skills/)
-- [Cursor Skills](https://cursor.com/docs/context/skills)
-- [Gemini CLI Skills](https://geminicli.com/docs/cli/skills/)
-- [Windsurf Skills](https://docs.windsurf.com/windsurf/cascade/skills)
+
+---
+
+**© 2026 diegovelasquezweb. All Rights Reserved. Confidential & Proprietary.**
