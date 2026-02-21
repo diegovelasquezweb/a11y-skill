@@ -1,5 +1,9 @@
 # Audit Engine Architecture
 
+**Navigation**: [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Testing](testing.md)
+
+---
+
 The a11y skill operates as a three-stage pipeline designed for **Autonomous Remediation**. It transforms a URL into a surgical roadmap of code fixes.
 
 ## High-Level Pipeline

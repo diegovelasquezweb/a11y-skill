@@ -80,8 +80,6 @@ See [references/baseline-checks.md](references/baseline-checks.md) for the full 
 
 Run automated tests using the bundled robust scanner (Playwright + Axe-Core).
 
-1. Automated pass (bundled scanner).
-
 - The skill uses `scripts/run-scanner.mjs` which launches a headless browser.
 - It scans the DOM using Axe-Core for WCAG 2.2 A/AA compliance.
 - It supports SPAs (Single Page Applications) and complex JS-driven UIs.

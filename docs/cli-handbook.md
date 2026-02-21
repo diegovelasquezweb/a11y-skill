@@ -1,5 +1,15 @@
 # CLI Handbook
 
+**Navigation**: [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Testing](testing.md)
+
+---
+
+## Table of Contents
+
+- [Basic Usage](#basic-usage)
+- [Command Categories](#command-categories)
+- [Advanced Patterns](#advanced-patterns)
+
 The a11y skill provides a decoupled **Audit Engine** that can be run independently of AI agents for local validation or CI/CD integration.
 
 ## Basic Usage

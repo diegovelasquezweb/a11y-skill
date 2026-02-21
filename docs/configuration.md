@@ -1,5 +1,9 @@
 # Configuration Reference
 
+**Navigation**: [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Testing](testing.md)
+
+---
+
 The skill uses an optional `a11y.config.json` file in the project root to persist settings across audit runs. This file allows you to define project-specific guardrails and preferences.
 
 ## Schema Overview

@@ -1,5 +1,15 @@
 # Engine Intelligence
 
+**Navigation**: [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Testing](testing.md)
+
+---
+
+## Table of Contents
+
+- [The Intelligence Database](#the-intelligence-database-assetsintelligencejson)
+- [Surgical Patch Generation](#surgical-patch-generation)
+- [Manual Checks](#manual-checks-assetsmanual-checksjson)
+
 The "Intelligence" of the a11y skill revolves around **Autonomous Remediation**. It transforms a diagnostic finding into an actionable code patch.
 
 ## The Intelligence Database (`assets/intelligence.json`)

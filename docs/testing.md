@@ -1,5 +1,9 @@
 # Testing Strategy
 
+**Navigation**: [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Testing](testing.md)
+
+---
+
 The a11y skill maintains a robust test suite to ensure the **Audit Engine** remains reliable and precise. We prioritize unit tests for engine logic and intelligence mapping.
 
 ## Overview
