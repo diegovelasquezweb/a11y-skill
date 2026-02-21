@@ -54,7 +54,7 @@ Flags used to control the _browser_ and _output_.
 | `--output`       | `<path>`                              | `audit/report.html` | Location for the final HTML report.                                             |
 | `--color-scheme` | `light\|dark`                         | `light`             | Emulates browser `prefers-color-scheme`.                                        |
 | `--headed`       | (No arg)                              | `false`             | Runs the browser in visible mode (useful for debugging).                        |
-| `--wait-ms`      | `<num>`                               | `2000`              | Delay after page load before scanning (for SPAs/animations).                    |
+| `--wait-ms`      | `<num>`                               | `2000`              | Max wait for `networkidle` after page load (acts as timeout, not fixed delay).  |
 | `--timeout-ms`   | `<num>`                               | `30000`             | Global network timeout for each page load.                                      |
 | `--wait-until`   | `domcontentloaded\|load\|networkidle` | `domcontentloaded`  | Playwright page load strategy. Use `networkidle` for SPAs with async rendering. |
 
@@ -75,6 +75,16 @@ Ensure your site meets contrast requirements in both themes:
 ```bash
 pnpm a11y --base-url http://localhost:3000 --color-scheme dark --output audit/report-dark.html
 ```
+
+### Verifying a Single Fix
+
+After applying a fix, verify it passed without re-running the full audit:
+
+```bash
+pnpm a11y --base-url http://localhost:3000 --routes /products --only-rule color-contrast --max-routes 1
+```
+
+This re-scans only the affected route for the specific rule — takes seconds instead of minutes. The `audit/remediation.md` includes a **Quick verify** command for each finding.
 
 ### Scripting with the CLI
 

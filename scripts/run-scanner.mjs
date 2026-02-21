@@ -206,6 +206,50 @@ async function discoverRoutes(page, baseUrl, maxRoutes) {
   return [...routes];
 }
 
+async function detectProjectContext(page) {
+  const framework = await page.evaluate(() => {
+    if (document.getElementById("__next") || window.__NEXT_DATA__) return "nextjs";
+    if (document.getElementById("__nuxt") || window.__NUXT__) return "nuxt";
+    if (document.querySelector("[ng-version]")) return "angular";
+    if (document.getElementById("___gatsby")) return "gatsby";
+    if (document.querySelector("[data-astro-cid]") || document.querySelector("astro-island")) return "astro";
+    if (document.querySelector("[data-reactroot]")) return "react";
+    if (document.querySelector("[data-v-]") || document.querySelector("[data-server-rendered]")) return "vue";
+    if (window.Shopify || document.querySelector("[data-shopify]")) return "shopify";
+    if (document.querySelector('link[href*="wp-content"]') || document.querySelector('meta[name="generator"][content*="WordPress"]')) return "wordpress";
+    return null;
+  });
+
+  const uiLibraries = [];
+  try {
+    const pkgPath = path.join(process.cwd(), "package.json");
+    if (fs.existsSync(pkgPath)) {
+      const deps = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+      const allDeps = Object.keys({ ...deps.dependencies, ...deps.devDependencies });
+      const LIB_SIGNALS = [
+        ["@radix-ui", "radix"],
+        ["@headlessui", "headless-ui"],
+        ["@chakra-ui", "chakra"],
+        ["@mantine", "mantine"],
+        ["@mui", "material-ui"],
+        ["antd", "ant-design"],
+      ];
+      for (const [prefix, name] of LIB_SIGNALS) {
+        if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
+          uiLibraries.push(name);
+        }
+      }
+    }
+  } catch {
+    // package.json not available — running against remote URL
+  }
+
+  if (framework) log.info(`Detected framework: ${framework}`);
+  if (uiLibraries.length) log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
+
+  return { framework, uiLibraries };
+}
+
 async function analyzeRoute(
   page,
   routeUrl,
@@ -330,11 +374,14 @@ async function main() {
   const page = await context.newPage();
 
   let routes = [];
+  let projectContext = { framework: null, uiLibraries: [] };
   try {
     await page.goto(baseUrl, {
       waitUntil: args.waitUntil,
       timeout: args.timeoutMs,
     });
+
+    projectContext = await detectProjectContext(page);
 
     const cliRoutes = parseRoutesArg(args.routes, origin);
     const configRoutes =
@@ -470,6 +517,7 @@ async function main() {
     generated_at: new Date().toISOString(),
     base_url: baseUrl,
     onlyRule: args.onlyRule || null,
+    projectContext,
     routes: results,
   };
 

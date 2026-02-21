@@ -241,11 +241,15 @@ Follow these steps in order when executing an audit:
 When the user grants permission to apply fixes, follow this strict sequential protocol. **Never apply all fixes in a single batch.**
 
 1. **Group fixes by severity** before touching any file: Critical → High → Medium → Low.
-2. **Apply one severity group at a time**, starting with Critical.
-3. **Checkpoint after each group**: stop, list every file modified and every fix applied, then ask the user to test and confirm before continuing. Example prompt: _"Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."_
-4. **Wait for explicit user confirmation** before moving to the next severity group. Never auto-advance.
-5. **If any fix fails**: stop immediately, report the exact error and the file/line affected, and ask the user how to proceed. Do not skip ahead.
-6. **Never mix severity groups** in a single application step.
+2. **Use the "Fixes by Component" table** (if present) to batch edits per component — fix all issues in the same file before moving to the next.
+3. **Use "Search in"** glob patterns from each finding to locate the correct source file. Do not grep the entire project blindly.
+4. **If a finding has a "Managed Component Warning"**, verify the element is not rendered by a UI library (Radix, Headless UI, etc.) before applying ARIA fixes.
+5. **Apply one severity group at a time**, starting with Critical.
+6. **Checkpoint after each group**: stop, list every file modified and every fix applied, then ask the user to test and confirm before continuing. Example prompt: _"Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."_
+7. **Verify each group** using the targeted re-scan command from the finding instead of re-running the full audit: `pnpm a11y --base-url <URL> --routes <route> --only-rule <rule-id> --max-routes 1`
+8. **Wait for explicit user confirmation** before moving to the next severity group. Never auto-advance.
+9. **If any fix fails**: stop immediately, report the exact error and the file/line affected, and ask the user how to proceed. Do not skip ahead.
+10. **Never mix severity groups** in a single application step.
 
 ## 13) Manual Checks — Source Code Scan
 

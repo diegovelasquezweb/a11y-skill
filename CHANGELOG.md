@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub Actions workflow for PR title and project integrity validation (`pr-standards.yml`)
 - 48 new intelligence rules: 29 WCAG A/AA + 19 best-practice — achieving 100% axe-core coverage (106 total rules)
 - Reciprocal `related_rules` links across all 106 rules for bidirectional navigation
+- Project context detection: auto-detects framework (Next.js, Nuxt, React, Vue, Angular, Astro, Svelte, Shopify, WordPress) from DOM and UI libraries (Radix, Headless UI, Chakra, Mantine, Material UI) from `package.json`
+- Per-finding fix acceleration: `file_search_pattern`, `managed_by_library`, `component_hint`, `verification_command`
+- "Fixes by Component" table in `remediation.md` for batch fixing by component
+- `scripts/validate-urls.mjs` — on-demand URL validator for data files
+- `manual-checks.json` schema tests (WCAG + AT checks) in test suite
+- `docs/data-validation.md` — maintenance guide for intelligence data
 
 ### Changed
 - Score labeling logic and compliance metrics updated in reports
@@ -35,6 +41,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PDF generation: replaced fixed 1s font settle with `document.fonts.ready`
 - Report generation: HTML + Markdown reports now build in parallel
 - Moved `data-validation.md` from `references/` to `docs/` (maintenance doc, not agent-facing)
+- Fix workflow in SKILL.md updated: agents now use component grouping, file search patterns, managed component checks, and targeted re-scans
+- Remediation guide uses detected framework for guardrails instead of URL heuristics
 - Test suite expanded from 79 to 764 tests
 
 ### Fixed

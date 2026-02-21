@@ -81,6 +81,52 @@ function getExpected(ruleId) {
   return EXPECTED[ruleId] || "WCAG accessibility check must pass.";
 }
 
+const FRAMEWORK_GLOBS = {
+  nextjs:    { components: "app/**/*.tsx, components/**/*.tsx", styles: "**/*.module.css, app/globals.css" },
+  gatsby:    { components: "src/**/*.tsx, src/**/*.jsx", styles: "src/**/*.css, src/**/*.module.css" },
+  react:     { components: "src/**/*.tsx, src/**/*.jsx", styles: "src/**/*.css, src/**/*.module.css" },
+  nuxt:      { components: "pages/**/*.vue, components/**/*.vue", styles: "**/*.css, assets/**/*.scss" },
+  vue:       { components: "src/**/*.vue", styles: "src/**/*.css" },
+  angular:   { components: "src/**/*.component.html, src/**/*.component.ts", styles: "src/**/*.component.css" },
+  astro:     { components: "src/**/*.astro, src/components/**/*.tsx", styles: "src/**/*.css" },
+  svelte:    { components: "src/**/*.svelte", styles: "src/**/*.css" },
+  shopify:   { components: "sections/**/*.liquid, snippets/**/*.liquid", styles: "assets/**/*.css" },
+  wordpress: { components: "wp-content/themes/**/*.php", styles: "wp-content/themes/**/*.css" },
+};
+
+const ARIA_MANAGED_RULES = new Set([
+  "aria-required-attr", "aria-required-children", "aria-required-parent",
+  "aria-valid-attr", "aria-valid-attr-value", "aria-allowed-attr",
+  "aria-allowed-role", "aria-dialog-name", "aria-toggle-field-name",
+  "aria-prohibited-attr",
+]);
+
+const MANAGED_LIBS = new Set(["radix", "headless-ui", "chakra", "mantine", "material-ui"]);
+
+function getFileSearchPattern(framework, codeLang) {
+  const globs = FRAMEWORK_GLOBS[framework];
+  if (!globs) return null;
+  return codeLang === "css" ? globs.styles : globs.components;
+}
+
+function getManagedByLibrary(ruleId, uiLibraries) {
+  if (!ARIA_MANAGED_RULES.has(ruleId)) return null;
+  const managed = uiLibraries.filter((lib) => MANAGED_LIBS.has(lib));
+  if (managed.length === 0) return null;
+  return managed.join(", ");
+}
+
+function extractComponentHint(selector) {
+  if (!selector || selector === "N/A") return null;
+  const bemMatch = selector.match(/\.([\w-]+?)(?:__|--)/);
+  if (bemMatch) return bemMatch[1];
+  const classMatch = selector.match(/\.([\w-]+)/);
+  if (classMatch) return classMatch[1];
+  const idMatch = selector.match(/#([\w-]+)/);
+  if (idMatch) return idMatch[1];
+  return null;
+}
+
 function printUsage() {
   log.info(`Usage:
   node run-analyzer.mjs --input <route-checks.json> [options]
@@ -189,6 +235,7 @@ export function extractSearchHint(selector) {
 function buildFindings(inputPayload) {
   const onlyRule = inputPayload.onlyRule;
   const routes = inputPayload.routes || [];
+  const ctx = inputPayload.projectContext || { framework: null, uiLibraries: [] };
   const findings = [];
 
   for (const route of routes) {
@@ -227,6 +274,8 @@ function buildFindings(inputPayload) {
             recFix += `- **Browser/AT Support Data**: ${supportUrl}\n`;
         }
 
+        const codeLang = detectCodeLang(fixInfo.code);
+
         findings.push({
           id: "",
           rule_id: v.id,
@@ -250,7 +299,7 @@ function buildFindings(inputPayload) {
           expected: getExpected(v.id),
           fix_description: fixInfo.description ?? null,
           fix_code: fixInfo.code ?? null,
-          fix_code_lang: detectCodeLang(fixInfo.code),
+          fix_code_lang: codeLang,
           recommended_fix: recFix.trim(),
           mdn: MDN[v.id] ?? null,
           manual_test: ruleInfo.manual_test ?? null,
@@ -266,6 +315,10 @@ function buildFindings(inputPayload) {
             failureSummary: n.failureSummary,
           })),
           screenshot_path: v.screenshot_path || null,
+          file_search_pattern: getFileSearchPattern(ctx.framework, codeLang),
+          managed_by_library: getManagedByLibrary(v.id, ctx.uiLibraries),
+          component_hint: extractComponentHint(bestSelector),
+          verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
         });
       }
     }
@@ -327,6 +380,7 @@ function buildFindings(inputPayload) {
       scanDate: new Date().toISOString(),
       regulatory: US_REGULATORY,
       checklist: "https://www.a11yproject.com/checklist/",
+      projectContext: ctx,
     },
   };
 }
