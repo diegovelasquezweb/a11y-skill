@@ -123,6 +123,22 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         ? `#### Recommended Technical Solution\n${f.fixDescription ? `**Implementation:** ${f.fixDescription}\n` : ""}${f.fixCode ? `\`\`\`${codeLang}\n${f.fixCode}\n\`\`\`` : ""}`.trimEnd()
         : `#### Recommended Remediation\n${f.recommendedFix}`;
 
+    const fpRisk =
+      f.falsePositiveRisk && f.falsePositiveRisk !== "low"
+        ? `> ⚠️ **False Positive Risk (${f.falsePositiveRisk}):** Verify this finding manually before applying a fix — automated detection of this rule has known edge cases.`
+        : null;
+
+    const difficultyBlock = f.fixDifficultyNotes
+      ? `**Implementation Notes:** ${f.fixDifficultyNotes}`
+      : null;
+
+    const frameworkBlock =
+      f.frameworkNotes && typeof f.frameworkNotes === "object"
+        ? `**Framework Guidance:**\n${Object.entries(f.frameworkNotes)
+            .map(([fw, note]) => `- **${fw.charAt(0).toUpperCase() + fw.slice(1)}:** ${note}`)
+            .join("\n")}`
+        : null;
+
     const relatedBlock =
       Array.isArray(f.relatedRules) && f.relatedRules.length > 0
         ? `**Fixing this also helps:**\n${f.relatedRules.map((r) => `- \`${r.id}\` — ${r.reason}`).join("\n")}`
@@ -151,6 +167,12 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       reproBlock,
       ``,
       fixBlock,
+      difficultyBlock ? `` : null,
+      difficultyBlock,
+      frameworkBlock ? `` : null,
+      frameworkBlock,
+      fpRisk ? `` : null,
+      fpRisk,
       evidenceHtml ? `` : null,
       evidenceHtml ? `${evidenceLabel}\n${evidenceHtml}` : null,
       ruleRef ? `` : null,

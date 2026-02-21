@@ -234,6 +234,9 @@ function buildFindings(inputPayload) {
           manual_test: ruleInfo.manual_test ?? null,
           effort: ruleInfo.effort ?? null,
           related_rules: Array.isArray(ruleInfo.related_rules) ? ruleInfo.related_rules : [],
+          false_positive_risk: ruleInfo.false_positive_risk ?? null,
+          fix_difficulty_notes: ruleInfo.fix_difficulty_notes ?? null,
+          framework_notes: ruleInfo.framework_notes ?? null,
           total_instances: nodes.length,
           evidence: nodes.slice(0, 3).map((n) => ({
             html: n.html,

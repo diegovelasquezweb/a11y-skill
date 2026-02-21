@@ -83,6 +83,15 @@
       "impacted_users": "Screen reader users navigating by landmarks",
       "expected": "Page must contain exactly one <main> landmark element.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/main",
+      "wcag_techniques": ["ARIA11", "H69"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "SPAs often render the <main> landmark conditionally — in React, Vue Router, and Angular, the layout shell may not include <main> if each page component is responsible for its own layout. Ensure the root layout component (e.g., layout.tsx in Next.js, App.vue in Vue, app.component.html in Angular) always wraps page content in <main>, not individual page components. Axe may also flag SPA routes where <main> is rendered client-side after the initial snapshot.",
+      "framework_notes": {
+        "react": "Place <main id='main-content'> in the root layout component (app/layout.tsx in Next.js App Router, or the root App component). Do not place <main> in individual page components — it will be missing for routes that render before the layout mounts.",
+        "vue": "Add <main id='main-content'> to the root layout component (App.vue or layouts/default.vue in Nuxt), wrapping <router-view /> or <slot />. Nuxt: set it in layouts/default.vue.",
+        "angular": "Add <main id='main-content'> in app.component.html wrapping <router-outlet>. This ensures the landmark is present for all routes and the skip link target resolves correctly."
+      },
       "related_rules": [
         { "id": "bypass", "reason": "The skip link target (#main-content) should reference the <main> landmark." },
         { "id": "region", "reason": "Adding <main> may resolve orphan-content region violations." }
@@ -106,6 +115,15 @@
       "impacted_users": "Screen reader users navigating by landmarks",
       "expected": "All visible page content must be contained within a landmark element (main, nav, header, footer, aside).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/header",
+      "wcag_techniques": ["ARIA11", "G1"],
+      "false_positive_risk": "medium",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "Decorative separators, spacer divs, and background containers do not need to be inside landmarks. Only meaningful visible content requires landmark wrapping. Review each flagged element before adding a landmark.",
+      "framework_notes": {
+        "react": "Use semantic JSX elements: <header>, <main>, <nav>, <aside>, <footer> instead of <div> wrappers. In Next.js App Router, landmarks naturally fall into layout.tsx (header/footer) and page.tsx (main content).",
+        "vue": "Use semantic HTML5 elements in Vue templates — they work identically to plain HTML. In Nuxt, place <header> and <footer> in the layout component and wrap <slot /> in <main>.",
+        "angular": "Angular adds a custom element wrapper (<app-root>, <app-header>) — ensure the semantic landmark element (<header>, <main>) is inside the component template, not expected to be provided by the custom wrapper."
+      },
       "related_rules": [
         { "id": "landmark-one-main", "reason": "Adding a <main> landmark is typically the primary fix for orphan content." }
       ],
@@ -127,6 +145,15 @@
       "impacted_users": "Blind users relying on screen readers",
       "expected": "Every <img> must have an alt attribute. Decorative images use alt=\"\".",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#alt",
+      "wcag_techniques": ["H37", "H67", "G94", "G95"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "axe-core confirms alt presence but cannot evaluate alt quality. An alt='photo.jpg' or alt='image' passes axe but violates 1.1.1. Always verify that alt text is descriptive and conveys the image's purpose. For decorative images, use alt='' (empty, not omitted — omitting alt causes some screen readers to announce the filename).",
+      "framework_notes": {
+        "react": "Use the alt prop directly on <img>: <img src={src} alt=\"Description\" />. For decorative images: alt=\"\".",
+        "vue": "Use :alt binding or plain alt attribute — standard HTML semantics apply.",
+        "angular": "Use [attr.alt] binding or plain alt attribute on <img> elements."
+      },
       "manual_test": {
         "description": "Verify the alt text is meaningful, not just present.",
         "steps": [
@@ -146,6 +173,15 @@
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every <button> and [role=\"button\"] must have a non-empty accessible name.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/button_role",
+      "wcag_techniques": ["G108", "ARIA14"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack", "Dragon NaturallySpeaking", "Voice Control"],
+      "fix_difficulty_notes": "Using aria-label on a button with visible text creates a label mismatch — voice control users speak the visible text, not the aria-label. If visible text exists, keep it and remove aria-label. Only use aria-label for icon-only buttons with no visible text.",
+      "framework_notes": {
+        "react": "Use aria-label prop: <button aria-label=\"Close dialog\">. Prefer visible text children whenever possible.",
+        "vue": "Use :aria-label or aria-label attribute — standard HTML semantics apply.",
+        "angular": "Use [attr.aria-label] binding or the CDK a11y AccessibilityModule for managed focus."
+      },
       "manual_test": {
         "description": "Test button names using a screen reader or Inspect tools.",
         "steps": [
@@ -164,6 +200,15 @@
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every <a href> must have descriptive, non-empty text content or an aria-label.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
+      "wcag_techniques": ["H30", "G91", "ARIA7"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
+      "fix_difficulty_notes": "Adding aria-label to a link that already has visible text creates a mismatch — voice control users speak the visible text, not the aria-label, and activation may fail. Use aria-label only for icon links with no visible text, or use aria-labelledby to reference visible content.",
+      "framework_notes": {
+        "react": "In React Router, use <Link to='/path'>Descriptive text</Link>. For icon links, add aria-label directly: <Link to='/search' aria-label='Search products'>. Avoid wrapping <Link> around empty or icon-only elements without an aria-label.",
+        "vue": "In Vue Router, use <RouterLink to='/path'>Descriptive text</RouterLink>. For icon links, add :aria-label='...' on the RouterLink component.",
+        "angular": "Use the routerLink directive on native <a> elements: <a routerLink='/path'>Descriptive text</a>. The native <a> carries the correct link role and accessible name automatically."
+      },
       "manual_test": {
         "description": "Examine the link text in isolation.",
         "steps": [
@@ -182,6 +227,15 @@
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every form input must have an associated <label>, aria-label, or aria-labelledby.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
+      "wcag_techniques": ["H44", "H65", "G167", "ARIA16"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
+      "fix_difficulty_notes": "aria-label works technically but voice control users cannot target the field by speaking the label — they need a visible text match. Prefer a visible <label> over aria-label for all inputs. placeholder is not a substitute for a label — it disappears on input and is not reliably announced by screen readers.",
+      "framework_notes": {
+        "react": "Use htmlFor prop (not 'for') on <label>: <label htmlFor=\"email\">Email</label>. The 'for' attribute is reserved in JSX.",
+        "vue": "Use the standard for attribute: <label for=\"email\">. Vue renders standard HTML — no special prop needed.",
+        "angular": "Use [for]=\"inputId\" binding or wrap the input inside the label element to avoid explicit ID linking."
+      },
       "related_rules": [
         { "id": "select-name", "reason": "The same label association pattern resolves select-name violations." }
       ],
@@ -203,6 +257,15 @@
       "impacted_users": "Users with low vision or color blindness",
       "expected": "Text contrast ratio must be at least 4.5:1 for normal text, 3:1 for large text.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Perceivable#contrast_minimum",
+      "wcag_techniques": ["G18", "G145", "G174"],
+      "false_positive_risk": "high",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "False positives are common on text rendered over gradient backgrounds, images, or when color is set dynamically via JavaScript or CSS variables resolved at runtime. axe-core samples a single point of the background — text on gradients may appear to fail even when contrast is sufficient. Verify each flagged instance visually using the browser DevTools color picker or https://webaim.org/resources/contrastchecker/ before fixing.",
+      "framework_notes": {
+        "react": "In Tailwind (including shadcn/ui), verify that HSL CSS custom properties resolve to accessible values in both light and dark themes. CSS-in-JS libraries (styled-components, Emotion) compute colors at runtime — axe audits the computed value, not the source variable.",
+        "vue": "In Vue with Tailwind or CSS Modules, verify contrast in the computed styles, not just the source CSS variables. Use DevTools color picker to confirm the rendered ratio.",
+        "angular": "In Angular Material, override theme colors via mat.define-theme() using contrast-checked color pairs. Avoid raw CSS overrides that bypass the Angular Material theming system's built-in contrast checks."
+      },
       "manual_test": {
         "description": "Verify contrast in interactive states — axe only scans the static DOM.",
         "steps": [
@@ -222,6 +285,15 @@
       "impacted_users": "Screen reader users (broken element references)",
       "expected": "All id attributes must be unique within the document.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/id",
+      "wcag_techniques": ["H93"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "In component-based frameworks, duplicate IDs typically occur when the same component renders multiple times on the same page. Use framework-native ID generation: useId() in React 18+, a unique :id binding per instance in Vue, or a service-based ID generator in Angular.",
+      "framework_notes": {
+        "react": "Use the useId() hook (React 18+) to generate unique IDs per component instance: const id = useId(); return <label htmlFor={id}>.",
+        "vue": "Bind a unique key to IDs: <label :for=\"`field-${uid}`\"> where uid is a prop or generated value (e.g., Math.random().toString(36)).",
+        "angular": "Inject a counter service or use the CDK's uniqueId utility to generate stable, unique IDs per component instance."
+      },
       "manual_test": {
         "description": "Verify no duplicate id values exist, especially across dynamically rendered components.",
         "steps": [
@@ -241,6 +313,15 @@
       "impacted_users": "Screen reader users navigating by headings",
       "expected": "Heading levels must not skip (h1 → h2 → h3, no gaps allowed).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements",
+      "wcag_techniques": ["G130", "G141", "H42"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "Never use heading elements purely for visual sizing (e.g., using <h4> because it renders smaller). Use CSS classes for font size. The heading level must reflect document structure, not visual hierarchy. Resolve page-has-heading-one first — a missing h1 often causes cascading heading-order violations.",
+      "framework_notes": {
+        "react": "In component libraries (shadcn/ui, Radix), heading levels are often hardcoded (e.g., CardTitle always renders as h3). Use the 'as' prop to override the level based on context: <CardTitle as='h2'> when the component appears as a top-level section heading.",
+        "vue": "In Vue UI kits (Vuetify, Nuxt UI), check if heading components support a 'tag' prop to override the rendered element. Use semantic levels based on document structure, not visual size.",
+        "angular": "In Angular Material, headings inside mat-card and mat-expansion-panel are often rendered as <div> or <span>. Add the appropriate heading element explicitly inside the component template rather than relying on implicit heading structure."
+      },
       "related_rules": [
         { "id": "page-has-heading-one", "reason": "Fixing the h1 establishes the root of the hierarchy — resolve it first." }
       ],
@@ -263,6 +344,15 @@
       "impacted_users": "Screen reader users navigating by headings",
       "expected": "Page must have exactly one <h1> element as the primary heading.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Heading_Elements",
+      "wcag_techniques": ["H42", "G130"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "In SPAs and SSR frameworks, the h1 may be injected client-side after the initial DOM snapshot axe evaluates. Ensure the h1 is server-side rendered or present in the initial HTML payload. In Next.js, place the h1 directly in the page component, not behind a loading state.",
+      "framework_notes": {
+        "react": "In Next.js App Router, place the h1 directly in page.tsx, not in a client component that renders conditionally or inside a Suspense loading state — axe evaluates the initial HTML payload before client hydration fills the loading boundary.",
+        "vue": "In Nuxt, ensure the page-level h1 is in the <template> of the page component so it is included in the server-rendered HTML. Avoid placing the h1 exclusively inside an async component that renders after the initial paint.",
+        "angular": "With Angular Universal (SSR), the h1 must be part of the component template, not inserted via JavaScript after hydration. Verify the h1 is visible in the pre-rendered HTML using View Source."
+      },
       "related_rules": [
         { "id": "heading-order", "reason": "Fixing the missing h1 anchors the heading hierarchy and may cascade-resolve heading-order violations." }
       ],
@@ -285,6 +375,15 @@
       "impacted_users": "Screen reader users",
       "expected": "ARIA roles must include all required attributes defined in the WAI-ARIA spec.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes",
+      "wcag_techniques": ["ARIA5"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "Required attributes vary per role — consult https://www.w3.org/TR/wai-aria/#role_definitions. The most frequent mistake: using role='combobox' without aria-expanded, or role='slider' without aria-valuenow/aria-valuemin/aria-valuemax. When in doubt, prefer native HTML elements (e.g., <select> instead of role='listbox') which carry implicit semantics.",
+      "framework_notes": {
+        "react": "Headless component libraries (Radix UI, Headless UI, Ark UI) handle required ARIA attributes internally — do not duplicate or override them. If building a custom ARIA widget from scratch, consult the WAI-ARIA spec for each role's required attributes before binding props.",
+        "vue": "Floating Vue, Headless UI for Vue, and Vuetify manage ARIA attributes internally. Only add ARIA attributes when building custom widgets. Binding incorrect or unsupported attributes can introduce new violations rather than fixing existing ones.",
+        "angular": "Angular CDK's a11y module (FocusTrap, ListKeyManager, ActiveDescendantKeyManager) manages required ARIA attributes for composite widgets. Use these utilities before building custom ARIA widgets from scratch."
+      },
       "manual_test": {
         "description": "Verify the ARIA widget is fully operable by a screen reader after adding the required attributes.",
         "steps": [
@@ -304,6 +403,15 @@
       "impacted_users": "Screen reader users",
       "expected": "ARIA attributes must use only valid values defined in the WAI-ARIA spec.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes",
+      "wcag_techniques": ["ARIA5"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "The most common mistake is using incorrect types for boolean attributes: aria-expanded='0' or aria-expanded='yes' instead of 'true'/'false'. In template engines, ensure dynamic state is coerced to the string 'true' or 'false', not a JavaScript boolean. React spreads boolean props correctly — aria-expanded={isOpen} renders 'true'/'false' — but aria-expanded={isOpen ? 1 : 0} does not.",
+      "framework_notes": {
+        "react": "React coerces aria-expanded={isOpen} to the string 'true'/'false' correctly. Do not use aria-expanded={isOpen ? '1' : '0'} or other non-token values. Use aria-expanded={undefined} to omit the attribute entirely when the role does not require it.",
+        "vue": "Use :aria-expanded='isOpen' — Vue renders boolean true/false as the strings 'true'/'false'. Do not use :aria-expanded='isOpen ? 1 : 0'. To omit the attribute, bind to null: :aria-expanded='null'.",
+        "angular": "Use [attr.aria-expanded]='isOpen' binding — Angular renders the boolean as the correct string. Setting [attr.aria-expanded]='null' removes the attribute entirely when not applicable."
+      },
       "manual_test": {
         "description": "Confirm the corrected attribute value is recognised by a screen reader.",
         "steps": [
@@ -323,6 +431,15 @@
       "impacted_users": "Keyboard-only users and screen reader users",
       "expected": "Elements with aria-hidden=\"true\" must not be focusable.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-hidden",
+      "wcag_techniques": ["ARIA7"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "Setting aria-hidden='true' on a parent hides all its descendants from AT but does not remove their keyboard focusability. Interactive children (buttons, links, inputs) inside an aria-hidden container will still receive Tab focus, creating 'ghost focus'. Apply tabindex='-1' to each interactive descendant, or restructure so no focusable elements exist inside the aria-hidden container.",
+      "framework_notes": {
+        "react": "In React portals (modals, dialogs, tooltips), aria-hidden='true' is commonly applied to the app root during open state. Ensure portals render outside the aria-hidden subtree (e.g., appended to <body>). Libraries like Radix UI handle this correctly via the inert attribute and portal rendering.",
+        "vue": "In Vue with Teleport, the teleported content renders outside the component's DOM subtree — verify the Teleport target element (e.g., #teleport-target or body) is not inside an aria-hidden container.",
+        "angular": "Angular CDK Overlay (used by Material dialogs and menus) renders at the body level, outside aria-hidden scopes. Verify that aria-hidden is applied to the correct host element — not to a container that includes the CDK overlay outlet."
+      },
       "manual_test": {
         "description": "Tab into the flagged element and verify a screen reader either announces it or skips it cleanly.",
         "steps": [
@@ -342,6 +459,15 @@
       "impacted_users": "Keyboard-only users",
       "expected": "tabindex values must be 0 or -1. Positive values disrupt natural focus order.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/tabindex",
+      "wcag_techniques": ["H4", "G59"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "Positive tabindex values (tabindex='1', tabindex='2') create a separate focus sequence that runs before the natural DOM order. All positive-tabindex elements are visited first, then everything else. This almost always breaks focus flow. Remove all positive tabindex values and reorder the DOM instead if a different focus sequence is needed.",
+      "framework_notes": {
+        "react": "In JSX, the attribute is camelCase: tabIndex={0} or tabIndex={-1}. Never use positive integers. For programmatically managed focus (e.g., opening a modal), call element.focus() instead of relying on tabIndex values greater than 0.",
+        "vue": "Use :tabindex='0' or tabindex='-1' in Vue templates. Do not expose a tabindex prop that accepts positive integers — validate the value at the component level.",
+        "angular": "Use [tabIndex]='value' for dynamic binding, ensuring only 0 or -1 are bound. The Angular CDK FocusTrap handles sequential focus management within dialogs without requiring positive tabindex values."
+      },
       "manual_test": {
         "description": "Tab through the page and verify focus order matches visual reading order.",
         "steps": [
@@ -361,6 +487,15 @@
       "impacted_users": "Users with motor disabilities and cognitive disabilities",
       "expected": "Inputs collecting personal data must have a valid autocomplete attribute per WCAG 1.3.5.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete",
+      "wcag_techniques": ["H98"],
+      "false_positive_risk": "low",
+      "affected_at": ["Dragon NaturallySpeaking", "Voice Control", "JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "Acceptable autocomplete tokens are strictly defined by the HTML Living Standard. Custom or invented values (e.g., autocomplete='my-app-email') are invalid even if they help password managers. Use only the tokens listed at https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute. Verify you are applying the token to the right field type — autocomplete='email' on a phone number field is invalid.",
+      "framework_notes": {
+        "react": "Pass autocomplete as a string prop in JSX: <input autoComplete='email' />. Note: React uses camelCase autoComplete, which renders as the autocomplete HTML attribute. React Hook Form does not intercept it — set it directly on the input element.",
+        "vue": "Use autocomplete='email' as a plain HTML attribute in Vue templates. Vee-Validate passes the autocomplete attribute through to the native input via v-bind on the field component.",
+        "angular": "Use the autocomplete attribute in Angular Reactive Forms or Template-driven forms — Angular does not strip or override it. For Angular Material inputs, add autocomplete='email' to the <input> element inside <mat-form-field>."
+      },
       "manual_test": {
         "description": "Verify autofill populates the correct field type in a real browser.",
         "steps": [
@@ -380,6 +515,15 @@
       "impacted_users": "Screen reader users",
       "expected": "Each form input must have exactly one accessible name source (label, aria-label, or aria-labelledby).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/label",
+      "wcag_techniques": ["H44"],
+      "false_positive_risk": "medium",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "aria-labelledby can legitimately reference multiple IDs to concatenate a compound label (e.g., aria-labelledby='label1 label2'). axe may flag this pattern. Review whether both sources are intentional — if so, it is valid and the finding is a false positive. Remove one reference only if the concatenated announcement is redundant.",
+      "framework_notes": {
+        "react": "In React, multiple labeling sources are introduced accidentally when a component applies both htmlFor on a <label> and aria-label on the input itself. Choose exactly one labeling strategy per input — prefer a visible <label htmlFor='id'> and remove aria-label.",
+        "vue": "In Vue form component wrappers, ensure the component does not add internal aria-labels that conflict with a parent <label>. A common issue is a UI kit that adds aria-label='Input field' to every input by default — override this with an empty string or use the component's label prop instead.",
+        "angular": "In Angular Material, mat-label inside mat-form-field serves as the accessible label. Do not also add aria-label directly to the input — both will be announced, triggering this violation."
+      },
       "manual_test": {
         "description": "Confirm a screen reader announces exactly one label when focused on the input.",
         "steps": [
@@ -399,6 +543,10 @@
       "impacted_users": "Keyboard-only users",
       "expected": "Any element with scrollable overflow must be reachable via keyboard (tabindex=\"0\" or natively focusable).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/CSS/overflow",
+      "wcag_techniques": ["G202"],
+      "false_positive_risk": "medium",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "This rule fires on any element with overflow:auto or overflow:scroll — including CSS clip containers, masked elements, and carousels that overflow visually but have no actual scrollable content. Before adding tabindex='0', confirm the element is genuinely scrollable (has overflow content) and that keyboard users need to scroll it. Adding tabindex='0' to a non-scrollable container adds unnecessary tab stops.",
       "manual_test": {
         "description": "Tab to the scrollable region and verify arrow keys scroll it.",
         "steps": [
@@ -418,6 +566,15 @@
       "impacted_users": "Screen reader users and voice control users",
       "expected": "Every <select> must have an accessible name via <label>, aria-label, or aria-labelledby.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/select",
+      "wcag_techniques": ["H44"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "Dragon NaturallySpeaking", "Voice Control"],
+      "fix_difficulty_notes": "In design systems, <select> is commonly replaced with a custom dropdown (a div/button combination). If the custom dropdown lacks role='listbox', aria-expanded, and aria-labelledby pointing to the visible label, none of the standard label association patterns apply. Prefer the native <select> element wherever possible — it carries all required implicit accessibility semantics.",
+      "framework_notes": {
+        "react": "Use htmlFor on <label> pointing to the select's id. For custom select components (react-select, Headless UI Listbox), pass the accessible name via their label prop or aria-labelledby — these components use the combobox/listbox ARIA pattern internally.",
+        "vue": "Native <select> uses standard <label for='id'>. For custom select components (Headless UI Listbox, Floating Vue Select), pass a label via their label prop — the component handles aria-labelledby internally.",
+        "angular": "In Angular Material, <mat-select> is labeled via <mat-label> inside <mat-form-field>. For standalone <select> elements, use <label [for]='selectId'>Label</label>."
+      },
       "related_rules": [
         { "id": "label", "reason": "The same label association pattern applies — fix label rule to resolve both." }
       ],
@@ -440,6 +597,10 @@
       "impacted_users": "Blind users relying on screen readers",
       "expected": "Every <input type=\"image\"> must have an alt attribute describing the button's action.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/image",
+      "wcag_techniques": ["H36"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "The alt must describe the button's action, not the image appearance. 'Submit form' is correct; 'Blue arrow pointing right' is not.",
       "manual_test": {
         "description": "Tab to the image input and verify the screen reader announces the action.",
         "steps": [
@@ -459,6 +620,10 @@
       "impacted_users": "Blind users relying on screen readers",
       "expected": "Every <object> must have an accessible name via aria-label or aria-labelledby.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/object",
+      "wcag_techniques": ["G92", "H53"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "The <object> element is rarely used in modern development — most use cases (SVG, PDF, media) are better served by <img>, <video>, <embed>, or <iframe>. If <object> is used, the aria-label must describe what the embedded content communicates to the user (not just the file type or format). If the object is purely decorative, consider replacing it with an accessible equivalent (e.g., an <img> with alt='').",
       "manual_test": {
         "description": "Verify a screen reader announces the object's accessible name.",
         "steps": [
@@ -478,6 +643,15 @@
       "impacted_users": "Screen reader users",
       "expected": "Every <iframe> must have a descriptive title attribute.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/iframe#title",
+      "wcag_techniques": ["H64"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "Hidden or off-screen iframes used for third-party scripts (analytics, chat SDKs, A/B testing) should use title='' (empty) to suppress screen reader announcement — not a descriptive title. Only visible, interactive iframes that users would encounter need a meaningful title.",
+      "framework_notes": {
+        "react": "When embedding iframes (Google Maps, YouTube, Stripe), add the title prop directly: <iframe title='Google Maps — store location' src='...' />. Third-party React wrapper components that embed iframes should expose a title prop passthrough.",
+        "vue": "Use the title attribute directly: <iframe title='Payment form' :src='url' />. For third-party Vue components that embed iframes internally, check the component's props API for a title or label prop.",
+        "angular": "Use [title]='iframeTitle' binding for dynamic titles, or title='Embedded video' for static ones. For hidden tracking iframes generated by third-party scripts, set title='' programmatically to suppress screen reader announcement."
+      },
       "manual_test": {
         "description": "Tab into the iframe area and verify the screen reader announces its title.",
         "steps": [
@@ -497,6 +671,15 @@
       "impacted_users": "Screen reader users and users with cognitive disabilities",
       "expected": "Page must have a descriptive, unique <title> element.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/title",
+      "wcag_techniques": ["H25", "G88"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "In SPAs, the <title> is often set only on initial load. After client-side route changes, the title must be updated programmatically — the browser tab title stays stale otherwise. Each page title should follow the pattern 'Page Name — Site Name' so users understand context without reading page content.",
+      "framework_notes": {
+        "react": "Use document.title in a useEffect, or react-helmet for declarative title management. In Next.js, use <title> inside <Head> from 'next/head' — it is server-side rendered.",
+        "vue": "Update document.title in vue-router's afterEach navigation guard, or use vue-meta / @vueuse/head for declarative management.",
+        "angular": "Inject the Title service from @angular/platform-browser and call this.title.setTitle() inside route guards or component ngOnInit."
+      },
       "manual_test": {
         "description": "Verify the title is unique per page and describes the current content.",
         "steps": [
@@ -516,6 +699,15 @@
       "impacted_users": "Screen reader users (language detection for pronunciation)",
       "expected": "The <html> element must have a lang attribute.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang",
+      "wcag_techniques": ["H57"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "The lang attribute must be on the <html> element itself, not on a meta tag or the <body>. In framework app templates, the <html> tag is typically in an index.html or document template file outside of component scope — not in a React/Vue/Angular component. For multilingual SPAs, update document.documentElement.lang programmatically on each route change to reflect the current content language.",
+      "framework_notes": {
+        "react": "In Next.js App Router, set lang in the root layout: export default function RootLayout() { return <html lang='en'>...</html>; } in app/layout.tsx. For i18n, derive the lang from the locale route segment.",
+        "vue": "In Nuxt, set lang in nuxt.config.ts: app: { head: { htmlAttrs: { lang: 'en' } } }. For multilingual Nuxt apps, @nuxtjs/i18n sets the lang attribute per locale automatically.",
+        "angular": "In Angular, set lang in index.html: <html lang='en'>. With Angular Universal (SSR), inject LOCALE_ID and set document.documentElement.lang in a server-side app initializer to support locale-specific rendering."
+      },
       "manual_test": {
         "description": "Confirm a screen reader switches to the correct language voice when reading the page.",
         "steps": [
@@ -535,6 +727,15 @@
       "impacted_users": "Screen reader users (language detection for pronunciation)",
       "expected": "The lang attribute on <html> must be a valid BCP 47 language tag.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang",
+      "wcag_techniques": ["H57"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "Common mistakes: using underscore separator ('en_US') instead of hyphen ('en-US'), or spelling out the full language name ('english') instead of the BCP 47 subtag ('en'). Verify against https://www.iana.org/assignments/language-subtag-registry/.",
+      "framework_notes": {
+        "react": "Same fix location as html-has-lang — set lang in app/layout.tsx: <html lang='en-US'>. Ensure the value is a valid BCP 47 tag, not a locale string from your i18n library (e.g., 'en_US' with underscore is invalid).",
+        "vue": "Same as html-has-lang — set in nuxt.config.ts htmlAttrs or in the HTML template. Verify the value against the BCP 47 registry before deploying.",
+        "angular": "Same as html-has-lang — set in index.html or via Angular Universal's locale injection. Confirm the value uses hyphen separators (en-US), not underscore (en_US)."
+      },
       "related_rules": [
         { "id": "html-has-lang", "reason": "html-has-lang and html-lang-valid are often co-located — fix the lang attribute once to resolve both." }
       ],
@@ -557,6 +758,15 @@
       "impacted_users": "Screen reader users (language detection for pronunciation)",
       "expected": "All lang attributes must use valid BCP 47 language codes.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang",
+      "wcag_techniques": ["H58"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "This rule checks inline lang attributes on child elements (e.g., <p lang='es'>), not the root <html>. The most common mistake is copying locale codes from i18n libraries (e.g., 'en_US' with underscore) — only hyphenated BCP 47 tags are valid (e.g., 'en-US', 'es', 'fr-CA'). Verify each value against https://www.iana.org/assignments/language-subtag-registry/.",
+      "framework_notes": {
+        "react": "Add the lang attribute to HTML elements in JSX: <p lang='es'>Hola</p>. Works identically to plain HTML — no special React syntax needed.",
+        "vue": "Use lang='es' as a standard attribute in Vue templates. For dynamic language content, bind it: <p :lang='contentLang'>{{ text }}</p>.",
+        "angular": "Use [attr.lang]='locale' for dynamic language switching on inline content, or lang='es' as a static attribute for fixed foreign-language passages."
+      },
       "manual_test": {
         "description": "Verify inline language switches are recognised by a screen reader.",
         "steps": [
@@ -576,6 +786,15 @@
       "impacted_users": "Keyboard-only users and screen reader users",
       "expected": "Page must provide a mechanism to skip repetitive navigation (e.g., a skip link).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a",
+      "wcag_techniques": ["G1", "H64"],
+      "false_positive_risk": "medium",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "The skip link must be visible on focus — hiding it with display:none or visibility:hidden prevents keyboard users from seeing or activating it. The correct pattern is to position it off-screen by default (position:absolute; left:-9999px) and bring it on-screen on :focus (left:0; top:0). The target anchor (#main-content) must be a real element — if it's missing or the href is broken, the skip link appears to work but focus doesn't actually move.",
+      "framework_notes": {
+        "react": "In Next.js, add the skip link as the first element in the root layout (app/layout.tsx), before the <header> or navigation components. Style it with CSS to appear only on :focus. The target #main-content must reference the <main id='main-content'> in the same layout.",
+        "vue": "In Nuxt, add the skip link at the very top of layouts/default.vue, before the <header> component. The target #main-content must be on the <main> element wrapping <slot />.",
+        "angular": "Add the skip link as the first element inside app.component.html, before <app-header> or navigation. The target #main-content must match the id on the <main> element rendered inside the page — typically adjacent to <router-outlet>."
+      },
       "related_rules": [
         { "id": "landmark-one-main", "reason": "The skip link target (#main-content) must point to the <main> landmark." }
       ],
@@ -598,6 +817,15 @@
       "impacted_users": "Users with cognitive disabilities and screen reader users",
       "expected": "Pages must not auto-refresh or auto-redirect with a non-zero delay (WCAG 2.2.2).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/meta/http-equiv",
+      "wcag_techniques": ["G110", "H76"],
+      "false_positive_risk": "low",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "Server-side HTTP redirects (301/302) do not use <meta http-equiv='refresh'> and are not flagged by this rule. The violation only occurs when a timed redirect is implemented in the HTML <head>. A delay of 0 (instant redirect) is the only permitted use — it is commonly used for canonical URL normalization and is WCAG-compliant.",
+      "framework_notes": {
+        "react": "In Next.js, use redirect() in server components or middleware for redirects, and useRouter().replace() for client-side navigation. Neither uses <meta http-equiv='refresh'>. Never insert a meta refresh tag.",
+        "vue": "In Nuxt, use navigateTo() or definePageMeta({ redirect: '/' }) — both produce server or router-level redirects without <meta http-equiv='refresh'>.",
+        "angular": "Use the Angular Router service (this.router.navigate() or this.router.navigateByUrl()) for all navigation. Never insert <meta http-equiv='refresh'> into templates or index.html."
+      },
       "manual_test": {
         "description": "Confirm the page does not reload or redirect without user interaction.",
         "steps": [
@@ -617,6 +845,15 @@
       "impacted_users": "Users who need to zoom (low vision, motor disabilities)",
       "expected": "Viewport meta must not disable user scaling (user-scalable=no is forbidden).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/HTML/Viewport_meta_tag",
+      "wcag_techniques": ["G142", "G179"],
+      "false_positive_risk": "low",
+      "affected_at": ["VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "iOS Safari (10+) ignores user-scalable=no as an accessibility override, but Android browsers may enforce it. Remove it unconditionally — there is no valid accessibility reason to block zoom, and it is explicitly forbidden by WCAG 1.4.4.",
+      "framework_notes": {
+        "react": "In Next.js App Router, manage the viewport meta via the Metadata API: export const viewport: Viewport = { width: 'device-width', initialScale: 1 }; in layout.tsx. Never set maximumScale: 1 or userScalable: false — these block zoom.",
+        "vue": "In Nuxt, set the viewport in nuxt.config.ts: app.head.meta = [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }]. Omit user-scalable=no entirely.",
+        "angular": "The viewport meta is in index.html. Remove user-scalable=no if present: <meta name='viewport' content='width=device-width, initial-scale=1'>. Do not add maximum-scale=1 either — it has the same effect."
+      },
       "manual_test": {
         "description": "Verify the page can be zoomed to 400% without horizontal scrolling on a 1280px viewport.",
         "steps": [
@@ -636,6 +873,10 @@
       "impacted_users": "Mobile/touch users and users with motor disabilities",
       "expected": "All interactive targets must be at least 24×24 CSS pixels (WCAG 2.5.8). Spacing or a larger equivalent target is an acceptable alternative.",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Operable#guideline_2.5_%E2%80%94_input_modalities",
+      "wcag_techniques": ["G220"],
+      "false_positive_risk": "medium",
+      "affected_at": ["Dragon NaturallySpeaking", "Voice Control", "TalkBack", "VoiceOver"],
+      "fix_difficulty_notes": "WCAG 2.5.8 provides an exception for inline text links within a sentence (e.g., 'see our privacy policy') where sufficient spacing around the link satisfies the criterion. axe may flag these — verify whether the exception applies before adding padding that could break the text flow.",
       "manual_test": {
         "description": "Measure the rendered size of small interactive elements — CSS values alone can be misleading.",
         "steps": [
@@ -655,6 +896,10 @@
       "impacted_users": "Keyboard-only users and users with low vision",
       "expected": "Focus indicators must be clearly visible, with a minimum area of the component perimeter × 2 CSS px and a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/CSS/:focus-visible",
+      "wcag_techniques": ["G149", "C15", "G195"],
+      "false_positive_risk": "high",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "outline:none does not necessarily mean no focus indicator — a visible box-shadow, background-color change, or border change can fully satisfy WCAG 2.4.11. axe may flag outline:none even when a compliant custom indicator is present. Verify visually that a focus indicator exists before applying a fix. When suppressing the outline, always provide a replacement via box-shadow or border.",
       "manual_test": {
         "description": "Tab through every interactive element and verify the focus indicator is visible and distinct.",
         "steps": [
@@ -674,6 +919,15 @@
       "impacted_users": "Users with motor disabilities who cannot perform drag gestures",
       "expected": "All drag-and-drop functionality must have an equivalent single-pointer alternative operable without dragging (WCAG 2.5.7).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Operable",
+      "wcag_techniques": ["G219"],
+      "false_positive_risk": "high",
+      "affected_at": ["Dragon NaturallySpeaking", "Voice Control"],
+      "fix_difficulty_notes": "axe detects drag interactions heuristically based on event listeners — it may flag elements that listen to drag events but do not actually require dragging for their core function. Verify that the flagged element genuinely has drag-only functionality before implementing an alternative. WCAG 2.5.7 includes an exception when the dragging motion is 'essential' (e.g., a signature pad or freehand drawing tool).",
+      "framework_notes": {
+        "react": "Libraries like @dnd-kit/core provide keyboard-accessible drag-and-drop out of the box. react-beautiful-dnd also supports keyboard dragging. If using a custom drag implementation with mousedown/mousemove events, add keyboard event handlers (Arrow keys for movement, Space/Enter to confirm drop) as an accessible alternative.",
+        "vue": "Vue Draggable (vuedraggable) and @vueuse/gesture may not include keyboard alternatives by default. Supplement drag interactions with arrow key handlers and explicit 'move up/down' buttons visible to all users.",
+        "angular": "Angular CDK DragDrop (CdkDrag) does not provide keyboard drag-and-drop by default. Add a secondary keyboard interface (e.g., Up/Down arrow buttons) as the accessible alternative alongside the drag functionality."
+      },
       "manual_test": {
         "description": "Verify the non-drag alternative completes the same task end-to-end.",
         "steps": [
@@ -693,6 +947,15 @@
       "impacted_users": "Users with cognitive disabilities and motor disabilities",
       "expected": "Information already submitted during the same session must be auto-populated or selectable without requiring re-entry (WCAG 3.3.7).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Understandable",
+      "wcag_techniques": ["G221"],
+      "false_positive_risk": "high",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver"],
+      "fix_difficulty_notes": "Automated tools cannot reliably detect this violation — they scan the static DOM of a single page without session context. Treat axe findings for this rule as a prompt for manual review, not a confirmed violation. Walk through multi-step flows manually to determine if previously entered data is unnecessarily re-requested.",
+      "framework_notes": {
+        "react": "Use React Context or a form state library (React Hook Form, Formik) to preserve data across multi-step flows. In Next.js, persist form state in URL search params or session storage to survive route transitions without requiring re-entry.",
+        "vue": "Use Pinia or Vuex to share form data across route-separated steps. In Nuxt, useState() persists data between pages without a full store — useful for lightweight multi-step form state.",
+        "angular": "Use an Angular service with a shared BehaviorSubject to carry form state across route-separated steps. Angular Reactive Forms do not automatically persist across route navigations — manual persistence via a service is required."
+      },
       "manual_test": {
         "description": "Walk through a multi-step form and verify previously entered data is not requested again.",
         "steps": [
@@ -712,6 +975,15 @@
       "impacted_users": "Users with cognitive disabilities (dyslexia, memory impairments)",
       "expected": "Authentication processes must not require solving a cognitive function test without providing an accessible alternative method (WCAG 3.3.8).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Understandable",
+      "wcag_techniques": ["G218"],
+      "false_positive_risk": "high",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "Automated tools can detect the presence of a CAPTCHA but cannot verify whether an accessible alternative is functional. Treat findings as a prompt for manual review. The WCAG 3.3.8 exception allows cognitive tests if an accessible alternative (audio CAPTCHA, passkey, magic link, email OTP) is offered alongside.",
+      "framework_notes": {
+        "react": "When using NextAuth.js, prefer magic link (email provider) or passkey authentication — these eliminate cognitive tests entirely. If CAPTCHA is required, use hCaptcha with accessibility mode enabled, or Google reCAPTCHA v3 (which requires no user interaction).",
+        "vue": "In Nuxt, @nuxtjs/auth-next supports email magic links and OAuth providers — both are more accessible than CAPTCHA-based flows. For CAPTCHA, hCaptcha offers an accessible challenge alternative.",
+        "angular": "In Angular apps using Auth0 or Firebase Auth, enable passwordless (magic link) or passkey authentication. If CAPTCHA is required, integrate hCaptcha with its accessibility challenge option, which provides audio and visual alternatives."
+      },
       "manual_test": {
         "description": "Attempt to complete authentication using only a screen reader and no visual CAPTCHA solving.",
         "steps": [
@@ -731,6 +1003,10 @@
       "impacted_users": "Users with cognitive disabilities who rely on consistent page layouts",
       "expected": "Help mechanisms must appear in the same relative order on every page where they are provided (WCAG 3.2.6).",
       "mdn": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Understanding_WCAG/Understandable",
+      "wcag_techniques": ["G220"],
+      "false_positive_risk": "high",
+      "affected_at": ["JAWS", "NVDA", "VoiceOver", "TalkBack"],
+      "fix_difficulty_notes": "Automated tools can only scan one page at a time and cannot compare help mechanism position across pages. axe findings for this rule are heuristic — they identify potential consistency issues but cannot confirm a violation without cross-page comparison. Manually verify across at least 3 page templates.",
       "manual_test": {
         "description": "Navigate between at least 3 different pages and verify help links appear in the same position.",
         "steps": [

@@ -125,6 +125,9 @@ export function buildIssueCard(finding) {
     <div class="flex flex-wrap items-center gap-2.5 mb-3.5">
       <span class="px-3 py-1 rounded-full text-[11px] font-bold border ${severityBadge} shadow-sm backdrop-blur-sm uppercase tracking-wider">${escapeHtml(finding.severity)}</span>
       ${effortBadge}
+      ${finding.falsePositiveRisk && finding.falsePositiveRisk !== "low"
+        ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 uppercase tracking-widest shadow-sm" title="Automated detection of this rule has known edge cases — verify manually before fixing">⚠ ${finding.falsePositiveRisk === "high" ? "High" : "Med"} FP Risk</span>`
+        : ""}
       <span class="wcag-label px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-100/80 ml-auto shadow-sm backdrop-blur-sm">WCAG ${escapeHtml(finding.wcag)}</span>
     </div>
     <h3 class="text-lg md:text-xl font-extrabold text-slate-900 leading-tight mb-3 group-hover:text-indigo-900 transition-colors searchable-field issue-title">${escapeHtml(finding.title)}</h3>
@@ -234,6 +237,40 @@ export function buildIssueCard(finding) {
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18 18.246 18.477 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             Technical Docs (MDN)
           </a>
+        </div>`
+          : ""
+      }
+      ${
+        finding.fixDifficultyNotes
+          ? `
+        <div class="mt-4 pt-3 border-t border-indigo-100/50">
+          <h4 class="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            Implementation Notes
+          </h4>
+          <p class="text-[12px] text-amber-900/80 leading-relaxed bg-amber-50/60 border border-amber-100/60 rounded-lg p-3">${escapeHtml(finding.fixDifficultyNotes)}</p>
+        </div>`
+          : ""
+      }
+      ${
+        finding.frameworkNotes && typeof finding.frameworkNotes === "object"
+          ? `
+        <div class="mt-4 pt-3 border-t border-indigo-100/50">
+          <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            Framework Guidance
+          </h4>
+          <div class="space-y-2">
+            ${Object.entries(finding.frameworkNotes)
+              .map(
+                ([fw, note]) => `
+            <div class="flex gap-2 items-start">
+              <span class="flex-shrink-0 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-wider mt-0.5">${escapeHtml(fw)}</span>
+              <p class="text-[12px] text-slate-600 leading-relaxed">${escapeHtml(note)}</p>
+            </div>`,
+              )
+              .join("")}
+          </div>
         </div>`
           : ""
       }
