@@ -37,7 +37,7 @@ describe("assets/intelligence.json schema", () => {
     expect(references.wcagCriterionMap["image-alt"]).toBe("1.1.1");
     expect(references.wcagCriterionMap["color-contrast"]).toBe("1.4.3");
     expect(references.wcagCriterionMap["button-name"]).toBe("4.1.2");
-    expect(references.wcagCriterionMap["label"]).toBe("1.3.1");
+    expect(references.wcagCriterionMap["label"]).toBe("4.1.2");
   });
 
   it("wcagCriterionMap covers all rules defined in intelligence.json", () => {
@@ -47,7 +47,7 @@ describe("assets/intelligence.json schema", () => {
   });
 
   it("apgPatterns and inclusiveComponents have correct mappings", () => {
-    expect(references.apgPatterns.dialog).toContain("apg/patterns/dialogmodal");
+    expect(references.apgPatterns.dialog).toContain("apg/patterns/dialog-modal");
     expect(references.inclusiveComponents.tab).toContain("tabbed-interfaces");
   });
 });

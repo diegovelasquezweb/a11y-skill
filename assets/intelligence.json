@@ -86,7 +86,7 @@
       },
       "false_positive_risk": "low",
       "framework_notes": {
-        "react": "In React, ARIA attributes are passed as JSX props — there is no compile-time check for prohibited combinations. Use eslint-plugin-jsx-a11y, which includes the aria-prhibited-attr rule to catch these at build time.",
+        "react": "In React, ARIA attributes are passed as JSX props — there is no compile-time check for prohibited combinations. Use eslint-plugin-jsx-a11y, which includes the role-supports-aria-props rule to catch these at build time.",
         "vue": "In Vue, ARIA attributes are standard HTML attributes — no framework-level check exists. Use eslint-plugin-vue with vue/no-aria-hidden-on-focusable or similar lint rules.",
         "angular": "In Angular, no built-in check prevents prohibited ARIA combinations. The Angular CDK a11y lint rules (via @angular-eslint) flag some cases — enable them in .eslintrc."
       },

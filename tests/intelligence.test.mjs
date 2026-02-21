@@ -135,3 +135,47 @@ describe("intelligence.json — content quality", () => {
     expect(noGuidance).toEqual([]);
   });
 });
+
+// ── 6. WCAG criterion mapping accuracy ────────────────────────────────────
+describe("references.json — WCAG criterion mapping", () => {
+  // Rules axe-core tags as best-practice (no WCAG tag) but we intentionally map
+  const BEST_PRACTICE_MAPPED = new Set([
+    "image-redundant-alt", "landmark-one-main", "region",
+    "landmark-no-duplicate-banner", "landmark-no-duplicate-main",
+    "landmark-unique", "heading-order", "table-duplicate-name",
+    "tabindex", "page-has-heading-one", "empty-heading",
+  ]);
+  // WCAG 4.1.1 is obsoleted in WCAG 2.2 — axe still tags with wcag411
+  const WCAG22_OBSOLETE_OVERRIDE = new Set(["duplicate-id"]);
+
+  it("every intelligence rule has a wcagCriterionMap entry", () => {
+    const missing = [...ruleIds].filter(id => !refs.wcagCriterionMap?.[id]);
+    expect(missing).toEqual([]);
+  });
+
+  it("wcagCriterionMap values match axe-core WCAG tags", () => {
+    if (!axeRules) return;
+    const mismatches = [];
+    for (const [ruleId, criterion] of Object.entries(refs.wcagCriterionMap)) {
+      if (BEST_PRACTICE_MAPPED.has(ruleId)) continue;
+      if (WCAG22_PROACTIVE.has(ruleId)) continue;
+      if (WCAG22_OBSOLETE_OVERRIDE.has(ruleId)) continue;
+      const axeRule = axeRules[ruleId];
+      if (!axeRule) continue;
+      const wcagTags = axeRule.tags.filter(t => /^wcag\d{3,4}$/.test(t));
+      const parsed = wcagTags.map(t => {
+        const d = t.replace("wcag", "");
+        return d.length === 3 ? `${d[0]}.${d[1]}.${d[2]}` : `${d[0]}.${d[1]}.${d.slice(2)}`;
+      });
+      if (parsed.length > 0 && !parsed.includes(criterion)) {
+        mismatches.push(`${ruleId}: ours=${criterion}, axe=${parsed.join(",")}`);
+      }
+    }
+    expect(mismatches).toEqual([]);
+  });
+
+  it("every intelligence rule has an MDN reference", () => {
+    const missing = [...ruleIds].filter(id => !refs.mdn?.[id]?.trim());
+    expect(missing).toEqual([]);
+  });
+});
