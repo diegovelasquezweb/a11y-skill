@@ -48,6 +48,39 @@ If an image is missing alt text:
   - Fetches patch from Intelligence: `<img src="..." alt="Description">`.
 - **Roadmap**: Tells the AI: _"Search for `<img` inside the Hero component and add an `alt` attribute."_
 
+## Manual Checks (`assets/manual-checks.json`)
+
+axe-core is an automated tool — it cannot verify criteria that require human judgment or live assistive technology interaction. The skill ships a second knowledge base, `assets/manual-checks.json`, with **24 checks** covering WCAG 2.2 AA criteria and screen reader behavior that automation cannot assess.
+
+These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Checks"** — at the end of every `remediation.md` report.
+
+### What each check contains
+
+| Field | Description |
+|:---|:---|
+| `criterion` | WCAG 2.2 criterion number (e.g., `"2.4.11"`) or screen reader test ID (e.g., `"AT-1"`) |
+| `title` | Human-readable criterion name |
+| `level` | WCAG conformance level (`A` or `AA`) |
+| `description` | What the criterion requires and why it matters |
+| `steps` | Step-by-step verification instructions for a human or agent |
+| `remediation` | Recommended fix patterns if a violation is found |
+| `code_example` | Optional before/after code snippet (`lang`, `before`, `after`) |
+| `ref` | Canonical W3C understanding document URL |
+
+### Coverage breakdown
+
+**WCAG 2.2 New Criteria (AA):** Focus Appearance (2.4.11), Dragging Movements (2.5.7), Target Size Minimum (2.5.8), Consistent Help (3.2.6), Redundant Entry (3.3.7), Accessible Authentication (3.3.8)
+
+**Interactive Behavior (axe blind spots):** Keyboard Access (2.1.1), No Keyboard Trap (2.1.2), Focus Order (2.4.3), Content on Hover or Focus (1.4.13), Animation from Interactions (2.3.3)
+
+**Perception:** Use of Color (1.4.1), Reflow (1.4.10), Non-text Contrast (1.4.11), Text Spacing (1.4.12), Error Identification (3.3.1)
+
+**Screen Reader (AT-1 → AT-8):** Heading navigation, landmark navigation, form labels, interactive element activation, live region announcements, modal dialog behavior, table reading, form error announcement
+
+### How to add a new manual check
+
+Add an entry to `assets/manual-checks.json`. No code changes required — `build-report-md.mjs` reads the file at build time and injects all checks automatically.
+
 ## Reference Links
 
 The engine provides deep-links to industry standards for every finding:

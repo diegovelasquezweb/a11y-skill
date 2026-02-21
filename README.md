@@ -93,7 +93,7 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 | :-------------------------------------------------------- | :------------------------------------------------------------------------- |
 | 🏗️ [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.      |
 | 🧮 [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.      |
-| 🧠 [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing and surgical fix pattern matching via `intelligence.json`. |
+| 🧠 [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system. |
 | 📖 [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.            |
 | ⚙️ [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                    |
 | 🛡️ [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                   |

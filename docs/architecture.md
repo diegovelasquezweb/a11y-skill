@@ -25,7 +25,8 @@ graph TD
     subgraph "Phase 3: Delivery"
         D1["AI Roadmap (Markdown)"]
         D2["Client Report (HTML)"]
-        D3["System Data (JSON)"]
+        D3["Executive Summary (PDF)"]
+        D4["System Data (JSON)"]
     end
 ```
 
@@ -41,14 +42,14 @@ graph TD
 ### 2. The Analyzer (`run-analyzer.mjs`)
 
 - **Brain**: Consumes the raw scan results and enriches them using `assets/intelligence.json`.
-- **Fix Logic**: Generates the `fixCode` and `fixDescription` for each finding.
+- **Fix Logic**: Generates the `fixCode`, `fixDescription`, `wcag_criterion_id`, and `framework_notes` for each finding.
 - **Precision**: Extracts the "Search Hint" (ID, Class, or Tag) to help AI agents find the code in the source files.
-- **Triage**: Calculates weighted scores and severity levels.
+- **Triage**: Maps axe-core impact levels to severity tiers (Critical / High / Medium / Low). Compliance score calculation happens downstream in `core-findings.mjs`.
 
 ### 3. The Builder (`run-audit.mjs` orchestrator)
 
 - **Assembly**: Coordinates the execution of the Scanner and Analyzer.
-- **Formatting**: Triggers the report builders (`build-report-html.mjs` and `build-report-md.mjs`).
+- **Formatting**: Triggers all three report builders: `build-report-html.mjs`, `build-report-md.mjs`, and `build-report-pdf.mjs`.
 - **Persistence**: Ensures the `audit/` folder is updated with the latest findings.
 
 ## Data Flow Diagram
@@ -68,6 +69,6 @@ sequenceDiagram
     A->>A: Generate Patch Logic
     A->>FS: Save Findings (JSON)
     A-->>B: Trigger Formatting
-    B->>FS: Generate HTML & MD Reports
+    B->>FS: Generate HTML, MD & PDF Reports
     B-->>CLI: Final Success Output
 ```
