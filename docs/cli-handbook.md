@@ -41,11 +41,12 @@ Flags used to control the _browser_ and _output_.
 
 | Flag             | Argument      | Default             | Description                                                  |
 | :--------------- | :------------ | :------------------ | :----------------------------------------------------------- |
-| `--output`       | `<path>`      | `audit/report.html` | Location for the final HTML report.                          |
-| `--color-scheme` | `light\|dark` | `light`             | Emulates browser `prefers-color-scheme`.                     |
-| `--headed`       | (No arg)      | `false`             | Runs the browser in visible mode (useful for debugging).     |
-| `--wait-ms`      | `<num>`       | `2000`              | Delay after page load before scanning (for SPAs/animations). |
-| `--timeout-ms`   | `<num>`       | `30000`             | Global network timeout for each page load.                   |
+| `--output`       | `<path>`                              | `audit/report.html`    | Location for the final HTML report.                                             |
+| `--color-scheme` | `light\|dark`                         | `light`                | Emulates browser `prefers-color-scheme`.                                        |
+| `--headed`       | (No arg)                              | `false`                | Runs the browser in visible mode (useful for debugging).                        |
+| `--wait-ms`      | `<num>`                               | `2000`                 | Delay after page load before scanning (for SPAs/animations).                    |
+| `--timeout-ms`   | `<num>`                               | `30000`                | Global network timeout for each page load.                                      |
+| `--wait-until`   | `domcontentloaded\|load\|networkidle` | `domcontentloaded`     | Playwright page load strategy. Use `networkidle` for SPAs with async rendering. |
 
 ## Advanced Patterns
 
