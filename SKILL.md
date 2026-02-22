@@ -98,16 +98,15 @@ Read `audit/remediation.md` and:
 1. Summarize findings by severity (Critical → High → Medium → Low).
 2. Propose the specific fixes from the remediation guide.
 3. Group by component or page area, explaining _why_ each fix is needed.
-4. Ask for permission before applying fixes.
-5. If visual reports were generated in Step 1, provide their absolute paths as proof.
+4. If visual reports were generated in Step 1, provide their absolute paths as proof.
+5. Ask the user how to proceed:
 
-Example (with reports):
+> "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). How would you like to proceed?
+> - **Severity by severity** (recommended) — I'll fix one severity group at a time with a checkpoint after each so you can verify. Safest approach.
+> - **Fix all structural** — I'll apply all structural fixes (ARIA, alt text, labels, DOM order) at once. Style changes (colors, font sizes) will still require your approval separately.
+> - **Only critical** — fix only Critical severity issues for now."
 
-> "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). The visual report is open in your browser. I have patches ready for all of them — should I apply the fixes?"
-
-Example (without reports):
-
-> "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). I have patches ready for all of them — should I apply the fixes?"
+The default behavior (if the user just says "fix" or "go ahead") is **severity by severity**.
 
 For finding field requirements and deliverable format, see [references/report-standards.md](references/report-standards.md).
 
@@ -117,25 +116,40 @@ If the user declines:
 
 ### Step 3 — Fix
 
-**Never apply all fixes in a single batch.** Work through each phase below in order.
+Work through each phase below in order.
+
+> **Style-dependent protection**: Style fixes (color-contrast, font-size, spacing) **always require explicit approval with the exact changes shown** — regardless of what the user chose in Step 2. This prevents unintended visual regressions.
 
 **3a. Structural fixes by severity** (Critical → High → Medium → Low):
 
-1. Apply one severity group — structural and semantic fixes only (HTML attributes, ARIA roles, DOM order, alt text, labels).
+These are safe to apply — they don't affect visual appearance (HTML attributes, ARIA roles, DOM order, alt text, labels, lang attributes).
+
+If the user chose **severity by severity** (default):
+
+1. Apply one severity group at a time.
    - Use "Search in" glob patterns and the "Fixes by Component" table to locate and batch edits per file.
    - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
    - For framework and CMS file locations, see [references/source-patterns.md](references/source-patterns.md).
 2. Checkpoint — list every file modified and fix applied, ask the user to verify visually.
 
-   Example:
-
    > "Critical fixes applied — 3 files modified (`Header.tsx`, `Nav.astro`, `Footer.tsx`). Please verify visually and confirm when ready to proceed with High severity fixes."
 
 3. Repeat for each remaining severity group.
 
+If the user chose **fix all structural**: apply all severity groups in a single pass, then report all modified files at once.
+
 **3b. Style-dependent fixes** (color-contrast, font-size, spacing):
 
-Present the exact proposed changes as a separate batch and wait for explicit approval before applying. Never modify visual properties without the user seeing the change first.
+These can change the site's appearance. **Always show the exact proposed changes and wait for explicit approval**, even if the user previously said "fix all". Never modify visual properties without the user seeing the change first.
+
+Example:
+
+> "I also found 3 style-dependent issues that affect your site's visual design. These require your review:
+> - `color-contrast` on `.hero-title`: change `color` from `#999` → `#595959` (contrast ratio 3.2:1 → 7:1)
+> - `color-contrast` on `.nav-link`: change `color` from `#aaa` → `#767676`
+> - `font-size` on `.fine-print`: change from `10px` → `12px`
+>
+> Should I apply these? You may want to review them against your design system first."
 
 **3c. Manual checks**:
 

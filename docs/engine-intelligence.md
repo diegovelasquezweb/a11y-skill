@@ -12,19 +12,6 @@
 
 The "Intelligence" of the a11y skill revolves around **Autonomous Remediation**. It transforms a diagnostic finding into an actionable code patch.
 
-## The Intelligence Edge: Skill vs. Standard Scanners
-
-Standard automated scanners (like Axe-Core) typically detect only **30-50%** of accessibility issues. This skill extends that coverage to reach **WCAG 2.2 AA** and real-world usability standards.
-
-| Feature                      | Standard Scanner |        **a11y Skill**         |
-| :--------------------------- | :--------------: | :---------------------------: |
-| **Automated Rules**          |       ~90        |             ~100              |
-| **WCAG 2.2 AA Coverage**     | ❌ None/Partial  |   ✅ **Full (24+ Checks)**    |
-| **Surgical Remediation**     |      ❌ No       |    ✅ **Direct Patching**     |
-| **Multi-Framework Logic**    |      ❌ No       |  ✅ **React, Vue, Astro...**  |
-| **Screen Reader (AT) Tests** |      ❌ No       |   ✅ **8 Behavioral Tests**   |
-| **Contextual Evidence**      |      ❌ No       | ✅ **outerHTML Verification** |
-
 ## The Intelligence Database (`assets/intelligence.json`)
 
 The skill ships with a curated knowledge base that map common accessibility violations to specific remediation patterns for modern frameworks (**Shopify**, **React**, **Next.js**, **Vue**, **Angular**).
@@ -73,28 +60,25 @@ To prevent "hallucinations" or incorrect patching, the engine captures the **HTM
 
 ```mermaid
 %%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0' } } }%%
-flowchart TD
-    Finding["Raw Finding<br/>(axe-core)"]
+flowchart LR
+    Finding["Raw Finding<br/>(axe-core)"] --> Analysis
 
-    subgraph Analysis ["Intelligence Flow"]
-        direction TB
-        Context["Context Analysis<br/>(DOM Attributes)"]
-        Hint["Surgical Selector<br/>(ID > Short Path)"]
-        Match["Intelligence Lookup<br/>(assets/intelligence.json)"]
+    subgraph Analysis["Intelligence Pipeline"]
+        direction LR
+        Surgical["<b>Surgical Identification</b><br/>(ID > Short Path)"]
+        Match["<b>Knowledge Lookup</b><br/>(intelligence.json)"]
+        Evidence["<b>Evidence Capture</b><br/>(outerHTML)"]
+
+        Surgical --> Match --> Evidence
     end
 
-    Roadmap["<b>Remediation Roadmap</b><br/>(Markdown)"]
-
-    Finding --> Context
-    Context --> Hint
-    Hint --> Match
-    Match --> Roadmap
+    Analysis --> Roadmap["<b>Remediation Roadmap</b><br/>(Markdown)"]
 
     classDef default font-family:Inter,sans-serif,font-size:12px;
     classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a;
     classDef roadmap fill:#1e293b,color:#fff,stroke:#0f172a,font-weight:bold;
 
-    class Finding,Match core;
+    class Finding,Match,Surgical,Evidence core;
     class Roadmap roadmap;
 ```
 
