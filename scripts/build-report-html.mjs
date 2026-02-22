@@ -17,7 +17,6 @@ const MANUAL_CHECKS = JSON.parse(fs.readFileSync(manualChecksPath, "utf-8"));
 import {
   buildIssueCard,
   buildManualChecksSection,
-  buildGlobalReferencesSection,
 } from "./report/format-html.mjs";
 import {
   buildPdfExecutiveSummary,

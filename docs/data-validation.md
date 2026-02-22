@@ -98,7 +98,7 @@ Ensure all URLs in `rule-metadata.json` and `manual-checks.json` return a `200 O
 node scripts/validate-urls.mjs
 ```
 
-This script validates all `mdn`, `apgPatterns`, `a11ySupport`, `inclusiveComponents`, and `manual-checks.ref` URLs concurrently (10 at a time, 10s timeout). Exit code `1` = broken links found.
+This script validates all `mdn`, `apgPatterns`, and `manual-checks.ref` URLs concurrently (10 at a time, 10s timeout). Exit code `1` = broken links found.
 
 ## Step 4: Regression Testing
 

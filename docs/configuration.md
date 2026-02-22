@@ -40,7 +40,7 @@ All keys are optional. The engine will merge this file with internal defaults.
 ### Targeting & Scope
 
 - **`maxRoutes`** _(number, default: 10)_:
-  Cap for auto-discovery. Lower values speed up audits; higher values increase coverage.
+  Cap for BFS crawl discovery (only applies when no `sitemap.xml` is found). Sites with a sitemap are fully scanned regardless of this value.
 - **`routes`** _(array, default: null)_:
   A static list of paths to scan (e.g., `["/", "/about", "/contact"]`). When set, overrides auto-discovery entirely. Equivalent to the `--routes` CLI flag.
 - **`excludeSelectors`** _(array, default: [])_:

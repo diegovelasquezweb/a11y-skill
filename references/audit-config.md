@@ -25,7 +25,7 @@ Prefer CLI flags for these — config serves as fallback defaults.
 
 | Key           | Type      | CLI Equivalent   | Description                                                                                         |
 | :------------ | :-------- | :--------------- | :-------------------------------------------------------------------------------------------------- |
-| `maxRoutes`   | `number`  | `--max-routes`   | Max URLs to discover (default: 10).                                                                 |
+| `maxRoutes`   | `number`  | `--max-routes`   | Max URLs for BFS crawl (default: 10). Only applies when no sitemap is found.                        |
 | `crawlDepth`  | `number`  | `--crawl-depth`  | How deep to follow links during discovery (1-3, default: 2).                                        |
 | `waitMs`      | `number`  | `--wait-ms`      | Time to wait after page load (default: 2000).                                                       |
 | `timeoutMs`   | `number`  | `--timeout-ms`   | Network timeout for page loads (default: 30000).                                                    |
