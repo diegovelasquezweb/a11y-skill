@@ -45,8 +45,10 @@ const WCAG_CRITERION_MAP = RULE_METADATA.wcagCriterionMap || {};
 
 function detectCodeLang(code) {
   if (!code) return "html";
-  if (/\.(tsx?|jsx?)\b|className=|useState|useRef|<>\s*<\/>/i.test(code)) return "jsx";
-  if (/^\s*[.#][\w-]+\s*\{|:\s*var\(|@media|display\s*:/m.test(code)) return "css";
+  if (/\.(tsx?|jsx?)\b|className=|useState|useRef|<>\s*<\/>/i.test(code))
+    return "jsx";
+  if (/^\s*[.#][\w-]+\s*\{|:\s*var\(|@media|display\s*:/m.test(code))
+    return "css";
   return "html";
 }
 
@@ -80,26 +82,62 @@ function getExpected(ruleId) {
 }
 
 const FRAMEWORK_GLOBS = {
-  nextjs:    { components: "app/**/*.tsx, components/**/*.tsx", styles: "**/*.module.css, app/globals.css" },
-  gatsby:    { components: "src/**/*.tsx, src/**/*.jsx", styles: "src/**/*.css, src/**/*.module.css" },
-  react:     { components: "src/**/*.tsx, src/**/*.jsx", styles: "src/**/*.css, src/**/*.module.css" },
-  nuxt:      { components: "pages/**/*.vue, components/**/*.vue", styles: "**/*.css, assets/**/*.scss" },
-  vue:       { components: "src/**/*.vue", styles: "src/**/*.css" },
-  angular:   { components: "src/**/*.component.html, src/**/*.component.ts", styles: "src/**/*.component.css" },
-  astro:     { components: "src/**/*.astro, src/components/**/*.tsx", styles: "src/**/*.css" },
-  svelte:    { components: "src/**/*.svelte", styles: "src/**/*.css" },
-  shopify:   { components: "sections/**/*.liquid, snippets/**/*.liquid", styles: "assets/**/*.css" },
-  wordpress: { components: "wp-content/themes/**/*.php", styles: "wp-content/themes/**/*.css" },
+  nextjs: {
+    components: "app/**/*.tsx, components/**/*.tsx",
+    styles: "**/*.module.css, app/globals.css",
+  },
+  gatsby: {
+    components: "src/**/*.tsx, src/**/*.jsx",
+    styles: "src/**/*.css, src/**/*.module.css",
+  },
+  react: {
+    components: "src/**/*.tsx, src/**/*.jsx",
+    styles: "src/**/*.css, src/**/*.module.css",
+  },
+  nuxt: {
+    components: "pages/**/*.vue, components/**/*.vue",
+    styles: "**/*.css, assets/**/*.scss",
+  },
+  vue: { components: "src/**/*.vue", styles: "src/**/*.css" },
+  angular: {
+    components: "src/**/*.component.html, src/**/*.component.ts",
+    styles: "src/**/*.component.css",
+  },
+  astro: {
+    components: "src/**/*.astro, src/components/**/*.tsx",
+    styles: "src/**/*.css",
+  },
+  svelte: { components: "src/**/*.svelte", styles: "src/**/*.css" },
+  shopify: {
+    components: "sections/**/*.liquid, snippets/**/*.liquid",
+    styles: "assets/**/*.css",
+  },
+  wordpress: {
+    components: "wp-content/themes/**/*.php",
+    styles: "wp-content/themes/**/*.css",
+  },
 };
 
 const ARIA_MANAGED_RULES = new Set([
-  "aria-required-attr", "aria-required-children", "aria-required-parent",
-  "aria-valid-attr", "aria-valid-attr-value", "aria-allowed-attr",
-  "aria-allowed-role", "aria-dialog-name", "aria-toggle-field-name",
+  "aria-required-attr",
+  "aria-required-children",
+  "aria-required-parent",
+  "aria-valid-attr",
+  "aria-valid-attr-value",
+  "aria-allowed-attr",
+  "aria-allowed-role",
+  "aria-dialog-name",
+  "aria-toggle-field-name",
   "aria-prohibited-attr",
 ]);
 
-const MANAGED_LIBS = new Set(["radix", "headless-ui", "chakra", "mantine", "material-ui"]);
+const MANAGED_LIBS = new Set([
+  "radix",
+  "headless-ui",
+  "chakra",
+  "mantine",
+  "material-ui",
+]);
 
 function getFileSearchPattern(framework, codeLang) {
   const globs = FRAMEWORK_GLOBS[framework];
@@ -233,7 +271,10 @@ export function extractSearchHint(selector) {
 function buildFindings(inputPayload) {
   const onlyRule = inputPayload.onlyRule;
   const routes = inputPayload.routes || [];
-  const ctx = inputPayload.projectContext || { framework: null, uiLibraries: [] };
+  const ctx = inputPayload.projectContext || {
+    framework: null,
+    uiLibraries: [],
+  };
   const findings = [];
 
   for (const route of routes) {
@@ -295,10 +336,13 @@ function buildFindings(inputPayload) {
           mdn: MDN[v.id] ?? null,
           manual_test: ruleInfo.manual_test ?? null,
           effort: null,
-          related_rules: Array.isArray(ruleInfo.related_rules) ? ruleInfo.related_rules : [],
+          related_rules: Array.isArray(ruleInfo.related_rules)
+            ? ruleInfo.related_rules
+            : [],
           false_positive_risk: ruleInfo.false_positive_risk ?? null,
           fix_difficulty_notes: ruleInfo.fix_difficulty_notes ?? null,
           framework_notes: ruleInfo.framework_notes ?? null,
+          cms_notes: ruleInfo.cms_notes ?? null,
           total_instances: nodes.length,
           evidence: nodes.slice(0, 3).map((n) => ({
             html: n.html,

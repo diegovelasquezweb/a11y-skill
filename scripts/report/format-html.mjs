@@ -281,6 +281,28 @@ export function buildIssueCard(finding) {
         </div>`
           : ""
       }
+      ${
+        finding.cmsNotes && typeof finding.cmsNotes === "object"
+          ? `
+        <div class="mt-4 pt-3 border-t border-indigo-100/50">
+          <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+            CMS Guidance
+          </h4>
+          <div class="space-y-2">
+            ${Object.entries(finding.cmsNotes)
+              .map(
+                ([cms, note]) => `
+            <div class="flex gap-2 items-start">
+              <span class="flex-shrink-0 px-2 py-0.5 rounded text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200 uppercase tracking-wider mt-0.5">${escapeHtml(cms)}</span>
+              <p class="text-[12px] text-slate-600 leading-relaxed">${escapeHtml(note)}</p>
+            </div>`,
+              )
+              .join("")}
+          </div>
+        </div>`
+          : ""
+      }
     </div>
 
     ${screenshotHtml}

@@ -936,7 +936,14 @@
       "framework_notes": {
         "react": "Use aria-label prop: <button aria-label=\"Close dialog\">. Prefer visible text children whenever possible.",
         "vue": "Use :aria-label or aria-label attribute — standard HTML semantics apply.",
-        "angular": "Use [attr.aria-label] binding or the CDK a11y AccessibilityModule for managed focus."
+        "angular": "Use [attr.aria-label] binding or the CDK a11y AccessibilityModule for managed focus.",
+        "svelte": "Svelte's compiler warns about missing button names at build time. For icon buttons, use aria-label directly: <button aria-label='Close'>. If using an on:click on a non-button element, Svelte will also warn — prefer native <button> elements.",
+        "astro": "Buttons in Astro's static HTML render without JS — ensure the accessible name is in the HTML, not added via client-side scripts. For interactive island buttons (React/Vue/Svelte inside Astro), the framework's rules apply within the island."
+      },
+      "cms_notes": {
+        "shopify": "Icon buttons in Dawn and other themes often use {% render 'icon-close' %} snippets without aria-label. Add aria-label to the <button> in the section template, not the snippet — snippets lack context about the button's purpose.",
+        "wordpress": "In Gutenberg custom blocks, use the RichText component for button text or set aria-label in the block's save() function. Avoid adding labels only in edit() — they must be in the rendered HTML.",
+        "drupal": "In Twig templates, add aria-label via the Attribute object: <button{{ attributes.setAttribute('aria-label', 'Close'|t) }}>. Use Drupal's |t filter for translatable labels."
       },
       "fix_difficulty_notes": "Using aria-label on a button with visible text creates a label mismatch — voice control users speak the visible text, not the aria-label. If visible text exists, keep it and remove aria-label. Only use aria-label for icon-only buttons with no visible text.",
       "manual_test": {
@@ -1005,7 +1012,14 @@
       "framework_notes": {
         "react": "In Tailwind (including shadcn/ui), verify that HSL CSS custom properties resolve to accessible values in both light and dark themes. CSS-in-JS libraries (styled-components, Emotion) compute colors at runtime — axe audits the computed value, not the source variable.",
         "vue": "In Vue with Tailwind or CSS Modules, verify contrast in the computed styles, not just the source CSS variables. Use DevTools color picker to confirm the rendered ratio.",
-        "angular": "In Angular Material, override theme colors via mat.define-theme() using contrast-checked color pairs. Avoid raw CSS overrides that bypass the Angular Material theming system's built-in contrast checks."
+        "angular": "In Angular Material, override theme colors via mat.define-theme() using contrast-checked color pairs. Avoid raw CSS overrides that bypass the Angular Material theming system's built-in contrast checks.",
+        "svelte": "Svelte's scoped styles compile to unique class names — contrast violations must be fixed in the component's <style> block, not global CSS. When using Tailwind with SvelteKit, verify that dark mode colors (dark:text-*) also meet contrast requirements.",
+        "astro": "Astro renders static HTML with inlined styles — contrast issues are baked into the build output. Fix colors in the source .astro component's <style> block or at the CSS variable definition level (e.g., :root in global.css)."
+      },
+      "cms_notes": {
+        "shopify": "Theme color settings are defined in settings_schema.json and applied via Liquid ({{ settings.color_text }}). Verify that the default color values meet 4.5:1 contrast. Merchants can override these — add contrast guidance in the setting description field.",
+        "wordpress": "Classic themes use the Customizer's color settings; block themes use theme.json's color.palette. Verify default palette contrast pairs. If using wp_add_inline_style(), ensure injected colors are contrast-checked.",
+        "drupal": "Olivero (Drupal's default theme) ships with WCAG 2.1 AA contrast. Custom themes should use CSS custom properties for colors and validate pairs in the color scheme configuration. Check sub-theme overrides in the .theme file."
       },
       "fix_difficulty_notes": "False positives are common on text rendered over gradient backgrounds, images, or when color is set dynamically via JavaScript or CSS variables resolved at runtime. axe-core samples a single point of the background — text on gradients may appear to fail even when contrast is sufficient. Verify each flagged instance visually using the browser DevTools color picker or https://webaim.org/resources/contrastchecker/ before fixing.",
       "manual_test": {
@@ -1026,8 +1040,13 @@
       "framework_notes": {
         "react": "Place help mechanisms in the root layout component (e.g., app/layout.tsx in Next.js App Router, or App.jsx). Never put them in individual page components — they will appear/disappear per route, breaking consistency. In Next.js Pages Router, use _app.js.",
         "vue": "Add help mechanisms to the root layout (App.vue or layouts/default.vue in Nuxt). Avoid placing them in page-level components. In Nuxt, layouts/default.vue is the canonical location to guarantee consistent rendering across all routes.",
+        "svelte": "In SvelteKit, place help mechanisms in +layout.svelte at the root level. Avoid putting them in individual +page.svelte files. SvelteKit's layout nesting ensures they persist across all child routes automatically.",
+        "astro": "Place help mechanisms in your base layout component (e.g., layouts/BaseLayout.astro). Since Astro islands hydrate independently, ensure help widgets that require JavaScript use client:load to be immediately interactive. Never place them inside island components — they will only appear where that island is used."
+      },
+      "cms_notes": {
         "shopify": "Place help links in layout/theme.liquid or a persistent snippet included in every section. Never add them only to specific section templates — they will be absent on pages that don't render that section.",
-        "wordpress": "Add help mechanisms to header.php or footer.php in the active theme. Avoid widget areas that may not appear on all page templates (e.g., some templates skip the sidebar)."
+        "wordpress": "Add help mechanisms to header.php or footer.php in the active theme. Avoid widget areas that may not appear on all page templates (e.g., some templates skip the sidebar). In block themes (FSE), use template parts.",
+        "drupal": "Place help mechanisms in the page.html.twig template or a block assigned to a region rendered on every page (e.g., footer). Avoid placing them in node--*.html.twig templates — they only render on specific content types."
       },
       "fix_difficulty_notes": "Automated tools can only scan one page at a time and cannot compare help mechanism position across pages. axe findings for this rule are heuristic — they identify potential consistency issues but cannot confirm a violation without cross-page comparison. Manually verify across at least 3 page templates.",
       "manual_test": {
@@ -1661,7 +1680,14 @@
       "framework_notes": {
         "react": "Use the alt prop directly on <img>: <img src={src} alt=\"Description\" />. For decorative images: alt=\"\".",
         "vue": "Use :alt binding or plain alt attribute — standard HTML semantics apply.",
-        "angular": "Use [attr.alt] binding or plain alt attribute on <img> elements."
+        "angular": "Use [attr.alt] binding or plain alt attribute on <img> elements.",
+        "svelte": "Svelte's compiler enforces alt attributes on <img> elements at build time — missing alt triggers a warning (a11y-missing-attribute). Use alt='' for decorative images. This is one of Svelte's strongest built-in accessibility features.",
+        "astro": "Astro's <Image /> component from astro:assets requires the alt prop by default (TypeScript will error without it). For standard <img> tags in .astro files, add alt manually — Astro does not validate HTML attributes at build time."
+      },
+      "cms_notes": {
+        "shopify": "Product images use {{ image | image_url }} with product.featured_image.alt as alt text. If the merchant hasn't set alt text in the admin, it defaults to blank — add a fallback: alt='{{ image.alt | default: product.title }}' in your Liquid template.",
+        "wordpress": "WordPress stores alt text per attachment via update_post_meta($id, '_wp_attachment_image_alt', $value). The image block populates alt from the Media Library. Ensure custom image rendering via wp_get_attachment_image() preserves the stored alt attribute.",
+        "drupal": "Drupal's Image field requires alt text by default (configurable per field instance). In Twig templates, use {{ content.field_image }} which renders with the stored alt. If rendering manually, use {{ file_url(node.field_image.entity.uri.value) }} with alt={{ node.field_image.alt }}."
       },
       "fix_difficulty_notes": "axe-core confirms alt presence but cannot evaluate alt quality. An alt='photo.jpg' or alt='image' passes axe but violates 1.1.1. Always verify that alt text is descriptive and conveys the image's purpose. For decorative images, use alt='' (empty, not omitted — omitting alt causes some screen readers to announce the filename).",
       "manual_test": {
@@ -1796,7 +1822,14 @@
       "framework_notes": {
         "react": "Use htmlFor prop (not 'for') on <label>: <label htmlFor=\"email\">Email</label>. The 'for' attribute is reserved in JSX.",
         "vue": "Use the standard for attribute: <label for=\"email\">. Vue renders standard HTML — no special prop needed.",
-        "angular": "Use [for]=\"inputId\" binding or wrap the input inside the label element to avoid explicit ID linking."
+        "angular": "Use [for]=\"inputId\" binding or wrap the input inside the label element to avoid explicit ID linking.",
+        "svelte": "Use the standard HTML for attribute: <label for='email'>. Svelte's compiler warns if interactive form elements lack associated labels (a11y-label-has-associated-control). Wrapping the input inside the label also satisfies the check.",
+        "astro": "In .astro files, use standard HTML <label for='id'>. For form inputs inside framework islands (React/Vue/Svelte), each framework's label rules apply within the island boundary — Astro does not validate cross-island label-input associations."
+      },
+      "cms_notes": {
+        "shopify": "Dawn theme hides labels visually with the 'visually-hidden' class. Ensure labels exist in the DOM even when hidden — screen readers need the <label> element. Never remove the label; instead use CSS to hide it if the design requires it.",
+        "wordpress": "Gutenberg's built-in form blocks include labels by default. For custom blocks, use <label> inside the block's save() function. Contact Form 7 and WPForms plugins generate labels automatically — verify they use the 'for' attribute.",
+        "drupal": "Drupal's Form API automatically generates labels when #title is set on form elements. In custom Twig templates for forms, ensure every input has a corresponding <label for='{{ input_id }}'>. Use form_element.html.twig as your reference."
       },
       "fix_difficulty_notes": "aria-label works technically but voice control users cannot target the field by speaking the label — they need a visible text match. Prefer a visible <label> over aria-label for all inputs. placeholder is not a substitute for a label — it disappears on input and is not reliably announced by screen readers.",
       "manual_test": {
@@ -2162,7 +2195,14 @@
       "framework_notes": {
         "react": "Place <main id='main-content'> in the root layout component (app/layout.tsx in Next.js App Router, or the root App component). Do not place <main> in individual page components — it will be missing for routes that render before the layout mounts.",
         "vue": "Add <main id='main-content'> to the root layout component (App.vue or layouts/default.vue in Nuxt), wrapping <router-view /> or <slot />. Nuxt: set it in layouts/default.vue.",
-        "angular": "Add <main id='main-content'> in app.component.html wrapping <router-outlet>. This ensures the landmark is present for all routes and the skip link target resolves correctly."
+        "angular": "Add <main id='main-content'> in app.component.html wrapping <router-outlet>. This ensures the landmark is present for all routes and the skip link target resolves correctly.",
+        "svelte": "In SvelteKit, wrap <slot /> in +layout.svelte with <main id='main-content'>. SvelteKit's layout inheritance ensures every page is wrapped. Never place <main> in individual +page.svelte files.",
+        "astro": "Place <main id='main-content'> in your base layout (e.g., layouts/BaseLayout.astro) wrapping the <slot />. Since Astro pre-renders to static HTML, the <main> landmark is always present without hydration delays."
+      },
+      "cms_notes": {
+        "shopify": "Dawn theme uses <main id='MainContent'> in layout/theme.liquid. If building a custom theme, wrap {{ content_for_layout }} in <main>. Never place <main> inside a section template — it only renders when that section is included.",
+        "wordpress": "Classic themes should wrap the_content() in <main> inside page.php/single.php. Block themes use <main> in templates/index.html. WordPress core does not add <main> automatically — the theme is responsible.",
+        "drupal": "Olivero (the default theme) includes <main> in page.html.twig. Custom themes must ensure page.html.twig wraps {{ page.content }} in <main id='main-content'>. Sub-theme overrides of page.html.twig sometimes lose this landmark."
       },
       "fix_difficulty_notes": "SPAs often render the <main> landmark conditionally — in React, Vue Router, and Angular, the layout shell may not include <main> if each page component is responsible for its own layout. Ensure the root layout component (e.g., layout.tsx in Next.js, App.vue in Vue, app.component.html in Angular) always wraps page content in <main>, not individual page components. Axe may also flag SPA routes where <main> is rendered client-side after the initial snapshot.",
       "manual_test": {
