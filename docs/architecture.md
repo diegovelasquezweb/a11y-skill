@@ -1,6 +1,6 @@
 # Audit Engine Architecture
 
-**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Data Validation](data-validation.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Scripts](scripts-catalog.md) • [Testing](testing.md)
+**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Data Validation](data-validation.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Scripts](scripts-catalog.md) • [Testing](testing.md)
 
 ---
 
@@ -88,9 +88,9 @@ flowchart TD
 
 - **Assembly**: Coordinates the execution of the Scanner and Analyzer.
 - **Formatting**: Triggers the report builders (HTML dashboard, Markdown remediation guide, PDF summary).
-- **Persistence**: Ensures the `audit/` folder is updated with the latest findings.
+- **Persistence**: Stores all pipeline artifacts in the skill's internal directory.
 
-### 4. The Remediation Guide (`audit/remediation.md`)
+### 4. The Remediation Guide (internal `remediation.md`)
 
 The Markdown report is the primary interface between the audit engine and the AI agent fixing issues. It includes:
 

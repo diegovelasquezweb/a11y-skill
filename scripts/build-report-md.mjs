@@ -1,36 +1,44 @@
-#!/usr/bin/env node
+/**
+ * @file build-report-md.mjs
+ * @description Generates a Markdown-based remediation guide and audit summary.
+ * This report is optimized for developers and intended to be used as a
+ * backlog or README-style remediation roadmap.
+ */
 
-import { readJson, log, getInternalPath, loadConfig } from "./a11y-utils.mjs";
+import { readJson, log, getInternalPath, DEFAULTS } from "./a11y-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { normalizeFindings } from "./report/core-findings.mjs";
 import { buildMarkdownSummary } from "./report/format-md.mjs";
 
+/**
+ * Prints the CLI usage instructions and available options for the Markdown report builder.
+ */
 function printUsage() {
   log.info(`Usage:
   node build-report-md.mjs [options]
 
 Options:
-  --input <path>           Findings JSON path (default: audit/internal/a11y-findings.json)
-  --output <path>          Output Markdown path (default: audit/remediation.md)
+  --input <path>           Findings JSON path (default: internal)
+  --output <path>          Output Markdown path (default: internal)
   --base-url <url>         Target website URL
   --target <text>          Compliance target label (default: WCAG 2.2 AA)
   -h, --help               Show this help
 `);
 }
 
+/**
+ * Parses command-line arguments into a configuration object for the Markdown builder.
+ * @param {string[]} argv - Array of command-line arguments.
+ * @returns {Object} A configuration object containing input, output, and target settings.
+ */
 function parseArgs(argv) {
-  const config = loadConfig();
   const args = {
     input: getInternalPath("a11y-findings.json"),
-    output: path.join(
-      process.cwd(),
-      config.outputDir || "audit",
-      "remediation.md",
-    ),
+    output: getInternalPath("remediation.md"),
     baseUrl: "",
-    target: config.complianceTarget || "WCAG 2.2 AA",
-    framework: config.framework ?? null,
+    target: DEFAULTS.complianceTarget,
+    framework: null,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -52,6 +60,11 @@ function parseArgs(argv) {
   return args;
 }
 
+/**
+ * The main execution function for the Markdown report builder.
+ * Reads scan results, generates the Markdown string, and writes the output file.
+ * @throws {Error} If the input findings file is missing or invalid.
+ */
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const inputPayload = readJson(args.input);
@@ -68,9 +81,10 @@ function main() {
   log.success(`Remediation guide written to ${args.output}`);
 }
 
+// Execute the Markdown remediation guide generator.
 try {
   main();
 } catch (error) {
-  log.error(error.message);
+  log.error(`Markdown Generation Error: ${error.message}`);
   process.exit(1);
 }

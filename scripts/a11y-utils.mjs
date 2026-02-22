@@ -1,18 +1,64 @@
+/**
+ * @file a11y-utils.mjs
+ * @description Core utility functions and shared configuration for the a11y skill.
+ * Provides logging, file I/O operations, and path management used throughout the audit pipeline.
+ */
+
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+/**
+ * The absolute root directory of the a11y skill project.
+ * @type {string}
+ */
 export const SKILL_ROOT = path.join(__dirname, "..");
 
 /**
- * Standardized logging with basic console colors
+ * Default configuration values for the accessibility audit scanner.
+ * Used when specific options are not provided via CLI or config file.
+ * @type {Object}
+ */
+export const DEFAULTS = {
+  maxRoutes: 10,
+  crawlDepth: 2,
+  complianceTarget: "WCAG 2.2 AA",
+  colorScheme: "light",
+  viewports: [{ width: 1280, height: 800, name: "Desktop" }],
+  headless: true,
+  waitMs: 2000,
+  timeoutMs: 30000,
+  waitUntil: "domcontentloaded",
+};
+
+/**
+ * Standardized logging utility for consistent terminal output across scripts.
+ * Supports info, success, warning, and error levels with ANSI color coding.
  */
 export const log = {
+  /**
+   * Logs an informational message in cyan.
+   * @param {string} msg - The message to log.
+   */
   info: (msg) => console.log(`\x1b[36m[INFO]\x1b[0m ${msg}`),
+  /**
+   * Logs a success message in green.
+   * @param {string} msg - The message to log.
+   */
   success: (msg) => console.log(`\x1b[32m[SUCCESS]\x1b[0m ${msg}`),
+  /**
+   * Logs a warning message in yellow.
+   * @param {string} msg - The message to log.
+   */
   warn: (msg) => console.log(`\x1b[33m[WARN]\x1b[0m ${msg}`),
+  /**
+   * Logs an error message in red, optionally including a troubleshooting hint.
+   * @param {string} msg - The error message.
+   * @param {string} [hint=""] - An optional hint or troubleshooting suggestion.
+   */
   error: (msg, hint = "") => {
     console.error(`\x1b[31m[ERROR]\x1b[0m ${msg}`);
     if (hint) {
@@ -21,87 +67,10 @@ export const log = {
   },
 };
 
-const CONFIG_SCHEMA = {
-  maxRoutes: { type: "number" },
-  crawlDepth: { type: "number" },
-  complianceTarget: { type: "string" },
-  routes: { type: "array" },
-  excludeSelectors: { type: "array" },
-  ignoreFindings: { type: "array" },
-  axeRules: { type: "object" },
-  outputDir: { type: "string" },
-  internalDir: { type: "string" },
-  // Emulation
-  colorScheme: { type: "string" },
-  viewports: { type: "array" },
-  // Timing & Performance
-  waitMs: { type: "number" },
-  timeoutMs: { type: "number" },
-  waitUntil: { type: "string" },
-  onlyRule: { type: "string" },
-  headless: { type: "boolean" },
-  skipReports: { type: "boolean" },
-  framework: { type: "string" },
-};
-
-function validateConfig(userConfig) {
-  for (const key of Object.keys(userConfig)) {
-    if (!CONFIG_SCHEMA[key]) {
-      const closest = Object.keys(CONFIG_SCHEMA).find(
-        (k) => k.toLowerCase() === key.toLowerCase(),
-      );
-      const hint = closest ? ` Did you mean "${closest}"?` : "";
-      log.warn(`a11y.config.json: unknown key "${key}".${hint}`);
-      continue;
-    }
-    const expected = CONFIG_SCHEMA[key].type;
-    const actual = Array.isArray(userConfig[key])
-      ? "array"
-      : typeof userConfig[key];
-    if (actual !== expected) {
-      log.warn(
-        `a11y.config.json: "${key}" should be a ${expected}, got ${actual}. Using default.`,
-      );
-    }
-  }
-}
-
 /**
- * Load a11y.config.json with fallback chain:
- *   1. Project-level: <cwd>/audit/a11y.config.json  (per-project, persistent)
- *   2. Skill defaults (hardcoded below)
- */
-export function loadConfig() {
-  const projectConfigPath = path.join(process.cwd(), "audit", "a11y.config.json");
-  const defaults = {
-    maxRoutes: 10,
-    complianceTarget: "WCAG 2.2 AA",
-    excludeSelectors: [],
-    axeRules: {},
-    outputDir: "audit",
-    internalDir: "audit/internal",
-    colorScheme: "light",
-    viewports: [{ width: 1280, height: 800, name: "Desktop" }],
-    headless: true,
-  };
-
-  if (fs.existsSync(projectConfigPath)) {
-    try {
-      const userConfig = JSON.parse(fs.readFileSync(projectConfigPath, "utf-8"));
-      validateConfig(userConfig);
-      log.info(`Config loaded from ${projectConfigPath}`);
-      return { ...defaults, ...userConfig };
-    } catch (e) {
-      log.warn(
-        `Failed to parse ${projectConfigPath}: ${e.message}. Using defaults.`,
-      );
-    }
-  }
-  return defaults;
-}
-
-/**
- * Simplified file writing with directory creation
+ * Writes data to a JSON file, creating parent directories if they don't exist.
+ * @param {string} filePath - Absolute path to the destination file.
+ * @param {any} data - The data to serialize (will be formatted with 2-space indentation).
  */
 export function writeJson(filePath, data) {
   const dir = path.dirname(filePath);
@@ -112,7 +81,9 @@ export function writeJson(filePath, data) {
 }
 
 /**
- * Simplified file reading
+ * Reads and parses a JSON file.
+ * @param {string} filePath - Absolute path to the JSON file.
+ * @returns {any|null} The parsed data or null if the file doesn't exist or is invalid.
  */
 export function readJson(filePath) {
   if (!fs.existsSync(filePath)) return null;
@@ -125,9 +96,10 @@ export function readJson(filePath) {
 }
 
 /**
- * Get internal storage path for intermediate results
+ * Constructs an absolute path to a file within the internal audit directory.
+ * @param {string} filename - The name of the file.
+ * @returns {string} The resolved absolute path.
  */
 export function getInternalPath(filename) {
-  const config = loadConfig();
-  return path.join(SKILL_ROOT, config.internalDir, filename);
+  return path.join(SKILL_ROOT, "audit", "internal", filename);
 }

@@ -1,11 +1,17 @@
-import {
-  SEVERITY_ORDER,
-  computeComplianceScore,
-  scoreLabel,
-} from "./core-findings.mjs";
-import { escapeHtml } from "./core-utils.mjs";
-import { buildIssueCard } from "./format-html.mjs";
+/**
+ * @file format-pdf.mjs
+ * @description PDF report component builders and formatting logic.
+ * Generates the structural HTML parts for the executive summary, legal risk,
+ * remediation roadmap, and technical methodology for the PDF report.
+ */
 
+import { computeComplianceScore, scoreLabel } from "./core-findings.mjs";
+import { escapeHtml } from "./core-utils.mjs";
+
+/**
+ * Maps compliance performance labels to risk assessments for the executive summary.
+ * @type {Object<string, string>}
+ */
 const RISK_LABELS = {
   Excellent: "Minimal Risk",
   Good: "Low Risk",
@@ -14,11 +20,23 @@ const RISK_LABELS = {
   Critical: "Severe Risk",
 };
 
+/**
+ * Returns the risk metrics (label and risk assessment) for a given compliance score.
+ * @param {number} score - The calculated compliance score.
+ * @returns {Object} An object containing 'label' and 'risk' strings.
+ */
 export function scoreMetrics(score) {
   const label = scoreLabel(score);
   return { label, risk: RISK_LABELS[label] };
 }
 
+/**
+ * Builds the Executive Summary section for the PDF report.
+ * @param {Object} args - The parsed CLI arguments.
+ * @param {Object[]} findings - The list of normalized findings.
+ * @param {Object<string, number>} totals - Summary counts per severity.
+ * @returns {string} The HTML string for the executive summary section.
+ */
 export function buildPdfExecutiveSummary(args, findings, totals) {
   const blockers = findings.filter(
     (f) => f.severity === "Critical" || f.severity === "High",
@@ -94,6 +112,11 @@ export function buildPdfExecutiveSummary(args, findings, totals) {
 </div>`;
 }
 
+/**
+ * Builds the Compliance & Legal Risk section for the PDF report.
+ * @param {Object<string, number>} totals - Summary counts per severity.
+ * @returns {string} The HTML string for the risk analysis section.
+ */
 export function buildPdfRiskSection(totals) {
   const score = computeComplianceScore(totals);
   const riskLevel =
@@ -163,6 +186,11 @@ export function buildPdfRiskSection(totals) {
 </div>`;
 }
 
+/**
+ * Builds the Remediation Roadmap section for the PDF report.
+ * @param {Object[]} findings - The normalized findings to prioritize.
+ * @returns {string} The HTML string for the roadmap section.
+ */
 export function buildPdfRemediationRoadmap(findings) {
   const critical = findings.filter((f) => f.severity === "Critical");
   const high = findings.filter((f) => f.severity === "High");
@@ -223,6 +251,12 @@ export function buildPdfRemediationRoadmap(findings) {
 </div>`;
 }
 
+/**
+ * Builds the Methodology & Scope section for the PDF report.
+ * @param {Object} args - The parsed CLI arguments.
+ * @param {Object[]} findings - The normalized findings for scope calculation.
+ * @returns {string} The HTML string for the methodology section.
+ */
 export function buildPdfMethodologySection(args, findings) {
   const pagesScanned = new Set(findings.map((f) => f.url)).size || 1;
   const scope = args.scope || "Full Site Scan";
@@ -270,6 +304,10 @@ export function buildPdfMethodologySection(args, findings) {
 </div>`;
 }
 
+/**
+ * Builds the Audit Scope & Limitations section for the PDF report.
+ * @returns {string} Reusable HTML block explaining automated audit limits.
+ */
 export function buildPdfAuditLimitations() {
   return `
 <div style="page-break-before: always;">
@@ -335,33 +373,104 @@ export function buildPdfAuditLimitations() {
 </div>`;
 }
 
-export function buildPageGroupedSection(findings) {
-  if (findings.length === 0) return "";
+/**
+ * Builds the cover page for the PDF report.
+ * @param {Object} options - Cover page configuration.
+ * @param {string} options.siteHostname - The hostname of the audited site.
+ * @param {string} options.target - The compliance target (e.g., WCAG 2.2 AA).
+ * @param {number} options.score - The final compliance score.
+ * @param {string} options.coverDate - The formatted date for the cover.
+ * @returns {string} The HTML string for the cover page.
+ */
+export function buildPdfCoverPage({ siteHostname, target, score, coverDate }) {
+  const metrics = scoreMetrics(score);
+  const scoreColor =
+    score >= 75 ? "#16a34a" : score >= 55 ? "#d97706" : "#dc2626";
 
-  const pageGroups = {};
-  for (const f of findings) {
-    if (!pageGroups[f.area]) pageGroups[f.area] = [];
-    pageGroups[f.area].push(f);
+  return `
+    <div class="cover-page">
+      <!-- Top accent line -->
+      <div style="border-top: 5pt solid #111827; padding-top: 1.3cm;">
+        <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; letter-spacing: 3.5pt; text-transform: uppercase; color: #9ca3af; margin: 0;">Accessibility Assessment</p>
+      </div>
+
+      <!-- Main content -->
+      <div style="flex: 1; padding: 2cm 0 1.5cm 0;">
+        <p style="font-family: 'Inter', sans-serif; font-size: 13pt; color: #6b7280; margin: 0 0 0.4cm 0; font-weight: 400;">${escapeHtml(siteHostname)}</p>
+        <h1 style="font-family: 'Inter', sans-serif !important; font-size: 38pt !important; font-weight: 900 !important; line-height: 1.08 !important; color: #111827 !important; margin: 0 0 1.8cm 0 !important; border: none !important; padding: 0 !important;">Web Accessibility<br>Audit</h1>
+        <div style="border-top: 1.5pt solid #111827; width: 4.5cm; margin-bottom: 1.5cm;"></div>
+
+        <!-- Score + meta -->
+        <div style="display: flex; align-items: flex-start;">
+          <div style="min-width: 7cm;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 5pt 0;">Compliance Score</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 40pt; font-weight: 900; line-height: 1; margin: 0; color: ${scoreColor};">${score}<span style="font-size: 16pt; font-weight: 400; color: #9ca3af;"> / 100</span></p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 9.5pt; font-weight: 700; color: #374151; margin: 5pt 0 0 0;">${metrics.label} &mdash; ${metrics.risk}</p>
+          </div>
+          <div style="border-left: 1pt solid #e5e7eb; padding-left: 2cm;">
+            <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 4pt 0;">Standard</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 11pt; font-weight: 700; color: #111827; margin: 0 0 1.1cm 0;">${escapeHtml(target)}</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 4pt 0;">Audit Date</p>
+            <p style="font-family: 'Inter', sans-serif; font-size: 11pt; font-weight: 700; color: #111827; margin: 0;">${escapeHtml(coverDate)}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div style="border-top: 1pt solid #e5e7eb; padding-top: 0.6cm; display: flex; justify-content: space-between; align-items: center;">
+        <p style="font-family: 'Inter', sans-serif; font-size: 8pt; color: #9ca3af; margin: 0;">Generated by <strong style="color: #6b7280;">a11y</strong></p>
+        <p style="font-family: 'Inter', sans-serif; font-size: 8pt; color: #9ca3af; margin: 0;">github.com/diegovelasquezweb/a11y</p>
+      </div>
+    </div>`;
+}
+
+/**
+ * Builds the detailed issue summary table for the PDF report.
+ * @param {Object[]} findings - The list of findings to display in the table.
+ * @returns {string} The HTML string for the issue summary section.
+ */
+export function buildPdfIssueSummaryTable(findings) {
+  if (findings.length === 0) {
+    return `
+    <div style="page-break-before: always;">
+      <h2 style="margin-top: 0;">5. Issue Summary</h2>
+      <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 1rem;">
+        The table below lists all accessibility issues detected during the automated scan.
+        Each issue is identified by severity, affected page, and the user groups it impacts.
+        Full technical detail for developers is provided in the accompanying HTML report.
+      </p>
+      <p style="font-style: italic; color: #6b7280; font-size: 10pt;">No accessibility violations were detected during the automated scan.</p>
+    </div>`;
   }
 
-  const sorted = Object.entries(pageGroups).sort(
-    (a, b) => b[1].length - a[1].length,
-  );
-
-  return sorted
-    .map(([page, pageFinding]) => {
-      const cards = pageFinding
-        .sort(
-          (a, b) =>
-            (SEVERITY_ORDER[a.severity] ?? 99) -
-            (SEVERITY_ORDER[b.severity] ?? 99),
-        )
-        .map((f) => buildIssueCard(f))
-        .join("\n");
-
-      return `<div class="page-group mb-10" data-page="${escapeHtml(page)}">
-      ${cards}
-    </div>`;
-    })
+  const rows = findings
+    .map(
+      (f) => `
+              <tr>
+                <td style="font-family: monospace; font-size: 8pt; white-space: nowrap;">${escapeHtml(f.id)}</td>
+                <td style="font-size: 9pt;">${escapeHtml(f.title)}</td>
+                <td style="font-family: monospace; font-size: 8pt; white-space: nowrap;">${escapeHtml(f.area)}</td>
+                <td style="font-weight: 700; font-size: 9pt; white-space: nowrap;">${escapeHtml(f.severity)}</td>
+                <td style="font-size: 9pt;">${escapeHtml(f.impactedUsers)}</td>
+              </tr>`,
+    )
     .join("");
+
+  return `
+    <div style="page-break-before: always;">
+      <h2 style="margin-top: 0;">5. Issue Summary</h2>
+      <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 1rem;">
+        The table below lists all accessibility issues detected during the automated scan.
+        Each issue is identified by severity, affected page, and the user groups it impacts.
+        Full technical detail for developers is provided in the accompanying HTML report.
+      </p>
+      <table class="stats-table">
+        <thead>
+          <tr><th>ID</th><th>Issue</th><th>Page</th><th>Severity</th><th>Users Affected</th></tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>`;
 }

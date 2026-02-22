@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { loadConfig, readJson } from "../scripts/a11y-utils.mjs";
+import { DEFAULTS, readJson, getInternalPath, SKILL_ROOT } from "../scripts/a11y-utils.mjs";
 
 vi.mock("node:fs");
 
@@ -10,23 +10,24 @@ describe("a11y-utils", () => {
     vi.resetAllMocks();
   });
 
-  describe("loadConfig", () => {
-    it("returns defaults when no config file exists", () => {
-      vi.mocked(fs.existsSync).mockReturnValue(false);
-      const config = loadConfig();
-      expect(config.maxRoutes).toBe(10);
-      expect(config.complianceTarget).toBe("WCAG 2.2 AA");
+  describe("DEFAULTS", () => {
+    it("exposes expected default values", () => {
+      expect(DEFAULTS.maxRoutes).toBe(10);
+      expect(DEFAULTS.crawlDepth).toBe(2);
+      expect(DEFAULTS.complianceTarget).toBe("WCAG 2.2 AA");
+      expect(DEFAULTS.headless).toBe(true);
+      expect(DEFAULTS.waitMs).toBe(2000);
+      expect(DEFAULTS.timeoutMs).toBe(30000);
+      expect(DEFAULTS.waitUntil).toBe("domcontentloaded");
+      expect(DEFAULTS.colorScheme).toBe("light");
+      expect(DEFAULTS.viewports).toEqual([{ width: 1280, height: 800, name: "Desktop" }]);
     });
+  });
 
-    it("merges user config with defaults", () => {
-      vi.mocked(fs.existsSync).mockReturnValue(true);
-      vi.mocked(fs.readFileSync).mockReturnValue(
-        JSON.stringify({ maxRoutes: 50 }),
-      );
-
-      const config = loadConfig();
-      expect(config.maxRoutes).toBe(50);
-      expect(config.complianceTarget).toBe("WCAG 2.2 AA"); // Should stay default
+  describe("getInternalPath", () => {
+    it("returns path inside SKILL_ROOT/audit/internal", () => {
+      const result = getInternalPath("a11y-findings.json");
+      expect(result).toBe(path.join(SKILL_ROOT, "audit", "internal", "a11y-findings.json"));
     });
   });
 

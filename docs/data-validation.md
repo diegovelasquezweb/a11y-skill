@@ -1,6 +1,6 @@
 # Data Validation Guide
 
-**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Data Validation](data-validation.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Scripts](scripts-catalog.md) • [Testing](testing.md)
+**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Data Validation](data-validation.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Scripts](scripts-catalog.md) • [Testing](testing.md)
 
 ---
 
@@ -54,11 +54,11 @@ flowchart TD
 
 ## Files to Validate
 
-| File                        | Technical Scope                                                                 |
-| :-------------------------- | :------------------------------------------------------------------------------ |
-| `assets/rule-metadata.json` | `wcagCriterionMap`, URLs (`mdn`, `apgPatterns`), `impactedUsers`, `expected`    |
-| `assets/intelligence.json`  | `fix`, `framework_notes` (frameworks), `cms_notes` (CMS), `false_positive_risk` |
-| `assets/manual-checks.json` | `criterion` mapping, `steps`, `remediation`, `code_example`                     |
+| File                        | Technical Scope                                                              |
+| :-------------------------- | :--------------------------------------------------------------------------- |
+| `assets/rule-metadata.json` | `wcagCriterionMap`, URLs (`mdn`, `apgPatterns`), `impactedUsers`, `expected` |
+| `assets/intelligence.json`  | `fix`, `framework_notes`, `cms_notes`, `false_positive_risk`                 |
+| `assets/manual-checks.json` | `criterion` mapping, `steps`, `remediation`, `code_example`                  |
 
 ---
 
@@ -87,24 +87,11 @@ Consult the **WCAG Understanding** page for each rule to verify:
 4.  **`cms_notes`**: Valid keys are `shopify`, `wordpress`, `drupal`. Must be separate from `framework_notes`.
 5.  **`false_positive_risk`**: Does it reflect actual axe-core edge cases?
 
-## Step 3: Validate URLs (Semi-Automated)
+## Step 3: Regression Testing
 
-> [!WARNING]
-> MDN slugs and W3C draft URLs change frequently. Broken links in the "AI Roadmap" significantly degrade the experience for agents.
+After updates, ensure the entire pipeline remains healthy using the automated test suite. Vitest validates:
 
-Ensure all URLs in `rule-metadata.json` and `manual-checks.json` return a `200 OK` status:
-
-```bash
-node scripts/validate-urls.mjs
-```
-
-This script validates all `mdn`, `apgPatterns`, and `manual-checks.ref` URLs concurrently (10 at a time, 10s timeout). Exit code `1` = broken links found.
-
-## Step 4: Regression Testing
-
-After updates, ensure the entire pipeline remains healthy. The test suite validates:
-
-- **Schema Integrity**: Required fields and data types.
-- **Reciprocity**: If Rule A links to Rule B, Rule B must link back to Rule A.
-- **Criterion Mapping**: Every intelligence entry must have a valid WCAG criterion ID.
-- **Zero Stale Rules**: No rules in our data that don't exist in the current `axe-core` version.
+- **Schema Integrity**: Verifies required fields, data types, and allowed framework/CMS keys.
+- **Reciprocity**: Ensures that if Rule A links to Rule B, Rule B links back to Rule A.
+- **Criterion Mapping**: Confirms every intelligence entry has a valid WCAG criterion ID and accurate MDN links.
+- **Zero Stale Rules**: Prevents unused or deprecated rules from cluttering the assets.

@@ -1,11 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { normalizeFindings } from "../scripts/report/core-findings.mjs";
-import { buildIssueCard } from "../scripts/report/format-html.mjs";
+import {
+  buildIssueCard,
+  buildPageGroupedSection,
+} from "../scripts/report/format-html.mjs";
 import {
   scoreMetrics,
   buildPdfRiskSection,
   buildPdfRemediationRoadmap,
-  buildPageGroupedSection,
+  buildPdfCoverPage,
+  buildPdfIssueSummaryTable,
 } from "../scripts/report/format-pdf.mjs";
 
 describe("HTML Report Builder Components", () => {
@@ -39,6 +43,21 @@ describe("HTML Report Builder Components", () => {
     expect(html).toContain("Technical Docs (MDN)");
     expect(html).toContain("https://developer.mozilla.org/test");
   });
+
+  it("buildPageGroupedSection groups findings by area", () => {
+    const rawFindings = [
+      { area: "Home", rule_id: "A" },
+      { area: "Home", rule_id: "B" },
+      { area: "About", rule_id: "C" },
+    ];
+    const findings = normalizeFindings({ findings: rawFindings });
+    const html = buildPageGroupedSection(findings);
+    expect(html).toContain('data-page="Home"');
+    expect(html).toContain('data-page="About"');
+    expect(html).toContain('rule-id="A"');
+    expect(html).toContain('rule-id="B"');
+    expect(html).toContain('rule-id="C"');
+  });
 });
 
 describe("PDF Report Builder Components", () => {
@@ -69,19 +88,38 @@ describe("PDF Report Builder Components", () => {
     expect(html).toContain("~8 hours");
   });
 
-  it("buildPageGroupedSection groups findings by area", () => {
-    const rawFindings = [
-      { area: "Home", rule_id: "A" },
-      { area: "Home", rule_id: "B" },
-      { area: "About", rule_id: "C" },
-    ];
-    const findings = normalizeFindings({ findings: rawFindings });
-    const html = buildPageGroupedSection(findings);
-    expect(html).toContain('data-page="Home"');
-    expect(html).toContain('data-page="About"');
-    // Ensure it contains cards (which contain the ruleIds)
-    expect(html).toContain('rule-id="A"');
-    expect(html).toContain('rule-id="B"');
-    expect(html).toContain('rule-id="C"');
+  it("buildPdfCoverPage renders cover with score and metadata", () => {
+    const html = buildPdfCoverPage({
+      siteHostname: "example.com",
+      target: "WCAG 2.2 AA",
+      score: 72,
+      coverDate: "February 22, 2026",
+    });
+    expect(html).toContain("example.com");
+    expect(html).toContain("WCAG 2.2 AA");
+    expect(html).toContain("72");
+    expect(html).toContain("February 22, 2026");
+    expect(html).toContain("cover-page");
+  });
+
+  it("buildPdfIssueSummaryTable renders table with findings", () => {
+    const findings = normalizeFindings({
+      findings: [
+        { id: "A11Y-001", title: "Missing alt", severity: "Critical", area: "/home" },
+        { id: "A11Y-002", title: "Low contrast", severity: "Medium", area: "/about" },
+      ],
+    });
+    const html = buildPdfIssueSummaryTable(findings);
+    expect(html).toContain("Issue Summary");
+    expect(html).toContain("Missing alt");
+    expect(html).toContain("Low contrast");
+    expect(html).toContain("Critical");
+    expect(html).toContain("Medium");
+  });
+
+  it("buildPdfIssueSummaryTable handles empty findings", () => {
+    const html = buildPdfIssueSummaryTable([]);
+    expect(html).toContain("No accessibility violations");
+    expect(html).not.toContain("<tbody>");
   });
 });

@@ -1,22 +1,35 @@
-#!/usr/bin/env node
+/**
+ * @file run-analyzer.mjs
+ * @description Post-scan data processor.
+ * Transforms raw axe-core results into enriched findings by applying
+ * framework-specific logic, remediation intelligence, and WCAG mapping
+ * to generate a structured audit overview.
+ */
 
-import {
-  log,
-  readJson,
-  writeJson,
-  getInternalPath,
-  loadConfig,
-} from "./a11y-utils.mjs";
+import { log, readJson, writeJson, getInternalPath } from "./a11y-utils.mjs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Path to the core remediation intelligence database.
+ * @type {string}
+ */
 const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
+
+/**
+ * Path to shared rule metadata including WCAG mappings and APG patterns.
+ * @type {string}
+ */
 const ruleMetadataPath = path.join(__dirname, "../assets/rule-metadata.json");
+
 let INTELLIGENCE;
 let RULE_METADATA;
+
+// Initialize remediation and rule metadata assets.
 try {
   INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
 } catch {
@@ -24,6 +37,7 @@ try {
     `Missing or invalid intelligence.json at ${intelligencePath} — run pnpm install to reinstall.`,
   );
 }
+
 try {
   RULE_METADATA = JSON.parse(fs.readFileSync(ruleMetadataPath, "utf-8"));
 } catch {
@@ -32,17 +46,33 @@ try {
   );
 }
 
+/**
+ * Generates a stable unique ID for a finding based on the rule, URL, and selector.
+ * @param {string} ruleId - The ID of the accessibility rule.
+ * @param {string} url - The URL of the page where the violation was found.
+ * @param {string} selector - The CSS selector of the violating element.
+ * @returns {string} A short unique hash in the format A11Y-xxxxxx.
+ */
 function makeFindingId(ruleId, url, selector) {
   const stableSelector = selector.split(",")[0].trim();
   const key = `${ruleId}||${url}||${stableSelector}`;
   return `A11Y-${createHash("sha256").update(key).digest("hex").slice(0, 6)}`;
 }
 
+/** @type {Object} */
 const RULES = INTELLIGENCE.rules || {};
+/** @type {Object<string, string>} */
 const APG_PATTERNS = RULE_METADATA.apgPatterns;
+/** @type {Object<string, string>} */
 const MDN = RULE_METADATA.mdn || {};
+/** @type {Object<string, string>} */
 const WCAG_CRITERION_MAP = RULE_METADATA.wcagCriterionMap || {};
 
+/**
+ * Detects the programming language of a code snippet for syntax highlighting.
+ * @param {string} code - The code snippet to analyze.
+ * @returns {string} The detected language (html, jsx, or css).
+ */
 function detectCodeLang(code) {
   if (!code) return "html";
   if (/\.(tsx?|jsx?)\b|className=|useState|useRef|<>\s*<\/>/i.test(code))
@@ -52,15 +82,27 @@ function detectCodeLang(code) {
   return "html";
 }
 
+/**
+ * Regulatory links for accessibility compliance standards.
+ * @type {Object<string, string>}
+ */
 const US_REGULATORY = {
   default: "https://accessibility.18f.gov/checklist/",
   section508: "https://www.section508.gov/create/software-websites/",
   "18f": "https://accessibility.18f.gov/tools/",
 };
 
+/** @type {Object<string, string>} */
 const IMPACTED_USERS = RULE_METADATA.impactedUsers || {};
+/** @type {Object<string, string>} */
 const EXPECTED = RULE_METADATA.expected || {};
 
+/**
+ * Returns a description of the primary user groups impacted by a rule violation.
+ * @param {string} ruleId - The ID of the accessibility rule.
+ * @param {string[]} tags - The tags associated with the rule.
+ * @returns {string} A description of the impacted users.
+ */
 function getImpactedUsers(ruleId, tags) {
   if (IMPACTED_USERS[ruleId]) return IMPACTED_USERS[ruleId];
   if (tags.includes("cat.color"))
@@ -77,10 +119,20 @@ function getImpactedUsers(ruleId, tags) {
   return "Users relying on assistive technology";
 }
 
+/**
+ * Returns the expected accessibility behavior for a given rule.
+ * @param {string} ruleId - The ID of the accessibility rule.
+ * @returns {string} A description of the expected state for compliance.
+ */
 function getExpected(ruleId) {
   return EXPECTED[ruleId] || "WCAG accessibility check must pass.";
 }
 
+/**
+ * Framework-specific file search glob patterns.
+ * Used to help developers locate the source of an accessibility violation.
+ * @type {Object<string, Object>}
+ */
 const FRAMEWORK_GLOBS = {
   nextjs: {
     components: "app/**/*.tsx, components/**/*.tsx",
@@ -118,28 +170,20 @@ const FRAMEWORK_GLOBS = {
   },
 };
 
-const ARIA_MANAGED_RULES = new Set([
-  "aria-required-attr",
-  "aria-required-children",
-  "aria-required-parent",
-  "aria-valid-attr",
-  "aria-valid-attr-value",
-  "aria-allowed-attr",
-  "aria-allowed-role",
-  "aria-dialog-name",
-  "aria-toggle-field-name",
-  "aria-prohibited-attr",
-]);
+/**
+ * Rules with managed_by_libraries in intelligence.json — derived at load time.
+ * @type {Map<string, string[]>}
+ */
+const MANAGED_RULES = new Map(
+  Object.entries(INTELLIGENCE.rules)
+    .filter(([, rule]) => Array.isArray(rule.managed_by_libraries))
+    .map(([id, rule]) => [id, rule.managed_by_libraries]),
+);
 
-const MANAGED_LIBS = new Set([
-  "radix",
-  "headless-ui",
-  "chakra",
-  "mantine",
-  "material-ui",
-]);
-
-// Maps detected framework IDs to intelligence.json keys
+/**
+ * Maps detected framework IDs to their respective keys in intelligence.json.
+ * @type {Object<string, string>}
+ */
 const FRAMEWORK_TO_INTEL_KEY = {
   nextjs: "react",
   gatsby: "react",
@@ -151,13 +195,22 @@ const FRAMEWORK_TO_INTEL_KEY = {
   svelte: "svelte",
 };
 
-// Maps detected framework IDs to cms_notes keys
+/**
+ * Maps detected framework/CMS IDs to their respective keys for CMS-specific notes.
+ * @type {Object<string, string>}
+ */
 const FRAMEWORK_TO_CMS_KEY = {
   shopify: "shopify",
   wordpress: "wordpress",
   drupal: "drupal",
 };
 
+/**
+ * Filters the intelligence notes to only include those relevant to the detected framework.
+ * @param {Object} notes - The notes object from intelligence.json.
+ * @param {string} framework - The detected framework ID.
+ * @returns {Object|null} A filtered notes object or null.
+ */
 function filterNotes(notes, framework) {
   if (!notes || typeof notes !== "object") return null;
   const intelKey = FRAMEWORK_TO_INTEL_KEY[framework];
@@ -167,19 +220,38 @@ function filterNotes(notes, framework) {
   return null;
 }
 
+/**
+ * Returns the file search glob pattern for the given framework and code language.
+ * @param {string} framework - The detected framework ID.
+ * @param {string} codeLang - The detected code language (jsx, css, etc.).
+ * @returns {string|null} The glob pattern or null if not found.
+ */
 function getFileSearchPattern(framework, codeLang) {
   const globs = FRAMEWORK_GLOBS[framework];
   if (!globs) return null;
   return codeLang === "css" ? globs.styles : globs.components;
 }
 
+/**
+ * Checks if a rule is typically managed by a UI library like Radix or Headless UI.
+ * Uses managed_by_libraries from intelligence.json instead of hardcoded lists.
+ * @param {string} ruleId - The ID of the accessibility rule.
+ * @param {string[]} uiLibraries - List of detected UI libraries.
+ * @returns {string|null} The name of the managing library or null.
+ */
 function getManagedByLibrary(ruleId, uiLibraries) {
-  if (!ARIA_MANAGED_RULES.has(ruleId)) return null;
-  const managed = uiLibraries.filter((lib) => MANAGED_LIBS.has(lib));
+  const allowedLibs = MANAGED_RULES.get(ruleId);
+  if (!allowedLibs) return null;
+  const managed = uiLibraries.filter((lib) => allowedLibs.includes(lib));
   if (managed.length === 0) return null;
   return managed.join(", ");
 }
 
+/**
+ * Extracts a component name hint from a CSS selector (e.g., from BEM classes).
+ * @param {string} selector - The CSS selector to analyze.
+ * @returns {string|null} A potential component name or null.
+ */
 function extractComponentHint(selector) {
   if (!selector || selector === "N/A") return null;
   const bemMatch = selector.match(/\.([\w-]+?)(?:__|--)/);
@@ -191,6 +263,9 @@ function extractComponentHint(selector) {
   return null;
 }
 
+/**
+ * Prints the CLI usage instructions and available options for the analyzer.
+ */
 function printUsage() {
   log.info(`Usage:
   node run-analyzer.mjs --input <route-checks.json> [options]
@@ -202,6 +277,11 @@ Options:
 `);
 }
 
+/**
+ * Parses command-line arguments into a structured object for the analyzer.
+ * @param {string[]} argv - Array of command-line arguments.
+ * @returns {Object} A configuration object for the analyzer.
+ */
 function parseArgs(argv) {
   if (argv.includes("--help") || argv.includes("-h")) {
     printUsage();
@@ -238,6 +318,11 @@ const IMPACT_MAP = {
   minor: "Low",
 };
 
+/**
+ * Maps axe-core rule tags to a human-readable WCAG level string.
+ * @param {string[]} tags - The tags associated with a violation.
+ * @returns {string} The WCAG level (e.g., "WCAG 2.1 AA").
+ */
 function mapWcag(tags) {
   if (tags.includes("wcag22aa")) return "WCAG 2.2 AA";
   if (tags.includes("wcag22a")) return "WCAG 2.2 A";
@@ -247,6 +332,12 @@ function mapWcag(tags) {
   return "WCAG";
 }
 
+/**
+ * Detects the implicit ARIA role of an HTML element if not explicitly specified.
+ * @param {string} tag - The HTML tag name.
+ * @param {string} html - The raw HTML of the element.
+ * @returns {string|null} The implicit role or null.
+ */
 export function detectImplicitRole(tag, html) {
   if (!tag) return null;
   if (tag === "input") {
@@ -281,6 +372,11 @@ export function detectImplicitRole(tag, html) {
   return map[tag] ?? null;
 }
 
+/**
+ * Extracts a simplified search target from a complex CSS selector to help locate it in code.
+ * @param {string} selector - The complex CSS selector.
+ * @returns {string} A simplified search string (e.g., "#my-id" or ".my-class").
+ */
 export function extractSearchHint(selector) {
   if (!selector || selector === "N/A") return selector;
   const specific =
@@ -297,6 +393,13 @@ export function extractSearchHint(selector) {
   return specific;
 }
 
+/**
+ * Processes scan results into a high-level auditing findings object.
+ * Enriches findings with intelligence metadata, framework notes, and fix recommendations.
+ * @param {Object} inputPayload - The raw JSON payload from run-scanner.mjs.
+ * @param {Object} cliArgs - Arguments passed to the analyzer.
+ * @returns {Object} A structured object containing findings and metadata.
+ */
 function buildFindings(inputPayload, cliArgs) {
   const onlyRule = inputPayload.onlyRule;
   const routes = inputPayload.routes || [];
@@ -449,15 +552,16 @@ function buildFindings(inputPayload, cliArgs) {
   };
 }
 
+/**
+ * The main execution function for the analyzer script.
+ * Reads scan results, processes findings, and writes the final findings JSON.
+ */
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const config = loadConfig();
   const ignoredRules = new Set(
     args.ignoreFindings && args.ignoreFindings.length > 0
       ? args.ignoreFindings
-      : Array.isArray(config.ignoreFindings)
-        ? config.ignoreFindings
-        : [],
+      : [],
   );
 
   const payload = readJson(args.input);

@@ -7,7 +7,7 @@
   "query": "Fix the accessibility issues found in the last audit",
   "setup": "Audit report contains a finding with the 'Managed Component Warning'. The failing element is a Radix UI `Accordion` in `components/FAQ.tsx`.",
   "expected_behavior": [
-    "Reads `audit/remediation.md` and detects the 'Managed Component Warning'",
+    "Reads the internal remediation guide and detects the 'Managed Component Warning'",
     "Verifies the element is rendered by a known UI library (Radix UI) before applying fixes",
     "Does NOT attempt to patch the underlying HTML/ARIA of the library component directly",
     "Proposes a fix via component props (e.g., passing a label prop) or wrapping the component",

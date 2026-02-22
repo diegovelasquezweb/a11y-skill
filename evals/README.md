@@ -11,12 +11,12 @@ Each `.json` file is a self-contained test case. There is no built-in runner —
 3. Compare agent behavior against `expected_behavior`.
 4. Note any deviations in `model_notes`.
 
-| Model / Agent       | Strengths               | Watch for                                              |
-| :------------------ | :---------------------- | :----------------------------------------------------- |
-| **Antigravity**     | High tool precision     | Verify it uses `.agent/workflows/` properly.           |
-| **Windsurf**        | Fast execution          | Check if it respects `.windsurf/workflows/`.           |
-| **Sonnet (Claude)** | Best-in-class reasoning | Ensure it follows the full 3a-3d sub-phase cycle.      |
-| **Gemini CLI**      | Reliable automation     | Watch for `ReadFile` fallbacks in the skill directory. |
+| Model / Agent       | Strengths               | Watch for                                                 |
+| :------------------ | :---------------------- | :-------------------------------------------------------- |
+| **Antigravity**     | High tool precision     | Verify it follows the Resource Map for progressive loading. |
+| **Windsurf**        | Fast execution          | Verify it follows the Resource Map for progressive loading. |
+| **Sonnet (Claude)** | Best-in-class reasoning | Ensure it follows the full 3a-3d sub-phase cycle.           |
+| **Gemini CLI**      | Reliable automation     | Watch for `ReadFile` fallbacks in the skill directory.      |
 
 ## Scenarios
 
@@ -28,5 +28,4 @@ Each `.json` file is a self-contained test case. There is no built-in runner —
 6.  **[06-style-fixes-separation.json](06-style-fixes-separation.json)**: Safe visual changes.
 7.  **[07-framework-detection.json](07-framework-detection.json)**: Platform-aware file search.
 8.  **[08-managed-components.json](08-managed-components.json)**: UI library protection.
-9.  **[09-config-customization.json](09-config-customization.json)**: a11y.config.json management.
-10. **[10-gitignore-proactive.json](10-gitignore-proactive.json)**: Procedural hygiene.
+9.  **[10-gitignore-proactive.json](10-gitignore-proactive.json)**: Procedural hygiene.

@@ -9,9 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] — 2026-02-22
+
+### Changed
+
+- SKILL.md rewritten following Agent Skills spec (agentskills.io) best practices: 316 → 220 lines
+- `description` frontmatter expanded with exhaustive trigger keywords (accessibility, a11y, WCAG, ADA, screen reader, color contrast, alt text, ARIA, etc.)
+- Added Resource Map table at top of SKILL.md with "Load when" guidance for progressive disclosure of references
+- Added "scripts as black boxes" constraint — agents run scripts with `--help`, never read source
+- Added `REMEDIATION_PATH` fallback: if absent in output, read `audit/internal/remediation.md` directly
+- Added `pnpm`/`npm` fallback note in Constraints
+- Message templates compressed — agents adapt tone and structure, no verbatim copying
+- Standardized imperative voice throughout SKILL.md
+- CLI Reference table moved from SKILL.md to `references/cli-reference.md` (progressive disclosure)
+- Multi-Viewport Testing section moved from SKILL.md Edge Cases to `references/cli-reference.md`
+- README compatibility table simplified — single column with install paths only
+- `scripts/validate-urls.mjs` — internal maintenance utility removed to clean up distribution and reduce context noise
+
+### Added
+
+- `references/cli-reference.md` — CLI flags table and multi-viewport testing instructions (moved from SKILL.md body)
+
+### Removed
+
+- `references/platform-setup.md` — workflow setup is out of scope; all platforms read `SKILL.md` natively
+- `.agent/workflows/a11y.md` — Antigravity workflow file (platform reads from the project directory, not the skill)
+- `.cursor/rules/a11y.md` — legacy; Cursor reads `SKILL.md` natively
+- `.windsurf/workflows/a11y.md` — Windsurf workflow file (platform reads from the project directory, not the skill)
+- `agents/openai.yaml` — legacy; Codex reads `SKILL.md` natively
+- `workflows/a11y.md` — duplicate with no consumer
+- Initialization section from SKILL.md — workflow setup removed from scope
+
+---
+
 ## [0.6.0] — 2026-02-22
 
 ### Added
+
 - Communication Rules section in SKILL.md — 5 rules for agent-to-user messaging (closed questions, concise tone, always provide options, explain "why", one question per message)
 - 15 example messages covering every user-facing moment in the workflow (URL request, route scope, gitignore, reports, findings, 0 issues, decline, severity checkpoint, fix-all checkpoint, style approval, manual checks, regressions, manual verification reminder, final reports offer, congratulations)
 - Per-project config: `audit/a11y.config.json` is now read from the audited project's `audit/` folder (created on demand by the agent), replacing the previous shared config in the skill root
@@ -26,12 +60,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - URL normalization rules in Step 1: `localhost:3000` → `http://`, `mysite.com` → `https://`
 
 ### Changed
+
 - Sitemap discovery now scans all URLs in `sitemap.xml` without `maxRoutes` cap — `maxRoutes` only applies to BFS crawl fallback when no sitemap is found
 - Verification re-audit (Step 3d) is now automatic — agent runs it without asking, only surfaces regressions if found
 - All user-facing questions converted to closed format: yes/no or multiple choice with explicit options
 - `.gitignore` auto-append removed from `run-audit.mjs` — replaced with warning signals for the agent to ask the user
 
 ### Removed
+
 - `a11y.config.json` from skill root (was an empty `{}` placeholder)
 - `.gitignore` auto-modification from `run-audit.mjs` pipeline
 - `manual_test` field from all 106 rules in `intelligence.json` — per-rule manual testing steps were only rendered in the HTML report, never surfaced to agents via `remediation.md`. General manual checks (`assets/manual-checks.json`) remain and power the Step 3c WCAG static code checks workflow
@@ -41,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.1] — 2026-02-21
 
 ### Changed
+
 - SKILL.md optimized for Claude Skills best practices checklist (21/21):
   - Description: "selectors" → "violations/issues" for clearer skill discovery
   - Added copy-paste audit progress checklist for agent workflow tracking
@@ -62,6 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remediation guide (MD): removed redundant "Context & Patterns" block — was duplicating `recommended_fix` (generic link) when intelligence-sourced `fixDescription`/`fixCode` already provided a superior solution
 
 ### Added
+
 - Complete `framework_notes` coverage: added 5-key notes (react, vue, angular, svelte, astro) to `focus-appearance`, `input-image-alt`, `object-alt`, `target-size` in `intelligence.json`
 - Added missing `angular` key to `consistent-help` framework_notes
 - Inline communication examples in SKILL.md for proposal, decline, checkpoint, and delivery moments
@@ -72,6 +110,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.0] — 2026-02-21
 
 ### Added
+
 - BFS multi-level route discovery with configurable `crawlDepth` (1-3, default: 2) — replaces single-level link scraping
 - `--crawl-depth` CLI flag for scanner and orchestrator
 - Sitemap + crawl supplementation: if sitemap doesn't fill `maxRoutes`, BFS crawl supplements remaining budget
@@ -84,6 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Model testing matrix in `evals/README.md` for Antigravity, Windsurf, Sonnet, and Gemini CLI
 
 ### Changed
+
 - SKILL.md rewritten as a sequential 4-step playbook following Claude Skills best practices
 - Workflow restructured: Audit Workflow + Fix Workflow + Manual Checks → single `## Workflow` with Steps 1-4
 - Fix workflow split into sub-phases: 3a (structural by severity), 3b (style-dependent with approval gate), 3c (manual checks), 3d (certification audit)
@@ -95,6 +135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test suite expanded from 764 to 772 tests (8 BFS discovery tests)
 
 ### Removed
+
 - `references/baseline-checks.md` — redundant with axe-core automated checks
 - `references/manual-checks.md` — duplicate of `assets/manual-checks.json` (generated dynamically into `remediation.md`)
 - Philosophy line from SKILL.md intro ("Resolution is the core objective...")
@@ -104,6 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] — 2026-02-21
 
 ### Added
+
 - `assets/rule-metadata.json` — WCAG criterion mapping, MDN links, impacted users, and expected behavior per rule
 - Visual overlay on screenshots for accessibility violations
 - Manual checks for WCAG 2.2 static code violations after automated fixes
@@ -119,6 +161,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/data-validation.md` — maintenance guide for intelligence data
 
 ### Changed
+
 - Score labeling logic and compliance metrics updated in reports
 - Code language detection improved for fix code snippets
 - Accessibility rules and references refactored for clarity and structure
@@ -138,6 +181,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Test suite expanded from 79 to 764 tests
 
 ### Fixed
+
 - `localStorage` key escaping corrected in HTML report
 - README: grammar fix ("skill are" → "skill is"), missing closing quote on example command
 - README: deliverables table corrected ("Raw findings" → "Enriched findings", "surgical selectors" → "full fix intelligence")
@@ -148,14 +192,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] — 2026-02-20
 
 ### Removed
+
 - `reportTitle`, `companyName`, and `accentColor` configuration keys — report branding is now static and no longer configurable via `a11y.config.json`
 - `a11y.config.json.example` reference file — superseded by the full schema documented in `docs/configuration.md`
 
 ### Fixed
+
 - PDF generation now uses `waitUntil: "load"` instead of `"networkidle"` — faster and more reliable for local `file://` URLs
 - `parseArgs` in `check-toolchain.mjs` no longer returns a dead empty object
 
 ### Tests
+
 - Added case-insensitive input type tests for `detectImplicitRole` (e.g. `type="CHECKBOX"`)
 - Added attribute selector fallback test for `extractSearchHint` (e.g. `[aria-label="Close"]`)
 
@@ -164,6 +211,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.1] — 2026-02-20
 
 ### Added
+
 - `a11y.config.json` supports `colorScheme` and `viewports` for scan emulation configuration
 - Vitest unit tests covering `core-findings`, `a11y-utils`, `core-utils`, and `run-analyzer` (39 tests)
 - `detectImplicitRole()` — resolves implicit ARIA roles for native HTML elements (`<button>`, `<a>`, `<input>`, etc.)
@@ -172,12 +220,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `references/` directory with progressive disclosure files: `baseline-checks.md`, `manual-checks.md`, `platform-setup.md`
 
 ### Changed
+
 - `data-manual-checks.mjs` extracted to `assets/manual-checks.json` (machine-readable static asset)
 - APG patterns, A11y Support, and Inclusive Components mappings extracted to `assets/intelligence.json`
 - `SKILL.md` reduced from 373 to 233 lines — detailed content moved to `references/`
 - `escapeHtml` import in `format-pdf.mjs` corrected to `core-utils.mjs`
 
 ### Fixed
+
 - Manual findings for h1/main no longer trigger false positives when route metadata is absent
 - `impactedUsers` fallback corrected — no longer inherits `impact` description field
 - `getInternalPath` missing import in `build-report-md.mjs` (was a runtime `ReferenceError`)
@@ -188,6 +238,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] — 2026-02-19
 
 ### Added
+
 - Multi-source a11y intelligence: automatic links to W3C APG patterns, A11ySupport.io, and Inclusive Components per finding
 - US regulatory context (18F, Section 508) rendered once in the report footer via `metadata` object
 - `total_instances` count per finding with evidence label showing "showing N of M instances"
@@ -195,12 +246,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - WCAG 2.2 manual checks section in both HTML and Markdown reports
 
 ### Changed
+
 - Pipeline refactored into dedicated modules: `format-md.mjs`, `format-html.mjs`, `format-pdf.mjs`, `core-findings.mjs`, `core-utils.mjs`
 - `run-audit.mjs` orchestrates the full pipeline: scanner → analyzer → HTML → MD → PDF
 - Report artifacts: `audit/report.html`, `audit/remediation.md`, `audit/report.pdf`
 - Finding IDs are now deterministic SHA256-based hashes
 
 ### Fixed
+
 - Compliance score `computeComplianceScore()` clamped to `[0, 100]`
 - `fixBlock` separator between implementation text and code fence
 
@@ -209,6 +262,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] — 2026-01-15
 
 ### Added
+
 - Initial release: Playwright + axe-core scanner (`run-scanner.mjs`)
 - WCAG 2.1/2.2 A/AA/best-practice tag coverage
 - Route auto-discovery from same-origin `<a href>` links
