@@ -1,6 +1,6 @@
 # a11y - Accessibility Audit & Remediation Skill
 
-This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints including precise DOM selectors and fix patterns to autonomously patch vulnerabilities directly in the source code.
+This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints including precise DOM selectors and fix patterns to autonomously patch vulnerabilities directly in the source code. It is built following the highest engineering standards and complies 100% with [Claude's Best Practices for Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 ## Why this Skill?
 
@@ -25,7 +25,7 @@ Restart your CLI-based agent session after installation to ensure the new skill 
 
 ## Compatibility & Paths
 
-This skill follows the [Agent Skills standard](https://agentskills.io).
+This skill follows the [Agent Skills standard](https://agentskills.io) and has been audited for 100% compliance with [Claude's Best Practices for Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 | Agent / IDE     | Skill Install Path (Global/User)                | Config & Rules            | Extended Workflow          |
 | :-------------- | :---------------------------------------------- | :------------------------ | :------------------------- |

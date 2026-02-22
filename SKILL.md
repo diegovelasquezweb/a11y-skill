@@ -15,22 +15,12 @@ metadata:
 
 ## Constraints
 
-These rules apply at all times during audit and fix workflows.
+These rules apply at all times, independent of any workflow step.
 
-**Never do:**
-
-- Modify source code or dependencies without presenting the change first.
-- Install, remove, or initialize packages in the audited project (`package.json`, lockfiles, `node_modules`).
-- Edit files in `audit/` manually — reports only change via re-audit.
-- Modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
-- Downgrade `axe-core` or add rules to `ignoreFindings` without explicit user confirmation.
-- Modify visual properties (colors, fonts, spacing, layouts) without explicit user approval. Fixes must be structural and semantic (HTML attributes, ARIA roles, DOM order, alt text, labels). If a fix requires a style change (e.g., color-contrast), propose the exact change and wait for approval.
-- Declare "100% accessible" based on a targeted audit. Only a Final Certification Audit can confirm that.
-
-**Always do:**
-
-- Use route paths (`/`, `/products`) as primary locations — local URLs go under `Test Environment`.
-- Remind the user to add `audit/` to `.gitignore` after every audit run. The pipeline auto-appends it when a `.gitignore` exists; if the project has none, tell the user to create one.
+- Never install, remove, or initialize packages in the audited project (`package.json`, lockfiles, `node_modules`).
+- Never edit files in `audit/` manually — reports only change via re-audit.
+- Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
+- Never declare "100% accessible" based on a targeted audit. Only a Final Certification Audit can confirm that.
 
 **Platform quirks**: See [references/platform-setup.md](references/platform-setup.md) for Antigravity, Windsurf, Codex, and Gemini CLI notes.
 
@@ -110,8 +100,8 @@ If **new issues or regressions** appear (not previously seen), present them and 
 
 1. Summarize: total issues found, issues resolved, files modified, remaining issues (if any).
 2. Provide absolute paths to `audit/report.html` and `audit/remediation.md`.
-3. If all issues are resolved, confirm the site now passes WCAG 2.2 AA automated checks.
-4. Congratulate the user for investing in accessibility — it directly improves the experience for users with disabilities and strengthens legal compliance.
+3. Remind the user to add `audit/` to `.gitignore`. The pipeline auto-appends it when a `.gitignore` exists; if the project has none, tell the user to create one.
+4. If all issues are resolved, confirm the site now passes WCAG 2.2 AA automated checks.
 5. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
 
 ## Edge Cases

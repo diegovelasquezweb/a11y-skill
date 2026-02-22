@@ -1,5 +1,9 @@
 # Report & Evidence Standards
 
+## Conventions
+
+- Use route paths (`/`, `/products`) as primary locations — local URLs go under `Test Environment`.
+
 ## Required Finding Fields
 
 Each finding must include:

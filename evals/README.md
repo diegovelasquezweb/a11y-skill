@@ -20,7 +20,7 @@ Each `.json` file is a self-contained test case. There is no built-in runner —
 
 ## Scenarios
 
-1.  **[01-basic-audit.json](01-basic-audit.json)**: Core scan and presentation.
+1.  **[01-basic-audit.json](01-basic-audit.json)**: Core audit and presentation.
 2.  **[02-fix-with-checkpoints.json](02-fix-with-checkpoints.json)**: Structured fix workflow.
 3.  **[03-user-declines-fixes.json](03-user-declines-fixes.json)**: Graceful stop & education.
 4.  **[04-auth-blocked-routes.json](04-auth-blocked-routes.json)**: Security & auth boundaries.

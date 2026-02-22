@@ -5,7 +5,7 @@
   "query": "Run an accessibility audit on https://example.com",
   "expected_behavior": [
     "Runs `node scripts/run-audit.mjs --base-url https://example.com` without modification",
-    "Reads `audit/remediation.md` after the scan completes",
+    "Reads `audit/remediation.md` after the audit completes",
     "Summarizes findings grouped by severity (Critical → High → Medium → Low)",
     "Groups findings by component or page area with explanations",
     "Asks for permission before applying any fixes",
