@@ -26,8 +26,13 @@ const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
  */
 const ruleMetadataPath = path.join(__dirname, "../assets/rule-metadata.json");
 
+const regulatoryPath = path.join(__dirname, "../assets/regulatory.json");
+const scoringConfigPath = path.join(__dirname, "../assets/scoring-config.json");
+
 let INTELLIGENCE;
 let RULE_METADATA;
+let REGULATORY;
+let SCORING_CONFIG;
 
 // Initialize remediation and rule metadata assets.
 try {
@@ -43,6 +48,22 @@ try {
 } catch {
   throw new Error(
     `Missing or invalid rule-metadata.json at ${ruleMetadataPath} — run pnpm install to reinstall.`,
+  );
+}
+
+try {
+  REGULATORY = JSON.parse(fs.readFileSync(regulatoryPath, "utf-8"));
+} catch {
+  throw new Error(
+    `Missing or invalid regulatory.json at ${regulatoryPath} — run pnpm install to reinstall.`,
+  );
+}
+
+try {
+  SCORING_CONFIG = JSON.parse(fs.readFileSync(scoringConfigPath, "utf-8"));
+} catch {
+  throw new Error(
+    `Missing or invalid scoring-config.json at ${scoringConfigPath} — run pnpm install to reinstall.`,
   );
 }
 
@@ -86,11 +107,7 @@ function detectCodeLang(code) {
  * Regulatory links for accessibility compliance standards.
  * @type {Object<string, string>}
  */
-const US_REGULATORY = {
-  default: "https://accessibility.18f.gov/checklist/",
-  section508: "https://www.section508.gov/create/software-websites/",
-  "18f": "https://accessibility.18f.gov/tools/",
-};
+const US_REGULATORY = REGULATORY.usRegulatory;
 
 /** @type {Object<string, string>} */
 const IMPACTED_USERS = RULE_METADATA.impactedUsers || {};
@@ -105,17 +122,10 @@ const EXPECTED = RULE_METADATA.expected || {};
  */
 function getImpactedUsers(ruleId, tags) {
   if (IMPACTED_USERS[ruleId]) return IMPACTED_USERS[ruleId];
-  if (tags.includes("cat.color"))
-    return "Users with low vision or color blindness";
-  if (tags.includes("cat.keyboard")) return "Keyboard-only users";
-  if (tags.includes("cat.aria")) return "Screen reader users";
-  if (tags.includes("cat.forms"))
-    return "Screen reader users and voice control users";
-  if (tags.includes("cat.structure"))
-    return "Screen reader users navigating by headings or landmarks";
-  if (tags.includes("cat.semantics")) return "Screen reader users";
-  if (tags.includes("cat.text-alternatives"))
-    return "Blind users relying on screen readers";
+  const tagFallbacks = RULE_METADATA.tagImpactedUsers || {};
+  for (const tag of tags) {
+    if (tagFallbacks[tag]) return tagFallbacks[tag];
+  }
   return "Users relying on assistive technology";
 }
 
@@ -133,42 +143,7 @@ function getExpected(ruleId) {
  * Used to help developers locate the source of an accessibility violation.
  * @type {Object<string, Object>}
  */
-const FRAMEWORK_GLOBS = {
-  nextjs: {
-    components: "app/**/*.tsx, components/**/*.tsx",
-    styles: "**/*.module.css, app/globals.css",
-  },
-  gatsby: {
-    components: "src/**/*.tsx, src/**/*.jsx",
-    styles: "src/**/*.css, src/**/*.module.css",
-  },
-  react: {
-    components: "src/**/*.tsx, src/**/*.jsx",
-    styles: "src/**/*.css, src/**/*.module.css",
-  },
-  nuxt: {
-    components: "pages/**/*.vue, components/**/*.vue",
-    styles: "**/*.css, assets/**/*.scss",
-  },
-  vue: { components: "src/**/*.vue", styles: "src/**/*.css" },
-  angular: {
-    components: "src/**/*.component.html, src/**/*.component.ts",
-    styles: "src/**/*.component.css",
-  },
-  astro: {
-    components: "src/**/*.astro, src/components/**/*.tsx",
-    styles: "src/**/*.css",
-  },
-  svelte: { components: "src/**/*.svelte", styles: "src/**/*.css" },
-  shopify: {
-    components: "sections/**/*.liquid, snippets/**/*.liquid",
-    styles: "assets/**/*.css",
-  },
-  wordpress: {
-    components: "wp-content/themes/**/*.php",
-    styles: "wp-content/themes/**/*.css",
-  },
-};
+const FRAMEWORK_GLOBS = INTELLIGENCE.frameworkGlobs || {};
 
 /**
  * Rules with managed_by_libraries in intelligence.json — derived at load time.
@@ -184,26 +159,13 @@ const MANAGED_RULES = new Map(
  * Maps detected framework IDs to their respective keys in intelligence.json.
  * @type {Object<string, string>}
  */
-const FRAMEWORK_TO_INTEL_KEY = {
-  nextjs: "react",
-  gatsby: "react",
-  nuxt: "vue",
-  react: "react",
-  vue: "vue",
-  angular: "angular",
-  astro: "astro",
-  svelte: "svelte",
-};
+const FRAMEWORK_TO_INTEL_KEY = INTELLIGENCE.frameworkAliases?.intelKey || {};
 
 /**
  * Maps detected framework/CMS IDs to their respective keys for CMS-specific notes.
  * @type {Object<string, string>}
  */
-const FRAMEWORK_TO_CMS_KEY = {
-  shopify: "shopify",
-  wordpress: "wordpress",
-  drupal: "drupal",
-};
+const FRAMEWORK_TO_CMS_KEY = INTELLIGENCE.frameworkAliases?.cmsKey || {};
 
 /**
  * Filters the intelligence notes to only include those relevant to the detected framework.
@@ -311,12 +273,7 @@ function parseArgs(argv) {
   return args;
 }
 
-const IMPACT_MAP = {
-  critical: "Critical",
-  serious: "High",
-  moderate: "Medium",
-  minor: "Low",
-};
+const IMPACT_MAP = SCORING_CONFIG.impactMap;
 
 /**
  * Maps axe-core rule tags to a human-readable WCAG level string.
@@ -324,11 +281,11 @@ const IMPACT_MAP = {
  * @returns {string} The WCAG level (e.g., "WCAG 2.1 AA").
  */
 function mapWcag(tags) {
-  if (tags.includes("wcag22aa")) return "WCAG 2.2 AA";
-  if (tags.includes("wcag22a")) return "WCAG 2.2 A";
-  if (tags.includes("wcag21aa") || tags.includes("wcag2aa"))
-    return "WCAG 2.1 AA";
-  if (tags.includes("wcag21a") || tags.includes("wcag2a")) return "WCAG 2.1 A";
+  const labels = RULE_METADATA.wcagTagLabels || {};
+  const precedence = RULE_METADATA.wcagTagPrecedence || Object.keys(labels);
+  for (const key of precedence) {
+    if (tags.includes(key) && labels[key]) return labels[key];
+  }
   return "WCAG";
 }
 
@@ -340,36 +297,12 @@ function mapWcag(tags) {
  */
 export function detectImplicitRole(tag, html) {
   if (!tag) return null;
+  const roles = RULE_METADATA.implicitRoles || {};
   if (tag === "input") {
     const type = html?.match(/type=["']([^"']+)["']/i)?.[1]?.toLowerCase();
-    if (type === "checkbox") return "checkbox";
-    if (type === "radio") return "radio";
-    if (type === "range") return "slider";
-    return null;
+    return (roles.inputTypeMap || {})[type] ?? null;
   }
-  const map = {
-    a: "link",
-    button: "button",
-    dialog: "dialog",
-    select: "listbox",
-    details: "group",
-    summary: "group",
-    table: "table",
-    nav: "navigation",
-    header: "banner",
-    footer: "contentinfo",
-    aside: "complementary",
-    main: "main",
-    form: "form",
-    fieldset: "group",
-    h1: "heading",
-    h2: "heading",
-    h3: "heading",
-    h4: "heading",
-    h5: "heading",
-    h6: "heading",
-  };
-  return map[tag] ?? null;
+  return (roles.tagMap || {})[tag] ?? null;
 }
 
 /**

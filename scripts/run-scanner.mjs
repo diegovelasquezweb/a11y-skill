@@ -13,6 +13,15 @@ import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const SCANNER_CONFIG = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../assets/scanner-config.json"), "utf-8"),
+);
+const INTELLIGENCE = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"),
+);
+
 /**
  * Prints the CLI usage instructions and available options to the console.
  */
@@ -99,10 +108,15 @@ function parseArgs(argv) {
   return args;
 }
 
-const BLOCKED_EXTENSIONS =
-  /\.(pdf|jpg|jpeg|png|gif|svg|webp|ico|css|js|mjs|json|xml|zip|tar|gz|mp4|mp3|woff|woff2|ttf|eot)$/i;
+const BLOCKED_EXTENSIONS = new RegExp(
+  "\\.(" + SCANNER_CONFIG.blockedExtensions.join("|") + ")$",
+  "i",
+);
 
-const PAGINATION_PARAMS = /^(page|p|pg|offset|cursor|start|from|skip|limit)$/i;
+const PAGINATION_PARAMS = new RegExp(
+  "^(" + SCANNER_CONFIG.paginationParams.join("|") + ")$",
+  "i",
+);
 
 /**
  * Attempts to discover additional routes by fetching and parsing the sitemap.xml.
@@ -302,32 +316,38 @@ export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
  * @returns {Promise<Object>} An object containing detected framework and UI libraries.
  */
 async function detectProjectContext(page) {
-  const framework = await page.evaluate(() => {
-    if (document.getElementById("__next") || window.__NEXT_DATA__)
-      return "nextjs";
-    if (document.getElementById("__nuxt") || window.__NUXT__) return "nuxt";
-    if (document.querySelector("[ng-version]")) return "angular";
-    if (document.getElementById("___gatsby")) return "gatsby";
-    if (
-      document.querySelector("[data-astro-cid]") ||
-      document.querySelector("astro-island")
-    )
-      return "astro";
-    if (document.querySelector("[data-reactroot]")) return "react";
-    if (
-      document.querySelector("[data-v-]") ||
-      document.querySelector("[data-server-rendered]")
-    )
-      return "vue";
-    if (window.Shopify || document.querySelector("[data-shopify]"))
-      return "shopify";
-    if (
-      document.querySelector('link[href*="wp-content"]') ||
-      document.querySelector('meta[name="generator"][content*="WordPress"]')
-    )
-      return "wordpress";
+  const domSignals = INTELLIGENCE.frameworkDetection.domSignals;
+
+  const framework = await page.evaluate((signals) => {
+    for (const entry of signals) {
+      const s = entry.signals;
+      let match = false;
+
+      if (s.id && document.getElementById(s.id)) match = true;
+      if (!match && s.window && window[s.window]) match = true;
+      if (!match && s.selector && document.querySelector(s.selector))
+        match = true;
+      if (!match && s.selectorAlt && document.querySelector(s.selectorAlt))
+        match = true;
+      if (
+        !match &&
+        s.hrefContains &&
+        document.querySelector(`link[href*="${s.hrefContains}"]`)
+      )
+        match = true;
+      if (
+        !match &&
+        s.metaGenerator &&
+        document.querySelector(
+          `meta[name="generator"][content*="${s.metaGenerator}"]`,
+        )
+      )
+        match = true;
+
+      if (match) return entry.framework;
+    }
     return null;
-  });
+  }, domSignals);
 
   const uiLibraries = [];
   try {
@@ -339,20 +359,7 @@ async function detectProjectContext(page) {
         ...deps.dependencies,
         ...deps.devDependencies,
       });
-      const LIB_SIGNALS = [
-        ["@radix-ui", "radix"],
-        ["@headlessui", "headless-ui"],
-        ["@chakra-ui", "chakra"],
-        ["@mantine", "mantine"],
-        ["@mui", "material-ui"],
-        ["antd", "ant-design"],
-        ["@shopify/polaris", "polaris"],
-        ["@react-aria", "react-aria"],
-        ["ariakit", "ariakit"],
-        ["shadcn-ui", "shadcn"],
-        ["primevue", "primevue"],
-        ["vuetify", "vuetify"],
-      ];
+      const LIB_SIGNALS = INTELLIGENCE.frameworkDetection.uiLibrarySignals;
       for (const [prefix, name] of LIB_SIGNALS) {
         if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
           uiLibraries.push(name);
@@ -410,15 +417,7 @@ async function analyzeRoute(
         log.info(`Targeted Audit: Only checking rule "${onlyRule}"`);
         builder.withRules([onlyRule]);
       } else {
-        builder.withTags([
-          "wcag2a",
-          "wcag2aa",
-          "wcag21a",
-          "wcag21aa",
-          "wcag22a",
-          "wcag22aa",
-          "best-practice",
-        ]);
+        builder.withTags(SCANNER_CONFIG.axeTags);
       }
 
       if (Array.isArray(excludeSelectors)) {

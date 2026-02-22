@@ -5,20 +5,26 @@
  * remediation roadmap, and technical methodology for the PDF report.
  */
 
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { computeComplianceScore, scoreLabel } from "./core-findings.mjs";
 import { escapeHtml } from "./core-utils.mjs";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const SCORING_CONFIG = JSON.parse(
+  readFileSync(join(__dirname, "../../assets/scoring-config.json"), "utf-8"),
+);
+const REGULATORY = JSON.parse(
+  readFileSync(join(__dirname, "../../assets/regulatory.json"), "utf-8"),
+);
 
 /**
  * Maps compliance performance labels to risk assessments for the executive summary.
  * @type {Object<string, string>}
  */
-const RISK_LABELS = {
-  Excellent: "Minimal Risk",
-  Good: "Low Risk",
-  Fair: "Moderate Risk",
-  Poor: "High Risk",
-  Critical: "Severe Risk",
-};
+const RISK_LABELS = SCORING_CONFIG.riskLabels;
 
 /**
  * Returns the risk metrics (label and risk assessment) for a given compliance score.
@@ -103,10 +109,7 @@ export function buildPdfExecutiveSummary(args, findings, totals) {
       <tr><th>Severity</th><th>Count</th><th>Impact</th><th>Action Required</th></tr>
     </thead>
     <tbody>
-      <tr><td><strong>Critical</strong></td><td>${totals.Critical}</td><td>Complete barrier — users cannot proceed</td><td>Fix immediately</td></tr>
-      <tr><td><strong>High</strong></td><td>${totals.High}</td><td>Serious friction — core tasks impaired</td><td>Fix this sprint</td></tr>
-      <tr><td><strong>Medium</strong></td><td>${totals.Medium}</td><td>Partial violation — usability degraded</td><td>Fix next sprint</td></tr>
-      <tr><td><strong>Low</strong></td><td>${totals.Low}</td><td>Best practice gap — minor impact</td><td>Fix when convenient</td></tr>
+      ${SCORING_CONFIG.severityDefinitions.map((d) => `<tr><td><strong>${escapeHtml(d.level)}</strong></td><td>${totals[d.level]}</td><td>${escapeHtml(d.impact)}</td><td>${escapeHtml(d.action)}</td></tr>`).join("\n      ")}
     </tbody>
   </table>
 </div>`;
@@ -119,16 +122,23 @@ export function buildPdfExecutiveSummary(args, findings, totals) {
  */
 export function buildPdfRiskSection(totals) {
   const score = computeComplianceScore(totals);
-  const riskLevel =
-    score >= 75
-      ? "Low"
-      : score >= 55
-        ? "Moderate"
-        : score >= 35
-          ? "High"
-          : "Severe";
-  const riskColor =
-    score >= 75 ? "#16a34a" : score >= 55 ? "#d97706" : "#dc2626";
+  const level =
+    SCORING_CONFIG.riskLevels.find((l) => score >= l.minScore) ||
+    SCORING_CONFIG.riskLevels[SCORING_CONFIG.riskLevels.length - 1];
+  const riskLevel = level.label;
+  const riskColor = level.color;
+
+  const regulationRows = REGULATORY.regulations
+    .map(
+      (reg) =>
+        `<tr>
+        <td><strong>${escapeHtml(reg.name)}</strong></td>
+        <td>${escapeHtml(reg.jurisdiction)}</td>
+        <td>${escapeHtml(reg.standard)}</td>
+        <td>${escapeHtml(reg.deadline)}</td>
+      </tr>`,
+    )
+    .join("\n      ");
 
   return `
 <div style="page-break-before: always;">
@@ -143,30 +153,7 @@ export function buildPdfRiskSection(totals) {
       <tr><th>Regulation</th><th>Jurisdiction</th><th>Standard</th><th>Deadline</th></tr>
     </thead>
     <tbody>
-      <tr>
-        <td><strong>European Accessibility Act (EAA)</strong></td>
-        <td>European Union</td>
-        <td>EN 301 549 / WCAG 2.2 AA</td>
-        <td>June 28, 2025 (in force)</td>
-      </tr>
-      <tr>
-        <td><strong>ADA Title II — DOJ Final Rule</strong></td>
-        <td>United States</td>
-        <td>WCAG 2.1 AA</td>
-        <td>April 24, 2026</td>
-      </tr>
-      <tr>
-        <td><strong>EU Web Accessibility Directive</strong></td>
-        <td>European Union (Public Sector)</td>
-        <td>EN 301 549 / WCAG 2.1 AA</td>
-        <td>In force since 2018</td>
-      </tr>
-      <tr>
-        <td><strong>Section 508</strong></td>
-        <td>United States (Federal)</td>
-        <td>WCAG 2.0 AA</td>
-        <td>In force since 2018</td>
-      </tr>
+      ${regulationRows}
     </tbody>
   </table>
 
@@ -197,8 +184,9 @@ export function buildPdfRemediationRoadmap(findings) {
   const medium = findings.filter((f) => f.severity === "Medium");
   const low = findings.filter((f) => f.severity === "Low");
 
+  const mult = SCORING_CONFIG.effortMultipliers;
   const effortHours = (c, h, m, l) =>
-    Math.round(c * 4 + h * 2 + m * 1 + l * 0.5);
+    Math.round(c * mult.Critical + h * mult.High + m * mult.Medium + l * mult.Low);
 
   const totalHours = effortHours(
     critical.length,
@@ -295,10 +283,7 @@ export function buildPdfMethodologySection(args, findings) {
   <table class="stats-table">
     <thead><tr><th>Level</th><th>Definition</th><th>Recommended action</th></tr></thead>
     <tbody>
-      <tr><td><strong>Critical</strong></td><td>Complete barrier — users with disabilities cannot access or complete the affected feature</td><td>Fix immediately</td></tr>
-      <tr><td><strong>High</strong></td><td>Significant impediment — core tasks are seriously impaired but may still be possible</td><td>Fix within current sprint</td></tr>
-      <tr><td><strong>Medium</strong></td><td>Partial violation — functionality works but creates friction or excludes some users</td><td>Fix next sprint</td></tr>
-      <tr><td><strong>Low</strong></td><td>Best practice gap — minor deviation with limited real-world impact</td><td>Fix when convenient</td></tr>
+      ${SCORING_CONFIG.severityDefinitions.map((d) => `<tr><td><strong>${escapeHtml(d.level)}</strong></td><td>${escapeHtml(d.definition)}</td><td>${escapeHtml(d.action)}</td></tr>`).join("\n      ")}
     </tbody>
   </table>
 </div>`;

@@ -469,5 +469,119 @@
     "th-has-data-cells": "Every <th> must have at least one associated data cell — a header with no data cells is meaningless structure.",
     "valid-lang": "All lang attributes must use valid BCP 47 language codes.",
     "video-caption": "All <video> elements with audio content must have synchronized captions via a <track kind='captions'> element."
+  },
+  "tagImpactedUsers": {
+    "cat.color": "Users with low vision or color blindness",
+    "cat.keyboard": "Keyboard-only users",
+    "cat.aria": "Screen reader users",
+    "cat.forms": "Screen reader users and voice control users",
+    "cat.structure": "Screen reader users navigating by headings or landmarks",
+    "cat.semantics": "Screen reader users",
+    "cat.text-alternatives": "Blind users relying on screen readers"
+  },
+  "wcagTagLabels": {
+    "wcag22aa": "WCAG 2.2 AA",
+    "wcag22a": "WCAG 2.2 A",
+    "wcag21aa": "WCAG 2.1 AA",
+    "wcag2aa": "WCAG 2.1 AA",
+    "wcag21a": "WCAG 2.1 A",
+    "wcag2a": "WCAG 2.1 A"
+  },
+  "wcagTagPrecedence": ["wcag22aa", "wcag22a", "wcag21aa", "wcag2aa", "wcag21a", "wcag2a"],
+  "implicitRoles": {
+    "tagMap": {
+      "a": "link",
+      "button": "button",
+      "dialog": "dialog",
+      "select": "listbox",
+      "details": "group",
+      "summary": "group",
+      "table": "table",
+      "nav": "navigation",
+      "header": "banner",
+      "footer": "contentinfo",
+      "aside": "complementary",
+      "main": "main",
+      "form": "form",
+      "fieldset": "group",
+      "h1": "heading",
+      "h2": "heading",
+      "h3": "heading",
+      "h4": "heading",
+      "h5": "heading",
+      "h6": "heading"
+    },
+    "inputTypeMap": {
+      "checkbox": "checkbox",
+      "radio": "radio",
+      "range": "slider"
+    }
+  },
+  "personaMapping": {
+    "screenReader": {
+      "rules": [
+        "frame-title",
+        "aria-dialog-name",
+        "landmark-unique",
+        "aria-allowed-role",
+        "nested-interactive",
+        "aria-hidden-focus",
+        "aria-valid-attr"
+      ],
+      "keywords": [
+        "screen reader",
+        "assistive technology",
+        "aria",
+        "label",
+        "announced"
+      ]
+    },
+    "keyboard": {
+      "rules": [
+        "nested-interactive",
+        "scrollable-region-focusable",
+        "focus-order-semantics",
+        "tabindex"
+      ],
+      "keywords": ["keyboard", "focusable", "tab order", "interactive"]
+    },
+    "vision": {
+      "rules": ["color-contrast", "image-redundant-alt", "image-alt"],
+      "keywords": ["vision", "color", "contrast", "blind"]
+    },
+    "cognitive": {
+      "rules": [
+        "heading-order",
+        "empty-heading",
+        "page-has-heading-one",
+        "duplicate-id"
+      ],
+      "keywords": [
+        "cognitive",
+        "motor",
+        "heading",
+        "structure",
+        "navigation",
+        "hierarchy"
+      ]
+    }
+  },
+  "personaConfig": {
+    "screenReader": {
+      "label": "Screen Readers",
+      "icon": "<svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    "keyboard": {
+      "label": "Keyboard Only",
+      "icon": "<svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M3 10h18M7 15h1m4 0h1m4 0h1m-7 4h4M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    "vision": {
+      "label": "Color/Low Vision",
+      "icon": "<svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M15 12a3 3 0 11-6 0 3 3 0 016 0z\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    "cognitive": {
+      "label": "Cognitive/Motor",
+      "icon": "<svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    }
   }
 }

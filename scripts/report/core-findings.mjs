@@ -5,11 +5,24 @@
  * across all report types (HTML, Markdown, PDF).
  */
 
+import { readFileSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const SCORING_CONFIG = JSON.parse(
+  readFileSync(join(__dirname, "../../assets/scoring-config.json"), "utf-8"),
+);
+const RULE_METADATA = JSON.parse(
+  readFileSync(join(__dirname, "../../assets/rule-metadata.json"), "utf-8"),
+);
+
 /**
  * Defines the priority order for severity levels, where lower values indicate higher priority.
  * @type {Object<string, number>}
  */
-export const SEVERITY_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+export const SEVERITY_ORDER = SCORING_CONFIG.severityOrder;
 
 /**
  * Calculates a weighted priority score for a finding based on severity, instance count, and fix availability.
@@ -18,17 +31,16 @@ export const SEVERITY_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
  */
 function computePriorityScore(item) {
   const sev = SEVERITY_ORDER[item.severity] ?? 3;
-  // Severity: 0-50 pts (Critical=50, High=30, Medium=10, Low=0)
-  const severityPoints = sev === 0 ? 50 : sev === 1 ? 30 : sev === 2 ? 10 : 0;
-  // Instance count: 0-30 pts, logarithmic curve so 1 instance ≠ 0 pts
+  const { severityPoints, instancePointsMax, instanceScale, fixBonus } =
+    SCORING_CONFIG.priorityScoring;
+  const sevPts = severityPoints[String(sev)] ?? 0;
   const instances = item.total_instances || 1;
-  const instancePoints = Math.min(
-    Math.round(Math.log2(instances + 1) * 10),
-    30,
+  const instancePts = Math.min(
+    Math.round(Math.log2(instances + 1) * instanceScale),
+    instancePointsMax,
   );
-  // Fix available bonus: 0-20 pts
-  const fixPoints = item.fix_code ? 20 : 0;
-  return severityPoints + instancePoints + fixPoints;
+  const fixPts = item.fix_code ? fixBonus : 0;
+  return sevPts + instancePts + fixPts;
 }
 
 /**
@@ -113,17 +125,17 @@ export function buildSummary(findings) {
 
 /**
  * Calculates a global compliance score (0-100) based on weighted severity counts.
- * Penalty weights: Critical=15, High=5, Medium=2, Low=0.5
  * @param {Object<string, number>} totals - The summary of counts per severity.
  * @returns {number} An integer compliance score from 0 to 100.
  */
 export function computeComplianceScore(totals) {
+  const { baseScore, penalties } = SCORING_CONFIG.complianceScore;
   const raw =
-    100 -
-    totals.Critical * 15 -
-    totals.High * 5 -
-    totals.Medium * 2 -
-    totals.Low * 0.5;
+    baseScore -
+    totals.Critical * penalties.Critical -
+    totals.High * penalties.High -
+    totals.Medium * penalties.Medium -
+    totals.Low * penalties.Low;
   return Math.max(0, Math.min(100, Math.round(raw)));
 }
 
@@ -133,10 +145,9 @@ export function computeComplianceScore(totals) {
  * @returns {string} A label like "Excellent", "Good", "Fair", "Poor", or "Critical".
  */
 export function scoreLabel(score) {
-  if (score >= 90) return "Excellent";
-  if (score >= 75) return "Good";
-  if (score >= 55) return "Fair";
-  if (score >= 35) return "Poor";
+  for (const { min, label } of SCORING_CONFIG.gradeThresholds) {
+    if (score >= min) return label;
+  }
   return "Critical";
 }
 
@@ -146,63 +157,12 @@ export function scoreLabel(score) {
  * @returns {Object} An object containing impact counts for screenReader, keyboard, vision, and cognitive personas.
  */
 export function buildPersonaSummary(findings) {
-  /** @type {Object<string, Object>} */
-  const SMART_MAP = {
-    screenReader: {
-      rules: [
-        "frame-title",
-        "aria-dialog-name",
-        "landmark-unique",
-        "aria-allowed-role",
-        "nested-interactive",
-        "aria-hidden-focus",
-        "aria-valid-attr",
-      ],
-      keywords: [
-        "screen reader",
-        "assistive technology",
-        "aria",
-        "label",
-        "announced",
-      ],
-    },
-    keyboard: {
-      rules: [
-        "nested-interactive",
-        "scrollable-region-focusable",
-        "focus-order-semantics",
-        "tabindex",
-      ],
-      keywords: ["keyboard", "focusable", "tab order", "interactive"],
-    },
-    vision: {
-      rules: ["color-contrast", "image-redundant-alt", "image-alt"],
-      keywords: ["vision", "color", "contrast", "blind"],
-    },
-    cognitive: {
-      rules: [
-        "heading-order",
-        "empty-heading",
-        "page-has-heading-one",
-        "duplicate-id",
-      ],
-      keywords: [
-        "cognitive",
-        "motor",
-        "heading",
-        "structure",
-        "navigation",
-        "hierarchy",
-      ],
-    },
-  };
+  const SMART_MAP = RULE_METADATA.personaMapping;
 
-  const uniqueIssues = {
-    screenReader: new Set(),
-    keyboard: new Set(),
-    vision: new Set(),
-    cognitive: new Set(),
-  };
+  const uniqueIssues = {};
+  for (const persona of Object.keys(SMART_MAP)) {
+    uniqueIssues[persona] = new Set();
+  }
 
   for (const f of findings) {
     const users = (f.impactedUsers || "").toLowerCase();
@@ -223,10 +183,9 @@ export function buildPersonaSummary(findings) {
     });
   }
 
-  return {
-    screenReader: uniqueIssues.screenReader.size,
-    keyboard: uniqueIssues.keyboard.size,
-    vision: uniqueIssues.vision.size,
-    cognitive: uniqueIssues.cognitive.size,
-  };
+  const result = {};
+  for (const persona of Object.keys(SMART_MAP)) {
+    result[persona] = uniqueIssues[persona].size;
+  }
+  return result;
 }
