@@ -11,12 +11,12 @@ Each `.json` file is a self-contained test case. There is no built-in runner —
 3. Compare agent behavior against `expected_behavior`.
 4. Note any deviations in `model_notes`.
 
-| Model / Agent       | Strengths               | Watch for                                                                  |
-| :------------------ | :---------------------- | :------------------------------------------------------------------------- |
-| **Antigravity**     | High tool precision     | Verify it reads `references/platform-setup.md` to create project workflow. |
-| **Windsurf**        | Fast execution          | Verify it reads `references/platform-setup.md` to create project workflow. |
-| **Sonnet (Claude)** | Best-in-class reasoning | Ensure it follows the full 3a-3d sub-phase cycle.                          |
-| **Gemini CLI**      | Reliable automation     | Watch for `ReadFile` fallbacks in the skill directory.                     |
+| Model / Agent       | Strengths               | Watch for                                                 |
+| :------------------ | :---------------------- | :-------------------------------------------------------- |
+| **Antigravity**     | High tool precision     | Verify it follows the Resource Map for progressive loading. |
+| **Windsurf**        | Fast execution          | Verify it follows the Resource Map for progressive loading. |
+| **Sonnet (Claude)** | Best-in-class reasoning | Ensure it follows the full 3a-3d sub-phase cycle.           |
+| **Gemini CLI**      | Reliable automation     | Watch for `ReadFile` fallbacks in the skill directory.      |
 
 ## Scenarios
 

@@ -1,15 +1,22 @@
 #!/usr/bin/env node
 /**
- * On-demand URL validator for rule-metadata.json and manual-checks.json.
- * Not part of CI — run manually when updating intelligence data.
+ * @file validate-urls.mjs
+ * @description On-demand URL validator for local intelligence data.
+ * This script checks all URLs referenced in `rule-metadata.json` and `manual-checks.json`
+ * to ensure they are reachable and not producing broken links or unexpected redirects.
  *
- * Usage: node scripts/validate-urls.mjs
+ * Note: This is an internal maintenance utility and not part of the standard audit pipeline.
  */
+
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Load intelligence metadata from assets.
+ */
 const ruleMetadata = JSON.parse(
   fs.readFileSync(
     path.join(__dirname, "../assets/rule-metadata.json"),
@@ -23,8 +30,14 @@ const manualChecks = JSON.parse(
   ),
 );
 
+/** @type {Map<string, string>} Map of URL to its source identifier. */
 const urls = new Map();
 
+/**
+ * Recursively collects URLs from a given metadata object.
+ * @param {string} source - Label indicating the origin of the URLs.
+ * @param {Object} obj - The object to scan for URL strings.
+ */
 function collect(source, obj) {
   for (const [key, url] of Object.entries(obj)) {
     if (typeof url === "string" && url.startsWith("https://")) {
@@ -36,6 +49,7 @@ function collect(source, obj) {
 collect("mdn", ruleMetadata.mdn || {});
 collect("apgPatterns", ruleMetadata.apgPatterns || {});
 
+/** Collect URLs from manual test criteria references. */
 for (const check of manualChecks) {
   if (check.ref) {
     urls.set(check.ref, `manual-checks[${check.criterion}]`);
@@ -44,14 +58,23 @@ for (const check of manualChecks) {
 
 console.log(`Validating ${urls.size} unique URLs...\n`);
 
+/** @const {number} Number of concurrent HTTP requests. */
 const CONCURRENCY = 10;
+/** @const {number} Request timeout in milliseconds. */
 const TIMEOUT_MS = 10000;
 
 let ok = 0;
 let redirected = 0;
 let broken = 0;
+/** @type {Array<{url: string, source: string, status: number|string, type: string}>} Array of encountered URL issues. */
 const issues = [];
 
+/**
+ * Checks the status of a single URL via a HEAD request.
+ * @param {string} url - The URL to validate.
+ * @param {string} source - The source identifier for error reporting.
+ * @returns {Promise<void>}
+ */
 async function checkUrl(url, source) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -85,6 +108,7 @@ async function checkUrl(url, source) {
   }
 }
 
+/** Batch processing logic for concurrent validation. */
 const entries = [...urls.entries()];
 for (let i = 0; i < entries.length; i += CONCURRENCY) {
   const batch = entries.slice(i, i + CONCURRENCY);
@@ -96,6 +120,7 @@ for (let i = 0; i < entries.length; i += CONCURRENCY) {
 
 console.log("\n");
 
+/** Final summary and error reporting output. */
 if (issues.length === 0) {
   console.log(`All ${ok} URLs are valid.`);
 } else {

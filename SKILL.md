@@ -26,21 +26,10 @@ Load these files on demand — never preload all at once.
 
 | Resource | Load when | Path |
 |---|---|---|
-| Platform setup (Antigravity, Windsurf, Codex, Gemini CLI) | Initialization — workflow file missing | [references/platform-setup.md](references/platform-setup.md) |
 | Report & evidence standards | Step 2 — presenting findings | [references/report-standards.md](references/report-standards.md) |
 | Source file patterns by framework | Step 3a — locating files to fix | [references/source-patterns.md](references/source-patterns.md) |
 | CLI flags reference | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md) |
 | Troubleshooting | Any script failure | [references/troubleshooting.md](references/troubleshooting.md) |
-
-## Initialization
-
-Verify the `/a11y` command is available before the first audit.
-
-- **Claude Code, Cursor, Codex**: No setup needed — skill loads automatically.
-- **Antigravity, Windsurf**: Create workflow files if missing. See [references/platform-setup.md](references/platform-setup.md).
-- **Gemini CLI**: Run `/skills reload` if the skill name is not recognized.
-
----
 
 ## Constraints
 
