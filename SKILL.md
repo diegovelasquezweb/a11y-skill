@@ -32,6 +32,7 @@ These rules apply at all times during audit and fix workflows.
 - Use `--skip-reports` for all intermediate verifications (Surgery Mode).
 - Generate reports only at Discovery (start) and Certification (end).
 - Prefer DOM/selector evidence over screenshots. Capture screenshots only when tied 1:1 to a specific issue.
+- Remind the user to add `audit/` to `.gitignore` after every audit run. The pipeline auto-appends it when a `.gitignore` exists; if the project has none, tell the user to create one.
 
 **Platform quirks**: See [references/platform-setup.md](references/platform-setup.md) for Antigravity, Windsurf, Codex, and Gemini CLI notes.
 
@@ -74,10 +75,6 @@ Do not just link the report. Read `audit/remediation.md` and:
 ### Step 5 — Provide report evidence
 
 Only after proposing fixes, provide the absolute path to `audit/report.html` as visual proof.
-
-### Step 6 — Suggest .gitignore
-
-**MANDATORY.** Always remind the user to add `audit/` to `.gitignore`. The pipeline auto-appends it when a `.gitignore` exists; if the project has none, tell the user to create one.
 
 ### Reference material
 
@@ -174,6 +171,7 @@ Persist scan settings across runs by placing this file in the audited project ro
 | `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                                  |
 | `viewports`        | `array`   | `{ width, height, name }` objects. Only the first entry is used per scan.                                       |
 | `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                             |
+| `crawlDepth`       | `number`  | How deep to follow links during route discovery (1-3, default: 2).                                              |
 | `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                         |
 | `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                          |
 | `axeRules`         | `object`  | Fine-grained Axe-Core rule config passed directly to the scanner.                                               |

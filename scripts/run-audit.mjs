@@ -13,6 +13,7 @@ function printUsage() {
 Targeting & Scope:
   --base-url <url>        (Required) The target website to audit.
   --max-routes <num>      Max routes to discover and scan (default: 10).
+  --crawl-depth <num>     How deep to follow links during discovery (1-3, default: 2).
   --routes <csv>          Custom list of paths to scan.
 
 Audit Intelligence:
@@ -88,6 +89,7 @@ async function main() {
 
   const baseUrl = getArgValue("base-url");
   const maxRoutes = getArgValue("max-routes") || config.maxRoutes || 10;
+  const crawlDepth = getArgValue("crawl-depth") || config.crawlDepth || 2;
   const routes = getArgValue("routes");
   const waitMs = getArgValue("wait-ms") || config.waitMs || 2000;
   const timeoutMs = getArgValue("timeout-ms") || config.timeoutMs || 30000;
@@ -173,6 +175,8 @@ async function main() {
       headless.toString(),
       "--screenshots-dir",
       screenshotsDir,
+      "--crawl-depth",
+      crawlDepth.toString(),
     ];
     if (!headless) scanArgs.push("--headed");
     if (onlyRule) scanArgs.push("--only-rule", onlyRule);

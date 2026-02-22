@@ -18,6 +18,7 @@ export const log = {
 
 const CONFIG_SCHEMA = {
   maxRoutes: { type: "number" },
+  crawlDepth: { type: "number" },
   complianceTarget: { type: "string" },
   routes: { type: "array" },
   excludeSelectors: { type: "array" },

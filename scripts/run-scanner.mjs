@@ -22,6 +22,7 @@ Options:
   --screenshots-dir <path>    Directory to save element screenshots (optional)
   --exclude-selectors <csv>   Selectors to exclude (overrides config)
   --only-rule <id>            Only check for this specific rule ID (ignores tags)
+  --crawl-depth <number>      How deep to follow links during discovery (1-3, default: 2)
   --wait-until <value>        Page load strategy: domcontentloaded|load|networkidle (default: domcontentloaded)
   -h, --help                  Show this help
 `);
@@ -46,6 +47,7 @@ function parseArgs(argv, config) {
     screenshotsDir: null,
     excludeSelectors: config.excludeSelectors || [],
     onlyRule: config.onlyRule || null,
+    crawlDepth: config.crawlDepth || 2,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -62,6 +64,7 @@ function parseArgs(argv, config) {
     if (key === "--headless") args.headless = value !== "false";
     if (key === "--headed") args.headless = false;
     if (key === "--only-rule") args.onlyRule = value;
+    if (key === "--crawl-depth") args.crawlDepth = Number.parseInt(value, 10);
     if (key === "--wait-until") args.waitUntil = value;
     if (key === "--exclude-selectors")
       args.excludeSelectors = value.split(",").map((s) => s.trim());
@@ -70,6 +73,7 @@ function parseArgs(argv, config) {
     i += 1;
   }
 
+  args.crawlDepth = Math.min(Math.max(args.crawlDepth, 1), 3);
   if (!args.baseUrl) throw new Error("Missing required --base-url");
   return args;
 }
@@ -169,18 +173,17 @@ export function parseRoutesArg(routesArg, origin) {
   return [...uniq];
 }
 
-async function discoverRoutes(page, baseUrl, maxRoutes) {
+export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
   const origin = new URL(baseUrl).origin;
   const routes = new Set(["/"]);
   const seenPathnames = new Set(["/"]);
-  let rawLinkCount = 0;
+  const visited = new Set();
+  let frontier = ["/"];
 
-  try {
-    const hrefs = await page.$$eval("a[href]", (elements) =>
-      elements.map((el) => el.getAttribute("href")),
-    );
-    rawLinkCount = hrefs.length;
+  function extractLinks(hrefs) {
+    const newRoutes = [];
     for (const href of hrefs) {
+      if (routes.size >= maxRoutes) break;
       const normalized = normalizePath(href, origin);
       if (!normalized) continue;
       try {
@@ -193,17 +196,48 @@ async function discoverRoutes(page, baseUrl, maxRoutes) {
       } catch {
         // keep non-parseable normalized paths as-is
       }
-      routes.add(normalized);
-      if (routes.size >= maxRoutes) break;
+      if (!routes.has(normalized)) {
+        routes.add(normalized);
+        newRoutes.push(normalized);
+      }
     }
-  } catch (error) {
-    log.warn(`Autodiscovery failed on ${baseUrl}: ${error.message}`);
+    return newRoutes;
+  }
+
+  for (let depth = 0; depth < crawlDepth && frontier.length > 0; depth++) {
+    const nextFrontier = [];
+
+    for (const routePath of frontier) {
+      if (routes.size >= maxRoutes) break;
+      if (visited.has(routePath)) continue;
+      visited.add(routePath);
+
+      try {
+        const targetUrl = new URL(routePath, origin).toString();
+        if (page.url() !== targetUrl) {
+          await page.goto(targetUrl, {
+            waitUntil: "domcontentloaded",
+            timeout: 10000,
+          });
+        }
+
+        const hrefs = await page.$$eval("a[href]", (elements) =>
+          elements.map((el) => el.getAttribute("href")),
+        );
+        nextFrontier.push(...extractLinks(hrefs));
+      } catch (error) {
+        log.warn(`Discovery skip ${routePath}: ${error.message}`);
+      }
+    }
+
+    frontier = nextFrontier;
+    if (routes.size >= maxRoutes) break;
   }
 
   log.info(
-    `Discovered ${rawLinkCount} links → ${routes.size} unique route(s) added`,
+    `Crawl depth ${Math.min(crawlDepth, 3)}: ${routes.size} route(s) discovered (visited ${visited.size} page(s))`,
   );
-  return [...routes];
+  return [...routes].slice(0, maxRoutes);
 }
 
 async function detectProjectContext(page) {
@@ -398,13 +432,21 @@ async function main() {
       log.info("Autodiscovering routes...");
       const sitemapRoutes = await discoverFromSitemap(origin, args.maxRoutes);
       if (sitemapRoutes.length > 0) {
-        routes = ["/", ...sitemapRoutes].slice(0, args.maxRoutes);
+        routes = [...new Set(["/", ...sitemapRoutes])].slice(0, args.maxRoutes);
         log.info(
           `Sitemap: ${routes.length} route(s) discovered from /sitemap.xml`,
         );
-      } else {
-        routes = await discoverRoutes(page, baseUrl, args.maxRoutes);
       }
+      if (routes.length < args.maxRoutes) {
+        const crawled = await discoverRoutes(page, baseUrl, args.maxRoutes, args.crawlDepth);
+        const merged = new Set(routes);
+        for (const r of crawled) {
+          if (merged.size >= args.maxRoutes) break;
+          merged.add(r);
+        }
+        routes = [...merged];
+      }
+      if (routes.length === 0) routes = ["/"];
     }
   } catch (err) {
     log.error(`Fatal: Could not load base URL ${baseUrl}: ${err.message}`);
