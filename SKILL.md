@@ -39,11 +39,12 @@ These rules apply at all times, independent of any workflow step.
 
 Follow these rules for every message to the user:
 
-1. **Use closed questions** — prefer yes/no or multiple choice over open-ended questions. This reduces ambiguity and errors.
+1. **Use closed questions** — prefer yes/no or multiple choice over open-ended questions. This reduces ambiguity and errors. Always present options as a **numbered vertical list** (1, 2, 3…), never as inline bullets.
 2. **Be concise and technical** — no filler, no over-explaining. State what you found, what you propose, and ask for a decision.
 3. **Always provide options** — never ask "what do you want to do?" without listing concrete choices.
 4. **Explain the "why"** — when presenting a fix or a choice, briefly state why it matters (user impact, legal risk, design implications).
 5. **One question per message** — don't stack multiple decisions in a single message. Let the user answer one thing at a time.
+6. **Always acknowledge the effort** — at the final delivery (Step 4), close with a brief, genuine acknowledgment of the user's investment in accessibility — regardless of whether they fixed every issue. The user may choose to skip style fixes or defer some items, and that's perfectly fine. Example: _"Great work investing in accessibility — this directly improves the experience for users with disabilities."_ Adapt the wording naturally, but never skip it.
 
 Every user-facing message in the workflow below is a template. Follow the tone and structure — adapt the data, keep the format.
 
@@ -106,9 +107,9 @@ If the script fails (network error, Chromium crash, timeout):
 
 > "The audit failed: `[error message]`. This could be a network issue, the site may be down, or the URL may be incorrect. Would you like me to:
 >
-> - **Retry** the same URL
-> - **Try a different URL**
-> - **Skip** and troubleshoot manually"
+> 1. **Retry** the same URL
+> 2. **Try a different URL**
+> 3. **Skip** and troubleshoot manually"
 
 ### Step 2 — Present findings and request permission
 
@@ -121,9 +122,9 @@ Read the remediation guide (from `REMEDIATION_PATH`) and:
 
 > "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). How would you like to proceed?
 >
-> - **Severity by severity** (recommended) — I'll fix one severity group at a time with a checkpoint after each so you can verify. Safest approach.
-> - **Fix all structural** — I'll apply all structural fixes (ARIA, alt text, labels, DOM order) at once. Style changes (colors, font sizes) will still require your approval separately.
-> - **Only critical** — fix only Critical severity issues for now."
+> 1. **Severity by severity** (recommended) — I'll fix one severity group at a time with a checkpoint after each so you can verify. Safest approach.
+> 2. **Fix all structural** — I'll apply all structural fixes (ARIA, alt text, labels, DOM order) at once. Style changes (colors, font sizes) will still require your approval separately.
+> 3. **Only critical** — fix only Critical severity issues for now."
 
 The default behavior (if the user just says "fix" or "go ahead") is **severity by severity**.
 
@@ -163,10 +164,10 @@ If the user chose **fix all structural**: apply all severity groups in a single 
 
 > "All structural fixes applied — 8 files modified across 12 issues. Here's the full list:
 >
-> - `Header.tsx`: added `aria-label` to nav, fixed heading hierarchy
-> - `Footer.astro`: added `role="contentinfo"`, missing `lang` attribute
-> - `Card.tsx`: added `alt` text to images
-> - _(etc.)_
+> 1. `Header.tsx`: added `aria-label` to nav, fixed heading hierarchy
+> 2. `Footer.astro`: added `role="contentinfo"`, missing `lang` attribute
+> 3. `Card.tsx`: added `alt` text to images
+> 4. _(etc.)_
 >
 > Please verify visually. Ready to continue with style-dependent fixes? (yes/no)"
 
@@ -178,9 +179,9 @@ Example:
 
 > "I found 3 style-dependent issues that affect your site's visual design. These require your review:
 >
-> - `color-contrast` on `.hero-title`: change `color` from `#999` → `#595959` (contrast ratio 3.2:1 → 7:1)
-> - `color-contrast` on `.nav-link`: change `color` from `#aaa` → `#767676`
-> - `font-size` on `.fine-print`: change from `10px` → `12px`
+> 1. `color-contrast` on `.hero-title`: change `color` from `#999` → `#595959` (contrast ratio 3.2:1 → 7:1)
+> 2. `color-contrast` on `.nav-link`: change `color` from `#aaa` → `#767676`
+> 3. `font-size` on `.fine-print`: change from `10px` → `12px`
 >
 > Should I apply these changes? (yes / no / let me pick which ones)"
 
@@ -193,8 +194,8 @@ Process the "WCAG 2.2 Static Code Checks" section from the remediation guide:
 
 > "I found 2 additional issues from static code analysis that the automated scanner can't detect:
 >
-> - `ProductCard.tsx:45` — `<div onClick={...}>` used as a button without keyboard support. Should be a `<button>` or add `role="button"`, `tabIndex={0}`, and `onKeyDown`.
-> - `Modal.tsx:12` — focus is not trapped inside the modal when open. Users can Tab to elements behind the overlay.
+> 1. `ProductCard.tsx:45` — `<div onClick={...}>` used as a button without keyboard support. Should be a `<button>` or add `role="button"`, `tabIndex={0}`, and `onKeyDown`.
+> 2. `Modal.tsx:12` — focus is not trapped inside the modal when open. Users can Tab to elements behind the overlay.
 >
 > Should I fix these? (yes / no / let me pick which ones)"
 
@@ -210,8 +211,8 @@ If the audit is clean, proceed to Step 4. If **new issues or regressions** appea
 
 > "The verification re-audit found 2 new issues that weren't in the original scan — likely caused by the fixes we applied:
 >
-> - `heading-order` on `/about`: the `<h2>` we added created a gap in heading hierarchy (missing `<h3>`).
-> - `aria-required-attr` on `SearchForm.tsx`: the `role="combobox"` we added requires `aria-expanded`.
+> 1. `heading-order` on `/about`: the `<h2>` we added created a gap in heading hierarchy (missing `<h3>`).
+> 2. `aria-required-attr` on `SearchForm.tsx`: the `role="combobox"` we added requires `aria-expanded`.
 >
 > I'll fix these now and re-verify."
 
@@ -219,31 +220,31 @@ If the audit is clean, proceed to Step 4. If **new issues or regressions** appea
 
 1. Summarize: total issues found, issues resolved, files modified, remaining issues (if any).
 2. If all issues are resolved, confirm the site now passes WCAG 2.2 AA automated checks.
-3. Present manual verification checks the user must perform. These cannot be automated — list only the ones relevant to the project:
+3. Present manual verification checks the user must perform. These cannot be automated — list only the ones relevant to the project. **Include a brief introduction explaining why these checks matter:**
 
-> "The automated audit is complete. These checks require human verification — I can't test them for you:
+> "The automated audit is complete. However, automated tools can only catch **30–50% of real accessibility barriers**. The remaining issues require human judgment — things like whether a screen reader announcement actually makes sense, or whether the tab order feels logical. These checks are critical because they reflect how real users with disabilities experience your site:
 >
-> - **Keyboard navigation**: Can you Tab through all interactive elements? Is the focus ring visible?
-> - **Focus order**: Does the tab sequence follow a logical reading order?
-> - **Screen reader**: Do page announcements make sense? (Test with VoiceOver on macOS or NVDA on Windows)
-> - **Motion & animation**: Can users who are sensitive to motion use the site comfortably? (Check `prefers-reduced-motion`)
-> - **Zoom**: Does the page remain usable at 200% browser zoom?"
+> 1. **Keyboard navigation**: Can you Tab through all interactive elements? Is the focus ring visible? _(~15% of users rely on keyboard-only navigation)_
+> 2. **Focus order**: Does the tab sequence follow a logical reading order? _(Disorienting order is one of the most common usability complaints from assistive tech users)_
+> 3. **Screen reader**: Do page announcements make sense? (Test with VoiceOver on macOS or NVDA on Windows) _(The only way to verify that your semantic HTML actually communicates intent)_
+> 4. **Motion & animation**: Can users who are sensitive to motion use the site comfortably? (Check `prefers-reduced-motion`) _(Affects users with vestibular disorders — can trigger nausea or seizures)_
+> 5. **Zoom**: Does the page remain usable at 200% browser zoom? _(Required by WCAG 1.4.4 — affects users with low vision)_"
 
 4. Offer to generate visual reports reflecting the final state:
 
 > "Would you like me to generate visual reports?
 >
-> - **HTML Dashboard** — interactive web report with the updated compliance score.
-> - **PDF Executive Summary** — formal document to share with clients or stakeholders.
-> - **Both**
-> - **No thanks**"
+> 1. **HTML Dashboard** — interactive web report with the updated compliance score.
+> 2. **PDF Executive Summary** — formal document to share with clients or stakeholders.
+> 3. **Both**
+> 4. **No thanks**"
 
 5. If the user requests reports, ask where to save them (**first time only** — reuse the choice on subsequent requests):
 
 > "Where should I save the reports?
 >
-> - `./audit/` (default)
-> - Custom path"
+> 1. `./audit/` (default)
+> 2. Custom path"
 
 Then ask about `.gitignore` (first time only):
 
