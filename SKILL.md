@@ -5,7 +5,7 @@ compatibility: Requires Node.js 18+, pnpm, and internet access. Playwright + Chr
 license: Proprietary (All Rights Reserved)
 metadata:
   author: diegovelasquezweb
-  version: "0.5.1"
+  version: "0.6.0"
 ---
 
 # Web Accessibility Audit — Agent Playbook

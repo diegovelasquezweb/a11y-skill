@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.0] — 2026-02-22
+
+### Added
+- Communication Rules section in SKILL.md — 5 rules for agent-to-user messaging (closed questions, concise tone, always provide options, explain "why", one question per message)
+- 15 example messages covering every user-facing moment in the workflow (URL request, route scope, gitignore, reports, findings, 0 issues, decline, severity checkpoint, fix-all checkpoint, style approval, manual checks, regressions, manual verification reminder, final reports offer, congratulations)
+- Per-project config: `audit/a11y.config.json` is now read from the audited project's `audit/` folder (created on demand by the agent), replacing the previous shared config in the skill root
+- Config management instructions in SKILL.md: tells the agent how to create, read, merge, and write the config file
+- Gitignore question: agent now asks the user before adding `audit/` to `.gitignore` instead of modifying it automatically
+- Step 2 fix strategy options: user can choose between "severity by severity" (default), "fix all structural", or "only critical"
+- Style-dependent protection rule: style fixes always require explicit approval with exact changes shown, even under a "fix all" instruction
+- Step 4 manual verification checklist: agent presents human-only checks (keyboard nav, focus order, screen reader, motion, zoom) before delivering results
+- Visual reports are now opt-in: audit runs with `--skip-reports` by default, agent asks which reports to generate (HTML / PDF / Both / Neither) after scan and again after fixes
+- Auto-open for generated reports: agent opens requested reports (`open audit/report.html`, `open audit/report.pdf`) after generation
+- Route scope notification in Step 1: agent informs user about sitemap vs crawl behavior and how to adjust
+- URL normalization rules in Step 1: `localhost:3000` → `http://`, `mysite.com` → `https://`
+
+### Changed
+- Sitemap discovery now scans all URLs in `sitemap.xml` without `maxRoutes` cap — `maxRoutes` only applies to BFS crawl fallback when no sitemap is found
+- Verification re-audit (Step 3d) is now automatic — agent runs it without asking, only surfaces regressions if found
+- All user-facing questions converted to closed format: yes/no or multiple choice with explicit options
+- `.gitignore` auto-append removed from `run-audit.mjs` — replaced with warning signals for the agent to ask the user
+
+### Removed
+- `a11y.config.json` from skill root (was an empty `{}` placeholder)
+- `.gitignore` auto-modification from `run-audit.mjs` pipeline
+
+---
+
 ## [0.5.1] — 2026-02-21
 
 ### Changed
