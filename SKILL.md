@@ -147,20 +147,4 @@ Example:
 
 **Decision rule**: If the user's instruction implies "always" or "for this project", edit `a11y.config.json`. If it implies "this time" or is a runtime parameter, use a CLI flag.
 
-### `a11y.config.json`
-
-Place this file in the audited project root. All keys are optional — CLI flags take precedence when both are set.
-
-**Project-level keys** (edit via config):
-
-- `framework` — override auto-detected framework (`--framework` CLI equivalent)
-- `ignoreFindings` — rule IDs to silence (`--ignore-findings` CLI equivalent)
-- `excludeSelectors` — DOM selectors to skip (`--exclude-selectors` CLI equivalent)
-- `routes` — static list of paths to audit (`--routes` CLI equivalent)
-- `axeRules` — fine-grained axe-core rule config (config-only, no CLI equivalent)
-
-**Execution-level keys** (prefer CLI, config as fallback):
-
-- `maxRoutes`, `waitMs`, `timeoutMs`, `crawlDepth`, `headless`, `colorScheme`, `waitUntil`, `viewports`
-
-For the full schema, see [references/audit-config.md](references/audit-config.md).
+For the full schema of all keys and their CLI equivalents, see [references/audit-config.md](references/audit-config.md).
