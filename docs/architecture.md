@@ -15,34 +15,49 @@ The a11y skill operates as a three-stage pipeline designed for **Autonomous Reme
 ## High-Level Pipeline
 
 ```mermaid
-graph TD
-    A["Target URL / Project"]
-
-    subgraph P1["Phase 1: Scouting"]
-        B["1. Scanner (Playwright + Axe)"]
-        B --> B1["Route Discovery"]
-        B --> B2["WCAG 2.2 AA Scan"]
-        B --> B3["DOM Snapshot"]
+%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#fff', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0', 'clusterBkg': '#f8fafc', 'clusterBorder': '#cbd5e1' } } }%%
+flowchart TD
+    subgraph P1 ["Phase 1: Scouting"]
+        direction TB
+        B["<b>1. Scanner</b><br/>(Playwright + Axe)"]
+        B1["Route Discovery"]
+        B2["WCAG 2.2 AA Scan"]
+        B3["DOM Snapshot"]
+        B --> B1 & B2 & B3
     end
 
-    subgraph P2["Phase 2: Intelligence"]
-        C["2. Analyzer (Fix Intelligence)"]
-        C --> C1["Rule Mapping"]
-        C --> C2["Surgical Selector Extraction"]
-        C --> C3["Patch Generation (HTML/JSX/Liquid)"]
+    subgraph P2 ["Phase 2: Intelligence"]
+        direction TB
+        C["<b>2. Analyzer</b><br/>(Fix Intelligence)"]
+        C1["Rule Mapping"]
+        C2["Surgical Selector Extraction"]
+        C3["Patch Generation"]
+        C --> C1 & C2 & C3
     end
 
-    subgraph P3["Phase 3: Delivery"]
-        D["3. Builder (Multi-format Reports)"]
-        D --> D1["PRIMARY: AI Roadmap (Markdown)"]
-        D --> D2["Visual Evidence (HTML)"]
-        D --> D3["Executive Summary (PDF)"]
-        D --> D4["Internal Data (JSON)"]
+    subgraph P3 ["Phase 3: Delivery"]
+        direction TB
+        D["<b>3. Builder</b><br/>(Multi-format)"]
+        D1["AI Roadmap (MD)"]
+        D2["Visual Evidence (HTML)"]
+        D3["Executive Summary (PDF)"]
+        D4["Internal Data (JSON)"]
+        D --> D1 & D2 & D3 & D4
     end
 
-    A --> B
-    B --> C
-    C --> D
+    A(["Target URL / Project"]) --> P1
+    P1 --> P2
+    P2 --> P3
+
+    linkStyle default stroke:#64748b,stroke-width:2px;
+    classDef default font-family:Inter,sans-serif,font-size:12px;
+    classDef phase font-weight:bold,fill:#f8fafc,stroke:#cbd5e1;
+    classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a,stroke-width:2px;
+    classDef target fill:#1e293b,color:#fff,stroke:#0f172a;
+
+    class P1,P2,P3 phase;
+    class B,C,D core;
+    class A target;
 ```
 
 ## Internal Component Roles
@@ -88,20 +103,26 @@ The Markdown report is the primary interface between the audit engine and the AI
 ## Data Flow Diagram
 
 ```mermaid
+%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0' } } }%%
 sequenceDiagram
-    participant CLI as Audit Trigger
-    participant S as Scanner
-    participant A as Analyzer
-    participant B as Builder
-    participant FS as Local Filesystem
+    autonumber
+    participant CLI as 🖥️ Audit Trigger
+    participant S as 🔍 Scanner
+    participant A as 🧠 Analyzer
+    participant B as 🏗️ Builder
+    participant FS as 📂 Local Filesystem
 
     CLI->>S: base-url + options
+    Note over S,FS: Emulates Browser
     S->>FS: Save Raw Scan (JSON)
     S-->>A: Trigger Analysis
     A->>FS: Load intelligence.json
-    A->>A: Generate Patch Logic
+    rect rgb(241, 245, 249)
+        Note right of A: Context-Aware Logic
+        A->>A: Generate Patch Logic
+    end
     A->>FS: Save Findings (JSON)
     A-->>B: Trigger Formatting
-    B->>FS: Generate HTML, MD & PDF Reports
+    B->>FS: Generate HTML, MD & PDF
     B-->>CLI: Final Success Output
 ```
