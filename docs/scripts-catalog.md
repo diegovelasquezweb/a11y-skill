@@ -13,10 +13,10 @@ When you trigger an audit (e.g., `pnpm a11y`), the engine follows this linear pi
 ```mermaid
 %%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0' } } }%%
 flowchart TD
-    A[run-audit.mjs] -- 1 --> B[validate-urls.mjs]
-    A -- 2 --> C[run-scanner.mjs]
-    A -- 3 --> D[run-analyzer.mjs]
-    A -- 4 --> E[build-report-html.mjs]
+    A[run-audit.mjs] -- 1 --> C[run-scanner.mjs]
+    A -- 2 --> D[run-analyzer.mjs]
+    A -- 3 --> E[build-report-html.mjs]
+    A -- 4 --> G[build-report-pdf.mjs]
     A -- 5 --> F[build-report-md.mjs]
 
     classDef default font-family:Inter,sans-serif,font-size:12px;
@@ -24,7 +24,7 @@ flowchart TD
     classDef orchestrator fill:#1e293b,color:#fff,stroke:#0f172a;
 
     class A orchestrator;
-    class B,C,D,E,F core;
+    class C,D,E,F,G core;
 ```
 
 ---
@@ -47,5 +47,6 @@ flowchart TD
 
 ### 4. Reporting & Delivery
 
-- **`build-report-html.mjs`**: The "Designer". Transforms analyzed findings into the interactive HTML dashboard and the executive PDF summary.
+- **`build-report-html.mjs`**: The "Designer". Transforms analyzed findings into the interactive HTML dashboard.
+- **`build-report-pdf.mjs`**: The "Executive". Generates a high-fidelity PDF summary for stakeholders, derived from the HTML content.
 - **`build-report-md.mjs`**: The "Communicator". Generates the `remediation.md` guide specifically optimized for AI agents to perform autonomous fixes.

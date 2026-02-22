@@ -79,5 +79,3 @@ The score is mapped to a letter grade for quick stakeholder communication:
 2. **Weighting**: Each unique finding's severity is matched against the penalty table.
 3. **Subtraction**: The cumulative penalty is subtracted from 100.
 4. **Clamping**: Total penalties are subtracted and the result is clamped between 0 and 100.
-
-## Example: The "Fix-First" Flow
