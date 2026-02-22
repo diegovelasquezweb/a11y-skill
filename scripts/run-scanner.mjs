@@ -89,7 +89,7 @@ const BLOCKED_EXTENSIONS =
 
 const PAGINATION_PARAMS = /^(page|p|pg|offset|cursor|start|from|skip|limit)$/i;
 
-async function discoverFromSitemap(origin, maxRoutes) {
+async function discoverFromSitemap(origin) {
   try {
     const res = await fetch(`${origin}/sitemap.xml`, {
       signal: AbortSignal.timeout(5000),
@@ -103,7 +103,6 @@ async function discoverFromSitemap(origin, maxRoutes) {
     for (const loc of locs) {
       const normalized = normalizePath(loc, origin);
       if (normalized && normalized !== "/") routes.add(normalized);
-      if (routes.size >= maxRoutes - 1) break;
     }
     return [...routes];
   } catch {
@@ -457,26 +456,20 @@ async function main() {
       routes = [""];
     } else {
       log.info("Autodiscovering routes...");
-      const sitemapRoutes = await discoverFromSitemap(origin, args.maxRoutes);
+      const sitemapRoutes = await discoverFromSitemap(origin);
       if (sitemapRoutes.length > 0) {
-        routes = [...new Set(["/", ...sitemapRoutes])].slice(0, args.maxRoutes);
+        routes = [...new Set(["/", ...sitemapRoutes])];
         log.info(
           `Sitemap: ${routes.length} route(s) discovered from /sitemap.xml`,
         );
-      }
-      if (routes.length < args.maxRoutes) {
+      } else {
         const crawled = await discoverRoutes(
           page,
           baseUrl,
           args.maxRoutes,
           args.crawlDepth,
         );
-        const merged = new Set(routes);
-        for (const r of crawled) {
-          if (merged.size >= args.maxRoutes) break;
-          merged.add(r);
-        }
-        routes = [...merged];
+        routes = [...crawled];
       }
       if (routes.length === 0) routes = ["/"];
     }

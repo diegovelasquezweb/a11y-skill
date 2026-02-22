@@ -45,6 +45,14 @@ If the user did not provide a URL, ask for it before proceeding. The `--base-url
 - `"mysite.com"` → `https://mysite.com`
 - `"https://example.com"` → use as-is
 
+Before running, inform the user about route scope:
+
+> "If your site has a **sitemap.xml**, I'll scan every page listed in it. If there's no sitemap, I'll crawl links starting from the homepage — up to **10 pages by default**. You can adjust this:
+> - **More pages (no sitemap)**: `--max-routes 30` (or set `maxRoutes` in the config for all future runs)
+> - **Specific pages only**: `--routes /,/about,/contact`"
+
+If the user adjusts scope, add the corresponding flags. Otherwise, proceed with defaults.
+
 Run the audit with `--skip-reports` by default (faster — only generates the remediation guide the agent needs):
 
 ```bash
