@@ -38,13 +38,22 @@ let axeRules = null;
 
 beforeAll(async () => {
   try {
-    const axePath = path.join(__dirname, "../node_modules/axe-core/axe.js");
+    // Robust path resolution for axe-core
+    const axeRelativePath = "../node_modules/axe-core/axe.js";
+    const axePath = path.resolve(__dirname, axeRelativePath);
+
+    if (!fs.existsSync(axePath)) {
+      log.warn(`Axe-core not found at ${axePath}, skipping coverage tests.`);
+      return;
+    }
+
     const axe = await import(pathToFileURL(axePath).href);
     axeRules = Object.fromEntries(
       (axe.default ?? axe).getRules().map((r) => [r.ruleId, r]),
     );
-  } catch {
+  } catch (error) {
     // axe-core unavailable — coverage checks will be skipped
+    console.warn(`Failed to load axe-core for tests: ${error.message}`);
   }
 });
 
@@ -95,13 +104,6 @@ describe("intelligence.json — schema", () => {
         });
       }
 
-      if (rule.manual_test) {
-        it("manual_test has description and steps", () => {
-          expect(rule.manual_test.description?.trim()).toBeTruthy();
-          expect(Array.isArray(rule.manual_test.steps)).toBe(true);
-          expect(rule.manual_test.steps.length).toBeGreaterThan(0);
-        });
-      }
     });
   }
 });
@@ -171,9 +173,9 @@ describe("intelligence.json — axe-core coverage", () => {
 
 // ── 5. Content quality ─────────────────────────────────────────────────────
 describe("intelligence.json — content quality", () => {
-  it("every rule has fix.code or manual_test", () => {
+  it("every rule has fix.code", () => {
     const noGuidance = Object.entries(rules)
-      .filter(([, rule]) => !rule.fix?.code && !rule.manual_test)
+      .filter(([, rule]) => !rule.fix?.code)
       .map(([id]) => id);
     expect(noGuidance).toEqual([]);
   });

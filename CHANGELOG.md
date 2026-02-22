@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - `a11y.config.json` from skill root (was an empty `{}` placeholder)
 - `.gitignore` auto-modification from `run-audit.mjs` pipeline
+- `manual_test` field from all 106 rules in `intelligence.json` — per-rule manual testing steps were only rendered in the HTML report, never surfaced to agents via `remediation.md`. General manual checks (`assets/manual-checks.json`) remain and power the Step 3c WCAG static code checks workflow
 
 ---
 

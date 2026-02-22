@@ -31,15 +31,17 @@ const CONFIG_SCHEMA = {
   axeRules: { type: "object" },
   outputDir: { type: "string" },
   internalDir: { type: "string" },
-  playwright: { type: "object" },
   // Emulation
   colorScheme: { type: "string" },
   viewports: { type: "array" },
   // Timing & Performance
   waitMs: { type: "number" },
   timeoutMs: { type: "number" },
+  waitUntil: { type: "string" },
   onlyRule: { type: "string" },
   headless: { type: "boolean" },
+  skipReports: { type: "boolean" },
+  framework: { type: "string" },
 };
 
 function validateConfig(userConfig) {

@@ -9,6 +9,7 @@ import {
   buildSummary,
   computeComplianceScore,
   scoreLabel,
+  buildPersonaSummary,
 } from "./report/core-findings.mjs";
 import { escapeHtml } from "./report/core-utils.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -17,7 +18,6 @@ const MANUAL_CHECKS = JSON.parse(fs.readFileSync(manualChecksPath, "utf-8"));
 import {
   buildIssueCard,
   buildManualChecksSection,
-  buildGlobalReferencesSection,
 } from "./report/format-html.mjs";
 import {
   buildPdfExecutiveSummary,
@@ -126,110 +126,30 @@ function buildHtml(args, findings, metadata = {}) {
   const label = scoreLabel(score);
   const scoreHue = score >= 75 ? 142 : score >= 55 ? 38 : 0;
 
+  const personaCounts = buildPersonaSummary(findings);
+
   const personaGroups = {
     screenReader: {
       label: "Screen Readers",
-      count: 0,
+      count: personaCounts.screenReader,
       icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     },
     keyboard: {
       label: "Keyboard Only",
-      count: 0,
+      count: personaCounts.keyboard,
       icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m4 0h1m-7 4h4M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     },
     vision: {
       label: "Color/Low Vision",
-      count: 0,
+      count: personaCounts.vision,
       icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     },
     cognitive: {
       label: "Cognitive/Motor",
-      count: 0,
+      count: personaCounts.cognitive,
       icon: '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     },
   };
-
-  // Smart Mapping: Define rules and keywords for accurate persona categorization
-  const SMART_MAP = {
-    screenReader: {
-      rules: [
-        "frame-title",
-        "aria-dialog-name",
-        "landmark-unique",
-        "aria-allowed-role",
-        "nested-interactive",
-        "aria-hidden-focus",
-        "aria-valid-attr",
-      ],
-      keywords: [
-        "screen reader",
-        "assistive technology",
-        "aria",
-        "label",
-        "announced",
-      ],
-    },
-    keyboard: {
-      rules: [
-        "nested-interactive",
-        "scrollable-region-focusable",
-        "focus-order-semantics",
-        "tabindex",
-      ],
-      keywords: ["keyboard", "focusable", "tab order", "interactive"],
-    },
-    vision: {
-      rules: ["color-contrast", "image-redundant-alt", "image-alt"],
-      keywords: ["vision", "color", "contrast", "blind"],
-    },
-    cognitive: {
-      rules: [
-        "heading-order",
-        "empty-heading",
-        "page-has-heading-one",
-        "duplicate-id",
-      ],
-      keywords: [
-        "cognitive",
-        "motor",
-        "heading",
-        "structure",
-        "navigation",
-        "hierarchy",
-      ],
-    },
-  };
-
-  const uniqueIssues = {
-    screenReader: new Set(),
-    keyboard: new Set(),
-    vision: new Set(),
-    cognitive: new Set(),
-  };
-
-  for (const f of findings) {
-    const users = f.impactedUsers.toLowerCase();
-    const ruleId = (f.ruleId || "").toLowerCase();
-    const title = (f.title || "").toLowerCase();
-    const issueKey = f.ruleId || f.title;
-
-    Object.keys(SMART_MAP).forEach((persona) => {
-      const { rules, keywords } = SMART_MAP[persona];
-      const matchRule = rules.some((r) => ruleId.includes(r));
-      const matchKeyword = keywords.some(
-        (k) => users.includes(k) || title.includes(k),
-      );
-
-      if (matchRule || matchKeyword) {
-        uniqueIssues[persona].add(issueKey);
-      }
-    });
-  }
-
-  personaGroups.screenReader.count = uniqueIssues.screenReader.size;
-  personaGroups.keyboard.count = uniqueIssues.keyboard.size;
-  personaGroups.vision.count = uniqueIssues.vision.size;
-  personaGroups.cognitive.count = uniqueIssues.cognitive.size;
 
   const quickWins = findings
     .filter(

@@ -1,10 +1,10 @@
 # a11y - Accessibility Audit & Remediation Skill
 
-This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints including precise DOM selectors and fix patterns to autonomously patch vulnerabilities directly in the source code. It follows [Claude's Best Practices for Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) for reliable agent interaction.
+This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. It follows [Claude's Best Practices for Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) for reliable agent interaction.
 
 ## Why this Skill?
 
-Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between **knowing** a problem exists and **fixing** it by providing the exact intelligence an agent needs to resolve issues with precision.
+Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between knowing a problem exists and fixing it by providing the exact intelligence an agent needs to resolve issues with precision.
 
 | Feature / Capability          | `a11y`                                                                | Google Lighthouse                               | WebAIM WAVE                                 |
 | :---------------------------- | :-------------------------------------------------------------------- | :---------------------------------------------- | :------------------------------------------ |
@@ -31,7 +31,7 @@ This skill follows the [Agent Skills standard](https://agentskills.io) and is al
 | :-------------- | :---------------------------------------------- | :------------------------ | :------------------------- |
 | **Antigravity** | `~/.gemini/antigravity/skills/a11y/`            | —                         | `.agent/`, `workflows/`    |
 | **Codex**       | `~/.codex/skills/a11y/`                         | `agents/openai.yaml`      | `workflows/`               |
-| **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`, `.claude/`   | `workflows/`               |
+| **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`               | `workflows/`               |
 | **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  | `.cursor/rules/`          | `workflows/`               |
 | **Gemini CLI**  | `~/.gemini/skills/a11y/` (or `.agents/skills/`) | `~/.gemini/settings.json` | —                          |
 | **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`              | —                         | `.windsurf/`, `workflows/` |
@@ -39,7 +39,6 @@ This skill follows the [Agent Skills standard](https://agentskills.io) and is al
 ## How to Audit
 
 Initialize a scan to discover vulnerabilities and generate a compliance baseline:
-
 
 ```bash
 "Check accessibility localhost:3000"

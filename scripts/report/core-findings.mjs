@@ -33,7 +33,7 @@ export function normalizeFindings(payload) {
       ruleId: String(item.rule_id ?? ""),
       title: String(item.title ?? "Untitled finding"),
       severity: String(item.severity ?? "Unknown"),
-      wcag: String(item.wcag ?? ""),
+      wcag: String(item.wcag ?? item.wcag_criterion_id ?? ""),
       wcagCriterionId: item.wcag_criterion_id ?? null,
       area: String(item.area ?? ""),
       url: String(item.url ?? ""),
@@ -59,7 +59,6 @@ export function normalizeFindings(payload) {
       effort: item.effort ?? null,
       relatedRules: Array.isArray(item.related_rules) ? item.related_rules : [],
       fixCodeLang: item.fix_code_lang ?? "html",
-      manualTest: item.manual_test ?? null,
       screenshotPath: item.screenshot_path ?? null,
       falsePositiveRisk: item.false_positive_risk ?? null,
       fixDifficultyNotes: item.fix_difficulty_notes ?? null,
@@ -112,4 +111,92 @@ export function scoreLabel(score) {
   if (score >= 55) return "Fair";
   if (score >= 35) return "Poor";
   return "Critical";
+}
+
+/**
+ * Categorizes findings into persona-based impact groups.
+ */
+export function buildPersonaSummary(findings) {
+  const SMART_MAP = {
+    screenReader: {
+      rules: [
+        "frame-title",
+        "aria-dialog-name",
+        "landmark-unique",
+        "aria-allowed-role",
+        "nested-interactive",
+        "aria-hidden-focus",
+        "aria-valid-attr",
+      ],
+      keywords: [
+        "screen reader",
+        "assistive technology",
+        "aria",
+        "label",
+        "announced",
+      ],
+    },
+    keyboard: {
+      rules: [
+        "nested-interactive",
+        "scrollable-region-focusable",
+        "focus-order-semantics",
+        "tabindex",
+      ],
+      keywords: ["keyboard", "focusable", "tab order", "interactive"],
+    },
+    vision: {
+      rules: ["color-contrast", "image-redundant-alt", "image-alt"],
+      keywords: ["vision", "color", "contrast", "blind"],
+    },
+    cognitive: {
+      rules: [
+        "heading-order",
+        "empty-heading",
+        "page-has-heading-one",
+        "duplicate-id",
+      ],
+      keywords: [
+        "cognitive",
+        "motor",
+        "heading",
+        "structure",
+        "navigation",
+        "hierarchy",
+      ],
+    },
+  };
+
+  const uniqueIssues = {
+    screenReader: new Set(),
+    keyboard: new Set(),
+    vision: new Set(),
+    cognitive: new Set(),
+  };
+
+  for (const f of findings) {
+    const users = (f.impactedUsers || "").toLowerCase();
+    const ruleId = (f.ruleId || "").toLowerCase();
+    const title = (f.title || "").toLowerCase();
+    const issueKey = f.ruleId || f.title;
+
+    Object.keys(SMART_MAP).forEach((persona) => {
+      const { rules, keywords } = SMART_MAP[persona];
+      const matchRule = rules.some((r) => ruleId.includes(r.toLowerCase()));
+      const matchKeyword = keywords.some(
+        (k) => users.includes(k) || title.includes(k),
+      );
+
+      if (matchRule || matchKeyword) {
+        uniqueIssues[persona].add(issueKey);
+      }
+    });
+  }
+
+  return {
+    screenReader: uniqueIssues.screenReader.size,
+    keyboard: uniqueIssues.keyboard.size,
+    vision: uniqueIssues.vision.size,
+    cognitive: uniqueIssues.cognitive.size,
+  };
 }

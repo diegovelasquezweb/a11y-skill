@@ -364,7 +364,6 @@ function buildFindings(inputPayload, cliArgs) {
           fix_code_lang: codeLang,
           recommended_fix: recFix.trim(),
           mdn: MDN[v.id] ?? null,
-          manual_test: ruleInfo.manual_test ?? null,
           effort: null,
           related_rules: Array.isArray(ruleInfo.related_rules)
             ? ruleInfo.related_rules
