@@ -1,0 +1,14 @@
+{
+  "id": "05-script-failure",
+  "title": "Script failure — error recovery",
+  "skills": ["a11y"],
+  "query": "Run an accessibility audit on https://unreachable-site.invalid",
+  "expected_behavior": [
+    "Runs the audit command",
+    "When the script fails (network error / timeout), reports the error clearly to the user",
+    "Does NOT retry automatically without asking",
+    "Asks whether to retry or adjust the target URL",
+    "Does NOT fabricate audit results or proceed to Step 2"
+  ],
+  "model_notes": {}
+}

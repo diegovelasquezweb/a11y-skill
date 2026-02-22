@@ -1,0 +1,16 @@
+{
+  "id": "03-user-declines-fixes",
+  "title": "User declines fixes — graceful stop with accessibility reminder",
+  "skills": ["a11y"],
+  "query": "Run an accessibility audit on https://example.com",
+  "setup": "After the agent presents findings and asks permission, respond with: 'No, don't fix anything'",
+  "expected_behavior": [
+    "Completes the audit and presents findings normally",
+    "When user declines, reminds about accessibility impact (disability exclusion, legal risk)",
+    "Mentions specific legal frameworks (ADA, EAA, EN 301 549)",
+    "Offers to revisit later",
+    "Stops — does NOT proceed to Step 3",
+    "Does NOT modify any source files"
+  ],
+  "model_notes": {}
+}

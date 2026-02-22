@@ -1,0 +1,17 @@
+{
+  "id": "06-style-fixes-separation",
+  "title": "Style fixes separated from structural fixes",
+  "skills": ["a11y"],
+  "query": "Audit and fix https://example.com",
+  "setup": "Audit results include both structural issues (missing alt text, missing labels) and style issues (color-contrast failures)",
+  "expected_behavior": [
+    "Applies structural fixes first in 3a (alt text, ARIA roles, labels)",
+    "Does NOT modify colors, fonts, or spacing during 3a",
+    "Presents color-contrast and other style fixes separately in 3b",
+    "Shows the exact CSS/color values proposed before applying",
+    "Waits for explicit user approval before applying any style change",
+    "If user declines style fixes, proceeds to 3c without them",
+    "Declined style fixes do NOT trigger a restart loop after certification (3d)"
+  ],
+  "model_notes": {}
+}
