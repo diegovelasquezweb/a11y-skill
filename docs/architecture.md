@@ -103,7 +103,7 @@ The Markdown report is the primary interface between the audit engine and the AI
 ## Data Flow Diagram
 
 ```mermaid
-%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#fff', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0', 'actorTextColor': '#1e293b', 'noteTextColor': '#1e293b' } } }%%
+%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0', 'actorTextColor': '#1e293b', 'noteTextColor': '#1e293b', 'signalColor': '#3b5cd9', 'signalTextColor': '#1e293b' } } }%%
 sequenceDiagram
     autonumber
     participant CLI as 🖥️ Audit Trigger
