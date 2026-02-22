@@ -46,6 +46,33 @@ When a violation is found, the Analyzer does more than just report it:
 3. **Intelligence Mapping**: It matches the `axe-rule-id` with the corresponding entry in `intelligence.json`.
 4. **Output Generation**: It combines these into the **AI Remediation Roadmap**, allowing an AI agent to find and fix the file in seconds.
 
+```mermaid
+%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0' } } }%%
+flowchart TD
+    Finding["Raw Finding<br/>(axe-core)"]
+
+    subgraph Analysis ["Intelligence Flow"]
+        direction TB
+        Context["Context Analysis<br/>(DOM Attributes)"]
+        Hint["Search Hint Extraction<br/>(Selector -> Tag/ID)"]
+        Match["Intelligence Lookup<br/>(assets/intelligence.json)"]
+    end
+
+    Roadmap["<b>Remediation Roadmap</b><br/>(Markdown)"]
+
+    Finding --> Context
+    Context --> Hint
+    Hint --> Match
+    Match --> Roadmap
+
+    classDef default font-family:Inter,sans-serif,font-size:12px;
+    classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a;
+    classDef roadmap fill:#1e293b,color:#fff,stroke:#0f172a,font-weight:bold;
+
+    class Finding,Match core;
+    class Roadmap roadmap;
+```
+
 ## Example: The "Fix-First" Flow
 
 If an image is missing alt text:
