@@ -39,13 +39,26 @@ flowchart TD
 4.  **W3C ARIA APG** — [w3.org/WAI/ARIA/apg](https://www.w3.org/WAI/ARIA/apg/)
 5.  **MDN Web Docs** — [developer.mozilla.org](https://developer.mozilla.org)
 
+### Framework & CMS Sources
+
+| Platform  | Official Source                                                                                                                         |
+| :-------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| React     | [reactjs.org/docs/accessibility](https://reactjs.org/docs/accessibility.html)                                                           |
+| Vue       | [vuejs.org/guide/best-practices/accessibility](https://vuejs.org/guide/best-practices/accessibility)                                    |
+| Angular   | [angular.io/guide/accessibility](https://angular.io/guide/accessibility)                                                                |
+| Svelte    | [svelte.dev/docs/accessibility-warnings](https://svelte.dev/docs/accessibility-warnings)                                                |
+| Astro     | [docs.astro.build/en/guides/accessibility](https://docs.astro.build/en/guides/accessibility/)                                           |
+| Shopify   | [shopify.dev/docs/storefronts/themes/accessibility](https://shopify.dev/docs/storefronts/themes/accessibility)                          |
+| WordPress | [developer.wordpress.org/advanced-administration/accessibility](https://developer.wordpress.org/advanced-administration/accessibility/) |
+| Drupal    | [drupal.org/docs/accessibility](https://www.drupal.org/docs/accessibility)                                                              |
+
 ## Files to Validate
 
-| File                        | Technical Scope                                                              |
-| :-------------------------- | :--------------------------------------------------------------------------- |
-| `assets/rule-metadata.json` | `wcagCriterionMap`, URLs (`mdn`, `apgPatterns`), `impactedUsers`, `expected` |
-| `assets/intelligence.json`  | `fix.description`, `fix.code`, `framework_notes`, `false_positive_risk`      |
-| `assets/manual-checks.json` | `criterion` mapping, `steps`, `remediation`, `code_example`                  |
+| File                        | Technical Scope                                                                 |
+| :-------------------------- | :------------------------------------------------------------------------------ |
+| `assets/rule-metadata.json` | `wcagCriterionMap`, URLs (`mdn`, `apgPatterns`), `impactedUsers`, `expected`    |
+| `assets/intelligence.json`  | `fix`, `framework_notes` (frameworks), `cms_notes` (CMS), `false_positive_risk` |
+| `assets/manual-checks.json` | `criterion` mapping, `steps`, `remediation`, `code_example`                     |
 
 ---
 
@@ -70,15 +83,22 @@ Consult the **WCAG Understanding** page for each rule to verify:
 
 1.  **`fix.description`**: Is it technically accurate per the spec?
 2.  **`fix.code`**: Does it follow WCAG recommended techniques?
-3.  **`framework_notes`**: Is it compatible with modern frameworks (React 19+, Vue 3+)?
-4.  **`false_positive_risk`**: Does it reflect actual Axe-core edge cases?
+3.  **`framework_notes`**: Valid keys are `react`, `vue`, `angular`, `svelte`, `astro`, `generic`.
+4.  **`cms_notes`**: Valid keys are `shopify`, `wordpress`, `drupal`. Must be separate from `framework_notes`.
+5.  **`false_positive_risk`**: Does it reflect actual axe-core edge cases?
 
 ## Step 3: Validate URLs (Semi-Automated)
 
 > [!WARNING]
 > MDN slugs and W3C draft URLs change frequently. Broken links in the "AI Roadmap" significantly degrade the experience for agents.
 
-Ensure all URLs in `rule-metadata.json` and `manual-checks.json` return a `200 OK` status.
+Ensure all URLs in `rule-metadata.json` and `manual-checks.json` return a `200 OK` status:
+
+```bash
+node scripts/validate-urls.mjs
+```
+
+This script validates all `mdn`, `apgPatterns`, `a11ySupport`, `inclusiveComponents`, and `manual-checks.ref` URLs concurrently (10 at a time, 10s timeout). Exit code `1` = broken links found.
 
 ## Step 4: Regression Testing
 
