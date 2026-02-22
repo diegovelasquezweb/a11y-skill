@@ -1,5 +1,9 @@
 # Scripts Catalog & Workflow
 
+**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Scripts](scripts-catalog.md) • [Testing](testing.md)
+
+---
+
 This document provides a technical overview of all scripts in the `scripts/` directory, organized by their role and execution sequence during an audit.
 
 ## Execution Workflow
@@ -45,8 +49,3 @@ flowchart TD
 
 - **`build-report-html.mjs`**: The "Designer". Transforms analyzed findings into the interactive HTML dashboard and the executive PDF summary.
 - **`build-report-md.mjs`**: The "Communicator". Generates the `remediation.md` guide specifically optimized for AI agents to perform autonomous fixes.
-
-### 5. Shared Libraries
-
-- **`a11y-utils.mjs`**: A collection of shared helper functions for logging, JSON processing, and configuration management used across all scripts.
-- **`report/`**: A subdirectory containing the modular logic for formatting findings into different target structures (HTML, MD, PDF).

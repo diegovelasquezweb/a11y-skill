@@ -1,6 +1,8 @@
 # Data Validation Guide
 
-This document describes the process for validating and updating the intelligence data that powers the a11y skill. Follow this guide whenever rules are added, axe-core is upgraded, or WCAG spec changes occur.
+**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Scripts](scripts-catalog.md) • [Testing](testing.md)
+
+---
 
 ## Official Sources (by reliability)
 
@@ -12,11 +14,11 @@ This document describes the process for validating and updating the intelligence
 
 ## Files to Validate
 
-| File | What to validate |
-|------|------------------|
+| File                        | What to validate                                                                                                                  |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | `assets/rule-metadata.json` | `wcagCriterionMap` (106 mappings), URLs (`mdn`, `apgPatterns`, `a11ySupport`, `inclusiveComponents`), `impactedUsers`, `expected` |
-| `assets/intelligence.json` | `fix.description`, `fix.code`, `framework_notes`, `false_positive_risk`, `manual_test`, `related_rules` |
-| `assets/manual-checks.json` | `criterion` mapping, `steps`, `remediation`, `code_example`, `ref` URLs |
+| `assets/intelligence.json`  | `fix.description`, `fix.code`, `framework_notes`, `false_positive_risk`, `manual_test`, `related_rules`                           |
+| `assets/manual-checks.json` | `criterion` mapping, `steps`, `remediation`, `code_example`, `ref` URLs                                                           |
 
 ## Step 1 — Validate `wcagCriterionMap` against axe-core (automated)
 
@@ -27,6 +29,7 @@ pnpm test
 ```
 
 If axe-core was upgraded, check for:
+
 - New rules added to axe-core that are missing from `intelligence.json`
 - Changed WCAG tag mappings on existing rules
 - Deprecated or removed rules
@@ -55,6 +58,7 @@ For each rule, consult the corresponding WCAG Understanding page and verify:
 6. **`impactedUsers`** (in `rule-metadata.json`) — Covers user groups mentioned in Understanding docs?
 
 Process in batches by WCAG principle:
+
 - Batch 1: **Perceivable** (1.x)
 - Batch 2: **Operable** (2.x)
 - Batch 3: **Understandable** (3.x)
@@ -63,6 +67,7 @@ Process in batches by WCAG principle:
 ## Step 4 — Validate `manual-checks.json` against WCAG 2.2
 
 For each manual check:
+
 1. `criterion` ID is correct
 2. `title` matches the official criterion name
 3. `level` (A/AA) is correct
@@ -74,6 +79,7 @@ For each manual check:
 ## Step 5 — Verify coverage against axe-core
 
 Compare `intelligence.json` rules against the full `axe.getRules()` catalog filtered by WCAG A/AA + best-practice tags. Identify:
+
 - axe-core rules we don't cover (should be 0 for 100% coverage)
 - Rules in our data that axe-core removed (stale rules)
 
@@ -90,6 +96,7 @@ pnpm test
 ```
 
 All 593+ tests must pass. The test suite validates:
+
 - Schema integrity (required fields, valid values)
 - Internal integrity (reciprocal related_rules, no self-references)
 - axe-core alignment (no stale rules, WCAG tag matching)
