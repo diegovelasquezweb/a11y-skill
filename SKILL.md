@@ -8,292 +8,180 @@ metadata:
   version: "0.4.0"
 ---
 
-# Web Accessibility Audit
+# Web Accessibility Audit — Agent Playbook
 
-Follow this workflow to audit and report website accessibility issues with consistent quality.
+Resolution is the core objective. Reports are evidence, not the goal.
 
-## Operating Guardrails
+## Constraints
 
-1. **Environment Awareness (Gemini CLI)**: This skill relies on autonomous activation. If `ReadFile` fails with "Path not in workspace" when reading resources from the skills directory (`~/.gemini/skills/a11y/`), immediately fall back to a shell command — e.g., `cat ~/.gemini/skills/a11y/SKILL.md` — without asking the user. Do not attempt `ReadFile` again. Use `/skills reload` if the skill name is not recognized at activation time.
-2. **Setup Readiness & Philosophy**:
-   - **Antigravity/Windsurf**: Ensure the `/a11y` command is enabled via project-specific workflow files.
-   - **Philosophy (Fix-First & Clean Flow)**: While reports are generated as visual evidence, the **Resolution is the Core Objective**.
-     - **Clean Flow**: Reports (HTML/PDF) must only be generated at the **Start** (Discovery) and at the **End** (Certification).
-     - **Surgery Mode**: All intermediate verifications must use `--skip-reports` to avoid technical noise and unnecessary browser pop-ups.
+These rules apply at all times during audit and fix workflows.
 
-3. **Tailwind Version Awareness**: When inspecting project color tokens or design variables for contrast analysis, check `package.json` for the `tailwindcss` version first, then locate tokens accordingly:
-   - **v3**: tokens are in `tailwind.config.ts` or `tailwind.config.js`.
-   - **v4**: primary source is `@theme { … }` blocks in CSS files (e.g. `app/globals.css`, `styles/globals.css`). A `tailwind.config.js` may also exist if the project uses the `@config` directive — check for both. Never report a missing config file as an error in v4 projects.
+**Never do:**
+- Modify source code, config, or dependencies without presenting the change first.
+- Initialize package managers or install/remove dependencies in the audited project.
+- Create or modify `package.json`, lockfiles, or `node_modules` in the audited project.
+- Edit files in `audit/` manually — reports only change via re-scan.
+- Modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
+- Downgrade `axe-core` or add rules to `ignoreFindings` without explicit user confirmation.
+- Modify colors, fonts, spacing, layouts, or any visual property without explicit user approval. Fixes must be structural and semantic (HTML attributes, ARIA roles, DOM order, alt text, labels). If a fix requires a style change (e.g., color-contrast), propose the exact change and wait for approval.
+- Declare "100% accessible" based on a targeted scan. Only a Final Certification Audit can confirm that.
 
-4. **Audit behavior**:
+**Always do:**
+- Write all outputs in English.
+- Use route paths (`/`, `/products`) as primary locations — local URLs go under `Test Environment`.
+- Use `--skip-reports` for all intermediate verifications (Surgery Mode).
+- Generate reports only at Discovery (start) and Certification (end).
+- Prefer DOM/selector evidence over screenshots. Capture screenshots only when tied 1:1 to a specific issue.
 
-- **Proactive Fixes**: While you must ask for permission before executing a command that modifies source code, you are encouraged to propose specific, surgical code fixes in the chat immediately after an audit.
-- Do not modify source code, config, content, or dependencies silently. Always present the proposed change first.
-- Never initialize package managers in the audited project (`npm init`, `pnpm init`, `yarn init`).
-- Never install or remove dependencies in the audited project (`npm/pnpm/yarn add|install|remove`).
-- Never create or modify `package.json`, lockfiles, or `node_modules` in the audited project during audit runs.
-- Never install dependencies in any directory during audits (including internal storage such as `audit/internal/`).
+**Platform quirks**: See [references/platform-setup.md](references/platform-setup.md) for Antigravity, Windsurf, Codex, and Gemini CLI notes.
 
-5. **Navigation scope**:
+## Audit Workflow
 
-- Audit URLs/routes provided by the user.
-- If the user does not provide routes, auto-discover same-origin routes from the current app (navigation links, key flow links, and core pages).
-- Do not open unrelated external sites (for example search engines) during the audit flow.
+Follow these steps sequentially when the user requests an audit.
 
-6. **Environment discipline**:
+### Step 1 — Get the target URL
 
-- Use the base URL provided by the user when available.
-- If no base URL is provided in the user's message, ask for it immediately before doing anything else.
-- Only if the user explicitly says they don't know the URL or asks you to detect it: search project files for URL traces (for example `localhost`, `127.0.0.1`, preview URLs, environment variables, scripts, README notes).
-- Only if no reliable URL trace is found in files: auto-detect a reachable local app URL using common dev ports (`3000`, `3001`, `4173`, `5173`, `8080`).
-- Do not apply runtime URL fallbacks or alternate hosts automatically.
-- If no reachable target exists after user-requested detection, report the blocker and request a URL.
+- Use the URL provided by the user.
+- If none is provided, ask immediately before doing anything else.
+- Only if the user explicitly asks you to detect it: search project files for URL traces, then fall back to common dev ports (`3000`, `3001`, `4173`, `5173`, `8080`).
+- If no reachable target exists, report the blocker and stop.
 
-7. **Reporting language**:
-   - Write all outputs in English.
-
-8. **Shareable reporting**:
-
-- In final findings, use route paths as the primary location (`/`, `/products`, `/account/login`).
-- If local URLs are used during testing, place them under a separate `Test Environment` note, not as the canonical issue location.
-
-9. **Scope questions**:
-
-- Do not ask scope questionnaires by default.
-- Start auditing immediately with discovered scope.
-- Ask the user only when blocked (no reachable app URL, auth needed, or hard access restrictions).
-
-10. **Evidence quality**:
-
-- Do not capture generic full-page screenshots by default.
-- Use technical evidence first (DOM snippet, selector-level check, tool output).
-- Capture screenshots only when they are directly tied 1:1 to a specific issue ID.
-
-## 1) Run Baseline Checks
-
-Execute all 8 baseline domains for every audited route. Do not finalize an audit with partial checks. Convert every confirmed violation into a finding.
-
-Domains: structure & semantics, ARIA usage, keyboard & focus, perceivable content, media & gestures, forms & authentication, common component patterns, third-party integrations.
-
-See [references/baseline-checks.md](references/baseline-checks.md) for the full per-domain checklist.
-
-## 2) Test and Validate
-
-Run automated tests using the bundled robust scanner (Playwright + Axe-Core).
-
-- The skill uses `scripts/run-scanner.mjs` which launches a headless browser.
-- It scans the DOM using Axe-Core for WCAG 2.2 A/AA compliance.
-- It supports SPAs (Single Page Applications) and complex JS-driven UIs.
-- Dependencies are isolated in the skill directory; **NO** installation occurs in the target project.
-- Auto-discover same-origin routes if not provided.
-- Capture issues as candidate findings, then finalize them.
-
-## 3) Severity Triage & Debt Tracking
-
-Classify each finding using this scale:
-
-- `Critical`: User cannot complete a core task — treat as a release blocker.
-- `High`: Core task is significantly impaired.
-- `Medium`: Noticeable barrier with workaround.
-- `Low`: Minor gap or best-practice issue.
-
-Apply consistent triage behavior:
-
-- Critical/High: treat as release blockers or near-blockers.
-- Medium/Low: schedule, track, and retest during related work.
-
-## 4) Reporting Requirements
-
-- Treat reported issues as candidate findings, then finalize them.
-- For each issue, include the required issue fields in the HTML report.
-
-Each finding must include:
-
-1. WCAG criterion and level.
-2. Affected page/component.
-3. Reproduction steps.
-4. Actual vs expected behavior.
-5. Impacted users.
-6. Severity.
-7. Recommended fix.
-8. QA retest notes.
-
-## 5) Required Deliverables
-
-Always return results in this exact order:
-
-1. Executive summary (including `Test Environment` base URL used during the audit).
-2. Findings table (ID, severity, WCAG criterion, impacted area, short impact).
-3. Issue details (one section per issue using the issue template).
-
-## 6) Minimum Evidence Standards
-
-Each reported issue must include:
-
-1. Route path (primary canonical location).
-2. Exact selector or component identifier when available.
-3. Reproducible steps.
-4. WCAG criterion and level.
-5. Concrete proof (DOM snippet, log, or tool output snippet).
-   - Screenshot is optional.
-   - Prefer selector-level DOM/tool evidence; include screenshot only if it clearly demonstrates the exact issue.
-
-## 7) Use Standard Toolchain + Bundled Scripts
-
-Use standard tools and bundled scripts for repeatable output:
-
-1. `scripts/check-toolchain.mjs` for preflight diagnostics of local dependencies.
-2. `scripts/run-scanner.mjs` for robust browser-side scanning with Axe-Core.
-3. `scripts/run-analyzer.mjs` for stable finding generation from scan data.
-4. `scripts/build-report-html.mjs` for the interactive HTML dashboard.
-5. `scripts/build-report-md.mjs` for the AI-optimized remediation guide.
-6. `scripts/build-report-pdf.mjs` for the formal PDF export.
-
-Use this pipeline order:
-
-1. `check-toolchain.mjs`
-2. `run-scanner.mjs`
-3. `run-analyzer.mjs`
-4. `build-report-html.mjs`
-5. `build-report-md.mjs`
-6. `build-report-pdf.mjs`
-
-Execution discipline for the agent:
-
-1. Run the full pipeline directly; do not ask the user to execute script commands manually.
-2. Run preflight (`check-toolchain.mjs`) first and stop when required tools are unavailable.
-3. Do not require or assume local `node_modules` installation as part of the audit flow.
-4. Do not install dependencies to satisfy pipeline runtime requirements.
-5. If any pipeline step depends on unavailable local modules, report a blocker and stop (do not mark checks as `PASS`).
-6. Run all pipeline steps from the same project working directory.
-7. If `audit/internal/a11y-findings.json` is missing, re-run route-check and findings steps in the same directory, then continue.
-8. If a step fails, stop and report the exact blocker.
-9. Do not continue with partial runtime tool execution for required checks.
-10. Keep intermediate pipeline artifacts encapsulated; write intermediates to `audit/internal/`.
-11. Do not run automatic cleanup commands that delete `audit/internal/` files during the audit flow.
-12. When a local dependency or browser is missing, report the `pnpm install` fix and stop.
-
-## 8) File Output Behavior (Mandatory)
-
-1. Write three final artifacts in `audit/`:
-
-- **Audit Report (HTML)**: `audit/report.html`
-- **Remediation Guide (MD)**: `audit/remediation.md`
-- **Executive Summary (PDF)**: `audit/report.pdf`
-- Do not generate dated versions of the report (e.g., `audit/index-2026-01-01.html`).
-- Do not generate per-issue markdown files.
-- `audit/report.html` must include the completed findings with evidence and linked finding IDs.
-- Use the severity scale defined in Section 3 (Critical, High, Medium, Low).
-- Do not keep any JSON files in `audit/`.
-- Use `audit/internal/a11y-scan-results.json` and `audit/internal/a11y-findings.json` for pipeline JSON files.
-
-2. If findings count is 0:
-
-- Still generate `audit/report.html` with a clean summary (`Congratulations, no issues found.`).
-- This is allowed only after all baseline domains were checked, automated tool results were reviewed.
-
-3. Keep temporary pipeline files in `audit/internal/`; do not delete them automatically.
-
-4. Chat output should summarize results, but `audit/report.html` is the default source of truth.
-
-## 9) Fix-First Output Rules
-
-1. **The Resolution is the Goal**: In the chat, prioritize the **Remediation Roadmap**. Do not just link the report; instead, say "The audit is complete, here are the fixes I am ready to apply."
-2. **Surgical Precision**: Use the exact selectors and "Search Hints" provided by the analyzer to locate code.
-3. **Group by Component**: Present fixes grouped by component or page area to make review easier for the user.
-4. **Clear Impact**: Briefly explain _why_ the fix is needed (e.g., "Fixes screen reader access for the main nav").
-
-## 10) Platform-Specific Installation
-
-For Antigravity, Windsurf, Codex, and Gemini CLI setup instructions, see [references/platform-setup.md](references/platform-setup.md).
-
-## 11) Execution Workflow (Fix-First)
-
-Follow these steps in order when executing an audit. Prioritize showing the solution over the report.
-
-1. **Get the target URL.** If not provided, ask immediately.
-
-2. **Run the audit pipeline** using the bundled orchestrator:
-
-   ```bash
-   node scripts/run-audit.mjs --base-url <URL>
-   ```
-
-3. **Display the Remediation Roadmap immediately.** Do not just link the HTML report.
-   - Read `audit/remediation.md`.
-   - **MANDATORY**: Summarize the findings by severity.
-   - **MANDATORY**: Propose the specific "Proposed Fixes" found in the remediation guide immediately in the chat.
-
-4. **Request permission to patch**: "I have detected N issues and have the patches ready. Should I apply them now?"
-
-5. **Provide Report Evidence**: Only after proposing the fixes, provide the absolute path to `audit/report.html` as the visual proof for the user's records.
-
-6. **Suggest `.gitignore` update**: **MANDATORY.** Always remind the user to add `audit/` to their `.gitignore`. The audit pipeline auto-appends it when a `.gitignore` already exists, but if the project has none, explicitly tell the user to create one or add the entry manually.
-
-## 12) Fix Application Workflow
-
-When the user grants permission to apply fixes, follow this strict sequential protocol. **Never apply all fixes in a single batch.**
-
-1. **Group fixes by severity** before touching any file: Critical → High → Medium → Low.
-2. **Use the "Fixes by Component" table** (if present) to batch edits per component — fix all issues in the same file before moving to the next.
-3. **Use "Search in"** glob patterns from each finding to locate the correct source file. Do not grep the entire project blindly.
-4. **If a finding has a "Managed Component Warning"**, verify the element is not rendered by a UI library (Radix, Headless UI, etc.) before applying ARIA fixes.
-5. **Apply one severity group at a time**, starting with Critical.
-6. **Checkpoint after each group**: stop, list every file modified and every fix applied, then ask the user to test and confirm before continuing. Example prompt: _"Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."_
-7. **Verify each group** using the targeted re-scan command with the silent flag: `pnpm a11y --base-url <URL> --routes <route> --only-rule <rule-id> --max-routes 1 --skip-reports`
-   - **WARNING (State Loss)**: Targeted scans overwrite `a11y-findings.json` with a filtered list. If the fix passes, the report internally will show **0 issues**.
-   - **DISCIPLINE**: Do **NOT** tell the user "all errors are gone" based on a targeted scan. Only confirm that the specific rule(s) you just fixed are resolved.
-   - **MANDATORY**: Maintain an internal tracker of which issues from the _original_ audit are still pending.
-8. **Wait for explicit user confirmation** before moving to the next severity group. Never auto-advance.
-9. **If any fix fails**: stop immediately, report the exact error and the file/line affected, and ask the user how to proceed. Do not skip ahead.
-10. **Never mix severity groups** in a single application step.
-11. **Final Certification Audit**: Once **all** automated fixes across all severity groups are applied and verified silently, run a final full audit to generate the "After" report:
+### Step 2 — Run the pipeline
 
 ```bash
 node scripts/run-audit.mjs --base-url <URL>
 ```
 
-- This ensures the final `audit/report.html` and `audit/report.pdf` are clean (0 issues) and ready for delivery.
+This orchestrator runs all pipeline steps in order: preflight → scan → analyze → reports. If any step fails, it stops and reports the blocker.
 
-## 13) Manual Checks — Source Code Scan
+- Auto-discovers same-origin routes if the user did not provide `--routes`.
+- If a dependency or browser is missing, report `pnpm install` as the fix and stop.
 
-After all automated fixes are applied and confirmed, process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`. These are violations that axe-core cannot detect automatically.
+### Step 3 — Present findings (Fix-First)
 
-1. **Read the manual checks** from the remediation guide — each check includes a pattern to search for, verification steps, and a before/after code example.
-2. **Search the project source code** for the pattern described in each check. Use the verification steps to determine if the project is affected.
-3. **Skip checks that don't apply** — if the codebase has no `<video>` elements, skip the media caption checks. Do not report false findings.
-4. **For each confirmed violation**, propose the fix using the before/after code example from the check. Group all manual check findings together and present them to the user as a separate batch: _"I found N additional issues from manual WCAG checks that axe-core cannot detect. Here are the proposed fixes."_
-5. **Wait for user permission** before applying. Follow the same checkpoint protocol as Section 12.
+Do not just link the report. Read `audit/remediation.md` and:
 
-## 14) Integrity & Security Protocol
+1. Summarize findings by severity (Critical → High → Medium → Low).
+2. Propose the specific fixes from the remediation guide immediately in the chat.
+3. Use the exact selectors and "Search Hints" from the analyzer to locate code.
+4. Group fixes by component or page area.
+5. Briefly explain _why_ each fix is needed.
 
-To maintain the reliability of the accessibility audit, agents must adhere to these strict guardrails.
+### Step 4 — Request permission
 
-1. **No Manual Report Manipulation**: Never edit files in the `audit/` directory (`report.html`, `remediation.md`, etc.) to manually remove or modify findings. Reports must only change as a result of a re-scan or an update to the reporting scripts.
-2. **No Engine Logic Bypassing**: Do not modify the core engine scripts (`scripts/run-scanner.mjs`, etc.) to hardcode project-specific exclusions. Use `a11y.config.json` or CLI flags for all ignores and configurations.
-3. **Intelligence Hygiene**: Keep `assets/intelligence.json` generic and standards-based. Do not add project-specific context or brand-specific repair notes to the global intelligence database.
-4. **No Verification Hallucinations**: A targeted verification scan (`--only-rule`) only confirms the fix for that specific rule. Do not declare a project "100% accessible" based on a partial scan. Total victory can only be declared after a **Final Certification Audit**.
-5. **No Intentional Downgrading**: Never downgrade core dependencies like `axe-core` in `package.json` to suppress new rules or findings. Maintain the latest stable engine for maximum compliance.
-6. **Complacent Ignores Prohibited**: Never add a rule to `ignoreFindings` in `a11y.config.json` just to bypass a difficult fix. Any addition to the ignore list requires explicit user confirmation and a valid technical reason.
-7. **No Visual Changes Without Approval**: Never modify colors, fonts, spacing, layouts, animations, or any other visual/styling property as part of an accessibility fix unless the user explicitly approves. Fixes must be structural and semantic (HTML attributes, ARIA roles, DOM order, alt text, labels). If a fix genuinely requires a style change (e.g., color-contrast), propose the exact change and wait for approval before applying.
+> "I have detected N issues and have the patches ready. Should I apply them now?"
 
-### `a11y.config.json` Reference
+### Step 5 — Provide report evidence
 
-Persist scan settings across runs by placing this file in the audited project root. All keys are optional — the engine merges with internal defaults. CLI flags always take precedence.
+Only after proposing fixes, provide the absolute path to `audit/report.html` as visual proof.
 
-| Key                | Type      | Description                                                                                                                                           |
-| :----------------- | :-------- | :---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                                                                        |
-| `viewports`        | `array`   | List of `{ width, height, name }` objects. Only the first entry is used for scanning. To change viewport, update `viewports[0]`.                      |
-| `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                                                                   |
-| `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                                                               |
-| `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                                                                |
-| `axeRules`         | `object`  | Fine-grained Axe-Core rule configuration passed directly to the scanner.                                                                              |
-| `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                                                              |
-| `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                                                                     |
-| `onlyRule`         | `string`  | Targeted Audit: Only check for this specific rule ID.                                                                                                 |
-| `waitMs`           | `number`  | Time to wait for dynamic content (default: 2000).                                                                                                     |
-| `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                                                                      |
-| `waitUntil`        | `string`  | Playwright page load event: `"domcontentloaded"` \| `"load"` \| `"networkidle"` (default: `"domcontentloaded"`).                                      |
-| `headless`         | `boolean` | Run browser in background (default: true).                                                                                                            |
-| `framework`        | `string`  | Override auto-detected framework for guardrail context in the remediation guide. Accepted: `"shopify"` \| `"wordpress"` \| `"drupal"` \| `"generic"`. |
+### Step 6 — Suggest .gitignore
+
+**MANDATORY.** Always remind the user to add `audit/` to `.gitignore`. The pipeline auto-appends it when a `.gitignore` exists; if the project has none, tell the user to create one.
+
+### Reference material
+
+- **Baseline checks** (8 domains to audit per route): [references/baseline-checks.md](references/baseline-checks.md)
+- **Report & evidence standards** (finding fields, deliverable order, file output): [references/report-standards.md](references/report-standards.md)
+
+## Fix Workflow
+
+When the user grants permission, follow this protocol. **Never apply all fixes in a single batch.**
+
+### Step 1 — Group by severity
+
+Organize all fixes before touching any file: Critical → High → Medium → Low.
+
+### Step 2 — Locate source files
+
+- Use "Search in" glob patterns from each finding.
+- Use the "Fixes by Component" table (if present) to batch edits per file.
+- If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library (Radix, Headless UI, etc.) before applying ARIA fixes.
+- **Tailwind**: When fixing color-contrast or visual issues, check `package.json` for the `tailwindcss` version first. v3 uses `tailwind.config.*`; v4 uses `@theme { … }` blocks in CSS files. Never report a missing config as an error in v4 projects.
+
+### Step 3 — Apply one severity group
+
+Starting with Critical. One group at a time — never mix groups.
+
+### Step 4 — Checkpoint
+
+Stop, list every file modified and fix applied, and ask the user to verify:
+
+> "Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."
+
+### Step 5 — Verify
+
+Run a targeted re-scan:
+
+```bash
+pnpm a11y --base-url <URL> --routes <route> --only-rule <rule-id> --max-routes 1 --skip-reports
+```
+
+- **State Loss**: Targeted scans overwrite `a11y-findings.json` with a filtered list.
+- Do NOT tell the user "all errors are gone" based on a targeted scan — only confirm the specific rule(s) you just fixed.
+- Maintain an internal tracker of which issues from the original audit are still pending.
+
+### Step 6 — Wait for confirmation
+
+Never auto-advance to the next severity group. If any fix fails, stop immediately and ask the user how to proceed.
+
+### Step 7 — Repeat Steps 3-6
+
+For each remaining severity group (High → Medium → Low).
+
+### Step 8 — Final Certification Audit
+
+Once all automated fixes are applied and verified:
+
+```bash
+node scripts/run-audit.mjs --base-url <URL>
+```
+
+This generates the final clean report (0 issues) for delivery.
+
+## Manual Checks
+
+After all automated fixes are applied, process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`.
+
+1. Read each manual check — it includes a pattern, verification steps, and before/after code.
+2. Search the project source code for the pattern. Determine if the project is affected.
+3. Skip checks that don't apply (e.g., no `<video>` elements → skip media caption checks).
+4. Group all confirmed violations and present them as a batch: _"I found N additional issues from manual WCAG checks. Here are the proposed fixes."_
+5. Wait for user permission before applying. Follow the same checkpoint protocol as the Fix Workflow.
+
+## Edge Cases
+
+### Authentication & Restricted Pages
+
+1. Do not guess credentials or attempt brute-force access.
+2. Report the blocker: list routes that returned 401/403 or redirected to login.
+3. Ask the user: provide session cookies, test credentials, or skip those routes.
+4. If credentials are provided, use them for the audit session only — do not persist to disk.
+5. Note skipped routes in the report under "Not Tested — Auth Required."
+
+### Multi-Viewport Testing
+
+1. The scanner uses a single viewport by default. For responsive testing, configure `viewports` in `a11y.config.json`.
+2. Only the first entry is used per scan — run separate scans for each viewport.
+3. Only flag viewport-specific findings when a violation appears at one breakpoint but not another.
+
+## `a11y.config.json` Reference
+
+Persist scan settings across runs by placing this file in the audited project root. All keys are optional — CLI flags take precedence.
+
+| Key                | Type      | Description                                                                                                     |
+| :----------------- | :-------- | :-------------------------------------------------------------------------------------------------------------- |
+| `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                                  |
+| `viewports`        | `array`   | `{ width, height, name }` objects. Only the first entry is used per scan.                                       |
+| `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                             |
+| `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                         |
+| `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                          |
+| `axeRules`         | `object`  | Fine-grained Axe-Core rule config passed directly to the scanner.                                               |
+| `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                        |
+| `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                               |
+| `onlyRule`         | `string`  | Only check for this specific rule ID.                                                                           |
+| `waitMs`           | `number`  | Timeout ceiling for dynamic content (default: 2000).                                                            |
+| `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                                |
+| `waitUntil`        | `string`  | Playwright load event: `"domcontentloaded"` \| `"load"` \| `"networkidle"` (default: `"domcontentloaded"`).     |
+| `headless`         | `boolean` | Run browser in background (default: true).                                                                      |
+| `framework`        | `string`  | Override auto-detected framework. Accepted: `"shopify"` \| `"wordpress"` \| `"drupal"` \| `"generic"`.         |
