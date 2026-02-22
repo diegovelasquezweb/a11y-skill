@@ -28,5 +28,4 @@ Each `.json` file is a self-contained test case. There is no built-in runner —
 6.  **[06-style-fixes-separation.json](06-style-fixes-separation.json)**: Safe visual changes.
 7.  **[07-framework-detection.json](07-framework-detection.json)**: Platform-aware file search.
 8.  **[08-managed-components.json](08-managed-components.json)**: UI library protection.
-9.  **[09-config-customization.json](09-config-customization.json)**: a11y.config.json management.
-10. **[10-gitignore-proactive.json](10-gitignore-proactive.json)**: Procedural hygiene.
+9.  **[10-gitignore-proactive.json](10-gitignore-proactive.json)**: Procedural hygiene.

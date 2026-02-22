@@ -52,7 +52,7 @@ Flags used to control the _browser_ and _output_.
 
 | Flag             | Argument                              | Default             | Description                                                                     |
 | :--------------- | :------------------------------------ | :------------------ | :------------------------------------------------------------------------------ |
-| `--output`       | `<path>`                              | `audit/report.html` | Location for the final HTML report.                                             |
+| `--project-dir`  | `<path>`                              | (none)              | Path to the audited project (for framework/library auto-detection).             |
 | `--color-scheme` | `light\|dark`                         | `light`             | Emulates browser `prefers-color-scheme`.                                        |
 | `--headed`       | (No arg)                              | `false`             | Runs the browser in visible mode (useful for debugging).                        |
 | `--wait-ms`      | `<num>`                               | `2000`              | Max wait for `networkidle` after page load (acts as timeout, not fixed delay).  |
@@ -74,7 +74,7 @@ pnpm a11y --base-url http://localhost:3000 --only-rule color-contrast --max-rout
 Ensure your site meets contrast requirements in both themes:
 
 ```bash
-pnpm a11y --base-url http://localhost:3000 --color-scheme dark --output audit/report-dark.html
+pnpm a11y --base-url http://localhost:3000 --color-scheme dark
 ```
 
 ### Verifying a Single Fix
@@ -85,7 +85,7 @@ After applying a fix, verify it passed without re-running the full audit:
 pnpm a11y --base-url http://localhost:3000 --routes /products --only-rule color-contrast --max-routes 1
 ```
 
-This re-scans only the affected route for the specific rule — takes seconds instead of minutes. The `audit/remediation.md` includes a **Quick verify** command for each finding.
+This re-scans only the affected route for the specific rule — takes seconds instead of minutes. The internal remediation guide includes a **Quick verify** command for each finding.
 
 ### Scripting with the CLI
 

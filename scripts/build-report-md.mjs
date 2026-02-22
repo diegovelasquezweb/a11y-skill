@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readJson, log, getInternalPath, loadConfig } from "./a11y-utils.mjs";
+import { readJson, log, getInternalPath, DEFAULTS } from "./a11y-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { normalizeFindings } from "./report/core-findings.mjs";
@@ -11,8 +11,8 @@ function printUsage() {
   node build-report-md.mjs [options]
 
 Options:
-  --input <path>           Findings JSON path (default: audit/internal/a11y-findings.json)
-  --output <path>          Output Markdown path (default: audit/remediation.md)
+  --input <path>           Findings JSON path (default: internal)
+  --output <path>          Output Markdown path (default: internal)
   --base-url <url>         Target website URL
   --target <text>          Compliance target label (default: WCAG 2.2 AA)
   -h, --help               Show this help
@@ -20,17 +20,12 @@ Options:
 }
 
 function parseArgs(argv) {
-  const config = loadConfig();
   const args = {
     input: getInternalPath("a11y-findings.json"),
-    output: path.join(
-      process.cwd(),
-      config.outputDir || "audit",
-      "remediation.md",
-    ),
+    output: getInternalPath("remediation.md"),
     baseUrl: "",
-    target: config.complianceTarget || "WCAG 2.2 AA",
-    framework: config.framework ?? null,
+    target: DEFAULTS.complianceTarget,
+    framework: null,
   };
 
   for (let i = 0; i < argv.length; i += 1) {

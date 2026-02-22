@@ -4,13 +4,15 @@
   "skills": ["a11y"],
   "query": "Run an accessibility audit on https://example.com",
   "expected_behavior": [
+    "Checks for sitemap.xml before running the audit",
     "Runs `node scripts/run-audit.mjs --base-url https://example.com` without modification",
-    "Reads `audit/remediation.md` after the audit completes",
+    "Parses `REMEDIATION_PATH` from script output and reads the remediation guide",
     "Summarizes findings grouped by severity (Critical → High → Medium → Low)",
     "Groups findings by component or page area with explanations",
+    "Presents findings inline in the conversation (not as file paths)",
     "Asks for permission before applying any fixes",
-    "Provides the absolute path to `audit/report.html`",
-    "Does NOT modify any source files before receiving permission"
+    "Does NOT modify any source files before receiving permission",
+    "Does NOT create files in the user's project without explicit request"
   ],
   "model_notes": {}
 }

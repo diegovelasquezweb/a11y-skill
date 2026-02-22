@@ -9,8 +9,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function generatePdf() {
   const args = process.argv.slice(2);
-  const inputPath = args[0] || path.join(process.cwd(), "audit", "report.html");
-  const outputPath = args[1] || inputPath.replace(".html", ".pdf");
+  const inputPath = args[0];
+  const outputPath = args[1];
+
+  if (!inputPath || !outputPath) {
+    log.error("Usage: node build-report-pdf.mjs <input.html> <output.pdf>");
+    process.exit(1);
+  }
 
   log.info(`Generating PDF from ${inputPath}...`);
 

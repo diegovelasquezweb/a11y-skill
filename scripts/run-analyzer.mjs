@@ -5,7 +5,6 @@ import {
   readJson,
   writeJson,
   getInternalPath,
-  loadConfig,
 } from "./a11y-utils.mjs";
 import { createHash } from "node:crypto";
 import path from "node:path";
@@ -451,13 +450,10 @@ function buildFindings(inputPayload, cliArgs) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const config = loadConfig();
   const ignoredRules = new Set(
     args.ignoreFindings && args.ignoreFindings.length > 0
       ? args.ignoreFindings
-      : Array.isArray(config.ignoreFindings)
-        ? config.ignoreFindings
-        : [],
+      : [],
   );
 
   const payload = readJson(args.input);

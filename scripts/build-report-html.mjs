@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { log, readJson, getInternalPath, loadConfig } from "./a11y-utils.mjs";
+import { log, readJson, getInternalPath, DEFAULTS } from "./a11y-utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,7 +35,7 @@ function printUsage() {
 
 Options:
   --input <path>           Findings JSON path (default: audit/internal/a11y-findings.json)
-  --output <path>          Output HTML path (default: audit/report.html)
+  --output <path>          Output HTML path (required)
   --target <text>          Compliance target label (default: WCAG 2.2 AA)
   -h, --help               Show this help
 `);
@@ -47,12 +47,11 @@ function parseArgs(argv) {
     process.exit(0);
   }
 
-  const config = loadConfig();
   const args = {
     input: getInternalPath("a11y-findings.json"),
-    output: path.join(process.cwd(), config.outputDir, "report.html"),
+    output: "",
     baseUrl: "",
-    target: config.complianceTarget,
+    target: DEFAULTS.complianceTarget,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -956,6 +955,9 @@ function buildHtml(args, findings, metadata = {}) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (!args.output) {
+    throw new Error("Missing required --output flag for HTML report location.");
+  }
   const inputPayload = readJson(args.input);
   if (!inputPayload)
     throw new Error(`Input findings file not found or invalid: ${args.input}`);

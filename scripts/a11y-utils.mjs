@@ -6,9 +6,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 export const SKILL_ROOT = path.join(__dirname, "..");
 
-/**
- * Standardized logging with basic console colors
- */
+export const DEFAULTS = {
+  maxRoutes: 10,
+  crawlDepth: 2,
+  complianceTarget: "WCAG 2.2 AA",
+  colorScheme: "light",
+  viewports: [{ width: 1280, height: 800, name: "Desktop" }],
+  headless: true,
+  waitMs: 2000,
+  timeoutMs: 30000,
+  waitUntil: "domcontentloaded",
+};
+
 export const log = {
   info: (msg) => console.log(`\x1b[36m[INFO]\x1b[0m ${msg}`),
   success: (msg) => console.log(`\x1b[32m[SUCCESS]\x1b[0m ${msg}`),
@@ -21,88 +30,6 @@ export const log = {
   },
 };
 
-const CONFIG_SCHEMA = {
-  maxRoutes: { type: "number" },
-  crawlDepth: { type: "number" },
-  complianceTarget: { type: "string" },
-  routes: { type: "array" },
-  excludeSelectors: { type: "array" },
-  ignoreFindings: { type: "array" },
-  axeRules: { type: "object" },
-  outputDir: { type: "string" },
-  internalDir: { type: "string" },
-  // Emulation
-  colorScheme: { type: "string" },
-  viewports: { type: "array" },
-  // Timing & Performance
-  waitMs: { type: "number" },
-  timeoutMs: { type: "number" },
-  waitUntil: { type: "string" },
-  onlyRule: { type: "string" },
-  headless: { type: "boolean" },
-  skipReports: { type: "boolean" },
-  framework: { type: "string" },
-};
-
-function validateConfig(userConfig) {
-  for (const key of Object.keys(userConfig)) {
-    if (!CONFIG_SCHEMA[key]) {
-      const closest = Object.keys(CONFIG_SCHEMA).find(
-        (k) => k.toLowerCase() === key.toLowerCase(),
-      );
-      const hint = closest ? ` Did you mean "${closest}"?` : "";
-      log.warn(`a11y.config.json: unknown key "${key}".${hint}`);
-      continue;
-    }
-    const expected = CONFIG_SCHEMA[key].type;
-    const actual = Array.isArray(userConfig[key])
-      ? "array"
-      : typeof userConfig[key];
-    if (actual !== expected) {
-      log.warn(
-        `a11y.config.json: "${key}" should be a ${expected}, got ${actual}. Using default.`,
-      );
-    }
-  }
-}
-
-/**
- * Load a11y.config.json with fallback chain:
- *   1. Project-level: <cwd>/audit/a11y.config.json  (per-project, persistent)
- *   2. Skill defaults (hardcoded below)
- */
-export function loadConfig() {
-  const projectConfigPath = path.join(process.cwd(), "audit", "a11y.config.json");
-  const defaults = {
-    maxRoutes: 10,
-    complianceTarget: "WCAG 2.2 AA",
-    excludeSelectors: [],
-    axeRules: {},
-    outputDir: "audit",
-    internalDir: "audit/internal",
-    colorScheme: "light",
-    viewports: [{ width: 1280, height: 800, name: "Desktop" }],
-    headless: true,
-  };
-
-  if (fs.existsSync(projectConfigPath)) {
-    try {
-      const userConfig = JSON.parse(fs.readFileSync(projectConfigPath, "utf-8"));
-      validateConfig(userConfig);
-      log.info(`Config loaded from ${projectConfigPath}`);
-      return { ...defaults, ...userConfig };
-    } catch (e) {
-      log.warn(
-        `Failed to parse ${projectConfigPath}: ${e.message}. Using defaults.`,
-      );
-    }
-  }
-  return defaults;
-}
-
-/**
- * Simplified file writing with directory creation
- */
 export function writeJson(filePath, data) {
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) {
@@ -111,9 +38,6 @@ export function writeJson(filePath, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf-8");
 }
 
-/**
- * Simplified file reading
- */
 export function readJson(filePath) {
   if (!fs.existsSync(filePath)) return null;
   try {
@@ -124,10 +48,6 @@ export function readJson(filePath) {
   }
 }
 
-/**
- * Get internal storage path for intermediate results
- */
 export function getInternalPath(filename) {
-  const config = loadConfig();
-  return path.join(SKILL_ROOT, config.internalDir, filename);
+  return path.join(SKILL_ROOT, "audit", "internal", filename);
 }

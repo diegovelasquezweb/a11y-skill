@@ -27,16 +27,17 @@ Always return results in this exact order:
 
 ## File Output
 
-1. Write three final artifacts in `audit/`:
+1. **Internal pipeline files** (always stored in the skill's `audit/internal/` directory):
+   - `a11y-scan-results.json` — raw scan data
+   - `a11y-findings.json` — enriched findings
+   - `remediation.md` — AI-optimized remediation guide
+   - `screenshots/` — element evidence screenshots
 
-- **Audit Report (HTML)**: `audit/report.html`
-- **Remediation Guide (MD)**: `audit/remediation.md`
-- **Executive Summary (PDF)**: `audit/report.pdf`
-- Do not generate dated versions (e.g., `audit/index-2026-01-01.html`) or per-issue markdown files.
-- Keep JSON pipeline files in `audit/internal/` only (`a11y-scan-results.json`, `a11y-findings.json`).
+2. **User-facing reports** (only when requested, at user-chosen location):
+   - **Audit Report (HTML)**: interactive dashboard with severity cards and compliance score
+   - **Executive Summary (PDF)**: formal A4 document for stakeholders
+   - Do not generate dated versions (e.g., `report-2026-01-01.html`) or per-issue markdown files.
 
-2. If findings count is 0: still generate `audit/report.html` with a clean summary (`Congratulations, no issues found.`).
+3. If findings count is 0: present a clean summary inline in the conversation.
 
-3. Keep temporary pipeline files in `audit/internal/`; do not delete them automatically.
-
-4. Chat output should summarize results, but `audit/report.html` is the default source of truth.
+4. Chat output should summarize results. Visual reports are supplementary, not the default source of truth.

@@ -69,17 +69,17 @@ While the primary output for the AI agent is the Remediation Guide, the skill ge
 
 ## Configuration
 
-You can manage settings through the AI agent using natural language:
+All configuration is passed via CLI flags — there is no config file. You can pass settings through the AI agent using natural language:
 
 ```bash
-"Ignore the 'color-contrast' rule in the a11y configuration."
+"Ignore the 'color-contrast' rule."
 ```
 
 ```bash
-"Configure the scanner to use a Mobile viewport (375x812) and dark mode."
+"Use a Mobile viewport (375x812) and dark mode."
 ```
 
-The agent creates `audit/a11y.config.json` in your project when you request a persistent setting. Changes are automatically applied on the next audit run. For the full CLI flag and JSON key reference, see [CLI Handbook](docs/cli-handbook.md) and [Configuration](docs/configuration.md).
+The agent translates your instructions into the appropriate CLI flags. For the full reference, see [CLI Handbook](docs/cli-handbook.md) and [Configuration](docs/configuration.md).
 
 ## Audit Engine (CI/CD & Local Validation)
 

@@ -5,7 +5,7 @@ compatibility: Requires Node.js 18+, pnpm, and internet access. Playwright + Chr
 license: Proprietary (All Rights Reserved)
 metadata:
   author: diegovelasquezweb
-  version: "0.6.0"
+  version: "0.7.0"
 ---
 
 # Web Accessibility Audit — Agent Playbook
@@ -27,7 +27,8 @@ Before the first audit, ensure the `/a11y` slash command is available by initial
 These rules apply at all times, independent of any workflow step.
 
 - Never install, remove, or initialize packages in the user's project. The skill has its own `node_modules` — only run `pnpm install` inside the skill directory, never in the audited project.
-- Never edit files in `audit/` manually — reports only change via re-audit.
+- All internal pipeline files (scan results, findings JSON, remediation guide, screenshots) are stored inside the skill directory — never in the user's project.
+- Visual reports (HTML/PDF) are only created when the user explicitly requests them, at a location the user chooses.
 - Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
 - Never declare "100% accessible" based on a targeted audit. Only a Final Certification Audit can confirm that.
 - Never modify the user's `.gitignore` without asking first.
@@ -52,7 +53,7 @@ Follow these steps sequentially when the user requests an audit. Copy this check
 
 ```
 Audit Progress:
-- [ ] Step 1: Run audit + ask about visual reports
+- [ ] Step 1: Check sitemap + run audit
 - [ ] Step 2: Present findings and request permission
 - [ ] Step 3a: Structural fixes (Critical → High → Medium → Low)
 - [ ] Step 3b: Style-dependent fixes (with explicit approval)
@@ -73,57 +74,33 @@ The `--base-url` flag requires a full URL with protocol. Normalize the user's in
 - `"mysite.com"` → `https://mysite.com`
 - `"https://example.com"` → use as-is
 
-Before running, inform the user about route scope:
+**Sitemap pre-check**: Before running the audit, check if the site has a sitemap by fetching `<URL>/sitemap.xml`. Adapt the message based on the result:
 
-> "If your site has a **sitemap.xml**, I'll scan every page listed in it. If there's no sitemap, I'll crawl links starting from the homepage — up to **10 pages by default**. You can adjust this:
->
-> - **More pages (no sitemap)**: `--max-routes 30` (or set `maxRoutes` in the config for all future runs)
-> - **Specific pages only**: `--routes /,/about,/contact`"
+If sitemap **found**:
 
-If the user adjusts scope, add the corresponding flags. Otherwise, proceed with defaults.
+> "Found `sitemap.xml` — I'll scan all pages listed in it. Starting the audit now."
 
-Before running, check if `audit/` is in the project's `.gitignore`. If not, ask:
+If sitemap **not found**:
 
-> "The audit will generate reports in an `audit/` folder. Should I add `audit/` to your `.gitignore` to keep generated files out of version control? (yes/no)"
+> "No `sitemap.xml` found. I'll crawl links starting from the homepage — up to **10 pages** by default. If you want more, tell me the number (e.g. 30) or give me specific routes (e.g. `/,/about,/contact`)."
 
-If yes, append `audit/` to `.gitignore` (or create the file if it doesn't exist). If no, proceed without modifying it.
+If the user adjusts scope, add the corresponding `--max-routes` or `--routes` flags. Otherwise, proceed with defaults.
 
-Run the audit with `--skip-reports` by default (faster — only generates the remediation guide the agent needs):
+Run the audit:
 
 ```bash
-node scripts/run-audit.mjs --base-url <URL> --skip-reports
+node scripts/run-audit.mjs --base-url <URL>
 ```
 
-After the scan completes, ask whether the user wants visual reports:
-
-> "Audit complete — I have the remediation roadmap ready. Would you also like me to generate visual reports?
->
-> - **HTML Dashboard** — interactive web report with severity cards, compliance score, and evidence screenshots.
-> - **PDF Executive Summary** — formal A4 document for clients or stakeholders.
-> - **Both**
-> - **Neither** — just proceed with fixes."
-
-If the user requests reports, generate only the selected ones:
+If the user's project is local and you want framework/library auto-detection to work, add `--project-dir`:
 
 ```bash
-# HTML only
-node scripts/build-report-html.mjs --output audit/report.html --base-url <URL>
-
-# PDF only (requires HTML first)
-node scripts/build-report-html.mjs --output audit/report.html --base-url <URL>
-node scripts/build-report-pdf.mjs audit/report.html audit/report.pdf
-
-# Both
-node scripts/build-report-html.mjs --output audit/report.html --base-url <URL>
-node scripts/build-report-pdf.mjs audit/report.html audit/report.pdf
+node scripts/run-audit.mjs --base-url <URL> --project-dir <path-to-project>
 ```
 
-After generation, open the requested reports for the user:
+After the scan completes, parse `REMEDIATION_PATH` from the script output and read that file. This is the internal remediation guide — use it for context when presenting findings and suggesting fixes. **Do not share the internal file path with the user.**
 
-```bash
-open audit/report.html   # HTML dashboard
-open audit/report.pdf    # PDF summary
-```
+Present findings inline in the conversation (Step 2). No files are created in the user's project at this point.
 
 If the script fails (network error, Chromium crash, timeout):
 
@@ -135,13 +112,12 @@ If the script fails (network error, Chromium crash, timeout):
 
 ### Step 2 — Present findings and request permission
 
-Read `audit/remediation.md` and:
+Read the remediation guide (from `REMEDIATION_PATH`) and:
 
 1. Summarize findings by severity (Critical → High → Medium → Low).
 2. Propose the specific fixes from the remediation guide.
 3. Group by component or page area, explaining _why_ each fix is needed.
-4. If visual reports were generated in Step 1, provide their absolute paths as proof.
-5. Ask the user how to proceed:
+4. Ask the user how to proceed:
 
 > "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). How would you like to proceed?
 >
@@ -210,7 +186,7 @@ Example:
 
 **3c. Manual checks**:
 
-Process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`:
+Process the "WCAG 2.2 Static Code Checks" section from the remediation guide:
 
 1. Search the project source for each pattern. Skip checks that don't apply.
 2. Present confirmed violations as a batch and wait for permission before applying:
@@ -227,7 +203,7 @@ Process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`:
 Re-run the audit to confirm all fixes are clean:
 
 ```bash
-node scripts/run-audit.mjs --base-url <URL> --skip-reports
+node scripts/run-audit.mjs --base-url <URL>
 ```
 
 If the audit is clean, proceed to Step 4. If **new issues or regressions** appear (not previously seen), present them and restart from 3a. Issues the user already declined do not trigger a restart.
@@ -251,25 +227,52 @@ If the audit is clean, proceed to Step 4. If **new issues or regressions** appea
 > - **Focus order**: Does the tab sequence follow a logical reading order?
 > - **Screen reader**: Do page announcements make sense? (Test with VoiceOver on macOS or NVDA on Windows)
 > - **Motion & animation**: Can users who are sensitive to motion use the site comfortably? (Check `prefers-reduced-motion`)
-> - **Zoom**: Does the page remain usable at 200% browser zoom?
->
-> If you generated the HTML report, it includes an interactive checklist to track these."
+> - **Zoom**: Does the page remain usable at 200% browser zoom?"
 
-4. Offer to generate (or regenerate) visual reports reflecting the final state:
+4. Offer to generate visual reports reflecting the final state:
 
-> "Would you like me to generate final reports?
+> "Would you like me to generate visual reports?
 >
 > - **HTML Dashboard** — interactive web report with the updated compliance score.
 > - **PDF Executive Summary** — formal document to share with clients or stakeholders.
 > - **Both**
 > - **No thanks**"
 
-5. If the user requests reports, generate and open them (same commands as Step 1).
+5. If the user requests reports, ask where to save them (**first time only** — reuse the choice on subsequent requests):
+
+> "Where should I save the reports?
+>
+> - `./audit/` (default)
+> - Custom path"
+
+Then ask about `.gitignore` (first time only):
+
+> "Should I add that folder to your `.gitignore`? (yes/no)"
+
+Generate and open the requested reports:
+
+```bash
+# HTML only
+node scripts/build-report-html.mjs --output <user-path>/report.html --base-url <URL>
+open <user-path>/report.html
+
+# PDF (requires HTML first)
+node scripts/build-report-html.mjs --output <user-path>/report.html --base-url <URL>
+node scripts/build-report-pdf.mjs <user-path>/report.html <user-path>/report.pdf
+open <user-path>/report.pdf
+
+# Both
+node scripts/build-report-html.mjs --output <user-path>/report.html --base-url <URL>
+node scripts/build-report-pdf.mjs <user-path>/report.html <user-path>/report.pdf
+open <user-path>/report.html
+open <user-path>/report.pdf
+```
+
 6. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
 
 Example (complete):
 
-> "All 12 issues resolved across 7 files. Your site now passes WCAG 2.2 AA automated checks. Please verify the 5 manual checks above before considering the audit complete. The final HTML report is open in your browser — it includes an interactive checklist for tracking them. Great work investing in accessibility — this directly improves the experience for users with disabilities and strengthens your legal compliance."
+> "All 12 issues resolved across 7 files. Your site now passes WCAG 2.2 AA automated checks. Please verify the 5 manual checks above before considering the audit complete. Great work investing in accessibility — this directly improves the experience for users with disabilities and strengthens your legal compliance."
 
 ## Edge Cases
 
@@ -283,22 +286,29 @@ Example (complete):
 
 ### Multi-Viewport Testing
 
-1. The auditor uses a single viewport by default. For responsive testing, configure `viewports` in `audit/a11y.config.json`.
-2. Only the first entry is used per audit — run separate audits for each viewport.
+1. The auditor uses a single viewport by default. For responsive testing, use `--viewport 375x812` (WIDTHxHEIGHT).
+2. Only the first viewport is used per audit — run separate audits for each viewport.
 3. Only flag viewport-specific findings when a violation appears at one breakpoint but not another.
 
 **Troubleshooting**: If a command fails, see [references/troubleshooting.md](references/troubleshooting.md) to self-correct before asking the user.
 
-## CLI vs `a11y.config.json`
+## CLI Reference
 
-**CLI flags** are for per-execution decisions — parameters that change between runs. **`a11y.config.json`** is for per-project decisions — settings that persist across all future runs.
+All configuration is passed via CLI flags. Run `node scripts/run-audit.mjs --help` for the full list.
 
-For a full list of configuration keys, CLI equivalents, and decision examples, see [references/audit-config.md](references/audit-config.md).
+Common flags:
 
-### Managing the config
-
-When creating or updating the config:
-
-1. Read the existing file at `audit/a11y.config.json` (it may not exist yet).
-2. Merge the new key into the existing object (do not overwrite unrelated keys).
-3. Write the updated JSON back to `audit/a11y.config.json`.
+| Flag | Description | Default |
+| :--- | :--- | :--- |
+| `--base-url <url>` | Target website (required) | — |
+| `--project-dir <path>` | User's project path (for auto-detection) | — |
+| `--max-routes <num>` | Max routes to crawl | `10` |
+| `--crawl-depth <num>` | Link crawl depth (1-3) | `2` |
+| `--routes <csv>` | Specific paths to scan | — |
+| `--framework <val>` | Override detected framework | auto |
+| `--ignore-findings <csv>` | Axe rule IDs to silence | — |
+| `--exclude-selectors <csv>` | CSS selectors to skip | — |
+| `--viewport <WxH>` | Viewport dimensions | `1280x800` |
+| `--color-scheme <val>` | `light` or `dark` | `light` |
+| `--headed` | Show browser window | headless |
+| `--only-rule <id>` | Check one specific rule | — |

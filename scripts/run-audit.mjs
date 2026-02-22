@@ -2,19 +2,20 @@ import { spawn, execSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
-import { log, loadConfig, SKILL_ROOT } from "./a11y-utils.mjs";
+import { log, DEFAULTS, SKILL_ROOT, getInternalPath } from "./a11y-utils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function printUsage() {
   log.info(`Usage:
-  pnpm a11y --base-url <url> [options]
+  node scripts/run-audit.mjs --base-url <url> [options]
 
 Targeting & Scope:
   --base-url <url>        (Required) The target website to audit.
   --max-routes <num>      Max routes to discover and scan (default: 10).
   --crawl-depth <num>     How deep to follow links during discovery (1-3, default: 2).
   --routes <csv>          Custom list of paths to scan.
+  --project-dir <path>    Path to the audited project (for framework auto-detection).
 
 Audit Intelligence:
   --target <text>         Compliance target label (default: "WCAG 2.2 AA").
@@ -23,13 +24,12 @@ Audit Intelligence:
   --exclude-selectors <csv> Exclude CSS selectors from scan.
 
 Execution & Emulation:
-  --output <path>         Final HTML report location (default: audit/report.html).
   --color-scheme <val>    Emulate color scheme: "light" or "dark".
   --wait-until <val>      Page load strategy: domcontentloaded|load|networkidle (default: domcontentloaded).
   --framework <val>       Override auto-detected framework (react|vue|angular|svelte|astro|shopify|wordpress|drupal).
   --viewport <WxH>        Viewport dimensions as WIDTHxHEIGHT (e.g., 375x812 for mobile).
   --headed                Run browser in visible mode (overrides headless).
-  --skip-reports          Omit HTML and PDF report generation (Focus on AI resolution).
+  --skip-reports          Omit HTML and PDF report generation (default).
   --wait-ms <num>         Time to wait after page load (default: 2000).
   --timeout-ms <num>      Network timeout (default: 30000).
   -h, --help              Show this help.
@@ -38,7 +38,7 @@ Execution & Emulation:
 
 const SCRIPT_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
-async function runScript(scriptName, args = []) {
+async function runScript(scriptName, args = [], env = {}) {
   return new Promise((resolve, reject) => {
     const scriptPath = path.join(__dirname, scriptName);
     log.info(`Running: ${scriptName} ${args.join(" ")}`);
@@ -46,6 +46,7 @@ async function runScript(scriptName, args = []) {
     const proc = spawn("node", [scriptPath, ...args], {
       stdio: "inherit",
       cwd: SKILL_ROOT,
+      env: { ...process.env, ...env },
     });
 
     const timer = setTimeout(() => {
@@ -75,7 +76,6 @@ async function runScript(scriptName, args = []) {
 
 async function main() {
   const argv = process.argv.slice(2);
-  const config = loadConfig();
 
   function getArgValue(name) {
     const entry = argv.find((a) => a.startsWith(`--${name}=`));
@@ -91,13 +91,12 @@ async function main() {
   }
 
   const baseUrl = getArgValue("base-url");
-  const maxRoutes = getArgValue("max-routes") || config.maxRoutes || 10;
-  const crawlDepth = getArgValue("crawl-depth") || config.crawlDepth || 2;
+  const maxRoutes = getArgValue("max-routes") || DEFAULTS.maxRoutes;
+  const crawlDepth = getArgValue("crawl-depth") || DEFAULTS.crawlDepth;
   const routes = getArgValue("routes");
-  const waitMs = getArgValue("wait-ms") || config.waitMs || 2000;
-  const timeoutMs = getArgValue("timeout-ms") || config.timeoutMs || 30000;
-  const output =
-    getArgValue("output") || path.join(process.cwd(), "audit", "report.html");
+  const waitMs = getArgValue("wait-ms") || DEFAULTS.waitMs;
+  const timeoutMs = getArgValue("timeout-ms") || DEFAULTS.timeoutMs;
+  const projectDir = getArgValue("project-dir");
 
   const colorScheme = getArgValue("color-scheme");
   const target = getArgValue("target");
@@ -105,22 +104,15 @@ async function main() {
     ? getArgValue("headless") === "true"
     : argv.includes("--headed")
       ? false
-      : config.headless;
+      : DEFAULTS.headless;
 
-  const onlyRule = getArgValue("only-rule") || config.onlyRule;
-  const skipReports =
-    argv.includes("--skip-reports") || config.skipReports || false;
-  const ignoreFindings =
-    getArgValue("ignore-findings") ||
-    (config.ignoreFindings?.length ? config.ignoreFindings.join(",") : null);
-  const excludeSelectors =
-    getArgValue("exclude-selectors") ||
-    (config.excludeSelectors?.length
-      ? config.excludeSelectors.join(",")
-      : null);
+  const onlyRule = getArgValue("only-rule");
+  const skipReports = !argv.includes("--with-reports");
+  const ignoreFindings = getArgValue("ignore-findings");
+  const excludeSelectors = getArgValue("exclude-selectors");
 
-  const waitUntil = getArgValue("wait-until") || config.waitUntil || null;
-  const framework = getArgValue("framework") || config.framework || null;
+  const waitUntil = getArgValue("wait-until");
+  const framework = getArgValue("framework");
   const viewportArg = getArgValue("viewport");
   let viewport = null;
   if (viewportArg) {
@@ -143,8 +135,11 @@ async function main() {
     process.exit(1);
   }
 
+  const childEnv = {};
+  if (projectDir) childEnv.A11Y_PROJECT_DIR = path.resolve(projectDir);
+
   try {
-    log.info("🚀 Starting full WS Accessibility Audit pipeline...");
+    log.info("Starting accessibility audit pipeline...");
 
     const nodeModulesPath = path.join(SKILL_ROOT, "node_modules");
     if (!fs.existsSync(nodeModulesPath)) {
@@ -157,27 +152,7 @@ async function main() {
 
     await runScript("check-toolchain.mjs");
 
-    const gitignorePath = path.join(process.cwd(), ".gitignore");
-    if (fs.existsSync(gitignorePath)) {
-      const content = fs.readFileSync(gitignorePath, "utf-8");
-      if (!/^audit\/?$/m.test(content)) {
-        log.warn(
-          "GITIGNORE_MISSING_AUDIT=true — audit/ is not in .gitignore. The agent should ask the user before adding it.",
-        );
-      }
-    } else {
-      log.warn(
-        "GITIGNORE_NOT_FOUND=true — no .gitignore found. The agent should ask the user before creating one.",
-      );
-    }
-
-    const absoluteOutputPath = path.isAbsolute(output)
-      ? output
-      : path.join(process.cwd(), output);
-    const screenshotsDir = path.join(
-      path.dirname(absoluteOutputPath),
-      "screenshots",
-    );
+    const screenshotsDir = getInternalPath("screenshots");
 
     const scanArgs = [
       "--base-url",
@@ -206,45 +181,47 @@ async function main() {
       scanArgs.push("--viewport", `${viewport.width}x${viewport.height}`);
     }
 
-    await runScript("run-scanner.mjs", scanArgs);
+    await runScript("run-scanner.mjs", scanArgs, childEnv);
 
     const analyzerArgs = [];
     if (ignoreFindings) analyzerArgs.push("--ignore-findings", ignoreFindings);
     if (framework) analyzerArgs.push("--framework", framework);
     await runScript("run-analyzer.mjs", analyzerArgs);
 
-    const buildArgs = ["--output", output, "--base-url", baseUrl];
-    if (target) buildArgs.push("--target", target);
-
-    const mdOutput = path.join(
-      path.dirname(absoluteOutputPath),
-      "remediation.md",
-    );
+    const mdOutput = getInternalPath("remediation.md");
     const mdArgs = ["--output", mdOutput, "--base-url", baseUrl];
     if (target) mdArgs.push("--target", target);
 
     if (skipReports) {
-      log.info("Skipping HTML and PDF reports per --skip-reports flag.");
       await runScript("build-report-md.mjs", mdArgs);
     } else {
+      const output = getArgValue("output");
+      if (!output) {
+        log.error(
+          "When using --with-reports, you must specify --output <path> for the HTML report location.",
+        );
+        process.exit(1);
+      }
+      const absoluteOutputPath = path.isAbsolute(output)
+        ? output
+        : path.resolve(output);
+
+      const buildArgs = ["--output", absoluteOutputPath, "--base-url", baseUrl];
+      if (target) buildArgs.push("--target", target);
+
       await Promise.all([
         runScript("build-report-html.mjs", buildArgs),
         runScript("build-report-md.mjs", mdArgs),
       ]);
 
-      const pdfOutput = output.replace(".html", ".pdf");
-      await runScript("build-report-pdf.mjs", [output, pdfOutput]);
+      const pdfOutput = absoluteOutputPath.replace(".html", ".pdf");
+      await runScript("build-report-pdf.mjs", [absoluteOutputPath, pdfOutput]);
+
+      console.log(`REPORT_PATH=${absoluteOutputPath}`);
     }
 
-    log.success(`🎉 Audit complete! Remediation Roadmap ready.`);
+    log.success("Audit complete! Remediation roadmap ready.");
     console.log(`REMEDIATION_PATH=${mdOutput}`);
-    if (!skipReports) console.log(`REPORT_PATH=${absoluteOutputPath}`);
-    const gitignoreExists = fs.existsSync(gitignorePath);
-    if (!gitignoreExists) {
-      console.log(
-        `GITIGNORE_WARNING=No .gitignore found. Add "audit/" manually to avoid committing generated reports.`,
-      );
-    }
   } catch (error) {
     log.error(error.message);
     process.exit(1);

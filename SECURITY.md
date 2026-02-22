@@ -13,7 +13,6 @@ Confirmed vulnerabilities will be addressed with a high-priority patch and credi
 The a11y engine operates under a **local-first** security model:
 
 - **Local Execution**: The skill runs entirely on your local machine. It does not transmit audit data, snapshots, or source code to external servers.
-- **Controlled Environment**: Audit output is written exclusively to the `audit/` directory.
+- **Controlled Environment**: Internal pipeline files are stored in the skill's own directory. User-facing reports are only generated on demand at a user-chosen location.
 - **Sandboxing Notes**:
   - The skill executes `node` scripts from its own directory. Ensure you only install from trusted sources.
-  - `audit/a11y.config.json` is used for persistent per-project settings; avoid storing sensitive environment variables or credentials directly in the config file.

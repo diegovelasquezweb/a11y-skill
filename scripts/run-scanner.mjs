@@ -2,7 +2,7 @@
 
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
-import { log, loadConfig, writeJson, getInternalPath } from "./a11y-utils.mjs";
+import { log, DEFAULTS, writeJson, getInternalPath } from "./a11y-utils.mjs";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -13,14 +13,14 @@ function printUsage() {
 
 Options:
   --routes <csv|newline>      Optional route list (same-origin paths/urls)
-  --output <path>             Output JSON path (default: audit/internal/a11y-scan-results.json)
+  --output <path>             Output JSON path (default: internal)
   --max-routes <number>       Max routes to analyze (default: 10)
   --wait-ms <number>          Time to wait after load (default: 2000)
   --timeout-ms <number>       Request timeout (default: 30000)
   --headless <boolean>        Run headless (default: true)
   --color-scheme <value>      Emulate color scheme: "light" or "dark" (default: "light")
   --screenshots-dir <path>    Directory to save element screenshots (optional)
-  --exclude-selectors <csv>   Selectors to exclude (overrides config)
+  --exclude-selectors <csv>   Selectors to exclude from scan
   --only-rule <id>            Only check for this specific rule ID (ignores tags)
   --crawl-depth <number>      How deep to follow links during discovery (1-3, default: 2)
   --wait-until <value>        Page load strategy: domcontentloaded|load|networkidle (default: domcontentloaded)
@@ -29,7 +29,7 @@ Options:
 `);
 }
 
-function parseArgs(argv, config) {
+function parseArgs(argv) {
   if (argv.includes("--help") || argv.includes("-h")) {
     printUsage();
     process.exit(0);
@@ -39,16 +39,16 @@ function parseArgs(argv, config) {
     baseUrl: "",
     routes: "",
     output: getInternalPath("a11y-scan-results.json"),
-    maxRoutes: config.maxRoutes || 10,
-    waitMs: config.waitMs || 2000,
-    timeoutMs: config.timeoutMs || 30000,
-    headless: config.headless !== undefined ? config.headless : true,
-    waitUntil: config.waitUntil || "domcontentloaded",
+    maxRoutes: DEFAULTS.maxRoutes,
+    waitMs: DEFAULTS.waitMs,
+    timeoutMs: DEFAULTS.timeoutMs,
+    headless: DEFAULTS.headless,
+    waitUntil: DEFAULTS.waitUntil,
     colorScheme: null,
     screenshotsDir: null,
-    excludeSelectors: config.excludeSelectors || [],
-    onlyRule: config.onlyRule || null,
-    crawlDepth: config.crawlDepth || 2,
+    excludeSelectors: [],
+    onlyRule: null,
+    crawlDepth: DEFAULTS.crawlDepth,
     viewport: null,
   };
 
@@ -275,8 +275,11 @@ async function detectProjectContext(page) {
 
   const uiLibraries = [];
   try {
-    const pkgPath = path.join(process.cwd(), "package.json");
-    if (fs.existsSync(pkgPath)) {
+    const projectDir = process.env.A11Y_PROJECT_DIR;
+    const pkgPath = projectDir
+      ? path.join(projectDir, "package.json")
+      : null;
+    if (pkgPath && fs.existsSync(pkgPath)) {
       const deps = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
       const allDeps = Object.keys({
         ...deps.dependencies,
@@ -311,7 +314,6 @@ async function analyzeRoute(
   page,
   routeUrl,
   waitMs,
-  axeRules,
   excludeSelectors,
   onlyRule,
   timeoutMs = 30000,
@@ -351,14 +353,6 @@ async function analyzeRoute(
         for (const selector of excludeSelectors) {
           builder.exclude(selector);
         }
-      }
-
-      if (
-        axeRules &&
-        typeof axeRules === "object" &&
-        Object.keys(axeRules).length > 0
-      ) {
-        builder.options({ rules: axeRules });
       }
 
       const axeResults = await builder.analyze();
@@ -405,31 +399,24 @@ async function analyzeRoute(
 }
 
 async function main() {
-  const config = loadConfig();
-  const args = parseArgs(process.argv.slice(2), config);
+  const args = parseArgs(process.argv.slice(2));
   const baseUrl = new URL(args.baseUrl).toString();
   const origin = new URL(baseUrl).origin;
 
   log.info(`Starting accessibility audit for ${baseUrl}`);
 
-  const pwConfig = config.playwright || {};
-  // Determine primary viewport from config or fallback
   const primaryViewport =
-    args.viewport ||
-    (Array.isArray(config.viewports) && config.viewports[0]
-      ? { width: config.viewports[0].width, height: config.viewports[0].height }
-      : pwConfig.viewport || { width: 1280, height: 720 });
+    args.viewport || { width: DEFAULTS.viewports[0].width, height: DEFAULTS.viewports[0].height };
 
   const browser = await chromium.launch({
     headless: args.headless,
   });
   const context = await browser.newContext({
     viewport: primaryViewport,
-    reducedMotion: pwConfig.reducedMotion || "no-preference",
-    colorScheme:
-      args.colorScheme || config.colorScheme || pwConfig.colorScheme || "light",
-    forcedColors: pwConfig.forcedColors || "none",
-    locale: pwConfig.locale || "en-US",
+    reducedMotion: "no-preference",
+    colorScheme: args.colorScheme || DEFAULTS.colorScheme,
+    forcedColors: "none",
+    locale: "en-US",
   });
   const page = await context.newPage();
 
@@ -444,14 +431,9 @@ async function main() {
     projectContext = await detectProjectContext(page);
 
     const cliRoutes = parseRoutesArg(args.routes, origin);
-    const configRoutes =
-      Array.isArray(config.routes) && config.routes.length > 0
-        ? config.routes.map((r) => normalizePath(r, origin)).filter(Boolean)
-        : [];
-    const providedRoutes = cliRoutes.length > 0 ? cliRoutes : configRoutes;
 
-    if (providedRoutes.length > 0) {
-      routes = providedRoutes.slice(0, args.maxRoutes);
+    if (cliRoutes.length > 0) {
+      routes = cliRoutes.slice(0, args.maxRoutes);
     } else if (baseUrl.startsWith("file://")) {
       routes = [""];
     } else {
@@ -569,8 +551,7 @@ async function main() {
               tabPage,
               targetUrl,
               args.waitMs,
-              config.axeRules,
-              config.excludeSelectors,
+              args.excludeSelectors,
               args.onlyRule,
               args.timeoutMs,
               2,

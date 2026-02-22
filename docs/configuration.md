@@ -4,92 +4,50 @@
 
 ---
 
-## Table of Contents
+## Overview
 
-- [Schema Overview](#schema-overview)
-- [Key Definitions](#key-definitions)
-- [Precedence Logic](#precedence-logic)
-- [Example Config](#example-config-for-a-complex-spa)
+All configuration is passed via **CLI flags**. There is no config file — every parameter is set per-execution. Run `node scripts/run-audit.mjs --help` for the full list.
 
-The skill uses an optional `a11y.config.json` file at `audit/a11y.config.json` (inside the audited project) for **per-project decisions** that persist across all audit runs. The file is created on demand by the agent when the user requests a persistent setting — it does not exist by default.
-
-> [!IMPORTANT]
-> **CLI flags** = per-execution (change between runs). **Config file** = per-project (persist forever).
-> If the user says "always" or "for this project", edit the config. If it's a runtime parameter, use a CLI flag.
-
-## Schema Overview
-
-All keys are optional. The engine will merge this file with internal defaults.
-
-```json
-{
-  "complianceTarget": "WCAG 2.2 AA",
-  "maxRoutes": 10,
-  "waitMs": 2000,
-  "timeoutMs": 30000,
-  "waitUntil": "domcontentloaded",
-  "colorScheme": "light",
-  "framework": null,
-  "ignoreFindings": ["color-contrast"],
-  "excludeSelectors": [".ads-container", "#third-party-widget"]
-}
-```
-
-## Key Definitions
+## Flag Reference
 
 ### Targeting & Scope
 
-- **`maxRoutes`** _(number, default: 10)_:
-  Cap for BFS crawl discovery (only applies when no `sitemap.xml` is found). Sites with a sitemap are fully scanned regardless of this value.
-- **`routes`** _(array, default: null)_:
-  A static list of paths to scan (e.g., `["/", "/about", "/contact"]`). When set, overrides auto-discovery entirely. Equivalent to the `--routes` CLI flag.
-- **`excludeSelectors`** _(array, default: [])_:
-  A list of CSS selectors to remove from the DOM before scanning. Useful for ignoring third-party widgets or "noisy" areas outside your control.
+| Flag | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `--base-url <url>` | string | (required) | The target website to audit. |
+| `--project-dir <path>` | string | — | Path to the audited project (for framework/library auto-detection from `package.json`). |
+| `--max-routes <num>` | number | `10` | Max routes to discover via BFS crawl (only applies when no sitemap is found). |
+| `--crawl-depth <num>` | number | `2` | How deep to follow links during discovery (1-3). |
+| `--routes <csv>` | string | — | Static list of paths to scan (overrides auto-discovery). |
 
-### Engine Intelligence
+### Audit Intelligence
 
-- **`complianceTarget`** _(string, default: "WCAG 2.2 AA")_:
-  The label used in generated reports. It does not change the rule-set (which is always 2.2 AA).
-- **`ignoreFindings`** _(array, default: [])_:
-  Rule IDs that should be suppressed. Useful for rules that are known false positives in a specific framework environment.
-- **`framework`** _(string, default: null)_:
-  Overrides auto-detected framework for guardrails in the remediation guide. Accepted values: `"react"`, `"vue"`, `"angular"`, `"svelte"`, `"astro"`, `"shopify"`, `"wordpress"`, `"drupal"`, `"generic"`. When `null`, the engine infers the framework from the base URL. Equivalent to the `--framework` CLI flag.
-- **`onlyRule`** _(string, default: null)_:
-  Run ONLY this specific Axe rule ID (e.g., `"color-contrast"`). Useful for targeted audits during active remediation. Equivalent to the `--only-rule` CLI flag.
-- **`axeRules`** _(object, default: {})_:
-  Fine-grained Axe-Core rule configuration passed directly to the scanner. Use to enable, disable, or configure specific rules beyond the standard WCAG 2.2 set.
+| Flag | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `--target <text>` | string | `WCAG 2.2 AA` | Compliance target label in reports. |
+| `--only-rule <id>` | string | — | Only check for this specific axe rule ID. |
+| `--ignore-findings <csv>` | string | — | Axe rule IDs to suppress from results. |
+| `--exclude-selectors <csv>` | string | — | CSS selectors to exclude from the DOM scan. |
+| `--framework <val>` | string | auto | Override auto-detected framework (`react`\|`vue`\|`angular`\|`svelte`\|`astro`\|`shopify`\|`wordpress`\|`drupal`). |
 
 ### Execution & Emulation
 
-- **`waitMs`** _(number, default: 2000)_:
-  Milliseconds to wait after a page signals "load" before the scan starts. Essential for sites with heavy client-side hydration or entrance animations.
-- **`timeoutMs`** _(number, default: 30000)_:
-  Maximum milliseconds to wait for a page network request before skipping the route.
-- **`waitUntil`** _(string, default: "domcontentloaded")_:
-  Playwright page load strategy. Accepted values: `"domcontentloaded"` | `"load"` | `"networkidle"`. Use `"networkidle"` for SPAs that render after all network activity completes. Equivalent to the `--wait-until` CLI flag.
-- **`colorScheme`** _(string, default: "light")_:
-  Accepted values: `"light"` or `"dark"`. Controls the CSS media feature emulation.
-- **`headless`** _(boolean, default: true)_:
-  Run the browser in headless (background) mode. Set to `false` to see the browser window during scanning — equivalent to the `--headed` CLI flag.
-- **`viewports`** _(array, default: system default)_:
-  List of `{ width, height, name }` objects. Only the first entry is used for scanning. Example: `[{ "width": 375, "height": 812, "name": "mobile" }]`. Also configurable via `--viewport 375x812` CLI flag.
+| Flag | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `--color-scheme <val>` | string | `light` | Emulate `prefers-color-scheme`: `light` or `dark`. |
+| `--viewport <WxH>` | string | `1280x800` | Viewport dimensions as WIDTHxHEIGHT (e.g., `375x812`). |
+| `--headed` | boolean | `false` | Run browser in visible mode (useful for debugging). |
+| `--wait-ms <num>` | number | `2000` | Time to wait after page load before scanning. |
+| `--timeout-ms <num>` | number | `30000` | Network timeout per page load. |
+| `--wait-until <val>` | string | `domcontentloaded` | Playwright load strategy: `domcontentloaded`\|`load`\|`networkidle`. |
 
-## Precedence Logic
+### Reports
 
-The engine resolves configuration using the following priority (highest to lowest):
+| Flag | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `--with-reports` | boolean | `false` | Generate HTML and PDF reports (requires `--output`). |
+| `--output <path>` | string | — | Location for the HTML report (required with `--with-reports`). |
 
-1. **CLI Flags**: (e.g., `--max-routes 50`) — Always wins.
-2. **`audit/a11y.config.json`**: Project-specific persistent settings (created on demand).
-3. **Internal Defaults**: Hardcoded safe values.
+## Precedence
 
-## Example Config for a Complex SPA
-
-```json
-{
-  "maxRoutes": 30,
-  "waitMs": 5000,
-  "waitUntil": "networkidle",
-  "excludeSelectors": [".dynamic-chart-overlay", "[data-test-ignore]"],
-  "ignoreFindings": ["region"]
-}
-```
+CLI flags are the only configuration source. Internal defaults are used as fallbacks when a flag is not provided.
