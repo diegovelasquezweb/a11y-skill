@@ -1,6 +1,6 @@
 ---
 name: a11y
-description: Detects and fixes WCAG 2.2 AA accessibility issues on websites using automated scanning (axe-core + Playwright). Use when requested to audit a URL for WCAG compliance or fix accessibility selectors.
+description: Detects and fixes WCAG 2.2 AA accessibility violations on websites using automated scanning (axe-core + Playwright). Use when requested to audit a URL for WCAG compliance or fix accessibility issues.
 compatibility: Requires Node.js 18+, pnpm, and internet access. Playwright + Chromium are auto-installed on first run.
 license: Proprietary (All Rights Reserved)
 metadata:
@@ -19,27 +19,35 @@ These rules apply at all times during audit and fix workflows.
 
 **Never do:**
 
-- Modify source code, config, or dependencies without presenting the change first.
-- Initialize package managers or install/remove dependencies in the audited project.
-- Create or modify `package.json`, lockfiles, or `node_modules` in the audited project.
-- Edit files in `audit/` manually — reports only change via re-scan.
+- Modify source code or dependencies without presenting the change first.
+- Install, remove, or initialize packages in the audited project (`package.json`, lockfiles, `node_modules`).
+- Edit files in `audit/` manually — reports only change via re-audit.
 - Modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
 - Downgrade `axe-core` or add rules to `ignoreFindings` without explicit user confirmation.
-- Modify colors, fonts, spacing, layouts, or any visual property without explicit user approval. Fixes must be structural and semantic (HTML attributes, ARIA roles, DOM order, alt text, labels). If a fix requires a style change (e.g., color-contrast), propose the exact change and wait for approval.
-- Declare "100% accessible" based on a targeted scan. Only a Final Certification Audit can confirm that.
+- Modify visual properties (colors, fonts, spacing, layouts) without explicit user approval. Fixes must be structural and semantic (HTML attributes, ARIA roles, DOM order, alt text, labels). If a fix requires a style change (e.g., color-contrast), propose the exact change and wait for approval.
+- Declare "100% accessible" based on a targeted audit. Only a Final Certification Audit can confirm that.
 
 **Always do:**
 
-- Write all outputs in English.
 - Use route paths (`/`, `/products`) as primary locations — local URLs go under `Test Environment`.
-- Prefer DOM/selector evidence over screenshots. Capture screenshots only when tied 1:1 to a specific issue.
 - Remind the user to add `audit/` to `.gitignore` after every audit run. The pipeline auto-appends it when a `.gitignore` exists; if the project has none, tell the user to create one.
 
 **Platform quirks**: See [references/platform-setup.md](references/platform-setup.md) for Antigravity, Windsurf, Codex, and Gemini CLI notes.
 
 ## Workflow
 
-Follow these steps sequentially when the user requests an audit.
+Follow these steps sequentially when the user requests an audit. Copy this checklist and track your progress:
+
+```
+Audit Progress:
+- [ ] Step 1: Run audit (`node scripts/run-audit.mjs --base-url <URL>`)
+- [ ] Step 2: Present findings and request permission
+- [ ] Step 3a: Structural fixes (Critical → High → Medium → Low)
+- [ ] Step 3b: Style-dependent fixes (with explicit approval)
+- [ ] Step 3c: Manual checks
+- [ ] Step 3d: Re-run audit to verify
+- [ ] Step 4: Deliver results
+```
 
 ### Step 1 — Run the audit
 
@@ -118,43 +126,10 @@ If **new issues or regressions** appear (not previously seen), present them and 
 
 ### Multi-Viewport Testing
 
-1. The scanner uses a single viewport by default. For responsive testing, configure `viewports` in `a11y.config.json`.
-2. Only the first entry is used per scan — run separate scans for each viewport.
+1. The auditor uses a single viewport by default. For responsive testing, configure `viewports` in `a11y.config.json`.
+2. Only the first entry is used per audit — run separate audits for each viewport.
 3. Only flag viewport-specific findings when a violation appears at one breakpoint but not another.
 
-## Troubleshooting & Feedback Loops
+**Troubleshooting**: If a command fails, see [references/troubleshooting.md](references/troubleshooting.md) to self-correct before asking the user.
 
-If a command fails, use the following guide to self-correct before asking the user.
-
-| Failure                       | Potential Cause                  | Suggested Action                                           |
-| :---------------------------- | :------------------------------- | :--------------------------------------------------------- |
-| **Timeout (30000ms reached)** | Heavy JS payload or slow server. | Increase `--timeout-ms 60000` or use `waitUntil: "load"`.  |
-| **Auth Error (401/403)**      | Protected routes or IP blocking. | Verify URL accessibility or ask user for session cookies.  |
-| **Chromium Error**            | Broken Playwright install.       | Run `npx playwright install chromium` and retry.           |
-| **0 Routes Discovered**       | No same-origin links or SPA.     | Provide a static list of `--routes "/,/about"` to the CLI. |
-
-### Feedback Loop: Verification
-
-After applying a fix, **always re-run the audit** (Step 3d). If the issue persists in the report, double-check that the selector used in your edit matches the one reported in `audit/report.html`.
-
-## `a11y.config.json` Reference
-
-Persist scan settings across runs by placing this file in the audited project root. All keys are optional — CLI flags take precedence.
-
-| Key                | Type      | Description                                                                                                 |
-| :----------------- | :-------- | :---------------------------------------------------------------------------------------------------------- |
-| `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                              |
-| `viewports`        | `array`   | `{ width, height, name }` objects. Only the first entry is used per scan.                                   |
-| `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                         |
-| `crawlDepth`       | `number`  | How deep to follow links during route discovery (1-3, default: 2).                                          |
-| `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                     |
-| `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                      |
-| `axeRules`         | `object`  | Fine-grained Axe-Core rule config passed directly to the scanner.                                           |
-| `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                    |
-| `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                           |
-| `onlyRule`         | `string`  | Only check for this specific rule ID.                                                                       |
-| `waitMs`           | `number`  | Timeout ceiling for dynamic content (default: 2000).                                                        |
-| `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                            |
-| `waitUntil`        | `string`  | Playwright load event: `"domcontentloaded"` \| `"load"` \| `"networkidle"` (default: `"domcontentloaded"`). |
-| `headless`         | `boolean` | Run browser in background (default: true).                                                                  |
-| `framework`        | `string`  | Override auto-detected framework. Accepted: `"shopify"` \| `"wordpress"` \| `"drupal"` \| `"generic"`.      |
+**Configuration**: To persist audit settings across runs, see [references/config.md](references/config.md).
