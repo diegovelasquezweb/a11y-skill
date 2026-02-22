@@ -103,15 +103,15 @@ pnpm a11y --base-url https://mysite.com --only-rule color-contrast
 
 For a comprehensive understanding of the a11y engine, explore the following technical manuals:
 
-| Resource                                                  | Description                                                                   |
-| :-------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| 📖 [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.               |
-| ⚙️ [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                       |
-| 🧠 [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system.  |
-| 🧮 [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.         |
-| 🏗️ [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.         |
-| 🛡️ [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                      |
-| 🧪 [**Skill Evaluations**](evals/README.md)               | 10 scenarios for testing skill behavior (Antigravity/Windsurf/Claude/Gemini). |
+| Resource                                               | Description                                                                   |
+| :----------------------------------------------------- | :---------------------------------------------------------------------------- |
+| [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.         |
+| [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.               |
+| [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                       |
+| [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system.  |
+| [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.         |
+| [**Skill Evaluations**](evals/README.md)               | 10 scenarios for testing skill behavior (Antigravity/Windsurf/Claude/Gemini). |
+| [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                      |
 
 ## External Resources
 
