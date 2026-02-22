@@ -1,18 +1,17 @@
 # a11y - Accessibility Audit & Remediation Skill
 
-This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with surgical remediation blueprints including precise DOM selectors and fix patterns to autonomously patch vulnerabilities directly in the source code.
+This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints including precise DOM selectors and fix patterns to autonomously patch vulnerabilities directly in the source code.
 
 ## Why this Skill?
 
-Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between **knowing** a problem exists and **fixing** it by providing the exact intelligence an agent needs to resolve issues with surgical precision.
+Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between **knowing** a problem exists and **fixing** it by providing the exact intelligence an agent needs to resolve issues with precision.
 
-| Feature / Capability            | `a11y`                                                          | Google Lighthouse                               | WebAIM WAVE                                  |
-| :------------------------------ | :-------------------------------------------------------------- | :---------------------------------------------- | :------------------------------------------- |
-| **Autonomous AI Resolution**    | <small>✅ (Surgical DOM selectors & fix-ready patterns)</small> | <small>⚠️ (Basic diagnostic hints only)</small> | <small>❌ (Manual inspection only)</small>   |
-| **Accessibility Rule Coverage** | <small>✅ (100% of axe-core WCAG A/AA + best-practice)</small>  | <small>⚠️ (Curated subset)</small>              | <small>⚠️ (Proprietary engine)</small>       |
-| **Site-Wide Route Scouting**    | <small>✅ (Automated zero-config crawler)</small>               | <small>❌ (Single URL per run)</small>          | <small>❌ (Single URL per run)</small>       |
-| **Remediation Intelligence**    | <small>✅ (AI-optimized blueprints & W3C APG patterns)</small>  | <small>⚠️ (Diagnostic links only)</small>       | <small>⚠️ (Documentation links only)</small> |
-| **Interactive QA Evidence**     | <small>✅ (Premium dashboard for visual verification)</small>   | <small>❌ (Static link list only)</small>       | <small>⚠️ (Passive visual overlays)</small>  |
+| Feature / Capability         | `a11y`                                                                | Google Lighthouse                               | WebAIM WAVE                                 |
+| :--------------------------- | :-------------------------------------------------------------------- | :---------------------------------------------- | :------------------------------------------ |
+| **Targeted AI Remediation**  | <small>✅ (Actionable fix patterns & precise DOM selectors)</small>   | <small>⚠️ (Basic diagnostic hints only)</small> | <small>❌ (Manual inspection only)</small>  |
+| **Rule Coverage**            | <small>✅ (100% of axe-core WCAG A/AA + best-practice)</small>        | <small>⚠️ (Curated subset)</small>              | <small>⚠️ (Proprietary engine)</small>      |
+| **Site-Wide Route Scanning** | <small>✅ (Automated zero-config crawler)</small>                     | <small>❌ (Single URL per run)</small>          | <small>❌ (Single URL per run)</small>      |
+| **Verified Audit Evidence**  | <small>✅ (Interactive HTML dashboard & Executive PDF report)</small> | <small>❌ (Static link list only)</small>       | <small>⚠️ (Passive visual overlays)</small> |
 
 ## Installation
 
@@ -51,7 +50,7 @@ Initialize a scan to discover vulnerabilities and generate a compliance baseline
 
 ## How to Fix
 
-Trigger autonomous repairs using the surgical blueprints from the remediation roadmap:
+Trigger autonomous repairs using the remediation blueprints from the roadmap:
 
 ```bash
 "Fix accessibility issues"
@@ -112,6 +111,7 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 | 🧮 [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.        |
 | 🏗️ [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.        |
 | 🛡️ [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                     |
+| 🧪 [**Skill Evaluations**](evals/README.md)               | 10 scenarios for testing skill behavior across models (Haiku/Sonnet/Opus).   |
 
 ## External Resources
 

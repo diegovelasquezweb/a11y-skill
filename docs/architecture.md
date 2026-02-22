@@ -51,7 +51,7 @@ graph TD
 
 - **Engine**: Uses Playwright to emulate a real user environment (Light/Dark mode, Viewport).
 - **Compliance**: Injects `axe-core` to run 106 accessibility rules (100% of axe-core WCAG A/AA + best-practice coverage).
-- **Discovery**: Crawls the site starting from the `base-url` up to `max-routes`.
+- **Discovery**: BFS multi-level crawl starting from `base-url`, configurable via `--crawl-depth` (1-3, default: 2). Supplements sitemap routes if the `maxRoutes` budget is not filled.
 - **Parallel Scanning**: Routes are scanned across 3 concurrent browser tabs for ~2-3x faster throughput.
 - **Smart Wait**: Uses `networkidle` signal instead of a fixed delay — proceeds as soon as the page is ready, with `waitMs` as the timeout ceiling.
 - **Project Context Detection**: Auto-detects the project's framework (Next.js, Nuxt, React, Vue, Angular, Astro, Svelte, Shopify, WordPress) from DOM signals, and UI component libraries (Radix, Headless UI, Chakra, Mantine, Material UI) from `package.json`.
@@ -72,7 +72,7 @@ graph TD
 ### 3. The Builder (`run-audit.mjs` orchestrator)
 
 - **Assembly**: Coordinates the execution of the Scanner and Analyzer.
-- **Formatting**: Triggers the report builders. In a "Fix-First" flow (or via `--skip-reports`), it prioritizes the **Remediation Guide** (`remediation.md`) over visual artifacts.
+- **Formatting**: Triggers the report builders (HTML dashboard, Markdown remediation guide, PDF summary).
 - **Persistence**: Ensures the `audit/` folder is updated with the latest findings.
 
 ### 4. The Remediation Guide (`audit/remediation.md`)
