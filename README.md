@@ -68,22 +68,9 @@ To trigger repairs using the remediation blueprints:
 "Fix only critical issues"
 ```
 
-The agent also understands more complex requests, like ignoring specific rules or choosing viewports — just ask naturally.
+### Custom Configuration
 
-## Deliverables
-
-While the primary output for the AI agent is the Remediation Guide, the skill generates artifacts for human verification and reporting.
-
-| Deliverable           | Format  | Audience   | Key Value                                                 |
-| :-------------------- | :------ | :--------- | :-------------------------------------------------------- |
-| Remediation Guide     | `.md`   | AI Agents  | AI-optimized patching guide with full fix intelligence.   |
-| **Audit Dashboard**   | `.html` | Developers | Visual evidence and interactive verification of findings. |
-| **Executive Summary** | `.pdf`  | Clients    | Formal compliance evidence for clients or stakeholders.   |
-| **Technical Data**    | `.json` | Systems    | Enriched findings for custom integrations.                |
-
-## Configuration
-
-All configuration is passed via CLI flags — there is no config file. You can pass settings through the AI agent using natural language:
+You can customize the audit using natural language. The agent translates your instructions into the appropriate engine settings:
 
 ```bash
 "Ignore the 'color-contrast' rule."
@@ -93,7 +80,7 @@ All configuration is passed via CLI flags — there is no config file. You can p
 "Use a Mobile viewport (375x812) and dark mode."
 ```
 
-The agent translates your instructions into the appropriate CLI flags. For the full reference, see [CLI Handbook](docs/cli-handbook.md).
+For the full technical reference of supported options, see the [CLI Handbook](docs/cli-handbook.md).
 
 ## Audit Engine (CI/CD & Local Validation)
 
@@ -108,6 +95,15 @@ pnpm a11y --base-url http://localhost:3000 --max-routes 20 --headed
 # Run ONLY the color-contrast check
 pnpm a11y --base-url https://mysite.com --only-rule color-contrast
 ```
+
+## Deliverables
+
+By default, the skill operates as a high-speed headless engine for the AI agent. At the end of an audit, the skill will prompt you to generate these optional visual reports:
+
+| Deliverable           | Format  | Audience     | Key Value                                                                   |
+| :-------------------- | :------ | :----------- | :-------------------------------------------------------------------------- |
+| **Audit Dashboard**   | `.html` | Developers   | Interactive report with persona filtering, DOM telemetry, and verification. |
+| **Executive Summary** | `.pdf`  | Stakeholders | Formal compliance evidence and legal risk assessment for stakeholders.      |
 
 ## Technical Reference
 
