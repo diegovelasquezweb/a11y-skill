@@ -28,21 +28,53 @@ Follow these steps sequentially when the user requests an audit. Copy this check
 
 ```
 Audit Progress:
-- [ ] Step 1: Run audit (`node scripts/run-audit.mjs --base-url <URL>`)
+- [ ] Step 1: Run audit + ask about visual reports
 - [ ] Step 2: Present findings and request permission
 - [ ] Step 3a: Structural fixes (Critical → High → Medium → Low)
 - [ ] Step 3b: Style-dependent fixes (with explicit approval)
 - [ ] Step 3c: Manual checks
 - [ ] Step 3d: Re-run audit to verify
-- [ ] Step 4: Deliver results
+- [ ] Step 4: Deliver results + offer final reports
 ```
 
 ### Step 1 — Run the audit
 
 If the user did not provide a URL, ask for it before proceeding.
 
+Run the audit with `--skip-reports` by default (faster — only generates the remediation guide the agent needs):
+
 ```bash
-node scripts/run-audit.mjs --base-url <URL>
+node scripts/run-audit.mjs --base-url <URL> --skip-reports
+```
+
+After the scan completes, ask whether the user wants visual reports:
+
+> "Audit complete — I have the remediation roadmap ready. Would you also like me to generate visual reports?
+> - **HTML Dashboard** — interactive web report with severity cards, compliance score, and evidence screenshots.
+> - **PDF Executive Summary** — formal A4 document for clients or stakeholders.
+> - **Both**
+> - **Neither** — just proceed with fixes."
+
+If the user requests reports, generate only the selected ones:
+
+```bash
+# HTML only
+node scripts/build-report-html.mjs --output audit/report.html --base-url <URL>
+
+# PDF only (requires HTML first)
+node scripts/build-report-html.mjs --output audit/report.html --base-url <URL>
+node scripts/build-report-pdf.mjs audit/report.html audit/report.pdf
+
+# Both
+node scripts/build-report-html.mjs --output audit/report.html --base-url <URL>
+node scripts/build-report-pdf.mjs audit/report.html audit/report.pdf
+```
+
+After generation, open the requested reports for the user:
+
+```bash
+open audit/report.html   # HTML dashboard
+open audit/report.pdf    # PDF summary
 ```
 
 If the script fails (network error, Chromium crash, timeout), report the error to the user and ask whether to retry or adjust the target URL.
@@ -55,11 +87,15 @@ Read `audit/remediation.md` and:
 2. Propose the specific fixes from the remediation guide.
 3. Group by component or page area, explaining _why_ each fix is needed.
 4. Ask for permission before applying fixes.
-5. Provide the absolute path to `audit/report.html` as visual proof.
+5. If visual reports were generated in Step 1, provide their absolute paths as proof.
 
-Example:
+Example (with reports):
 
-> "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). The full visual report is at `/path/to/audit/report.html`. I have patches ready for all of them — should I apply the fixes?"
+> "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). The visual report is open in your browser. I have patches ready for all of them — should I apply the fixes?"
+
+Example (without reports):
+
+> "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). I have patches ready for all of them — should I apply the fixes?"
 
 For finding field requirements and deliverable format, see [references/report-standards.md](references/report-standards.md).
 
@@ -99,7 +135,7 @@ Process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`:
 **3d. Final Certification Audit**:
 
 ```bash
-node scripts/run-audit.mjs --base-url <URL>
+node scripts/run-audit.mjs --base-url <URL> --skip-reports
 ```
 
 If **new issues or regressions** appear (not previously seen), present them and restart from 3a. Issues the user already declined do not trigger a restart.
@@ -107,13 +143,21 @@ If **new issues or regressions** appear (not previously seen), present them and 
 ### Step 4 — Deliver results
 
 1. Summarize: total issues found, issues resolved, files modified, remaining issues (if any).
-2. Provide absolute paths to `audit/report.html` and `audit/remediation.md`.
-3. If all issues are resolved, confirm the site now passes WCAG 2.2 AA automated checks.
-4. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
+2. If all issues are resolved, confirm the site now passes WCAG 2.2 AA automated checks.
+3. Offer to generate (or regenerate) visual reports reflecting the final state:
 
-Example:
+> "All 12 issues resolved across 7 files. Your site now passes WCAG 2.2 AA automated checks. Would you like me to generate final reports?
+> - **HTML Dashboard** — interactive web report with the updated compliance score.
+> - **PDF Executive Summary** — formal document to share with clients or stakeholders.
+> - **Both**
+> - **No thanks**"
 
-> "All 12 issues resolved across 7 files. Your site now passes WCAG 2.2 AA automated checks. Great work investing in accessibility — this directly improves the experience for users with disabilities and strengthens your legal compliance. Next steps: schedule periodic re-audits, and consider testing with a screen reader (VoiceOver, NVDA) for manual coverage."
+4. If the user requests reports, generate and open them (same commands as Step 1).
+5. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
+
+Example (complete):
+
+> "All 12 issues resolved across 7 files. Your site now passes WCAG 2.2 AA automated checks. The final HTML report is open in your browser. Great work investing in accessibility — this directly improves the experience for users with disabilities and strengthens your legal compliance. Next steps: schedule periodic re-audits, and consider testing with a screen reader (VoiceOver, NVDA) for manual coverage."
 
 ## Edge Cases
 
