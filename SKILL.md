@@ -1,6 +1,6 @@
 ---
 name: a11y
-description: Detect and autonomously fix WCAG 2.2 AA accessibility issues. Build for resolution, not just reporting. The primary goal is generating and applying surgical code patches to resolve compliance vulnerabilities.
+description: Detects and fixes WCAG 2.2 AA accessibility issues on websites using automated scanning (axe-core + Playwright). Use when the user requests an accessibility audit, WCAG compliance check, or a11y fixes for a URL.
 compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL. Playwright + Chromium are installed automatically on first run.
 license: Proprietary (All Rights Reserved)
 metadata:
@@ -9,8 +9,6 @@ metadata:
 ---
 
 # Web Accessibility Audit — Agent Playbook
-
-Resolution is the core objective. Reports are evidence, not the goal.
 
 ## Constraints
 
@@ -29,122 +27,79 @@ These rules apply at all times during audit and fix workflows.
 **Always do:**
 - Write all outputs in English.
 - Use route paths (`/`, `/products`) as primary locations — local URLs go under `Test Environment`.
-- Use `--skip-reports` for all intermediate verifications (Surgery Mode).
-- Generate reports only at Discovery (start) and Certification (end).
 - Prefer DOM/selector evidence over screenshots. Capture screenshots only when tied 1:1 to a specific issue.
 - Remind the user to add `audit/` to `.gitignore` after every audit run. The pipeline auto-appends it when a `.gitignore` exists; if the project has none, tell the user to create one.
 
 **Platform quirks**: See [references/platform-setup.md](references/platform-setup.md) for Antigravity, Windsurf, Codex, and Gemini CLI notes.
 
-## Audit Workflow
+## Workflow
 
 Follow these steps sequentially when the user requests an audit.
 
-### Step 1 — Get the target URL
+### Step 1 — Run the audit
 
-- Use the URL provided by the user.
-- If none is provided, ask immediately before doing anything else.
-- Only if the user explicitly asks you to detect it: search project files for URL traces, then fall back to common dev ports (`3000`, `3001`, `4173`, `5173`, `8080`).
-- If no reachable target exists, report the blocker and stop.
-
-### Step 2 — Run the pipeline
+If the user did not provide a URL, ask for it before proceeding.
 
 ```bash
 node scripts/run-audit.mjs --base-url <URL>
 ```
 
-This orchestrator runs all pipeline steps in order: preflight → scan → analyze → reports. If any step fails, it stops and reports the blocker.
+If the script fails (network error, Chromium crash, timeout), report the error to the user and ask whether to retry or adjust the target URL.
 
-- Auto-discovers same-origin routes if the user did not provide `--routes`.
-- If a dependency or browser is missing, report `pnpm install` as the fix and stop.
+### Step 2 — Present findings and request permission
 
-### Step 3 — Present findings (Fix-First)
-
-Do not just link the report. Read `audit/remediation.md` and:
+Read `audit/remediation.md` and:
 
 1. Summarize findings by severity (Critical → High → Medium → Low).
-2. Propose the specific fixes from the remediation guide immediately in the chat.
-3. Use the exact selectors and "Search Hints" from the analyzer to locate code.
-4. Group fixes by component or page area.
-5. Briefly explain _why_ each fix is needed.
+2. Propose the specific fixes from the remediation guide.
+3. Group by component or page area, explaining _why_ each fix is needed.
+4. Ask: "I have detected N issues and have the patches ready. Should I apply them now?"
+5. Provide the absolute path to `audit/report.html` as visual proof.
 
-### Step 4 — Request permission
+For finding field requirements and deliverable format, see [references/report-standards.md](references/report-standards.md).
 
-> "I have detected N issues and have the patches ready. Should I apply them now?"
+If the user declines, remind them that unresolved accessibility issues exclude users with disabilities and may violate legal requirements (ADA, EAA, EN 301 549). Offer to revisit later and stop here.
 
-### Step 5 — Provide report evidence
+### Step 3 — Fix
 
-Only after proposing fixes, provide the absolute path to `audit/report.html` as visual proof.
+**Never apply all fixes in a single batch.** Work through each phase below in order.
 
-### Reference material
+**3a. Structural fixes by severity** (Critical → High → Medium → Low):
 
-- **Baseline checks** (8 domains to audit per route): [references/baseline-checks.md](references/baseline-checks.md)
-- **Report & evidence standards** (finding fields, deliverable order, file output): [references/report-standards.md](references/report-standards.md)
+1. Apply one severity group — structural and semantic fixes only (HTML attributes, ARIA roles, DOM order, alt text, labels).
+   - Use "Search in" glob patterns and the "Fixes by Component" table to locate and batch edits per file.
+   - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
+   - For framework and CMS file locations, see [references/source-patterns.md](references/source-patterns.md).
+2. Checkpoint — list every file modified and fix applied, ask the user to verify visually:
+   > "Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."
+3. Repeat for each remaining severity group.
 
-## Fix Workflow
+**3b. Style-dependent fixes** (color-contrast, font-size, spacing):
 
-When the user grants permission, follow this protocol. **Never apply all fixes in a single batch.**
+Present the exact proposed changes as a separate batch and wait for explicit approval before applying. Never modify visual properties without the user seeing the change first.
 
-### Step 1 — Group by severity
+**3c. Manual checks**:
 
-Organize all fixes before touching any file: Critical → High → Medium → Low.
+Process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`:
 
-### Step 2 — Locate source files
+1. Search the project source for each pattern. Skip checks that don't apply.
+2. Present confirmed violations as a batch and wait for permission before applying.
 
-- Use "Search in" glob patterns from each finding.
-- Use the "Fixes by Component" table (if present) to batch edits per file.
-- If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library (Radix, Headless UI, etc.) before applying ARIA fixes.
-- **Tailwind**: When fixing color-contrast or visual issues, check `package.json` for the `tailwindcss` version first. v3 uses `tailwind.config.*`; v4 uses `@theme { … }` blocks in CSS files. Never report a missing config as an error in v4 projects.
-
-### Step 3 — Apply one severity group
-
-Starting with Critical. One group at a time — never mix groups.
-
-### Step 4 — Checkpoint
-
-Stop, list every file modified and fix applied, and ask the user to verify:
-
-> "Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."
-
-### Step 5 — Verify
-
-Run a targeted re-scan:
-
-```bash
-pnpm a11y --base-url <URL> --routes <route> --only-rule <rule-id> --max-routes 1 --skip-reports
-```
-
-- **State Loss**: Targeted scans overwrite `a11y-findings.json` with a filtered list.
-- Do NOT tell the user "all errors are gone" based on a targeted scan — only confirm the specific rule(s) you just fixed.
-- Maintain an internal tracker of which issues from the original audit are still pending.
-
-### Step 6 — Wait for confirmation
-
-Never auto-advance to the next severity group. If any fix fails, stop immediately and ask the user how to proceed.
-
-### Step 7 — Repeat Steps 3-6
-
-For each remaining severity group (High → Medium → Low).
-
-### Step 8 — Final Certification Audit
-
-Once all automated fixes are applied and verified:
+**3d. Final Certification Audit**:
 
 ```bash
 node scripts/run-audit.mjs --base-url <URL>
 ```
 
-This generates the final clean report (0 issues) for delivery.
+If **new issues or regressions** appear (not previously seen), present them and restart from 3a. Issues the user already declined do not trigger a restart.
 
-## Manual Checks
+### Step 4 — Deliver results
 
-After all automated fixes are applied, process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`.
-
-1. Read each manual check — it includes a pattern, verification steps, and before/after code.
-2. Search the project source code for the pattern. Determine if the project is affected.
-3. Skip checks that don't apply (e.g., no `<video>` elements → skip media caption checks).
-4. Group all confirmed violations and present them as a batch: _"I found N additional issues from manual WCAG checks. Here are the proposed fixes."_
-5. Wait for user permission before applying. Follow the same checkpoint protocol as the Fix Workflow.
+1. Summarize: total issues found, issues resolved, files modified, remaining issues (if any).
+2. Provide absolute paths to `audit/report.html` and `audit/remediation.md`.
+3. If all issues are resolved, confirm the site now passes WCAG 2.2 AA automated checks.
+4. Congratulate the user for investing in accessibility — it directly improves the experience for users with disabilities and strengthens legal compliance.
+5. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
 
 ## Edge Cases
 

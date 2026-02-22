@@ -1,5 +1,12 @@
 # Platform-Specific Installation
 
+## Contents
+- [Antigravity Only] Workflow Setup
+- [Windsurf Only] Workflow Setup
+- [Codex Only] No Local Setup
+- [Gemini CLI Only] No Local Setup
+- Platform-Specific Runtime Notes
+
 ## [Antigravity Only] Workflow Setup
 
 > **CRITICAL**: This section applies EXCLUSIVELY to Google Antigravity. Other agents (Gemini CLI, Claude, Cursor, Windsurf) MUST IGNORE this section.
