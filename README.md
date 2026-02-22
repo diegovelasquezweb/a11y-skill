@@ -108,6 +108,7 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 | [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.         |
 | [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.               |
 | [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                       |
+| [**Data Validation**](docs/data-validation.md)         | Steps to verify and update intelligence data assets and WCAG mappings.        |
 | [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system.  |
 | [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.         |
 | [**Scripts Catalog**](docs/scripts-catalog.md)         | Purpose and execution workflow of all engine automation scripts.              |
