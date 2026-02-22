@@ -54,12 +54,16 @@ Read `audit/remediation.md` and:
 1. Summarize findings by severity (Critical → High → Medium → Low).
 2. Propose the specific fixes from the remediation guide.
 3. Group by component or page area, explaining _why_ each fix is needed.
-4. Ask: "I have detected N issues and have the patches ready. Should I apply them now?"
+4. Ask for permission before applying fixes.
 5. Provide the absolute path to `audit/report.html` as visual proof.
+
+Example:
+> "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). The full visual report is at `/path/to/audit/report.html`. I have patches ready for all of them — should I apply the fixes?"
 
 For finding field requirements and deliverable format, see [references/report-standards.md](references/report-standards.md).
 
-If the user declines, remind them that unresolved issues exclude users with disabilities and may violate legal requirements (ADA, EAA, EN 301 549). Offer to revisit later and stop here.
+If the user declines:
+> "Understood. Keep in mind that these 12 issues currently prevent users who rely on screen readers, keyboard navigation, or assistive technology from using parts of your site. Unresolved violations may also expose legal risk under ADA, EAA, or EN 301 549. I can revisit these fixes anytime — just ask."
 
 ### Step 3 — Fix
 
@@ -71,8 +75,10 @@ If the user declines, remind them that unresolved issues exclude users with disa
    - Use "Search in" glob patterns and the "Fixes by Component" table to locate and batch edits per file.
    - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
    - For framework and CMS file locations, see [references/source-patterns.md](references/source-patterns.md).
-2. Checkpoint — list every file modified and fix applied, ask the user to verify visually:
-   > "Critical fixes applied — 3 files modified. Please verify and confirm when ready to proceed with High severity fixes."
+2. Checkpoint — list every file modified and fix applied, ask the user to verify visually.
+
+   Example:
+   > "Critical fixes applied — 3 files modified (`Header.tsx`, `Nav.astro`, `Footer.tsx`). Please verify visually and confirm when ready to proceed with High severity fixes."
 3. Repeat for each remaining severity group.
 
 **3b. Style-dependent fixes** (color-contrast, font-size, spacing):
@@ -99,8 +105,10 @@ If **new issues or regressions** appear (not previously seen), present them and 
 1. Summarize: total issues found, issues resolved, files modified, remaining issues (if any).
 2. Provide absolute paths to `audit/report.html` and `audit/remediation.md`.
 3. If all issues are resolved, confirm the site now passes WCAG 2.2 AA automated checks.
-4. Congratulate the user — accessibility work directly improves the experience for users with disabilities and strengthens legal compliance.
-5. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
+4. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
+
+Example:
+> "All 12 issues resolved across 7 files. Your site now passes WCAG 2.2 AA automated checks. Great work investing in accessibility — this directly improves the experience for users with disabilities and strengthens your legal compliance. Next steps: schedule periodic re-audits, and consider testing with a screen reader (VoiceOver, NVDA) for manual coverage."
 
 ## Edge Cases
 
@@ -120,4 +128,14 @@ If **new issues or regressions** appear (not previously seen), present them and 
 
 **Troubleshooting**: If a command fails, see [references/troubleshooting.md](references/troubleshooting.md) to self-correct before asking the user.
 
-**Configuration**: To persist audit settings across runs, see [references/config.md](references/config.md).
+## `a11y.config.json`
+
+Place this file in the audited project root to persist settings across runs. All keys are optional — CLI flags take precedence. Common keys:
+
+- `routes` — static list of paths to audit (overrides autodiscovery)
+- `maxRoutes` — max URLs to discover (default: 10)
+- `viewports` — `{ width, height, name }` objects for responsive testing
+- `ignoreFindings` — axe rule IDs to silence
+- `excludeSelectors` — DOM selectors to skip entirely
+
+For the full schema (16 keys), see [references/audit-config.md](references/audit-config.md).
