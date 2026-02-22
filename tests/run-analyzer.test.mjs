@@ -14,10 +14,16 @@ describe("assets/intelligence.json schema", () => {
   beforeAll(() => {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     intelligence = JSON.parse(
-      fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"),
+      fs.readFileSync(
+        path.join(__dirname, "../assets/intelligence.json"),
+        "utf-8",
+      ),
     );
     ruleMetadata = JSON.parse(
-      fs.readFileSync(path.join(__dirname, "../assets/rule-metadata.json"), "utf-8"),
+      fs.readFileSync(
+        path.join(__dirname, "../assets/rule-metadata.json"),
+        "utf-8",
+      ),
     );
   });
 
@@ -28,8 +34,6 @@ describe("assets/intelligence.json schema", () => {
   it("rule-metadata.json has required top-level keys", () => {
     expect(ruleMetadata).toHaveProperty("wcagCriterionMap");
     expect(ruleMetadata).toHaveProperty("apgPatterns");
-    expect(ruleMetadata).toHaveProperty("a11ySupport");
-    expect(ruleMetadata).toHaveProperty("inclusiveComponents");
     expect(ruleMetadata).toHaveProperty("mdn");
   });
 
@@ -42,13 +46,16 @@ describe("assets/intelligence.json schema", () => {
 
   it("wcagCriterionMap covers all rules defined in intelligence.json", () => {
     const ruleIds = Object.keys(intelligence.rules);
-    const missingFromMap = ruleIds.filter((id) => !ruleMetadata.wcagCriterionMap[id]);
+    const missingFromMap = ruleIds.filter(
+      (id) => !ruleMetadata.wcagCriterionMap[id],
+    );
     expect(missingFromMap).toEqual([]);
   });
 
-  it("apgPatterns and inclusiveComponents have correct mappings", () => {
-    expect(ruleMetadata.apgPatterns.dialog).toContain("apg/patterns/dialog-modal");
-    expect(ruleMetadata.inclusiveComponents.tab).toContain("tabbed-interfaces");
+  it("apgPatterns has correct mappings", () => {
+    expect(ruleMetadata.apgPatterns.dialog).toContain(
+      "apg/patterns/dialog-modal",
+    );
   });
 });
 
@@ -74,7 +81,9 @@ describe("detectImplicitRole", () => {
   });
 
   it("returns 'checkbox' for <input type='checkbox'>", () => {
-    expect(detectImplicitRole("input", '<input type="checkbox">')).toBe("checkbox");
+    expect(detectImplicitRole("input", '<input type="checkbox">')).toBe(
+      "checkbox",
+    );
   });
 
   it("returns 'radio' for <input type='radio'>", () => {
@@ -102,7 +111,9 @@ describe("detectImplicitRole", () => {
   });
 
   it("handles uppercase type attribute (case-insensitive)", () => {
-    expect(detectImplicitRole("input", '<input type="CHECKBOX">')).toBe("checkbox");
+    expect(detectImplicitRole("input", '<input type="CHECKBOX">')).toBe(
+      "checkbox",
+    );
     expect(detectImplicitRole("input", '<input type="RADIO">')).toBe("radio");
   });
 
@@ -171,6 +182,8 @@ describe("extractSearchHint", () => {
   });
 
   it("returns attribute selector as-is when no ID, class, or tag match", () => {
-    expect(extractSearchHint('[aria-label="Close"]')).toBe('[aria-label="Close"]');
+    expect(extractSearchHint('[aria-label="Close"]')).toBe(
+      '[aria-label="Close"]',
+    );
   });
 });

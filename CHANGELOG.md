@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.0] — 2026-02-22
+
+### Added
+- Communication Rules section in SKILL.md — 5 rules for agent-to-user messaging (closed questions, concise tone, always provide options, explain "why", one question per message)
+- 15 example messages covering every user-facing moment in the workflow (URL request, route scope, gitignore, reports, findings, 0 issues, decline, severity checkpoint, fix-all checkpoint, style approval, manual checks, regressions, manual verification reminder, final reports offer, congratulations)
+- Per-project config: `audit/a11y.config.json` is now read from the audited project's `audit/` folder (created on demand by the agent), replacing the previous shared config in the skill root
+- Config management instructions in SKILL.md: tells the agent how to create, read, merge, and write the config file
+- Gitignore question: agent now asks the user before adding `audit/` to `.gitignore` instead of modifying it automatically
+- Step 2 fix strategy options: user can choose between "severity by severity" (default), "fix all structural", or "only critical"
+- Style-dependent protection rule: style fixes always require explicit approval with exact changes shown, even under a "fix all" instruction
+- Step 4 manual verification checklist: agent presents human-only checks (keyboard nav, focus order, screen reader, motion, zoom) before delivering results
+- Visual reports are now opt-in: audit runs with `--skip-reports` by default, agent asks which reports to generate (HTML / PDF / Both / Neither) after scan and again after fixes
+- Auto-open for generated reports: agent opens requested reports (`open audit/report.html`, `open audit/report.pdf`) after generation
+- Route scope notification in Step 1: agent informs user about sitemap vs crawl behavior and how to adjust
+- URL normalization rules in Step 1: `localhost:3000` → `http://`, `mysite.com` → `https://`
+
+### Changed
+- Sitemap discovery now scans all URLs in `sitemap.xml` without `maxRoutes` cap — `maxRoutes` only applies to BFS crawl fallback when no sitemap is found
+- Verification re-audit (Step 3d) is now automatic — agent runs it without asking, only surfaces regressions if found
+- All user-facing questions converted to closed format: yes/no or multiple choice with explicit options
+- `.gitignore` auto-append removed from `run-audit.mjs` — replaced with warning signals for the agent to ask the user
+
+### Removed
+- `a11y.config.json` from skill root (was an empty `{}` placeholder)
+- `.gitignore` auto-modification from `run-audit.mjs` pipeline
+
+---
+
 ## [0.5.1] — 2026-02-21
 
 ### Changed
@@ -22,11 +50,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `.gitignore` constraint elevated to pre-audit precondition (was post-delivery reminder)
   - Removed `> [!TIP]` callout (GitHub-only rendering, no value to agents)
 - Troubleshooting table moved to `references/troubleshooting.md` (progressive disclosure)
-- `a11y.config.json` reference table moved to `references/config.md` (progressive disclosure)
+- `a11y.config.json` reference table moved to `references/audit-config.md` (progressive disclosure)
 - Report route path convention moved to `references/report-standards.md`
 - Analyzer: `recommended_fix` simplified from up to 3 links (APG + a11ySupport + Inclusive Components) to a single reference link (APG preferred, helpUrl fallback) — reduces noise for both HTML report and agent remediation guide
 - Removed unused `A11Y_SUPPORT` and `INCLUSIVE_COMPONENTS` constants from `run-analyzer.mjs`
 - Terminology consistency: "scan" → "audit" in evals (`01-basic-audit.json`, `evals/README.md`)
+- Analyzer: `framework_notes` and `cms_notes` now filtered to only the detected framework — agent receives 1 relevant note per finding instead of 5-7
+- Added `filterNotes()` with `FRAMEWORK_TO_INTEL_KEY` and `FRAMEWORK_TO_CMS_KEY` mappings in `run-analyzer.mjs`
+- Remediation guide (MD): removed `reproduction` steps — agents cannot open a browser, and the selector + search pattern already provide location context
+- Remediation guide (MD): removed redundant "Context & Patterns" block — was duplicating `recommended_fix` (generic link) when intelligence-sourced `fixDescription`/`fixCode` already provided a superior solution
+
+### Added
+- Complete `framework_notes` coverage: added 5-key notes (react, vue, angular, svelte, astro) to `focus-appearance`, `input-image-alt`, `object-alt`, `target-size` in `intelligence.json`
+- Added missing `angular` key to `consistent-help` framework_notes
+- Inline communication examples in SKILL.md for proposal, decline, checkpoint, and delivery moments
+- Common `a11y.config.json` keys documented inline in SKILL.md with link to full schema
 
 ---
 

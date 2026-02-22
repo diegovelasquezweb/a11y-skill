@@ -9,7 +9,9 @@ let MANUAL_CHECKS;
 try {
   MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
 } catch {
-  throw new Error("Missing or invalid assets/manual-checks.json — reinstall the skill.");
+  throw new Error(
+    "Missing or invalid assets/manual-checks.json — reinstall the skill.",
+  );
 }
 
 /**
@@ -48,7 +50,9 @@ function buildManualChecksMd() {
         : []),
       codeBlock,
       `**Reference:** ${check.ref}`,
-    ].filter(Boolean).join("\n");
+    ]
+      .filter(Boolean)
+      .join("\n");
   }).join("\n\n");
 
   return `## WCAG 2.2 Static Code Checks
@@ -64,8 +68,10 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
   const detected = metadata.projectContext?.framework;
   if (detected) return detected;
   const url = baseUrl.toLowerCase();
-  if (url.includes("myshopify.com") || url.includes(".myshopify.")) return "shopify";
-  if (url.includes("wp-content") || url.includes("wordpress")) return "wordpress";
+  if (url.includes("myshopify.com") || url.includes(".myshopify."))
+    return "shopify";
+  if (url.includes("wp-content") || url.includes("wordpress"))
+    return "wordpress";
   return "generic";
 }
 
@@ -84,7 +90,9 @@ function buildGuardrails(framework) {
     generic: `1.  **Framework & CMS Awareness**: This project may use React, Vue, Next.js, Astro, **Shopify** (.liquid), **WordPress** (.php), or **Drupal** (.twig).\n    - **NEVER** edit compiled, minified, or cached files (e.g., \`dist/\`, \`.next/\`, \`build/\`, \`wp-content/cache/\`, \`assets/*.min.js\`).\n    - **Source of Truth**: Traced DOM violations must be fixed at the **Source Component** or **Server-side Template**. Edit the origin, not the output.`,
   };
 
-  return [frameworkRule[framework] ?? frameworkRule.generic, ...shared].join("\n");
+  return [frameworkRule[framework] ?? frameworkRule.generic, ...shared].join(
+    "\n",
+  );
 }
 
 /**
@@ -98,25 +106,19 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     let evidenceHtml = null;
     let evidenceLabel = "#### Evidence from DOM";
     (() => {
-      if (!f.evidence || !Array.isArray(f.evidence) || f.evidence.length === 0) return;
+      if (!f.evidence || !Array.isArray(f.evidence) || f.evidence.length === 0)
+        return;
       const shownCount = f.evidence.filter((n) => n.html).length;
       if (f.totalInstances && f.totalInstances > shownCount) {
         evidenceLabel = `#### Evidence from DOM (showing ${shownCount} of ${f.totalInstances} instances)`;
       }
       evidenceHtml = f.evidence
         .map((n, i) =>
-          n.html
-            ? `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\``
-            : "",
+          n.html ? `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\`` : "",
         )
         .filter(Boolean)
         .join("\n\n");
     })();
-
-    const reproBlock =
-      f.reproduction && f.reproduction.length > 0
-        ? `**To reproduce:**\n${f.reproduction.map((s, i) => `${i + 1}. ${s}`).join("\n")}`
-        : null;
 
     const codeLang = f.fixCodeLang || "html";
     const fixBlock =
@@ -136,7 +138,20 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     const frameworkBlock =
       f.frameworkNotes && typeof f.frameworkNotes === "object"
         ? `**Framework Guidance:**\n${Object.entries(f.frameworkNotes)
-            .map(([fw, note]) => `- **${fw.charAt(0).toUpperCase() + fw.slice(1)}:** ${note}`)
+            .map(
+              ([fw, note]) =>
+                `- **${fw.charAt(0).toUpperCase() + fw.slice(1)}:** ${note}`,
+            )
+            .join("\n")}`
+        : null;
+
+    const cmsBlock =
+      f.cmsNotes && typeof f.cmsNotes === "object"
+        ? `**CMS Guidance:**\n${Object.entries(f.cmsNotes)
+            .map(
+              ([cms, note]) =>
+                `- **${cms.charAt(0).toUpperCase() + cms.slice(1)}:** ${note}`,
+            )
             .join("\n")}`
         : null;
 
@@ -169,7 +184,9 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `- **Surgical Selector:** \`${f.primarySelector || f.selector}\``,
       `- **WCAG Criterion:** ${f.wcag}`,
       `- **Persona Impact:** ${f.impactedUsers}`,
-      f.priorityScore != null ? `- **Priority Score:** ${f.priorityScore}/100` : null,
+      f.priorityScore != null
+        ? `- **Priority Score:** ${f.priorityScore}/100`
+        : null,
       ``,
       managedBlock ? `${managedBlock}\n` : null,
       `**Why it matters:** ${f.impact || "This violation creates barriers for users with disabilities."}`,
@@ -177,8 +194,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `**Expected Behavior:** ${f.expected}`,
       ``,
       `**Observed Violation:** ${f.actual}`,
-      reproBlock ? `` : null,
-      reproBlock,
       searchPatternBlock ? `` : null,
       searchPatternBlock,
       ``,
@@ -187,16 +202,14 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       difficultyBlock,
       frameworkBlock ? `` : null,
       frameworkBlock,
+      cmsBlock ? `` : null,
+      cmsBlock,
       fpRisk ? `` : null,
       fpRisk,
       evidenceHtml ? `` : null,
       evidenceHtml ? `${evidenceLabel}\n${evidenceHtml}` : null,
       ruleRef ? `` : null,
       ruleRef,
-      f.fixDescription || f.fixCode ? `` : null,
-      f.fixDescription || f.fixCode
-        ? `**Context & Patterns:** ${f.recommendedFix}`
-        : null,
       relatedBlock ? `` : null,
       relatedBlock,
       verifyBlock ? `` : null,
@@ -232,7 +245,9 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       if (!groups[hint]) groups[hint] = [];
       groups[hint].push(f);
     }
-    const sorted = Object.entries(groups).sort((a, b) => b[1].length - a[1].length);
+    const sorted = Object.entries(groups).sort(
+      (a, b) => b[1].length - a[1].length,
+    );
     if (sorted.length <= 1) return "";
     const rows = sorted.map(([component, items]) => {
       const severities = [...new Set(items.map((i) => i.severity))].join(", ");

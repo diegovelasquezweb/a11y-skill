@@ -6,7 +6,10 @@ function computePriorityScore(item) {
   const severityPoints = sev === 0 ? 50 : sev === 1 ? 30 : sev === 2 ? 10 : 0;
   // Instance count: 0-30 pts, logarithmic curve so 1 instance ≠ 0 pts
   const instances = item.total_instances || 1;
-  const instancePoints = Math.min(Math.round(Math.log2(instances + 1) * 10), 30);
+  const instancePoints = Math.min(
+    Math.round(Math.log2(instances + 1) * 10),
+    30,
+  );
   // Fix available bonus: 0-20 pts
   const fixPoints = item.fix_code ? 20 : 0;
   return severityPoints + instancePoints + fixPoints;
@@ -36,7 +39,9 @@ export function normalizeFindings(payload) {
       url: String(item.url ?? ""),
       selector: String(item.selector ?? ""),
       primarySelector: String(item.primary_selector ?? item.selector ?? ""),
-      impactedUsers: String(item.impacted_users ?? "Users relying on assistive technology"),
+      impactedUsers: String(
+        item.impacted_users ?? "Users relying on assistive technology",
+      ),
       impact: String(item.impact ?? ""),
       reproduction: Array.isArray(item.reproduction)
         ? item.reproduction.map((v) => String(v))
@@ -48,7 +53,8 @@ export function normalizeFindings(payload) {
       fixCode: item.fix_code ?? null,
       recommendedFix: String(item.recommended_fix ?? item.recommendedFix ?? ""),
       evidence: Array.isArray(item.evidence) ? item.evidence : [],
-      totalInstances: typeof item.total_instances === "number" ? item.total_instances : null,
+      totalInstances:
+        typeof item.total_instances === "number" ? item.total_instances : null,
       priorityScore: computePriorityScore(item),
       effort: item.effort ?? null,
       relatedRules: Array.isArray(item.related_rules) ? item.related_rules : [],
@@ -58,6 +64,7 @@ export function normalizeFindings(payload) {
       falsePositiveRisk: item.false_positive_risk ?? null,
       fixDifficultyNotes: item.fix_difficulty_notes ?? null,
       frameworkNotes: item.framework_notes ?? null,
+      cmsNotes: item.cms_notes ?? null,
       fileSearchPattern: item.file_search_pattern ?? null,
       managedByLibrary: item.managed_by_library ?? null,
       componentHint: item.component_hint ?? null,

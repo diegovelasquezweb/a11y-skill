@@ -1,6 +1,6 @@
 # Engine Intelligence
 
-**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Testing](testing.md)
+**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Data Validation](data-validation.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Scripts](scripts-catalog.md) • [Testing](testing.md)
 
 ---
 
@@ -39,12 +39,48 @@ A top-level lookup in `intelligence.json` that maps every rule ID to its WCAG cr
 
 ## Surgical Patch Generation
 
-When a violation is found, the Analyzer does more than just report it:
+When a violation is found, the Analyzer does more than just report it — it provides the exact intelligence needed to locate the issue in the codebase with surgical precision.
 
-1. **Context Analysis**: It looks at the tag name and attributes of the failing element.
-2. **Selector Extraction**: It simplifies the complex CSS selector into a **Search Hint** (e.g., `id="submit-btn"` or `.nav-link`).
-3. **Intelligence Mapping**: It matches the `axe-rule-id` with the corresponding entry in `intelligence.json`.
-4. **Output Generation**: It combines these into the **AI Remediation Roadmap**, allowing an AI agent to find and fix the file in seconds.
+### 1. The Surgical Selector
+
+The engine processes raw DOM selectors from the scanner into a **Surgical Selector** using a "best candidate" heuristic:
+
+- **ID Priority**: If an element has an `id`, it is used as the primary selector. IDs are the most stable point of entry for code remediation.
+- **Direct vs Verbose**: In the absence of an ID, the engine simplifies complex CSS paths into the shortest possible direct selector (e.g., `div > p` instead of `html > body > main > div > div > p`) to reduce fragility.
+- **Search Hint**: The selector is further translated into a **Search Hint** (e.g., `<img` or `id="submit-btn"`) designed for rapid source code discovery via `grep` or IDE search.
+
+### 2. Evidence from DOM (The Correctness Guarantee)
+
+To prevent "hallucinations" or incorrect patching, the engine captures the **HTML Evidence** (outerHTML) of the failing element.
+
+- **Verification**: AI agents must compare the captured `html` snippet with the code they find in the source file. If the HTML does not match, the agent knows the selector may be stale or pointing to a different component.
+- **Contextual Fixes**: Having the real DOM state allows the agent to understand the current attribute values (like a missing `alt` or a misconfigured `aria-label`) before proposing a change.
+
+### 3. Pipeline Overview
+
+```mermaid
+%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0' } } }%%
+flowchart LR
+    Finding["Raw Finding<br/>(axe-core)"] --> Analysis
+
+    subgraph Analysis["Intelligence Pipeline"]
+        direction LR
+        Surgical["<b>Surgical Identification</b><br/>(ID > Short Path)"]
+        Match["<b>Knowledge Lookup</b><br/>(intelligence.json)"]
+        Evidence["<b>Evidence Capture</b><br/>(outerHTML)"]
+
+        Surgical --> Match --> Evidence
+    end
+
+    Analysis --> Roadmap["<b>Remediation Roadmap</b><br/>(Markdown)"]
+
+    classDef default font-family:Inter,sans-serif,font-size:12px;
+    classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a;
+    classDef roadmap fill:#1e293b,color:#fff,stroke:#0f172a,font-weight:bold;
+
+    class Finding,Match,Surgical,Evidence core;
+    class Roadmap roadmap;
+```
 
 ## Example: The "Fix-First" Flow
 

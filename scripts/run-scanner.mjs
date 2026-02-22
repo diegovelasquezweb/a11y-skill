@@ -24,6 +24,7 @@ Options:
   --only-rule <id>            Only check for this specific rule ID (ignores tags)
   --crawl-depth <number>      How deep to follow links during discovery (1-3, default: 2)
   --wait-until <value>        Page load strategy: domcontentloaded|load|networkidle (default: domcontentloaded)
+  --viewport <WxH>            Viewport dimensions as WIDTHxHEIGHT (e.g., 375x812)
   -h, --help                  Show this help
 `);
 }
@@ -48,6 +49,7 @@ function parseArgs(argv, config) {
     excludeSelectors: config.excludeSelectors || [],
     onlyRule: config.onlyRule || null,
     crawlDepth: config.crawlDepth || 2,
+    viewport: null,
   };
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -70,6 +72,10 @@ function parseArgs(argv, config) {
       args.excludeSelectors = value.split(",").map((s) => s.trim());
     if (key === "--color-scheme") args.colorScheme = value;
     if (key === "--screenshots-dir") args.screenshotsDir = value;
+    if (key === "--viewport") {
+      const [w, h] = value.split("x").map(Number);
+      if (w && h) args.viewport = { width: w, height: h };
+    }
     i += 1;
   }
 
@@ -83,7 +89,7 @@ const BLOCKED_EXTENSIONS =
 
 const PAGINATION_PARAMS = /^(page|p|pg|offset|cursor|start|from|skip|limit)$/i;
 
-async function discoverFromSitemap(origin, maxRoutes) {
+async function discoverFromSitemap(origin) {
   try {
     const res = await fetch(`${origin}/sitemap.xml`, {
       signal: AbortSignal.timeout(5000),
@@ -97,7 +103,6 @@ async function discoverFromSitemap(origin, maxRoutes) {
     for (const loc of locs) {
       const normalized = normalizePath(loc, origin);
       if (normalized && normalized !== "/") routes.add(normalized);
-      if (routes.size >= maxRoutes - 1) break;
     }
     return [...routes];
   } catch {
@@ -242,15 +247,29 @@ export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
 
 async function detectProjectContext(page) {
   const framework = await page.evaluate(() => {
-    if (document.getElementById("__next") || window.__NEXT_DATA__) return "nextjs";
+    if (document.getElementById("__next") || window.__NEXT_DATA__)
+      return "nextjs";
     if (document.getElementById("__nuxt") || window.__NUXT__) return "nuxt";
     if (document.querySelector("[ng-version]")) return "angular";
     if (document.getElementById("___gatsby")) return "gatsby";
-    if (document.querySelector("[data-astro-cid]") || document.querySelector("astro-island")) return "astro";
+    if (
+      document.querySelector("[data-astro-cid]") ||
+      document.querySelector("astro-island")
+    )
+      return "astro";
     if (document.querySelector("[data-reactroot]")) return "react";
-    if (document.querySelector("[data-v-]") || document.querySelector("[data-server-rendered]")) return "vue";
-    if (window.Shopify || document.querySelector("[data-shopify]")) return "shopify";
-    if (document.querySelector('link[href*="wp-content"]') || document.querySelector('meta[name="generator"][content*="WordPress"]')) return "wordpress";
+    if (
+      document.querySelector("[data-v-]") ||
+      document.querySelector("[data-server-rendered]")
+    )
+      return "vue";
+    if (window.Shopify || document.querySelector("[data-shopify]"))
+      return "shopify";
+    if (
+      document.querySelector('link[href*="wp-content"]') ||
+      document.querySelector('meta[name="generator"][content*="WordPress"]')
+    )
+      return "wordpress";
     return null;
   });
 
@@ -259,7 +278,10 @@ async function detectProjectContext(page) {
     const pkgPath = path.join(process.cwd(), "package.json");
     if (fs.existsSync(pkgPath)) {
       const deps = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
-      const allDeps = Object.keys({ ...deps.dependencies, ...deps.devDependencies });
+      const allDeps = Object.keys({
+        ...deps.dependencies,
+        ...deps.devDependencies,
+      });
       const LIB_SIGNALS = [
         ["@radix-ui", "radix"],
         ["@headlessui", "headless-ui"],
@@ -279,7 +301,8 @@ async function detectProjectContext(page) {
   }
 
   if (framework) log.info(`Detected framework: ${framework}`);
-  if (uiLibraries.length) log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
+  if (uiLibraries.length)
+    log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
 
   return { framework, uiLibraries };
 }
@@ -303,7 +326,9 @@ async function analyzeRoute(
         waitUntil,
         timeout: timeoutMs,
       });
-      await page.waitForLoadState("networkidle", { timeout: waitMs }).catch(() => {});
+      await page
+        .waitForLoadState("networkidle", { timeout: waitMs })
+        .catch(() => {});
 
       const builder = new AxeBuilder({ page });
 
@@ -390,9 +415,10 @@ async function main() {
   const pwConfig = config.playwright || {};
   // Determine primary viewport from config or fallback
   const primaryViewport =
-    Array.isArray(config.viewports) && config.viewports[0]
+    args.viewport ||
+    (Array.isArray(config.viewports) && config.viewports[0]
       ? { width: config.viewports[0].width, height: config.viewports[0].height }
-      : pwConfig.viewport || { width: 1280, height: 720 };
+      : pwConfig.viewport || { width: 1280, height: 720 });
 
   const browser = await chromium.launch({
     headless: args.headless,
@@ -430,21 +456,20 @@ async function main() {
       routes = [""];
     } else {
       log.info("Autodiscovering routes...");
-      const sitemapRoutes = await discoverFromSitemap(origin, args.maxRoutes);
+      const sitemapRoutes = await discoverFromSitemap(origin);
       if (sitemapRoutes.length > 0) {
-        routes = [...new Set(["/", ...sitemapRoutes])].slice(0, args.maxRoutes);
+        routes = [...new Set(["/", ...sitemapRoutes])];
         log.info(
           `Sitemap: ${routes.length} route(s) discovered from /sitemap.xml`,
         );
-      }
-      if (routes.length < args.maxRoutes) {
-        const crawled = await discoverRoutes(page, baseUrl, args.maxRoutes, args.crawlDepth);
-        const merged = new Set(routes);
-        for (const r of crawled) {
-          if (merged.size >= args.maxRoutes) break;
-          merged.add(r);
-        }
-        routes = [...merged];
+      } else {
+        const crawled = await discoverRoutes(
+          page,
+          baseUrl,
+          args.maxRoutes,
+          args.crawlDepth,
+        );
+        routes = [...crawled];
       }
       if (routes.length === 0) routes = ["/"];
     }
@@ -467,7 +492,10 @@ async function main() {
       const safeRuleId = violation.id.replace(/[^a-z0-9-]/g, "-");
       const filename = `${routeIndex}-${safeRuleId}.png`;
       const screenshotPath = path.join(args.screenshotsDir, filename);
-      await tabPage.locator(selector).first().scrollIntoViewIfNeeded({ timeout: 3000 });
+      await tabPage
+        .locator(selector)
+        .first()
+        .scrollIntoViewIfNeeded({ timeout: 3000 });
       await tabPage.evaluate((sel) => {
         const el = document.querySelector(sel);
         if (!el) return;
@@ -491,12 +519,16 @@ async function main() {
       }, selector);
       await tabPage.screenshot({ path: screenshotPath });
       violation.screenshot_path = `screenshots/${filename}`;
-      await tabPage.evaluate(() => document.getElementById("__a11y_highlight__")?.remove());
+      await tabPage.evaluate(() =>
+        document.getElementById("__a11y_highlight__")?.remove(),
+      );
     } catch (err) {
       log.warn(
         `Screenshot skipped for "${violation.id}" (${selector}): ${err.message}`,
       );
-      await tabPage.evaluate(() => document.getElementById("__a11y_highlight__")?.remove()).catch(() => {});
+      await tabPage
+        .evaluate(() => document.getElementById("__a11y_highlight__")?.remove())
+        .catch(() => {});
     }
   }
 
@@ -514,7 +546,9 @@ async function main() {
         log.info(`robots.txt: ${skipped} route(s) excluded (Disallow rules)`);
     }
 
-    log.info(`Targeting ${routes.length} routes (${Math.min(TAB_CONCURRENCY, routes.length)} parallel tabs): ${routes.join(", ")}`);
+    log.info(
+      `Targeting ${routes.length} routes (${Math.min(TAB_CONCURRENCY, routes.length)} parallel tabs): ${routes.join(", ")}`,
+    );
 
     const tabPages = [page];
     for (let t = 1; t < Math.min(TAB_CONCURRENCY, routes.length); t++) {
@@ -526,28 +560,30 @@ async function main() {
       for (let j = 0; j < tabPages.length && i + j < routes.length; j++) {
         const idx = i + j;
         const tabPage = tabPages[j];
-        batch.push((async () => {
-          const routePath = routes[idx];
-          log.info(`[${idx + 1}/${total}] Scanning: ${routePath}`);
-          const targetUrl = new URL(routePath, baseUrl).toString();
-          const result = await analyzeRoute(
-            tabPage,
-            targetUrl,
-            args.waitMs,
-            config.axeRules,
-            config.excludeSelectors,
-            args.onlyRule,
-            args.timeoutMs,
-            2,
-            args.waitUntil,
-          );
-          if (args.screenshotsDir && result.violations) {
-            for (const violation of result.violations) {
-              await captureElementScreenshot(tabPage, violation, idx);
+        batch.push(
+          (async () => {
+            const routePath = routes[idx];
+            log.info(`[${idx + 1}/${total}] Scanning: ${routePath}`);
+            const targetUrl = new URL(routePath, baseUrl).toString();
+            const result = await analyzeRoute(
+              tabPage,
+              targetUrl,
+              args.waitMs,
+              config.axeRules,
+              config.excludeSelectors,
+              args.onlyRule,
+              args.timeoutMs,
+              2,
+              args.waitUntil,
+            );
+            if (args.screenshotsDir && result.violations) {
+              for (const violation of result.violations) {
+                await captureElementScreenshot(tabPage, violation, idx);
+              }
             }
-          }
-          results[idx] = { path: routePath, ...result };
-        })());
+            results[idx] = { path: routePath, ...result };
+          })(),
+        );
       }
       await Promise.all(batch);
     }

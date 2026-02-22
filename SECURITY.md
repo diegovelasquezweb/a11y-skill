@@ -16,4 +16,4 @@ The a11y engine operates under a **local-first** security model:
 - **Controlled Environment**: Audit output is written exclusively to the `audit/` directory.
 - **Sandboxing Notes**:
   - The skill executes `node` scripts from its own directory. Ensure you only install from trusted sources.
-  - `a11y.config.json` is used for persistent settings; avoid storing sensitive environment variables or credentials directly in the config file.
+  - `audit/a11y.config.json` is used for persistent per-project settings; avoid storing sensitive environment variables or credentials directly in the config file.

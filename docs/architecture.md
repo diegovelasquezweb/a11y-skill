@@ -1,6 +1,6 @@
 # Audit Engine Architecture
 
-**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Testing](testing.md)
+**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Data Validation](data-validation.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Scripts](scripts-catalog.md) • [Testing](testing.md)
 
 ---
 
@@ -15,34 +15,49 @@ The a11y skill operates as a three-stage pipeline designed for **Autonomous Reme
 ## High-Level Pipeline
 
 ```mermaid
-graph TD
-    A["Target URL / Project"]
-
-    subgraph P1["Phase 1: Scouting"]
-        B["1. Scanner (Playwright + Axe)"]
-        B --> B1["Route Discovery"]
-        B --> B2["WCAG 2.2 AA Scan"]
-        B --> B3["DOM Snapshot"]
+%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0', 'clusterBkg': '#f8fafc', 'clusterBorder': '#cbd5e1' } } }%%
+flowchart TD
+    subgraph P1 ["Phase 1: Scouting"]
+        direction TB
+        B["<b>1. Scanner</b><br/>(Playwright + Axe)"]
+        B1["Route Discovery"]
+        B2["WCAG 2.2 AA Scan"]
+        B3["DOM Snapshot"]
+        B --> B1 & B2 & B3
     end
 
-    subgraph P2["Phase 2: Intelligence"]
-        C["2. Analyzer (Fix Intelligence)"]
-        C --> C1["Rule Mapping"]
-        C --> C2["Surgical Selector Extraction"]
-        C --> C3["Patch Generation (HTML/JSX/Liquid)"]
+    subgraph P2 ["Phase 2: Intelligence"]
+        direction TB
+        C["<b>2. Analyzer</b><br/>(Fix Intelligence)"]
+        C1["Rule Mapping"]
+        C2["Surgical Selector Extraction"]
+        C3["Patch Generation"]
+        C --> C1 & C2 & C3
     end
 
-    subgraph P3["Phase 3: Delivery"]
-        D["3. Builder (Multi-format Reports)"]
-        D --> D1["PRIMARY: AI Roadmap (Markdown)"]
-        D --> D2["Visual Evidence (HTML)"]
-        D --> D3["Executive Summary (PDF)"]
-        D --> D4["Internal Data (JSON)"]
+    subgraph P3 ["Phase 3: Delivery"]
+        direction TB
+        D["<b>3. Builder</b><br/>(Multi-format)"]
+        D1["AI Roadmap (MD)"]
+        D2["Visual Evidence (HTML)"]
+        D3["Executive Summary (PDF)"]
+        D4["Internal Data (JSON)"]
+        D --> D1 & D2 & D3 & D4
     end
 
-    A --> B
-    B --> C
-    C --> D
+    A(["Target URL / Project"]) --> P1
+    P1 --> P2
+    P2 --> P3
+
+    linkStyle default stroke:#64748b,stroke-width:2px;
+    classDef default font-family:Inter,sans-serif,font-size:12px;
+    classDef phase font-weight:bold,fill:#f8fafc,stroke:#cbd5e1;
+    classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a,stroke-width:2px;
+    classDef target fill:#1e293b,color:#fff,stroke:#0f172a;
+
+    class P1,P2,P3 phase;
+    class B,C,D core;
+    class A target;
 ```
 
 ## Internal Component Roles
@@ -61,7 +76,7 @@ graph TD
 
 - **Brain**: Consumes the raw scan results and enriches them using `assets/intelligence.json`.
 - **Fix Logic**: Generates the `fixCode`, `fixDescription`, `wcag_criterion_id`, and `framework_notes` for each finding.
-- **Precision**: Extracts the "Search Hint" (ID, Class, or Tag) to help AI agents find the code in the source files.
+- **Precision**: Extracts the **Surgical Selector** (prioritizing ID > Short Path) and generates the "Search Hint" to help AI agents find the code in the source files.
 - **Fix Acceleration**: Uses the detected `projectContext` to generate per-finding:
   - `file_search_pattern` — framework-specific glob patterns (e.g., `app/**/*.tsx` for Next.js) so agents search the right directories.
   - `managed_by_library` — warns when an ARIA rule violation may be on a component managed by a UI library (Radix, Headless UI, etc.).
@@ -88,20 +103,28 @@ The Markdown report is the primary interface between the audit engine and the AI
 ## Data Flow Diagram
 
 ```mermaid
-sequenceDiagram
-    participant CLI as Audit Trigger
-    participant S as Scanner
-    participant A as Analyzer
-    participant B as Builder
-    participant FS as Local Filesystem
+%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0', 'clusterBkg': '#f8fafc', 'clusterBorder': '#cbd5e1' } } }%%
+flowchart LR
+    Start([CLI Trigger]) --> S[Scanner]
+    S --> Raw[(Raw Scan<br/>JSON)]
 
-    CLI->>S: base-url + options
-    S->>FS: Save Raw Scan (JSON)
-    S-->>A: Trigger Analysis
-    A->>FS: Load intelligence.json
-    A->>A: Generate Patch Logic
-    A->>FS: Save Findings (JSON)
-    A-->>B: Trigger Formatting
-    B->>FS: Generate HTML, MD & PDF Reports
-    B-->>CLI: Final Success Output
+    Raw --> A[Analyzer]
+    A --> Logic{Enrichment<br/>Logic}
+    Intel[(Intelligence<br/>Database)] --> Logic
+
+    Logic --> Findings[(Final Findings<br/>JSON)]
+    Findings --> B[Builder]
+
+    B --> HTML([HTML Report])
+    B --> MD([AI Roadmap])
+    B --> PDF([PDF Summary])
+
+    classDef default font-family:Inter,sans-serif,font-size:12px;
+    classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a,stroke-width:2px;
+    classDef storage fill:#f1f5f9,stroke:#cbd5e1,stroke-dasharray: 5 5;
+    classDef trigger fill:#1e293b,color:#fff,stroke:#0f172a;
+
+    class S,A,B core;
+    class Raw,Intel,Findings storage;
+    class Start,HTML,MD,PDF trigger;
 ```

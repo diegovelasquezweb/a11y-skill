@@ -1,6 +1,6 @@
 # CLI Handbook
 
-**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Testing](testing.md)
+**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Configuration](configuration.md) • [Data Validation](data-validation.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Scripts](scripts-catalog.md) • [Testing](testing.md)
 
 ---
 
@@ -28,12 +28,12 @@ To improve clarity, flags are grouped into logical categories.
 
 Flags used to define _where_ the engine should scan.
 
-| Flag           | Argument | Default    | Description                                                  |
-| :------------- | :------- | :--------- | :----------------------------------------------------------- |
-| `--base-url`   | `<url>`  | (Required) | The starting point of the audit.                             |
-| `--max-routes` | `<num>`  | `10`       | Maximum unique same-origin paths to discover and scan.       |
-| `--crawl-depth`| `<num>`  | `2`        | How deep to follow links during route discovery (1-3).       |
-| `--routes`     | `<csv>`  | `null`     | A list of specific paths to scan (overrides auto-discovery). |
+| Flag            | Argument | Default    | Description                                                  |
+| :-------------- | :------- | :--------- | :----------------------------------------------------------- |
+| `--base-url`    | `<url>`  | (Required) | The starting point of the audit.                             |
+| `--max-routes`  | `<num>`  | `10`       | Maximum unique same-origin paths to discover and scan.       |
+| `--crawl-depth` | `<num>`  | `2`        | How deep to follow links during route discovery (1-3).       |
+| `--routes`      | `<csv>`  | `null`     | A list of specific paths to scan (overrides auto-discovery). |
 
 ### 2. Audit Intelligence
 

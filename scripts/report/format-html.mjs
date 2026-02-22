@@ -168,10 +168,6 @@ export function buildIssueCard(finding) {
             Behavior Analysis
         </h4>
         <div class="space-y-4">
-            <div class="relative pl-3 border-l-2 border-emerald-400">
-                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block mb-1">Expected Behavior</span>
-                <p class="text-[13px] text-slate-700 leading-relaxed font-medium">${formatMultiline(finding.expected)}</p>
-            </div>
             <div class="relative pl-3 border-l-2 border-rose-400">
                 <span class="text-[10px] font-bold text-rose-600 uppercase tracking-wider block mb-1">Actual Behavior</span>
                 <p class="text-[13px] text-slate-700 leading-relaxed font-medium">${formatMultiline(finding.actual)}</p>
@@ -179,16 +175,6 @@ export function buildIssueCard(finding) {
         </div>
       </div>
 
-      <div class="bg-white p-5 rounded-xl border border-slate-200/60 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)]">
-        <h4 class="text-[11px] font-black text-slate-600 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <div class="p-1 bg-slate-100 rounded-md">
-              <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-            </div>
-            Steps to Reproduce
-        </h4>
-        <ul class="list-decimal list-outside ml-5 space-y-2 text-[13px] text-slate-600 marker:text-slate-400 marker:font-bold">
-            ${reproductionItems}
-        </ul>
 
         <div class="mt-5 pt-4 border-t border-slate-100">
             <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Impacted Users</h4>
@@ -273,6 +259,28 @@ export function buildIssueCard(finding) {
                 ([fw, note]) => `
             <div class="flex gap-2 items-start">
               <span class="flex-shrink-0 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-wider mt-0.5">${escapeHtml(fw)}</span>
+              <p class="text-[12px] text-slate-600 leading-relaxed">${escapeHtml(note)}</p>
+            </div>`,
+              )
+              .join("")}
+          </div>
+        </div>`
+          : ""
+      }
+      ${
+        finding.cmsNotes && typeof finding.cmsNotes === "object"
+          ? `
+        <div class="mt-4 pt-3 border-t border-indigo-100/50">
+          <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+            CMS Guidance
+          </h4>
+          <div class="space-y-2">
+            ${Object.entries(finding.cmsNotes)
+              .map(
+                ([cms, note]) => `
+            <div class="flex gap-2 items-start">
+              <span class="flex-shrink-0 px-2 py-0.5 rounded text-[10px] font-bold bg-violet-50 text-violet-700 border border-violet-200 uppercase tracking-wider mt-0.5">${escapeHtml(cms)}</span>
               <p class="text-[12px] text-slate-600 leading-relaxed">${escapeHtml(note)}</p>
             </div>`,
               )

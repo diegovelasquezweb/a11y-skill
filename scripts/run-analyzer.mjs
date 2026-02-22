@@ -45,8 +45,10 @@ const WCAG_CRITERION_MAP = RULE_METADATA.wcagCriterionMap || {};
 
 function detectCodeLang(code) {
   if (!code) return "html";
-  if (/\.(tsx?|jsx?)\b|className=|useState|useRef|<>\s*<\/>/i.test(code)) return "jsx";
-  if (/^\s*[.#][\w-]+\s*\{|:\s*var\(|@media|display\s*:/m.test(code)) return "css";
+  if (/\.(tsx?|jsx?)\b|className=|useState|useRef|<>\s*<\/>/i.test(code))
+    return "jsx";
+  if (/^\s*[.#][\w-]+\s*\{|:\s*var\(|@media|display\s*:/m.test(code))
+    return "css";
   return "html";
 }
 
@@ -80,26 +82,90 @@ function getExpected(ruleId) {
 }
 
 const FRAMEWORK_GLOBS = {
-  nextjs:    { components: "app/**/*.tsx, components/**/*.tsx", styles: "**/*.module.css, app/globals.css" },
-  gatsby:    { components: "src/**/*.tsx, src/**/*.jsx", styles: "src/**/*.css, src/**/*.module.css" },
-  react:     { components: "src/**/*.tsx, src/**/*.jsx", styles: "src/**/*.css, src/**/*.module.css" },
-  nuxt:      { components: "pages/**/*.vue, components/**/*.vue", styles: "**/*.css, assets/**/*.scss" },
-  vue:       { components: "src/**/*.vue", styles: "src/**/*.css" },
-  angular:   { components: "src/**/*.component.html, src/**/*.component.ts", styles: "src/**/*.component.css" },
-  astro:     { components: "src/**/*.astro, src/components/**/*.tsx", styles: "src/**/*.css" },
-  svelte:    { components: "src/**/*.svelte", styles: "src/**/*.css" },
-  shopify:   { components: "sections/**/*.liquid, snippets/**/*.liquid", styles: "assets/**/*.css" },
-  wordpress: { components: "wp-content/themes/**/*.php", styles: "wp-content/themes/**/*.css" },
+  nextjs: {
+    components: "app/**/*.tsx, components/**/*.tsx",
+    styles: "**/*.module.css, app/globals.css",
+  },
+  gatsby: {
+    components: "src/**/*.tsx, src/**/*.jsx",
+    styles: "src/**/*.css, src/**/*.module.css",
+  },
+  react: {
+    components: "src/**/*.tsx, src/**/*.jsx",
+    styles: "src/**/*.css, src/**/*.module.css",
+  },
+  nuxt: {
+    components: "pages/**/*.vue, components/**/*.vue",
+    styles: "**/*.css, assets/**/*.scss",
+  },
+  vue: { components: "src/**/*.vue", styles: "src/**/*.css" },
+  angular: {
+    components: "src/**/*.component.html, src/**/*.component.ts",
+    styles: "src/**/*.component.css",
+  },
+  astro: {
+    components: "src/**/*.astro, src/components/**/*.tsx",
+    styles: "src/**/*.css",
+  },
+  svelte: { components: "src/**/*.svelte", styles: "src/**/*.css" },
+  shopify: {
+    components: "sections/**/*.liquid, snippets/**/*.liquid",
+    styles: "assets/**/*.css",
+  },
+  wordpress: {
+    components: "wp-content/themes/**/*.php",
+    styles: "wp-content/themes/**/*.css",
+  },
 };
 
 const ARIA_MANAGED_RULES = new Set([
-  "aria-required-attr", "aria-required-children", "aria-required-parent",
-  "aria-valid-attr", "aria-valid-attr-value", "aria-allowed-attr",
-  "aria-allowed-role", "aria-dialog-name", "aria-toggle-field-name",
+  "aria-required-attr",
+  "aria-required-children",
+  "aria-required-parent",
+  "aria-valid-attr",
+  "aria-valid-attr-value",
+  "aria-allowed-attr",
+  "aria-allowed-role",
+  "aria-dialog-name",
+  "aria-toggle-field-name",
   "aria-prohibited-attr",
 ]);
 
-const MANAGED_LIBS = new Set(["radix", "headless-ui", "chakra", "mantine", "material-ui"]);
+const MANAGED_LIBS = new Set([
+  "radix",
+  "headless-ui",
+  "chakra",
+  "mantine",
+  "material-ui",
+]);
+
+// Maps detected framework IDs to intelligence.json keys
+const FRAMEWORK_TO_INTEL_KEY = {
+  nextjs: "react",
+  gatsby: "react",
+  nuxt: "vue",
+  react: "react",
+  vue: "vue",
+  angular: "angular",
+  astro: "astro",
+  svelte: "svelte",
+};
+
+// Maps detected framework IDs to cms_notes keys
+const FRAMEWORK_TO_CMS_KEY = {
+  shopify: "shopify",
+  wordpress: "wordpress",
+  drupal: "drupal",
+};
+
+function filterNotes(notes, framework) {
+  if (!notes || typeof notes !== "object") return null;
+  const intelKey = FRAMEWORK_TO_INTEL_KEY[framework];
+  if (intelKey && notes[intelKey]) return { [intelKey]: notes[intelKey] };
+  const cmsKey = FRAMEWORK_TO_CMS_KEY[framework];
+  if (cmsKey && notes[cmsKey]) return { [cmsKey]: notes[cmsKey] };
+  return null;
+}
 
 function getFileSearchPattern(framework, codeLang) {
   const globs = FRAMEWORK_GLOBS[framework];
@@ -157,6 +223,7 @@ function parseArgs(argv) {
     if (key === "--output") args.output = value;
     if (key === "--ignore-findings")
       args.ignoreFindings = value.split(",").map((v) => v.trim());
+    if (key === "--framework") args.framework = value;
     i += 1;
   }
 
@@ -230,10 +297,14 @@ export function extractSearchHint(selector) {
   return specific;
 }
 
-function buildFindings(inputPayload) {
+function buildFindings(inputPayload, cliArgs) {
   const onlyRule = inputPayload.onlyRule;
   const routes = inputPayload.routes || [];
-  const ctx = inputPayload.projectContext || { framework: null, uiLibraries: [] };
+  const ctx = inputPayload.projectContext || {
+    framework: null,
+    uiLibraries: [],
+  };
+  if (cliArgs?.framework) ctx.framework = cliArgs.framework;
   const findings = [];
 
   for (const route of routes) {
@@ -295,10 +366,13 @@ function buildFindings(inputPayload) {
           mdn: MDN[v.id] ?? null,
           manual_test: ruleInfo.manual_test ?? null,
           effort: null,
-          related_rules: Array.isArray(ruleInfo.related_rules) ? ruleInfo.related_rules : [],
+          related_rules: Array.isArray(ruleInfo.related_rules)
+            ? ruleInfo.related_rules
+            : [],
           false_positive_risk: ruleInfo.false_positive_risk ?? null,
           fix_difficulty_notes: ruleInfo.fix_difficulty_notes ?? null,
-          framework_notes: ruleInfo.framework_notes ?? null,
+          framework_notes: filterNotes(ruleInfo.framework_notes, ctx.framework),
+          cms_notes: filterNotes(ruleInfo.cms_notes, ctx.framework),
           total_instances: nodes.length,
           evidence: nodes.slice(0, 3).map((n) => ({
             html: n.html,
@@ -390,7 +464,7 @@ function main() {
   const payload = readJson(args.input);
   if (!payload) throw new Error(`Input not found or invalid: ${args.input}`);
 
-  const result = buildFindings(payload);
+  const result = buildFindings(payload, args);
 
   if (ignoredRules.size > 0) {
     const knownIds = new Set(

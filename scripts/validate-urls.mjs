@@ -11,7 +11,10 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ruleMetadata = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../assets/rule-metadata.json"), "utf-8"),
+  fs.readFileSync(
+    path.join(__dirname, "../assets/rule-metadata.json"),
+    "utf-8",
+  ),
 );
 const manualChecks = JSON.parse(
   fs.readFileSync(
@@ -32,8 +35,6 @@ function collect(source, obj) {
 
 collect("mdn", ruleMetadata.mdn || {});
 collect("apgPatterns", ruleMetadata.apgPatterns || {});
-collect("a11ySupport", ruleMetadata.a11ySupport || {});
-collect("inclusiveComponents", ruleMetadata.inclusiveComponents || {});
 
 for (const check of manualChecks) {
   if (check.ref) {

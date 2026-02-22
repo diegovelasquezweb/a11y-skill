@@ -40,9 +40,6 @@ This skill follows the [Agent Skills standard](https://agentskills.io) and is al
 
 Initialize a scan to discover vulnerabilities and generate a compliance baseline:
 
-```bash
-"Audit my local dev server"
-```
 
 ```bash
 "Check accessibility localhost:3000"
@@ -83,7 +80,7 @@ You can manage settings through the AI agent using natural language:
 "Configure the scanner to use a Mobile viewport (375x812) and dark mode."
 ```
 
-Changes to `a11y.config.json` are dynamic and automatically applied during the next audit run. For the full CLI flag and JSON key reference, see [CLI Handbook](docs/cli-handbook.md) and [Configuration](docs/configuration.md).
+The agent creates `audit/a11y.config.json` in your project when you request a persistent setting. Changes are automatically applied on the next audit run. For the full CLI flag and JSON key reference, see [CLI Handbook](docs/cli-handbook.md) and [Configuration](docs/configuration.md).
 
 ## Audit Engine (CI/CD & Local Validation)
 
@@ -103,15 +100,17 @@ pnpm a11y --base-url https://mysite.com --only-rule color-contrast
 
 For a comprehensive understanding of the a11y engine, explore the following technical manuals:
 
-| Resource                                                  | Description                                                                   |
-| :-------------------------------------------------------- | :---------------------------------------------------------------------------- |
-| 📖 [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.               |
-| ⚙️ [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                       |
-| 🧠 [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system.  |
-| 🧮 [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.         |
-| 🏗️ [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.         |
-| 🛡️ [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                      |
-| 🧪 [**Skill Evaluations**](evals/README.md)               | 10 scenarios for testing skill behavior (Antigravity/Windsurf/Claude/Gemini). |
+| Resource                                               | Description                                                                   |
+| :----------------------------------------------------- | :---------------------------------------------------------------------------- |
+| [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.         |
+| [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.               |
+| [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                       |
+| [**Data Validation**](docs/data-validation.md)         | Steps to verify and update intelligence data assets and WCAG mappings.        |
+| [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system.  |
+| [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.         |
+| [**Scripts Catalog**](docs/scripts-catalog.md)         | Purpose and execution workflow of all engine automation scripts.              |
+| [**Skill Evaluations**](evals/README.md)               | 10 scenarios for testing skill behavior (Antigravity/Windsurf/Claude/Gemini). |
+| [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                      |
 
 ## External Resources
 
