@@ -1,0 +1,19 @@
+{
+  "id": "07-framework-detection",
+  "title": "Framework-specific path detection",
+  "skills": [
+    "a11y"
+  ],
+  "query": "Audit my Shopify store at http://localhost:3000 and fix issues",
+  "setup": "Project is a Shopify Liquid theme. Audit finds issues in `sections/header.liquid` and `snippets/product-card.liquid`.",
+  "expected_behavior": [
+    "Runs the audit command",
+    "Uses `references/source-patterns.md` to identify that Shopify fixes belong in `.liquid` files",
+    "Searches for violations specifically in `sections/*.liquid` and `snippets/*.liquid`",
+    "Does NOT search in `src/` or `app/` (which belong to React/Next.js)",
+    "Correctly identifies Liquid syntax for remediation (e.g., using `{{ ... }}` or Liquid filters if suggested by intelligence)"
+  ],
+  "model_notes": {
+    "all_agents": "Verify the agent doesn't hallucinate a React environment when Shopify is explicitly mentioned or detected."
+  }
+}

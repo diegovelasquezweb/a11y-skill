@@ -1,0 +1,19 @@
+{
+  "id": "08-managed-components",
+  "title": "Managed components — protect UI libraries",
+  "skills": [
+    "a11y"
+  ],
+  "query": "Fix the accessibility issues found in the last audit",
+  "setup": "Audit report contains a finding with the 'Managed Component Warning'. The failing element is a Radix UI `Accordion` in `components/FAQ.tsx`.",
+  "expected_behavior": [
+    "Reads `audit/remediation.md` and detects the 'Managed Component Warning'",
+    "Verifies the element is rendered by a known UI library (Radix UI) before applying fixes",
+    "Does NOT attempt to patch the underlying HTML/ARIA of the library component directly",
+    "Proposes a fix via component props (e.g., passing a label prop) or wrapping the component",
+    "Warns the user that direct edits to the component's internal DOM could be overwritten by the library"
+  ],
+  "model_notes": {
+    "all_agents": "Crucial for preventing destructive edits to node_modules or library-controlled DOM."
+  }
+}
