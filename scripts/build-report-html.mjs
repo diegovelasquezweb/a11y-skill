@@ -84,7 +84,9 @@ function buildHtml(args, findings, metadata = {}) {
   let siteHostname = args.baseUrl;
   try {
     siteHostname = new URL(
-      args.baseUrl.startsWith("http") ? args.baseUrl : `https://${args.baseUrl}`,
+      args.baseUrl.startsWith("http")
+        ? args.baseUrl
+        : `https://${args.baseUrl}`,
     ).hostname;
   } catch {}
   const coverDate = new Date().toLocaleDateString("en-US", {
@@ -107,12 +109,12 @@ function buildHtml(args, findings, metadata = {}) {
   }
   const _sortedPages = Object.entries(_pageCounts).sort((a, b) => b[1] - a[1]);
   const selectClasses =
-    "pl-4 pr-10 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/10 focus:border-[var(--primary)] shadow-sm transition-all appearance-none cursor-pointer relative bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.5rem_center] bg-no-repeat";
+    "pl-4 pr-10 py-3 bg-white border border-slate-300 rounded-2xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/10 focus:border-[var(--primary)] shadow-sm transition-all appearance-none cursor-pointer relative bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%23374151%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.5rem_center] bg-no-repeat";
 
   const pageSelectHtml =
     _sortedPages.length > 1
       ? `<div id="page-select-container" style="display:none" class="flex items-center gap-2 shrink-0">
-          <label for="page-select" class="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:block whitespace-nowrap">Page:</label>
+          <label for="page-select" class="text-xs font-bold text-slate-600 uppercase tracking-widest hidden sm:block whitespace-nowrap">Page:</label>
           <select id="page-select" onchange="filterByPage(this.value)" class="${selectClasses}">
             <option value="all">All pages (${_sortedPages.length})</option>
             ${_sortedPages.map(([pg, cnt]) => `<option value="${escapeHtml(pg)}">${escapeHtml(pg)} (${cnt})</option>`).join("")}
@@ -267,6 +269,7 @@ function buildHtml(args, findings, metadata = {}) {
         --slate-800: #1e293b;
         --slate-900: #0f172a;
       }
+      html { scroll-padding-top: 80px; }
       body { background-color: var(--slate-50); font-family: 'Outfit', 'Inter', sans-serif; -webkit-font-smoothing: antialiased; letter-spacing: -0.011em; }
       .glass-header { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%); }
       .premium-card { background: white; border: 1px solid var(--slate-200); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -357,21 +360,25 @@ function buildHtml(args, findings, metadata = {}) {
     }
   </style>
   <script type="application/ld+json">
-  ${JSON.stringify({
-    "@context": "https://schema.org",
-    "@type": "Report",
-    "name": "Web Accessibility Audit Report",
-    "about": args.baseUrl || siteHostname,
-    "dateCreated": metadata.scanDate || new Date().toISOString(),
-    "hasPart": findings.map((f) => ({
-      "@type": "CreativeWork",
-      "identifier": f.id,
-      "name": f.title,
-      "description": f.impact,
-      "url": f.url,
-      "keywords": [f.severity, f.wcag, f.ruleId].filter(Boolean).join(", "),
-    })),
-  }, null, 2)}
+  ${JSON.stringify(
+    {
+      "@context": "https://schema.org",
+      "@type": "Report",
+      name: "Web Accessibility Audit Report",
+      about: args.baseUrl || siteHostname,
+      dateCreated: metadata.scanDate || new Date().toISOString(),
+      hasPart: findings.map((f) => ({
+        "@type": "CreativeWork",
+        identifier: f.id,
+        name: f.title,
+        description: f.impact,
+        url: f.url,
+        keywords: [f.severity, f.wcag, f.ruleId].filter(Boolean).join(", "),
+      })),
+    },
+    null,
+    2,
+  )}
   </script>
 </head>
 <body class="text-slate-900 min-h-screen">
@@ -415,7 +422,7 @@ function buildHtml(args, findings, metadata = {}) {
               </svg>
               <div class="absolute inset-0 flex flex-col items-center justify-center">
                 <span class="text-4xl font-extrabold text-slate-900">${score}</span>
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Score</span>
+                <span class="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">Score</span>
               </div>
             </div>
             <h3 class="text-xl font-bold text-slate-900 mb-1">${label} Compliance</h3>
@@ -546,7 +553,7 @@ function buildHtml(args, findings, metadata = {}) {
           </div>
           
           <div id="filter-controls" class="flex items-center gap-2 shrink-0">
-            <label for="filter-select" class="text-xs font-bold text-slate-400 uppercase tracking-widest hidden sm:block whitespace-nowrap">Filter by:</label>
+            <label for="filter-select" class="text-xs font-bold text-slate-600 uppercase tracking-widest hidden sm:block whitespace-nowrap">Filter by:</label>
             <select id="filter-select" onchange="filterIssues(this.value)" class="${selectClasses}">
               <optgroup label="General">
                 <option value="all">All Issues</option>
