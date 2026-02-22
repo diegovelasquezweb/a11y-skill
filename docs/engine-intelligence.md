@@ -26,7 +26,6 @@ For every rule (e.g., `image-alt`), the engine provides:
 - **`false_positive_risk`**: Calibrated confidence level (`low` / `medium` / `high`). Medium/high triggers a warning badge in the report so agents verify before applying a fix.
 - **`fix_difficulty_notes`**: Edge cases and caveats beyond the obvious fix (e.g., label-vs-placeholder tradeoffs, voice control conflicts).
 - **`related_rules`**: Linked rule IDs commonly resolved together, with the reason why (e.g., `label` → `autocomplete-valid`).
-- **`manual_test`**: Steps for verifying findings that axe-core cannot fully automate.
 - **`mdn`**: Direct MDN Web Docs link for the relevant HTML element or ARIA attribute.
 
 ### WCAG Criterion Map (`wcagCriterionMap`)

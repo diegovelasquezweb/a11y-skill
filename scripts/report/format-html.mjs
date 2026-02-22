@@ -181,23 +181,6 @@ export function buildIssueCard(finding) {
             <p class="text-[13px] text-slate-600 leading-relaxed italic border-l-2 border-slate-200 pl-3 py-0.5 bg-slate-50 rounded-r-md">${formatMultiline(finding.impactedUsers)}</p>
         </div>
 
-        ${
-          finding.manualTest
-            ? `
-        <div class="mt-5 pt-4 border-t border-slate-100">
-            <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-              Manual Validation Steps
-            </h4>
-            <div class="bg-amber-50/50 rounded-lg p-3 border border-amber-100/50">
-              <p class="text-[12px] text-amber-900 font-bold mb-2">${escapeHtml(finding.manualTest.description)}</p>
-              <ul class="list-disc list-outside ml-4 space-y-1 text-[12px] text-amber-800/80">
-                ${(finding.manualTest.steps ?? []).map((s) => `<li>${escapeHtml(s)}</li>`).join("")}
-              </ul>
-            </div>
-        </div>`
-            : ""
-        }
       </div>
     </div>
 

@@ -104,13 +104,6 @@ describe("intelligence.json — schema", () => {
         });
       }
 
-      if (rule.manual_test) {
-        it("manual_test has description and steps", () => {
-          expect(rule.manual_test.description?.trim()).toBeTruthy();
-          expect(Array.isArray(rule.manual_test.steps)).toBe(true);
-          expect(rule.manual_test.steps.length).toBeGreaterThan(0);
-        });
-      }
     });
   }
 });
@@ -180,9 +173,9 @@ describe("intelligence.json — axe-core coverage", () => {
 
 // ── 5. Content quality ─────────────────────────────────────────────────────
 describe("intelligence.json — content quality", () => {
-  it("every rule has fix.code or manual_test", () => {
+  it("every rule has fix.code", () => {
     const noGuidance = Object.entries(rules)
-      .filter(([, rule]) => !rule.fix?.code && !rule.manual_test)
+      .filter(([, rule]) => !rule.fix?.code)
       .map(([id]) => id);
     expect(noGuidance).toEqual([]);
   });

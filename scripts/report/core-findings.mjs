@@ -59,7 +59,6 @@ export function normalizeFindings(payload) {
       effort: item.effort ?? null,
       relatedRules: Array.isArray(item.related_rules) ? item.related_rules : [],
       fixCodeLang: item.fix_code_lang ?? "html",
-      manualTest: item.manual_test ?? null,
       screenshotPath: item.screenshot_path ?? null,
       falsePositiveRisk: item.false_positive_risk ?? null,
       fixDifficultyNotes: item.fix_difficulty_notes ?? null,
