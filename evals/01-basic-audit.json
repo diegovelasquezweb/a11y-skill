@@ -1,0 +1,16 @@
+{
+  "id": "01-basic-audit",
+  "title": "Basic audit — run and present findings",
+  "skills": ["a11y"],
+  "query": "Run an accessibility audit on https://example.com",
+  "expected_behavior": [
+    "Runs `node scripts/run-audit.mjs --base-url https://example.com` without modification",
+    "Reads `audit/remediation.md` after the audit completes",
+    "Summarizes findings grouped by severity (Critical → High → Medium → Low)",
+    "Groups findings by component or page area with explanations",
+    "Asks for permission before applying any fixes",
+    "Provides the absolute path to `audit/report.html`",
+    "Does NOT modify any source files before receiving permission"
+  ],
+  "model_notes": {}
+}

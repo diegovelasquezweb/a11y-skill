@@ -13,11 +13,17 @@ export const log = {
   info: (msg) => console.log(`\x1b[36m[INFO]\x1b[0m ${msg}`),
   success: (msg) => console.log(`\x1b[32m[SUCCESS]\x1b[0m ${msg}`),
   warn: (msg) => console.log(`\x1b[33m[WARN]\x1b[0m ${msg}`),
-  error: (msg) => console.error(`\x1b[31m[ERROR]\x1b[0m ${msg}`),
+  error: (msg, hint = "") => {
+    console.error(`\x1b[31m[ERROR]\x1b[0m ${msg}`);
+    if (hint) {
+      console.log(`\x1b[35m[TROUBLESHOOTING]\x1b[0m ${hint}`);
+    }
+  },
 };
 
 const CONFIG_SCHEMA = {
   maxRoutes: { type: "number" },
+  crawlDepth: { type: "number" },
   complianceTarget: { type: "string" },
   routes: { type: "array" },
   excludeSelectors: { type: "array" },

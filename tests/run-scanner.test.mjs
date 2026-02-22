@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { normalizePath, parseRoutesArg } from "../scripts/run-scanner.mjs";
+import {
+  normalizePath,
+  parseRoutesArg,
+  discoverRoutes,
+} from "../scripts/run-scanner.mjs";
 
 const ORIGIN = "https://example.com";
 
@@ -102,5 +106,112 @@ describe("parseRoutesArg", () => {
     const result = parseRoutesArg("/about, /file.pdf", ORIGIN);
     expect(result).toContain("/about");
     expect(result).not.toContain("/file.pdf");
+  });
+});
+
+function createMockPage(linkMap) {
+  let currentPath = "/";
+  const navigations = [];
+  return {
+    navigations,
+    url: () => `${ORIGIN}${currentPath}`,
+    goto: async (url) => {
+      const u = new URL(url);
+      currentPath = u.pathname;
+      navigations.push(currentPath);
+    },
+    $$eval: async () => linkMap[currentPath] || [],
+  };
+}
+
+describe("discoverRoutes (BFS)", () => {
+  it("discovers routes from the homepage at depth 1", async () => {
+    const page = createMockPage({
+      "/": ["/about", "/products"],
+    });
+    const routes = await discoverRoutes(page, ORIGIN, 10, 1);
+    expect(routes).toContain("/");
+    expect(routes).toContain("/about");
+    expect(routes).toContain("/products");
+  });
+
+  it("does NOT follow links from subpages at depth 1", async () => {
+    const page = createMockPage({
+      "/": ["/about"],
+      "/about": ["/about/team"],
+    });
+    const routes = await discoverRoutes(page, ORIGIN, 10, 1);
+    expect(routes).toContain("/about");
+    expect(routes).not.toContain("/about/team");
+  });
+
+  it("follows links from subpages at depth 2", async () => {
+    const page = createMockPage({
+      "/": ["/about", "/products"],
+      "/about": ["/about/team"],
+      "/products": ["/products/shoes"],
+    });
+    const routes = await discoverRoutes(page, ORIGIN, 10, 2);
+    expect(routes).toContain("/about/team");
+    expect(routes).toContain("/products/shoes");
+  });
+
+  it("respects maxRoutes cap across depths", async () => {
+    const page = createMockPage({
+      "/": ["/a", "/b", "/c", "/d"],
+      "/a": ["/a/1", "/a/2"],
+      "/b": ["/b/1", "/b/2"],
+    });
+    const routes = await discoverRoutes(page, ORIGIN, 4, 2);
+    expect(routes.length).toBeLessThanOrEqual(4);
+    expect(routes).toContain("/");
+  });
+
+  it("does not revisit pages already crawled", async () => {
+    const page = createMockPage({
+      "/": ["/about", "/products"],
+      "/about": ["/", "/products"],
+      "/products": ["/about"],
+    });
+    await discoverRoutes(page, ORIGIN, 10, 3);
+    const unique = new Set(page.navigations);
+    expect(unique.size).toBe(page.navigations.length);
+  });
+
+  it("skips pagination duplicates across depths", async () => {
+    const page = createMockPage({
+      "/": ["/products"],
+      "/products": ["/products?page=2", "/products?page=3", "/new-page"],
+    });
+    const routes = await discoverRoutes(page, ORIGIN, 10, 2);
+    expect(routes).toContain("/products");
+    expect(routes).toContain("/new-page");
+    expect(routes).not.toContain("/products?page=2");
+    expect(routes).not.toContain("/products?page=3");
+  });
+
+  it("filters external links found on deeper pages", async () => {
+    const page = createMockPage({
+      "/": ["/about"],
+      "/about": ["https://external.com/page", "/contact"],
+    });
+    const routes = await discoverRoutes(page, ORIGIN, 10, 2);
+    expect(routes).toContain("/contact");
+    expect(routes).not.toContain("https://external.com/page");
+  });
+
+  it("handles navigation errors gracefully", async () => {
+    const page = createMockPage({
+      "/": ["/about", "/broken"],
+      "/about": ["/contact"],
+    });
+    const originalGoto = page.goto;
+    page.goto = async (url) => {
+      if (new URL(url).pathname === "/broken") throw new Error("Navigation failed");
+      return originalGoto(url);
+    };
+    const routes = await discoverRoutes(page, ORIGIN, 10, 2);
+    expect(routes).toContain("/contact");
+    expect(routes).toContain("/broken");
   });
 });

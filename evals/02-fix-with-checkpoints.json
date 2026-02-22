@@ -1,0 +1,19 @@
+{
+  "id": "02-fix-with-checkpoints",
+  "title": "Fix workflow — severity groups with checkpoints",
+  "skills": ["a11y"],
+  "query": "Run an accessibility audit on https://example.com and fix the issues",
+  "expected_behavior": [
+    "Completes the audit (Step 1) and presents findings (Step 2)",
+    "After user approves, applies Critical fixes first (3a) — structural/semantic only",
+    "Stops at checkpoint after Critical fixes — lists files modified and asks user to verify",
+    "Does NOT proceed to High fixes until user confirms",
+    "Repeats apply-checkpoint cycle for High, Medium, Low",
+    "Presents style-dependent fixes (3b) as a separate batch with exact proposed changes",
+    "Does NOT apply style changes without explicit approval",
+    "Processes manual checks (3c) and presents confirmed violations as a batch",
+    "Runs Final Certification Audit (3d) after all groups",
+    "Delivers results (Step 4) with summary, report paths, and next steps"
+  ],
+  "model_notes": {}
+}

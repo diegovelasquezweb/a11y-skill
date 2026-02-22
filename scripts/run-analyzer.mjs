@@ -40,8 +40,6 @@ function makeFindingId(ruleId, url, selector) {
 
 const RULES = INTELLIGENCE.rules || {};
 const APG_PATTERNS = RULE_METADATA.apgPatterns;
-const A11Y_SUPPORT = RULE_METADATA.a11ySupport;
-const INCLUSIVE_COMPONENTS = RULE_METADATA.inclusiveComponents;
 const MDN = RULE_METADATA.mdn || {};
 const WCAG_CRITERION_MAP = RULE_METADATA.wcagCriterionMap || {};
 
@@ -258,20 +256,13 @@ function buildFindings(inputPayload) {
           null;
         const role = explicitRole ?? detectImplicitRole(tag, firstNode?.html);
         const apgUrl = role ? APG_PATTERNS[role] : null;
-        const supportUrl = role ? A11Y_SUPPORT[role] : null;
-        const inclusiveUrl = role ? INCLUSIVE_COMPONENTS[role] : null;
 
         const ruleInfo = RULES[v.id] || {};
         const fixInfo = ruleInfo.fix || {};
 
         let recFix = v.helpUrl ? `See ${v.helpUrl}` : "Fix the violation.";
-        if (apgUrl || supportUrl || inclusiveUrl) {
-          recFix = `Remediation guide for "${role}":\n`;
-          if (apgUrl) recFix += `- **Implementation (W3C APG)**: ${apgUrl}\n`;
-          if (inclusiveUrl)
-            recFix += `- **Inclusive Design Guide**: ${inclusiveUrl}\n`;
-          if (supportUrl)
-            recFix += `- **Browser/AT Support Data**: ${supportUrl}\n`;
+        if (apgUrl) {
+          recFix = `Reference: ${apgUrl}`;
         }
 
         const codeLang = detectCodeLang(fixInfo.code);

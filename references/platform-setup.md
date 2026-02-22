@@ -1,5 +1,12 @@
 # Platform-Specific Installation
 
+## Contents
+- [Antigravity Only] Workflow Setup
+- [Windsurf Only] Workflow Setup
+- [Codex Only] No Local Setup
+- [Gemini CLI Only] No Local Setup
+- Platform-Specific Runtime Notes
+
 ## [Antigravity Only] Workflow Setup
 
 > **CRITICAL**: This section applies EXCLUSIVELY to Google Antigravity. Other agents (Gemini CLI, Claude, Cursor, Windsurf) MUST IGNORE this section.
@@ -86,3 +93,15 @@ Codex activates the skill automatically via `agents/openai.yaml` and `workflows/
 ## [Gemini CLI Only] No Local Setup
 
 Gemini CLI utilizes autonomous activation based on `SKILL.md`. No project-level files or workflows are required or allowed to be created by the agent during Gemini CLI sessions. After activation, the agent should suggest the user to refresh the skills registry by running `/skills reload` if the skill is not immediately available.
+
+---
+
+## Platform-Specific Runtime Notes
+
+### Gemini CLI — `ReadFile` Fallback
+
+If `ReadFile` fails with "Path not in workspace" when reading resources from the skills directory (`~/.gemini/skills/a11y/`), immediately fall back to a shell command — e.g., `cat ~/.gemini/skills/a11y/SKILL.md` — without asking the user. Do not attempt `ReadFile` again. Use `/skills reload` if the skill name is not recognized at activation time.
+
+### Antigravity / Windsurf — Setup Readiness
+
+Ensure the `/a11y` command is enabled via project-specific workflow files (see sections above).

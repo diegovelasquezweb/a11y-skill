@@ -1,0 +1,18 @@
+{
+  "id": "10-gitignore-proactive",
+  "title": "Procedural compliance — gitignore reminder",
+  "skills": [
+    "a11y"
+  ],
+  "query": "I'm ready to run an audit on my project",
+  "expected_behavior": [
+    "Executes the audit steps correctly",
+    "Follows the 'Always do' rule: 'Remind the user to add audit/ to .gitignore after every audit run'",
+    "Checks if a `.gitignore` file exists in the project",
+    "If `.gitignore` exists, explains that the pipeline attempts to auto-append but user should verify",
+    "If no `.gitignore` exists, explicitly tells the user to create one and add the `audit/` folder"
+  ],
+  "model_notes": {
+    "all_agents": "Testing adherence to strict procedural 'Always do' requirements."
+  }
+}

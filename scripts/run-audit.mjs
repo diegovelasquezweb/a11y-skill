@@ -13,6 +13,7 @@ function printUsage() {
 Targeting & Scope:
   --base-url <url>        (Required) The target website to audit.
   --max-routes <num>      Max routes to discover and scan (default: 10).
+  --crawl-depth <num>     How deep to follow links during discovery (1-3, default: 2).
   --routes <csv>          Custom list of paths to scan.
 
 Audit Intelligence:
@@ -25,6 +26,7 @@ Execution & Emulation:
   --output <path>         Final HTML report location (default: audit/report.html).
   --color-scheme <val>    Emulate color scheme: "light" or "dark".
   --headed                Run browser in visible mode (overrides headless).
+  --skip-reports          Omit HTML and PDF report generation (Focus on AI resolution).
   --wait-ms <num>         Time to wait after page load (default: 2000).
   --timeout-ms <num>      Network timeout (default: 30000).
   -h, --help              Show this help.
@@ -62,9 +64,7 @@ async function runScript(scriptName, args = []) {
       if (code === 0) {
         resolve();
       } else {
-        reject(
-          new Error(`Script ${scriptName} failed with exit code ${code}`),
-        );
+        reject(new Error(`Script ${scriptName} failed with exit code ${code}`));
       }
     });
   });
@@ -89,6 +89,7 @@ async function main() {
 
   const baseUrl = getArgValue("base-url");
   const maxRoutes = getArgValue("max-routes") || config.maxRoutes || 10;
+  const crawlDepth = getArgValue("crawl-depth") || config.crawlDepth || 2;
   const routes = getArgValue("routes");
   const waitMs = getArgValue("wait-ms") || config.waitMs || 2000;
   const timeoutMs = getArgValue("timeout-ms") || config.timeoutMs || 30000;
@@ -104,6 +105,8 @@ async function main() {
       : config.headless;
 
   const onlyRule = getArgValue("only-rule") || config.onlyRule;
+  const skipReports =
+    argv.includes("--skip-reports") || config.skipReports || false;
   const ignoreFindings =
     getArgValue("ignore-findings") ||
     (config.ignoreFindings?.length ? config.ignoreFindings.join(",") : null);
@@ -142,6 +145,15 @@ async function main() {
 
     await runScript("check-toolchain.mjs");
 
+    const gitignorePath = path.join(process.cwd(), ".gitignore");
+    if (fs.existsSync(gitignorePath)) {
+      const content = fs.readFileSync(gitignorePath, "utf-8");
+      if (!/^audit\/?$/m.test(content)) {
+        fs.appendFileSync(gitignorePath, "\n# Generated accessibility reports\naudit/\n");
+        log.success(".gitignore updated — added audit/ entry.");
+      }
+    }
+
     const absoluteOutputPath = path.isAbsolute(output)
       ? output
       : path.join(process.cwd(), output);
@@ -163,6 +175,8 @@ async function main() {
       headless.toString(),
       "--screenshots-dir",
       screenshotsDir,
+      "--crawl-depth",
+      crawlDepth.toString(),
     ];
     if (!headless) scanArgs.push("--headed");
     if (onlyRule) scanArgs.push("--only-rule", onlyRule);
@@ -187,17 +201,28 @@ async function main() {
     const mdArgs = ["--output", mdOutput, "--base-url", baseUrl];
     if (target) mdArgs.push("--target", target);
 
-    await Promise.all([
-      runScript("build-report-html.mjs", buildArgs),
-      runScript("build-report-md.mjs", mdArgs),
-    ]);
+    if (skipReports) {
+      log.info("Skipping HTML and PDF reports per --skip-reports flag.");
+      await runScript("build-report-md.mjs", mdArgs);
+    } else {
+      await Promise.all([
+        runScript("build-report-html.mjs", buildArgs),
+        runScript("build-report-md.mjs", mdArgs),
+      ]);
 
-    const pdfOutput = output.replace(".html", ".pdf");
-    await runScript("build-report-pdf.mjs", [output, pdfOutput]);
+      const pdfOutput = output.replace(".html", ".pdf");
+      await runScript("build-report-pdf.mjs", [output, pdfOutput]);
+    }
 
-    log.success(`🎉 Audit complete!`);
-    console.log(`REPORT_PATH=${absoluteOutputPath}`);
-    console.log(`GITIGNORE_REMINDER=Add "audit/" to your project .gitignore to avoid committing generated reports.`);
+    log.success(`🎉 Audit complete! Remediation Roadmap ready.`);
+    console.log(`REMEDIATION_PATH=${mdOutput}`);
+    if (!skipReports) console.log(`REPORT_PATH=${absoluteOutputPath}`);
+    const gitignoreExists = fs.existsSync(gitignorePath);
+    if (!gitignoreExists) {
+      console.log(
+        `GITIGNORE_WARNING=No .gitignore found. Add "audit/" manually to avoid committing generated reports.`,
+      );
+    }
   } catch (error) {
     log.error(error.message);
     process.exit(1);

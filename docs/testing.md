@@ -16,7 +16,7 @@ The a11y skill maintains a robust test suite to ensure the **Audit Engine** rema
 ## Overview
 
 - **Framework**: [Vitest](https://vitest.dev/)
-- **Total Tests**: 764
+- **Total Tests**: 772
 - **Command**: `pnpm test`
 
 ## Test Categories
@@ -30,6 +30,7 @@ Validates that the crawler is smart and safe.
 - **URL Normalization**: Ensures `/about#top` and `/about?q=1` are handled correctly.
 - **Deduplication**: Prevents scanning the same route multiple times.
 - **Filtering**: Verifies that assets like `.pdf`, `.jpg`, and `.svg` are excluded from the HTML scan.
+- **BFS Discovery**: Validates multi-level crawling (depth 1, depth 2, maxRoutes cap, no-revisit, pagination dedup, external filtering, error recovery).
 
 ### 2. Remediation Intelligence (`run-analyzer.test.mjs`)
 

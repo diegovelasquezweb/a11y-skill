@@ -10,7 +10,7 @@
 - [Internal Component Roles](#internal-component-roles)
 - [Data Flow Diagram](#data-flow-diagram)
 
-The a11y skill operates as a three-stage pipeline designed for **Autonomous Remediation**. It transforms a URL into a surgical roadmap of code fixes.
+The a11y skill operates as a three-stage pipeline designed for **Autonomous Remediation**. It transforms a URL into a surgical roadmap of code fixes, prioritizing action over passive reporting.
 
 ## High-Level Pipeline
 
@@ -34,8 +34,8 @@ graph TD
 
     subgraph P3["Phase 3: Delivery"]
         D["3. Builder (Multi-format Reports)"]
-        D --> D1["AI Roadmap (Markdown)"]
-        D --> D2["Client Report (HTML)"]
+        D --> D1["PRIMARY: AI Roadmap (Markdown)"]
+        D --> D2["Visual Evidence (HTML)"]
         D --> D3["Executive Summary (PDF)"]
         D --> D4["Internal Data (JSON)"]
     end
@@ -51,7 +51,7 @@ graph TD
 
 - **Engine**: Uses Playwright to emulate a real user environment (Light/Dark mode, Viewport).
 - **Compliance**: Injects `axe-core` to run 106 accessibility rules (100% of axe-core WCAG A/AA + best-practice coverage).
-- **Discovery**: Crawls the site starting from the `base-url` up to `max-routes`.
+- **Discovery**: BFS multi-level crawl starting from `base-url`, configurable via `--crawl-depth` (1-3, default: 2). Supplements sitemap routes if the `maxRoutes` budget is not filled.
 - **Parallel Scanning**: Routes are scanned across 3 concurrent browser tabs for ~2-3x faster throughput.
 - **Smart Wait**: Uses `networkidle` signal instead of a fixed delay — proceeds as soon as the page is ready, with `waitMs` as the timeout ceiling.
 - **Project Context Detection**: Auto-detects the project's framework (Next.js, Nuxt, React, Vue, Angular, Astro, Svelte, Shopify, WordPress) from DOM signals, and UI component libraries (Radix, Headless UI, Chakra, Mantine, Material UI) from `package.json`.
@@ -72,7 +72,7 @@ graph TD
 ### 3. The Builder (`run-audit.mjs` orchestrator)
 
 - **Assembly**: Coordinates the execution of the Scanner and Analyzer.
-- **Formatting**: Triggers all three report builders: `build-report-html.mjs`, `build-report-md.mjs`, and `build-report-pdf.mjs`. HTML and Markdown reports build in parallel.
+- **Formatting**: Triggers the report builders (HTML dashboard, Markdown remediation guide, PDF summary).
 - **Persistence**: Ensures the `audit/` folder is updated with the latest findings.
 
 ### 4. The Remediation Guide (`audit/remediation.md`)
