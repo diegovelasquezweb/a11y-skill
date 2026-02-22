@@ -110,6 +110,7 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 | [**Configuration**](docs/configuration.md)             | Complete JSON schema reference and default value logic.                       |
 | [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system.  |
 | [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.         |
+| [**Scripts Catalog**](docs/scripts-catalog.md)         | Purpose and execution workflow of all engine automation scripts.              |
 | [**Skill Evaluations**](evals/README.md)               | 10 scenarios for testing skill behavior (Antigravity/Windsurf/Claude/Gemini). |
 | [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                      |
 
