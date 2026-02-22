@@ -1,6 +1,6 @@
 ---
 name: a11y
-description: >-
+description:
   Audit and fix website accessibility (WCAG 2.2 AA) using automated scanning
   (axe-core + Playwright). Use when the user asks to: audit a URL for
   accessibility, check WCAG compliance, fix a11y issues, test screen reader
@@ -24,12 +24,12 @@ metadata:
 
 Load these files on demand — never preload all at once.
 
-| Resource | Load when | Path |
-|---|---|---|
-| Report & evidence standards | Step 2 — presenting findings | [references/report-standards.md](references/report-standards.md) |
-| Source file patterns by framework | Step 3a — locating files to fix | [references/source-patterns.md](references/source-patterns.md) |
-| CLI flags reference | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md) |
-| Troubleshooting | Any script failure | [references/troubleshooting.md](references/troubleshooting.md) |
+| Resource                          | Load when                                     | Path                                                             |
+| --------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
+| Report & evidence standards       | Step 2 — presenting findings                  | [references/report-standards.md](references/report-standards.md) |
+| Source file patterns by framework | Step 3a — locating files to fix               | [references/source-patterns.md](references/source-patterns.md)   |
+| CLI flags reference               | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md)       |
+| Troubleshooting                   | Any script failure                            | [references/troubleshooting.md](references/troubleshooting.md)   |
 
 ## Constraints
 
@@ -77,11 +77,13 @@ Audit Progress:
 If no URL provided, ask for one.
 
 Normalize input before passing to `--base-url`:
+
 - `localhost:3000` → `http://localhost:3000`
 - `mysite.com` → `https://mysite.com`
 - Full URLs → use as-is.
 
 **Sitemap check**: Fetch `<URL>/sitemap.xml`.
+
 - **Found** → inform the user, scan all listed pages.
 - **Not found** → crawl from homepage (default: 10 pages). Offer `--max-routes` or `--routes` to adjust scope.
 

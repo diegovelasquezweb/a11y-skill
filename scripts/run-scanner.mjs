@@ -18,8 +18,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCANNER_CONFIG = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../assets/scanner-config.json"), "utf-8"),
 );
-const INTELLIGENCE = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"),
+const FRAMEWORK_CONFIG = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../assets/framework-config.json"), "utf-8"),
 );
 
 /**
@@ -316,7 +316,7 @@ export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
  * @returns {Promise<Object>} An object containing detected framework and UI libraries.
  */
 async function detectProjectContext(page) {
-  const domSignals = INTELLIGENCE.frameworkDetection.domSignals;
+  const domSignals = FRAMEWORK_CONFIG.frameworkDetection.domSignals;
 
   const framework = await page.evaluate((signals) => {
     for (const entry of signals) {
@@ -359,7 +359,7 @@ async function detectProjectContext(page) {
         ...deps.dependencies,
         ...deps.devDependencies,
       });
-      const LIB_SIGNALS = INTELLIGENCE.frameworkDetection.uiLibrarySignals;
+      const LIB_SIGNALS = FRAMEWORK_CONFIG.frameworkDetection.uiLibrarySignals;
       for (const [prefix, name] of LIB_SIGNALS) {
         if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
           uiLibraries.push(name);

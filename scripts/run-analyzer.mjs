@@ -28,11 +28,13 @@ const ruleMetadataPath = path.join(__dirname, "../assets/rule-metadata.json");
 
 const regulatoryPath = path.join(__dirname, "../assets/regulatory.json");
 const scoringConfigPath = path.join(__dirname, "../assets/scoring-config.json");
+const frameworkConfigPath = path.join(__dirname, "../assets/framework-config.json");
 
 let INTELLIGENCE;
 let RULE_METADATA;
 let REGULATORY;
 let SCORING_CONFIG;
+let FRAMEWORK_CONFIG;
 
 // Initialize remediation and rule metadata assets.
 try {
@@ -64,6 +66,14 @@ try {
 } catch {
   throw new Error(
     `Missing or invalid scoring-config.json at ${scoringConfigPath} — run pnpm install to reinstall.`,
+  );
+}
+
+try {
+  FRAMEWORK_CONFIG = JSON.parse(fs.readFileSync(frameworkConfigPath, "utf-8"));
+} catch {
+  throw new Error(
+    `Missing or invalid framework-config.json at ${frameworkConfigPath} — run pnpm install to reinstall.`,
   );
 }
 
@@ -143,7 +153,7 @@ function getExpected(ruleId) {
  * Used to help developers locate the source of an accessibility violation.
  * @type {Object<string, Object>}
  */
-const FRAMEWORK_GLOBS = INTELLIGENCE.frameworkGlobs || {};
+const FRAMEWORK_GLOBS = FRAMEWORK_CONFIG.frameworkGlobs || {};
 
 /**
  * Rules with managed_by_libraries in intelligence.json — derived at load time.
@@ -159,13 +169,13 @@ const MANAGED_RULES = new Map(
  * Maps detected framework IDs to their respective keys in intelligence.json.
  * @type {Object<string, string>}
  */
-const FRAMEWORK_TO_INTEL_KEY = INTELLIGENCE.frameworkAliases?.intelKey || {};
+const FRAMEWORK_TO_INTEL_KEY = FRAMEWORK_CONFIG.frameworkAliases?.intelKey || {};
 
 /**
  * Maps detected framework/CMS IDs to their respective keys for CMS-specific notes.
  * @type {Object<string, string>}
  */
-const FRAMEWORK_TO_CMS_KEY = INTELLIGENCE.frameworkAliases?.cmsKey || {};
+const FRAMEWORK_TO_CMS_KEY = FRAMEWORK_CONFIG.frameworkAliases?.cmsKey || {};
 
 /**
  * Filters the intelligence notes to only include those relevant to the detected framework.
