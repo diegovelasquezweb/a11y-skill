@@ -42,25 +42,33 @@ This skill follows the [Agent Skills standard](https://agentskills.io) and is al
 | **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`             |
 | **Gemini CLI**  | `~/.gemini/skills/a11y/`                       |
 
-## How to Audit
+## How to Use
 
-Initialize a scan to discover vulnerabilities and generate a compliance baseline:
+This skill is designed for human-like interaction. You don't need to memorize technical CLI flags; simply talk to your AI agent in plain English. The agent understands your intent and orchestrates the engine automatically.
+
+### Audit & Baseline
+
+To discover vulnerabilities and generate a compliance baseline:
 
 ```bash
 "Check accessibility localhost:3000"
 ```
 
-## How to Fix
+### Autonomous Fixes
 
-Trigger autonomous repairs using the remediation blueprints from the roadmap:
+To trigger repairs using the remediation blueprints:
 
 ```bash
 "Fix accessibility issues"
 ```
 
+### Targeted Remediation
+
 ```bash
 "Fix only critical issues"
 ```
+
+The agent also understands more complex requests, like ignoring specific rules or choosing viewports — just ask naturally.
 
 ## Deliverables
 
