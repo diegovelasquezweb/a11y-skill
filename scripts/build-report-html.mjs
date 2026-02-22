@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+/**
+ * @file build-report-html.mjs
+ * @description Generates a high-fidelity, interactive HTML accessibility audit report.
+ * It processes the audit findings, calculates compliance scores, and applies
+ * a premium design system with persona-based impact analysis.
+ */
 
 import { log, readJson, getInternalPath, DEFAULTS } from "./a11y-utils.mjs";
 import fs from "node:fs";
@@ -21,6 +27,9 @@ import {
   buildPageGroupedSection,
 } from "./report/format-html.mjs";
 
+/**
+ * Prints the CLI usage instructions and available options for the HTML report builder.
+ */
 function printUsage() {
   log.info(`Usage:
   node build-report-html.mjs [options]
@@ -33,6 +42,11 @@ Options:
 `);
 }
 
+/**
+ * Parses command-line arguments into a structured configuration object for the HTML builder.
+ * @param {string[]} argv - Array of command-line arguments.
+ * @returns {Object} A configuration object.
+ */
 function parseArgs(argv) {
   if (argv.includes("--help") || argv.includes("-h")) {
     printUsage();
@@ -61,6 +75,13 @@ function parseArgs(argv) {
   return args;
 }
 
+/**
+ * Constructs the final HTML string for the accessibility report.
+ * @param {Object} args - The parsed CLI arguments.
+ * @param {Object[]} findings - The normalized list of audit findings.
+ * @param {Object} metadata - Metadata from the scan (e.g., date, target).
+ * @returns {string} The complete HTML document as a string.
+ */
 function buildHtml(args, findings, metadata = {}) {
   const totals = buildSummary(findings);
   const dateStr = new Date().toLocaleDateString("en-US", {
@@ -771,6 +792,10 @@ function buildHtml(args, findings, metadata = {}) {
 </html>`;
 }
 
+/**
+ * The main execution function for the HTML report builder.
+ * Coordinates data reading, normalization, HTML generation, and file writing.
+ */
 function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.output) {

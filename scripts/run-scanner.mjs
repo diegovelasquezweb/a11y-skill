@@ -1,4 +1,11 @@
 #!/usr/bin/env node
+/**
+ * @file run-scanner.mjs
+ * @description Accessibility scanner core.
+ * Responsible for crawling the target website, discovering routes,
+ * and performing the automated axe-core analysis on identified pages
+ * using Playwright for browser orchestration.
+ */
 
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
@@ -7,6 +14,9 @@ import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
+/**
+ * Prints the CLI usage instructions and available options to the console.
+ */
 function printUsage() {
   log.info(`Usage:
   node run-scanner.mjs --base-url <url> [options]
@@ -29,6 +39,12 @@ Options:
 `);
 }
 
+/**
+ * Parses command-line arguments into a structured configuration object.
+ * @param {string[]} argv - Array of command-line arguments (process.argv.slice(2)).
+ * @returns {Object} A configuration object for the scanner.
+ * @throws {Error} If the required --base-url argument is missing.
+ */
 function parseArgs(argv) {
   if (argv.includes("--help") || argv.includes("-h")) {
     printUsage();
@@ -89,6 +105,11 @@ const BLOCKED_EXTENSIONS =
 
 const PAGINATION_PARAMS = /^(page|p|pg|offset|cursor|start|from|skip|limit)$/i;
 
+/**
+ * Attempts to discover additional routes by fetching and parsing the sitemap.xml.
+ * @param {string} origin - The origin (protocol + domain) of the target site.
+ * @returns {Promise<string[]>} A list of discovered route paths/URLs.
+ */
 async function discoverFromSitemap(origin) {
   try {
     const res = await fetch(`${origin}/sitemap.xml`, {
@@ -110,6 +131,11 @@ async function discoverFromSitemap(origin) {
   }
 }
 
+/**
+ * Fetches and parses robots.txt to identify paths disallowed for crawlers.
+ * @param {string} origin - The origin of the target site.
+ * @returns {Promise<Set<string>>} A set of disallowed path prefixes.
+ */
 async function fetchDisallowedPaths(origin) {
   const disallowed = new Set();
   try {
@@ -143,6 +169,12 @@ async function fetchDisallowedPaths(origin) {
   return disallowed;
 }
 
+/**
+ * Checks if a specific route path matches any of the disallowed patterns from robots.txt.
+ * @param {string} routePath - The path to check.
+ * @param {Set<string>} disallowedPaths - Set of disallowed patterns/prefixes.
+ * @returns {boolean} True if the path is disallowed, false otherwise.
+ */
 function isDisallowedPath(routePath, disallowedPaths) {
   for (const rule of disallowedPaths) {
     if (routePath.startsWith(rule)) return true;
@@ -150,6 +182,12 @@ function isDisallowedPath(routePath, disallowedPaths) {
   return false;
 }
 
+/**
+ * Normalizes a URL or path to a relative hashless path if it belongs to the same origin.
+ * @param {string} rawValue - The raw URL or path string to normalize.
+ * @param {string} origin - The origin of the target site.
+ * @returns {string} The normalized relative path, or an empty string if invalid/external.
+ */
 export function normalizePath(rawValue, origin) {
   if (!rawValue) return "";
   try {
@@ -163,6 +201,12 @@ export function normalizePath(rawValue, origin) {
   }
 }
 
+/**
+ * Parses the --routes CLI argument (CSV or newline-separated) into a list of normalized paths.
+ * @param {string} routesArg - The raw string from the --routes argument.
+ * @param {string} origin - The origin of the target site.
+ * @returns {string[]} A list of unique, normalized route paths.
+ */
 export function parseRoutesArg(routesArg, origin) {
   if (!routesArg.trim()) return [];
   const entries = routesArg
@@ -178,6 +222,14 @@ export function parseRoutesArg(routesArg, origin) {
   return [...uniq];
 }
 
+/**
+ * Crawls the website to discover additional routes starting from the base URL.
+ * @param {import("playwright").Page} page - The Playwright page object.
+ * @param {string} baseUrl - The starting URL for discovery.
+ * @param {number} maxRoutes - Maximum number of routes to discover.
+ * @param {number} crawlDepth - How deep to follow links (1-3).
+ * @returns {Promise<string[]>} A list of discovered route paths.
+ */
 export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
   const origin = new URL(baseUrl).origin;
   const routes = new Set(["/"]);
@@ -245,6 +297,11 @@ export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
   return [...routes].slice(0, maxRoutes);
 }
 
+/**
+ * Detects the web framework and UI libraries used by analyzing the DOM and package.json (if available).
+ * @param {import("playwright").Page} page - The Playwright page object.
+ * @returns {Promise<Object>} An object containing detected framework and UI libraries.
+ */
 async function detectProjectContext(page) {
   const framework = await page.evaluate(() => {
     if (document.getElementById("__next") || window.__NEXT_DATA__)
@@ -276,9 +333,7 @@ async function detectProjectContext(page) {
   const uiLibraries = [];
   try {
     const projectDir = process.env.A11Y_PROJECT_DIR;
-    const pkgPath = projectDir
-      ? path.join(projectDir, "package.json")
-      : null;
+    const pkgPath = projectDir ? path.join(projectDir, "package.json") : null;
     if (pkgPath && fs.existsSync(pkgPath)) {
       const deps = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
       const allDeps = Object.keys({
@@ -310,6 +365,18 @@ async function detectProjectContext(page) {
   return { framework, uiLibraries };
 }
 
+/**
+ * Navigates to a route and performs an axe-core accessibility analysis.
+ * @param {import("playwright").Page} page - The Playwright page object.
+ * @param {string} routeUrl - The full URL of the route to analyze.
+ * @param {number} waitMs - Time to wait after page load.
+ * @param {string[]} excludeSelectors - CSS selectors to exclude from the scan.
+ * @param {string|null} onlyRule - Specific rule ID to check (optional).
+ * @param {number} timeoutMs - Navigation and analysis timeout.
+ * @param {number} maxRetries - Number of retries on failure.
+ * @param {string} waitUntil - Playwright load state strategy.
+ * @returns {Promise<Object>} The analysis results for the route.
+ */
 async function analyzeRoute(
   page,
   routeUrl,
@@ -398,6 +465,10 @@ async function analyzeRoute(
   };
 }
 
+/**
+ * The main execution function for the scanner script.
+ * Coordinates browser setup, discovery, parallel scanning, and result saving.
+ */
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const baseUrl = new URL(args.baseUrl).toString();
@@ -405,8 +476,10 @@ async function main() {
 
   log.info(`Starting accessibility audit for ${baseUrl}`);
 
-  const primaryViewport =
-    args.viewport || { width: DEFAULTS.viewports[0].width, height: DEFAULTS.viewports[0].height };
+  const primaryViewport = args.viewport || {
+    width: DEFAULTS.viewports[0].width,
+    height: DEFAULTS.viewports[0].height,
+  };
 
   const browser = await chromium.launch({
     headless: args.headless,
@@ -463,6 +536,12 @@ async function main() {
 
   const SKIP_SELECTORS = new Set(["html", "body", "head", ":root", "document"]);
 
+  /**
+   * Captures a screenshot of an element associated with an accessibility violation.
+   * @param {import("playwright").Page} tabPage - The Playwright page object.
+   * @param {Object} violation - The axe-core violation object.
+   * @param {number} routeIndex - The index of the current route (used for filenames).
+   */
   async function captureElementScreenshot(tabPage, violation, routeIndex) {
     if (!args.screenshotsDir) return;
     const firstNode = violation.nodes?.[0];

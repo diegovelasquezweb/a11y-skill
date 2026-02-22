@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+/**
+ * @file build-report-pdf.mjs
+ * @description Generates a professional PDF audit report using Playwright.
+ * It renders an internal HTML template optimized for print and exports it
+ * as a formal A4 accessibility compliance document.
+ */
 
 import { chromium } from "playwright";
 import fs from "node:fs";
@@ -20,6 +26,9 @@ import {
   buildPdfIssueSummaryTable,
 } from "./report/format-pdf.mjs";
 
+/**
+ * Prints the CLI usage instructions and available options for the PDF report builder.
+ */
 function printUsage() {
   log.info(`Usage:
   node build-report-pdf.mjs [options]
@@ -33,6 +42,11 @@ Options:
 `);
 }
 
+/**
+ * Parses command-line arguments into a configuration object for the PDF builder.
+ * @param {string[]} argv - Array of command-line arguments.
+ * @returns {Object} A configuration object.
+ */
 function parseArgs(argv) {
   const args = {
     input: getInternalPath("a11y-findings.json"),
@@ -60,6 +74,12 @@ function parseArgs(argv) {
   return args;
 }
 
+/**
+ * Constructs the HTML structure specifically tailored for PDF rendering.
+ * @param {Object} args - The parsed CLI arguments.
+ * @param {Object[]} findings - The normalized list of audit findings.
+ * @returns {string} The HTML document string for PDF export.
+ */
 function buildPdfHtml(args, findings) {
   const totals = buildSummary(findings);
   const score = computeComplianceScore(totals);
@@ -172,6 +192,10 @@ function buildPdfHtml(args, findings) {
 </html>`;
 }
 
+/**
+ * The main execution function for the PDF report builder.
+ * Uses a headless browser to render the report and save it as a PDF file.
+ */
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.output) {

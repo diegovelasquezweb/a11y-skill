@@ -1,4 +1,10 @@
 #!/usr/bin/env node
+/**
+ * @file build-report-md.mjs
+ * @description Generates a Markdown-based remediation guide and audit summary.
+ * This report is optimized for developers and intended to be used as a
+ * backlog or README-style remediation roadmap.
+ */
 
 import { readJson, log, getInternalPath, DEFAULTS } from "./a11y-utils.mjs";
 import fs from "node:fs";
@@ -6,6 +12,9 @@ import path from "node:path";
 import { normalizeFindings } from "./report/core-findings.mjs";
 import { buildMarkdownSummary } from "./report/format-md.mjs";
 
+/**
+ * Prints the CLI usage instructions and available options for the Markdown report builder.
+ */
 function printUsage() {
   log.info(`Usage:
   node build-report-md.mjs [options]
@@ -19,6 +28,11 @@ Options:
 `);
 }
 
+/**
+ * Parses command-line arguments into a configuration object for the Markdown builder.
+ * @param {string[]} argv - Array of command-line arguments.
+ * @returns {Object} A configuration object.
+ */
 function parseArgs(argv) {
   const args = {
     input: getInternalPath("a11y-findings.json"),
@@ -47,6 +61,10 @@ function parseArgs(argv) {
   return args;
 }
 
+/**
+ * The main execution function for the Markdown report builder.
+ * Reads scan results, generates the Markdown string, and writes the output file.
+ */
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const inputPayload = readJson(args.input);

@@ -1,3 +1,9 @@
+/**
+ * @file run-audit.mjs
+ * @description Main orchestrator for the accessibility audit pipeline.
+ * It manages dependencies, coordinates the execution of the scanner and analyzer,
+ * and handles the final report generation (HTML, PDF, Markdown).
+ */
 import { spawn, execSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -6,6 +12,9 @@ import { log, DEFAULTS, SKILL_ROOT, getInternalPath } from "./a11y-utils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+/**
+ * Prints the CLI usage instructions and available options for the audit pipeline.
+ */
 function printUsage() {
   log.info(`Usage:
   node scripts/run-audit.mjs --base-url <url> [options]
@@ -38,6 +47,14 @@ Execution & Emulation:
 
 const SCRIPT_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
 
+/**
+ * Spawns a child process to run a specific node script within the audit pipeline.
+ * @param {string} scriptName - The name of the script to run.
+ * @param {string[]} args - Arguments to pass to the script.
+ * @param {Object} env - Additional environment variables for the child process.
+ * @returns {Promise<void>} Resolves when the script completes successfully.
+ * @throws {Error} If the script fails or times out.
+ */
 async function runScript(scriptName, args = [], env = {}) {
   return new Promise((resolve, reject) => {
     const scriptPath = path.join(__dirname, scriptName);
@@ -74,6 +91,10 @@ async function runScript(scriptName, args = [], env = {}) {
   });
 }
 
+/**
+ * The main execution function for the audit pipeline.
+ * Coordinates dependency installation, scanner execution, analysis, and report generation.
+ */
 async function main() {
   const argv = process.argv.slice(2);
 
