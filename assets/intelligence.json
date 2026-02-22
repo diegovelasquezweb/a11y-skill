@@ -2,7 +2,7 @@
   "rules": {
     "accessible-auth-minimum": {
       "fix": {
-        "description": "Authentication must not require solving a cognitive test (CAPTCHA, puzzle, memorization) without providing an accessible alternative (WCAG 3.3.8).",
+        "description": "Remove any cognitive test requirement (CAPTCHA, puzzle, memorization) from the authentication flow, or provide an accessible alternative alongside it — offer an audio CAPTCHA, email OTP, magic link, or passkey so users with cognitive disabilities can authenticate without solving a visual puzzle (WCAG 3.3.8).",
         "code": "<!-- Option 1: Offer an audio CAPTCHA alternative -->\n<div class=\"captcha-group\">\n  <img src=\"captcha.png\" alt=\"Enter the characters shown\">\n  <a href=\"/audio-captcha\">Use audio CAPTCHA instead</a>\n</div>\n\n<!-- Option 2: Use passkeys (no cognitive test required) -->\n<button type=\"button\" onclick=\"authenticateWithPasskey()\">\n  Sign in with passkey\n</button>"
       },
       "false_positive_risk": "high",
@@ -21,7 +21,13 @@
           "If a CAPTCHA is present, verify an audio alternative is offered and functional.",
           "Attempt login using passkey or magic link — no cognitive puzzle should be required."
         ]
-      }
+      },
+      "related_rules": [
+        {
+          "id": "redundant-entry",
+          "reason": "Both are WCAG 3.3.x input assistance criteria — review all form accessibility together."
+        }
+      ]
     },
     "accesskeys": {
       "fix": {
@@ -48,7 +54,7 @@
     },
     "area-alt": {
       "fix": {
-        "description": "Every <area> element inside an image map must have alternative text via the alt attribute. Without it, screen readers announce the raw href or nothing at all, making the clickable region invisible to AT users.",
+        "description": "Add a descriptive alt attribute to every <area> element inside the image map, describing the clickable region's destination or function. Without it, screen readers announce the raw href or nothing at all.",
         "code": "<img src=\"floor-plan.png\" alt=\"Office floor plan\" usemap=\"#office-map\">\n<map name=\"office-map\">\n  <area shape=\"rect\" coords=\"0,0,100,100\" href=\"/room-a\" alt=\"Conference Room A\">\n  <area shape=\"circle\" coords=\"200,200,50\" href=\"/room-b\" alt=\"Break Room B\">\n  <area shape=\"poly\" coords=\"300,0,400,100,350,200\" href=\"/room-c\" alt=\"Open Workspace C\">\n</map>"
       },
       "false_positive_risk": "low",
@@ -116,13 +122,13 @@
         },
         {
           "id": "aria-conditional-attr",
-          "reason": "Both rules validate ARIA attribute usage per role — fix them together."
+          "reason": "aria-allowed-attr checks which attributes a role supports; aria-conditional-attr checks whether the attribute value is semantically valid for that role — fix both in one pass."
         }
       ]
     },
     "aria-allowed-role": {
       "fix": {
-        "description": "Ensure the role attribute value is appropriate for the element. Certain HTML elements have restrictions on which ARIA roles can be applied — for example, <input type='text'> cannot have role='button'.",
+        "description": "Remove or change the role attribute so it is appropriate for the element. Certain HTML elements restrict which ARIA roles can be applied — for example, <input type='text'> cannot have role='button'. Use a native element that matches the desired role instead.",
         "code": "<!-- Invalid: role='button' on a text input -->\n<!-- <input type=\"text\" role=\"button\"> -->\n\n<!-- Valid: use a <button> for button semantics -->\n<button type=\"button\">Click me</button>\n\n<!-- Valid: role='search' on a <form> is allowed -->\n<form role=\"search\">\n  <label for=\"q\">Search</label>\n  <input type=\"search\" id=\"q\">\n</form>\n\n<!-- Valid: role='presentation' on a layout <table> -->\n<table role=\"presentation\">\n  <tr><td>Layout content</td></tr>\n</table>"
       },
       "false_positive_risk": "medium",
@@ -155,7 +161,7 @@
     },
     "aria-braille-equivalent": {
       "fix": {
-        "description": "Elements with aria-braillelabel must also have a visible label (aria-label, aria-labelledby, or visible text content), and elements with aria-brailleroledescription must also have aria-roledescription. Braille attributes are supplements, not replacements.",
+        "description": "Add a non-braille equivalent alongside each braille ARIA attribute: pair aria-braillelabel with aria-label, aria-labelledby, or visible text content, and pair aria-brailleroledescription with aria-roledescription. Braille attributes are supplements, not replacements.",
         "code": "<!-- Before: braille label without a non-braille equivalent -->\n<button aria-braillelabel=\"Sv\">Save</button>\n<!-- This is actually valid because the button has visible text 'Save' -->\n\n<!-- Invalid: aria-brailleroledescription without aria-roledescription -->\n<div role=\"region\" aria-brailleroledescription=\"rgn\">...</div>\n<!-- After: add the non-braille equivalent -->\n<div role=\"region\" aria-roledescription=\"content region\" aria-brailleroledescription=\"rgn\">...</div>"
       },
       "false_positive_risk": "low",
@@ -178,7 +184,7 @@
     },
     "aria-command-name": {
       "fix": {
-        "description": "Every element with role='button', role='link', or role='menuitem' must have an accessible name. Provide one via visible text content, aria-label, or aria-labelledby.",
+        "description": "Give every element with role='button', role='link', or role='menuitem' an accessible name via visible text content, aria-label, or aria-labelledby.",
         "code": "<!-- ARIA button with visible text -->\n<div role=\"button\" tabindex=\"0\">Save changes</div>\n\n<!-- ARIA link with aria-label (icon-only) -->\n<span role=\"link\" tabindex=\"0\" aria-label=\"View documentation\">\n  <svg aria-hidden=\"true\">...</svg>\n</span>\n\n<!-- ARIA menuitem with text content -->\n<li role=\"menuitem\">Copy to clipboard</li>"
       },
       "false_positive_risk": "low",
@@ -211,7 +217,7 @@
     },
     "aria-conditional-attr": {
       "fix": {
-        "description": "ARIA attributes must be used consistently with the element's role semantics. For example, aria-checked should not be set on a role='option' element (use aria-selected instead), and aria-expanded must only be true when the controlled content is actually visible.",
+        "description": "Replace mismatched ARIA state attributes with the correct attribute for the element's role. For example, replace aria-checked on a role='option' element with aria-selected, and set aria-expanded to true only when the controlled content is actually visible.",
         "code": "<!-- Before: aria-selected on role='checkbox' (should be aria-checked) -->\n<div role=\"checkbox\" aria-selected=\"true\" tabindex=\"0\">Accept terms</div>\n<!-- After: use the correct attribute for the role -->\n<div role=\"checkbox\" aria-checked=\"true\" tabindex=\"0\">Accept terms</div>\n\n<!-- Before: aria-checked on role='option' (should be aria-selected) -->\n<li role=\"option\" aria-checked=\"true\">Item 1</li>\n<!-- After: -->\n<li role=\"option\" aria-selected=\"true\">Item 1</li>"
       },
       "false_positive_risk": "low",
@@ -234,7 +240,7 @@
       "related_rules": [
         {
           "id": "aria-allowed-attr",
-          "reason": "Both rules validate ARIA attribute usage per role — fix them together."
+          "reason": "aria-conditional-attr checks semantic validity of attribute values; aria-allowed-attr checks whether the attribute itself is permitted on the role — fix both in one pass."
         },
         {
           "id": "aria-valid-attr-value",
@@ -296,7 +302,7 @@
       "related_rules": [
         {
           "id": "aria-required-attr",
-          "reason": "Dialogs with aria-modal='true' require proper focus trapping — fix naming and modal attributes together."
+          "reason": "Dialogs require aria-modal and aria-labelledby as required attributes — verify both are present when fixing dialog naming."
         }
       ]
     },
@@ -402,7 +408,7 @@
     },
     "aria-meter-name": {
       "fix": {
-        "description": "Every element with role='meter' must have an accessible name via aria-label, aria-labelledby, or the title attribute. Without a name, screen readers announce the value but not what is being measured.",
+        "description": "Add an accessible name to every element with role='meter' via aria-label, aria-labelledby, or the title attribute. Without a name, screen readers announce the value but not what is being measured.",
         "code": "<!-- Using aria-label -->\n<div role=\"meter\" aria-valuenow=\"75\" aria-valuemin=\"0\" aria-valuemax=\"100\"\n  aria-label=\"Battery level\">\n  75%\n</div>\n\n<!-- Using aria-labelledby -->\n<span id=\"disk-label\">Disk usage</span>\n<div role=\"meter\" aria-valuenow=\"42\" aria-valuemin=\"0\" aria-valuemax=\"100\"\n  aria-labelledby=\"disk-label\">\n  42%\n</div>"
       },
       "false_positive_risk": "low",
@@ -431,7 +437,7 @@
     },
     "aria-progressbar-name": {
       "fix": {
-        "description": "Every element with role='progressbar' must have an accessible name via aria-label, aria-labelledby, or the title attribute. Without a name, screen readers announce the progress value but not what process it represents.",
+        "description": "Add an accessible name to every element with role='progressbar' via aria-label, aria-labelledby, or the title attribute. Without a name, screen readers announce the progress value but not what process it represents.",
         "code": "<!-- Using aria-label -->\n<div role=\"progressbar\" aria-valuenow=\"60\" aria-valuemin=\"0\" aria-valuemax=\"100\"\n  aria-label=\"File upload progress\">\n  60%\n</div>\n\n<!-- Using aria-labelledby -->\n<span id=\"download-label\">Downloading update</span>\n<progress id=\"download\" max=\"100\" value=\"30\" aria-labelledby=\"download-label\">\n  30%\n</progress>"
       },
       "false_positive_risk": "low",
@@ -505,7 +511,7 @@
     },
     "aria-required-attr": {
       "fix": {
-        "description": "Add the required ARIA attribute(s) for the element's role. See the WAI-ARIA spec for required attributes per role.",
+        "description": "Add the missing required ARIA attribute(s) for the element's role. Common examples: role='combobox' requires aria-expanded and aria-controls; role='slider' requires aria-valuenow, aria-valuemin, and aria-valuemax; role='checkbox' requires aria-checked.",
         "code": "<!-- combobox requires: aria-expanded + aria-controls -->\n<div role=\"combobox\" aria-expanded=\"false\" aria-controls=\"listbox-id\" aria-haspopup=\"listbox\">\n  <input type=\"text\" aria-autocomplete=\"list\">\n</div>\n<ul role=\"listbox\" id=\"listbox-id\">...</ul>\n\n<!-- scrollbar requires: aria-controls + aria-valuenow + aria-valuemin + aria-valuemax -->\n<div role=\"scrollbar\" aria-controls=\"scrollable-region\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div>"
       },
       "false_positive_risk": "low",
@@ -558,7 +564,7 @@
     },
     "aria-required-children": {
       "fix": {
-        "description": "Elements with certain ARIA roles must contain specific child roles. For example, role='list' requires children with role='listitem', and role='tablist' requires children with role='tab'.",
+        "description": "Add the required child roles to composite ARIA elements. For example, give role='list' children with role='listitem', and give role='tablist' children with role='tab'.",
         "code": "<!-- role='list' requires role='listitem' children -->\n<div role=\"list\">\n  <div role=\"listitem\">Item 1</div>\n  <div role=\"listitem\">Item 2</div>\n</div>\n\n<!-- role='tablist' requires role='tab' children -->\n<div role=\"tablist\" aria-label=\"Settings\">\n  <button role=\"tab\" aria-selected=\"true\" aria-controls=\"panel-1\">General</button>\n  <button role=\"tab\" aria-selected=\"false\" aria-controls=\"panel-2\">Advanced</button>\n</div>"
       },
       "false_positive_risk": "medium",
@@ -591,7 +597,7 @@
     },
     "aria-required-parent": {
       "fix": {
-        "description": "Elements with certain ARIA roles must be nested inside a parent with a specific role. For example, role='listitem' must be inside role='list', and role='tab' must be inside role='tablist'.",
+        "description": "Nest each ARIA role inside its required parent role. For example, wrap role='listitem' inside role='list', and wrap role='tab' inside role='tablist'.",
         "code": "<!-- role='listitem' must be inside role='list' -->\n<div role=\"list\">\n  <div role=\"listitem\">Item 1</div>\n  <div role=\"listitem\">Item 2</div>\n</div>\n\n<!-- role='tab' must be inside role='tablist' -->\n<div role=\"tablist\" aria-label=\"Account settings\">\n  <button role=\"tab\" aria-selected=\"true\">Profile</button>\n  <button role=\"tab\" aria-selected=\"false\">Security</button>\n</div>"
       },
       "false_positive_risk": "medium",
@@ -624,7 +630,7 @@
     },
     "aria-roledescription": {
       "fix": {
-        "description": "The aria-roledescription attribute must only be used on elements that have an explicit or implicit ARIA role. It cannot be applied to elements with no role, or to elements with role='generic' (the implicit role of <div> and <span>).",
+        "description": "Apply aria-roledescription only to elements that have an explicit or implicit ARIA role. Do not use it on elements with no role or with role='generic' (the implicit role of <div> and <span>).",
         "code": "<!-- Before: aria-roledescription on a generic div -->\n<div aria-roledescription=\"slide\">Slide content</div>\n<!-- After: add an appropriate role -->\n<div role=\"group\" aria-roledescription=\"slide\" aria-label=\"Slide 1 of 5\">\n  Slide content\n</div>\n\n<!-- Valid: aria-roledescription on an element with an implicit role -->\n<button aria-roledescription=\"toggle switch\">Dark mode</button>"
       },
       "false_positive_risk": "low",
@@ -678,7 +684,7 @@
         },
         {
           "id": "aria-valid-attr-value",
-          "reason": "After fixing the role, verify no ARIA attributes are prohibited for the new role."
+          "reason": "After fixing the role, verify attribute values are valid tokens for the corrected role."
         },
         {
           "id": "aria-allowed-attr",
@@ -756,7 +762,7 @@
     },
     "aria-tooltip-name": {
       "fix": {
-        "description": "Every element with role='tooltip' must have an accessible name via text content, aria-label, or aria-labelledby. Without a name, the tooltip is invisible to screen reader users.",
+        "description": "Give every element with role='tooltip' an accessible name via text content, aria-label, or aria-labelledby. Without a name, the tooltip is invisible to screen reader users.",
         "code": "<!-- Tooltip with text content (accessible name from content) -->\n<span role=\"tooltip\" id=\"password-hint\">\n  Password must be at least 8 characters\n</span>\n<input type=\"password\" aria-describedby=\"password-hint\">\n\n<!-- Tooltip with aria-label (for icon-based tooltips) -->\n<div role=\"tooltip\" aria-label=\"Copy to clipboard shortcut: Ctrl+C\">\n  <kbd>Ctrl</kbd>+<kbd>C</kbd>\n</div>"
       },
       "false_positive_risk": "low",
@@ -812,7 +818,7 @@
     },
     "aria-valid-attr": {
       "fix": {
-        "description": "All attributes beginning with aria- must be valid ARIA attribute names. Misspelled or invented aria-* attributes are ignored by assistive technologies.",
+        "description": "Replace any misspelled or invented aria-* attribute names with valid ARIA attribute names from the WAI-ARIA specification. Invalid aria-* attributes are silently ignored by assistive technologies.",
         "code": "<!-- Before: misspelled or invalid ARIA attributes -->\n<button aria-labelled=\"Save\">Save</button>  <!-- should be aria-label -->\n<div aria-role=\"alert\">Error</div>  <!-- aria-role is not valid; use role=\"alert\" -->\n\n<!-- After: corrected attributes -->\n<button aria-label=\"Save\">Save</button>\n<div role=\"alert\">Error</div>"
       },
       "false_positive_risk": "low",
@@ -910,6 +916,10 @@
         {
           "id": "video-caption",
           "reason": "Both require media captions — fix all media accessibility violations together."
+        },
+        {
+          "id": "no-autoplay-audio",
+          "reason": "Auto-playing audio also needs captions if it conveys information — fix both together."
         }
       ]
     },
@@ -949,7 +959,7 @@
     },
     "avoid-inline-spacing": {
       "fix": {
-        "description": "Text spacing set via inline style attributes (letter-spacing, word-spacing, line-height) must be overridable by user stylesheets. Hard-coded inline styles with !important prevent users with low vision from adjusting text spacing (WCAG 1.4.12).",
+        "description": "Move text spacing properties (letter-spacing, word-spacing, line-height) from inline style attributes into a stylesheet so user CSS can override them. Hard-coded inline styles with !important prevent users with low vision from adjusting text spacing (WCAG 1.4.12).",
         "code": "<!-- Before: inline spacing that cannot be overridden -->\n<p style=\"letter-spacing: 0.1em !important; line-height: 1.2 !important;\">Text content</p>\n\n<!-- After: move spacing to a stylesheet class (overridable by user CSS) -->\n<p class=\"body-text\">Text content</p>\n<!-- In CSS: -->\n<!-- .body-text { letter-spacing: 0.1em; line-height: 1.5; } -->"
       },
       "false_positive_risk": "medium",
@@ -1043,7 +1053,7 @@
     "bypass": {
       "fix": {
         "description": "Add a skip link at the very top of each page so keyboard users can bypass repetitive navigation.",
-        "code": "<a class=\"skip-link\" href=\"#main-content\">Skip to main content</a>\n<nav><!-- navigation --></nav>\n<main id=\"main-content\">\n  <!-- page content -->\n</main>"
+        "code": "<a class=\"skip-link\" href=\"#main-content\">Skip to main content</a>\n<nav aria-label=\"Primary\">\n  <a href=\"/\">Home</a>\n  <a href=\"/shop\">Shop</a>\n  <a href=\"/about\">About</a>\n</nav>\n<main id=\"main-content\">\n  <h1>Welcome to our store</h1>\n</main>"
       },
       "false_positive_risk": "medium",
       "framework_notes": {
@@ -1108,11 +1118,21 @@
           "Focus interactive elements with Tab — verify the focused state maintains sufficient contrast.",
           "Check text rendered over images or gradients using the DevTools color picker."
         ]
-      }
+      },
+      "related_rules": [
+        {
+          "id": "link-in-text-block",
+          "reason": "Links distinguished only by color need sufficient contrast — both rules enforce color-based visual distinction."
+        },
+        {
+          "id": "focus-appearance",
+          "reason": "Focus indicators also require minimum contrast ratios — audit contrast for both text and focus states together."
+        }
+      ]
     },
     "consistent-help": {
       "fix": {
-        "description": "Help mechanisms (support link, chat, contact info, self-help tool) must appear in the same relative order on every page where they appear (WCAG 3.2.6).",
+        "description": "Place help mechanisms (support link, chat, contact info, self-help tool) in the same relative order on every page where they appear (WCAG 3.2.6).",
         "code": "<!-- Place help in a consistent location across all pages (e.g., persistent header or footer): -->\n<header>\n  <nav aria-label=\"Support\">\n    <a href=\"/help\">Help centre</a>\n    <a href=\"/contact\">Contact support</a>\n  </nav>\n</header>"
       },
       "false_positive_risk": "high",
@@ -1140,7 +1160,7 @@
     },
     "css-orientation-lock": {
       "fix": {
-        "description": "Content must not be locked to a specific display orientation (portrait or landscape) unless a particular orientation is essential. Users with motor disabilities may mount their device in a fixed orientation (WCAG 1.3.4).",
+        "description": "Remove CSS, manifest, or JavaScript rules that lock the display to a specific orientation (portrait or landscape) unless that orientation is essential. Users with motor disabilities may mount their device in a fixed position (WCAG 1.3.4).",
         "code": "<!-- Avoid orientation-locking CSS like: -->\n<!-- @media (orientation: portrait) { body { transform: rotate(90deg); } } -->\n\n<!-- Instead, ensure content adapts to both orientations: -->\n<style>\n  .layout {\n    display: grid;\n    grid-template-columns: 1fr;\n  }\n  @media (orientation: landscape) {\n    .layout {\n      grid-template-columns: 1fr 1fr;\n    }\n  }\n</style>"
       },
       "false_positive_risk": "medium",
@@ -1253,7 +1273,7 @@
     },
     "dragging-movements": {
       "fix": {
-        "description": "All drag-and-drop functionality must have a single-pointer alternative (e.g., click-to-select then click-to-drop, or arrow buttons) for users who cannot perform drag gestures (WCAG 2.5.7).",
+        "description": "Provide a single-pointer alternative for every drag-and-drop interaction (e.g., click-to-select then click-to-drop, or up/down arrow buttons) so users who cannot perform drag gestures can complete the same task (WCAG 2.5.7).",
         "code": "<!-- Provide non-drag alternative with arrow buttons: -->\n<ul role=\"listbox\" aria-label=\"Sortable items\">\n  <li role=\"option\" tabindex=\"0\">\n    Item 1\n    <button aria-label=\"Move item up\">↑</button>\n    <button aria-label=\"Move item down\">↓</button>\n  </li>\n</ul>"
       },
       "false_positive_risk": "high",
@@ -1276,7 +1296,7 @@
     },
     "duplicate-id": {
       "fix": {
-        "description": "All id attributes must be unique within the page. Search for duplicate values and rename them.",
+        "description": "Search for duplicate id attribute values and rename them so every id is unique within the page. Update any referencing aria-labelledby, aria-controls, or href='#' attributes accordingly.",
         "code": "<!-- Before: duplicate ids -->\n<nav id=\"main-nav\">...</nav>\n<footer id=\"main-nav\">...</footer>\n\n<!-- After: unique ids -->\n<nav id=\"primary-nav\">...</nav>\n<footer id=\"footer-nav\">...</footer>\n\n<!-- Update any referencing aria-labelledby / aria-controls / href=\"#\" accordingly -->"
       },
       "false_positive_risk": "low",
@@ -1340,7 +1360,7 @@
     "empty-heading": {
       "fix": {
         "description": "Add meaningful text content to the heading element, or remove it if it serves no structural purpose.",
-        "code": "<!-- Before: empty heading -->\n<h2></h2>\n\n<!-- After: heading with content -->\n<h2>Section title</h2>\n\n<!-- Or remove entirely if structural-only -->\n<!-- Use CSS pseudo-content for decorative dividers instead -->"
+        "code": "<!-- Before: empty heading -->\n<h2></h2>\n\n<!-- After: heading with content -->\n<h2>Customer Reviews</h2>\n\n<!-- Or remove entirely if structural-only -->\n<!-- Use CSS pseudo-content for decorative dividers instead -->"
       },
       "false_positive_risk": "low",
       "framework_notes": {
@@ -1410,7 +1430,7 @@
     },
     "focus-appearance": {
       "fix": {
-        "description": "The focus indicator must cover a minimum area (perimeter × 2 CSS px) and maintain a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
+        "description": "Style :focus-visible with an outline that covers a minimum area of perimeter × 2 CSS px and maintains a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
         "code": ":focus-visible {\n  outline: 3px solid #005FCC;\n  outline-offset: 2px;\n  /* Ensure contrast ratio ≥ 3:1 vs adjacent background */\n}\n\n/* Remove browser default only when providing a custom style */\n:focus:not(:focus-visible) {\n  outline: none;\n}"
       },
       "false_positive_risk": "high",
@@ -1429,7 +1449,17 @@
           "Check that the focus indicator contrasts at least 3:1 against the adjacent unfocused background.",
           "Verify the outline is not clipped by overflow:hidden on a parent container."
         ]
-      }
+      },
+      "related_rules": [
+        {
+          "id": "color-contrast",
+          "reason": "Focus indicators also require minimum contrast ratios — audit contrast for both text and focus states together."
+        },
+        {
+          "id": "target-size",
+          "reason": "Small targets with thin focus indicators are doubly inaccessible — fix size and focus visibility together."
+        }
+      ]
     },
     "focus-order-semantics": {
       "fix": {
@@ -1466,7 +1496,7 @@
     },
     "form-field-multiple-labels": {
       "fix": {
-        "description": "Each form field must have exactly one associated <label>. Remove duplicate labels.",
+        "description": "Remove duplicate label associations so each form field has exactly one associated <label>.",
         "code": "<!-- One label per input: -->\n<label for=\"name\">Full name</label>\n<input id=\"name\" type=\"text\" name=\"name\">"
       },
       "false_positive_risk": "medium",
@@ -1516,7 +1546,7 @@
         "react": "In React, third-party embed components (e.g., YouTube, maps, payment forms) sometimes add tabindex='-1' to the iframe. Override by removing the tabindex prop or setting it to 0. If the embed library does not expose a tabindex prop, wrap the iframe and use a ref to remove the attribute after mount.",
         "vue": "In Vue, check embedded iframe components for tabindex='-1'. Use a mounted hook to remove tabindex from the iframe element if the component does not expose it as a prop.",
         "angular": "In Angular, check [tabindex] bindings on iframe elements. If using a third-party embed directive, override the tabindex via a host binding or AfterViewInit lifecycle hook.",
-        "svelte": "Svelte components rendered in iframes must ensure focusable content is accessible. If using <iframe> to embed content, add tabindex='-1' on the iframe if the content should not be tab-reachable.",
+        "svelte": "In Svelte, do not set tabindex='-1' on iframes that contain focusable content. If the iframe embeds interactive elements (forms, links, buttons), remove tabindex='-1' so keyboard users can tab into it. Only use tabindex='-1' on iframes that are purely decorative or have no interactive content.",
         "astro": "In .astro files, <iframe> elements render to static HTML. Ensure iframes with focusable content have a title attribute. For iframes embedding external content, the external page's accessibility is the source's responsibility."
       },
       "fix_difficulty_notes": "tabindex='-1' on an iframe removes it from the sequential tab order but also prevents keyboard users from tabbing into the iframe's content. If the iframe contains any interactive content (forms, links, buttons), removing tabindex='-1' is the correct fix. If the iframe is purely decorative or contains no interactive content, tabindex='-1' combined with aria-hidden='true' is acceptable.",
@@ -1603,7 +1633,7 @@
     },
     "frame-title-unique": {
       "fix": {
-        "description": "Every <iframe> and <frame> must have a unique title attribute that distinguishes it from other frames on the same page. Duplicate titles confuse screen reader users navigating between frames.",
+        "description": "Give every <iframe> and <frame> a unique title attribute that distinguishes it from other frames on the same page. Duplicate titles confuse screen reader users navigating between frames.",
         "code": "<!-- Before: duplicate iframe titles -->\n<iframe src=\"ad1.html\" title=\"Advertisement\"></iframe>\n<iframe src=\"ad2.html\" title=\"Advertisement\"></iframe>\n\n<!-- After: unique titles -->\n<iframe src=\"ad1.html\" title=\"Advertisement: Summer sale banner\"></iframe>\n<iframe src=\"ad2.html\" title=\"Advertisement: Free shipping promo\"></iframe>"
       },
       "false_positive_risk": "low",
@@ -1633,7 +1663,7 @@
     "heading-order": {
       "fix": {
         "description": "Fix the heading hierarchy — no levels may be skipped.",
-        "code": "<h1>Page title</h1>\n<h2>Section heading</h2>\n<h3>Subsection heading</h3>\n<!-- Invalid: jumping from h1 to h3 -->"
+        "code": "<!-- Valid heading hierarchy: -->\n<h1>Accessibility Audit Report</h1>\n<h2>Color Contrast Violations</h2>\n<h3>Product listing page</h3>\n<!-- Invalid: jumping from h1 to h3 skips h2 -->"
       },
       "false_positive_risk": "low",
       "framework_notes": {
@@ -1776,7 +1806,7 @@
     },
     "html-xml-lang-mismatch": {
       "fix": {
-        "description": "When both lang and xml:lang attributes are present on the <html> element, they must specify the same base language. A mismatch confuses assistive technologies about the page language.",
+        "description": "Align the lang and xml:lang attributes on the <html> element so both specify the same base language, or remove xml:lang entirely unless serving XHTML. A mismatch confuses assistive technologies about the page language.",
         "code": "<!-- Before: mismatched language attributes -->\n<html lang=\"en\" xml:lang=\"fr\">\n\n<!-- After: matching language attributes -->\n<html lang=\"en\" xml:lang=\"en\">\n\n<!-- Best: remove xml:lang unless serving XHTML -->\n<html lang=\"en\">"
       },
       "false_positive_risk": "low",
@@ -1833,7 +1863,7 @@
     "image-alt": {
       "fix": {
         "description": "Add a descriptive alt attribute to every <img>. Use alt=\"\" for decorative images.",
-        "code": "<img src=\"photo.jpg\" alt=\"Description of the image\">\n<!-- Decorative image (hidden from AT): -->\n<img src=\"divider.png\" alt=\"\">"
+        "code": "<img src=\"photo.jpg\" alt=\"Brown leather hiking boots with red laces on a white background\">\n<!-- Decorative image (hidden from AT): -->\n<img src=\"divider.png\" alt=\"\">"
       },
       "false_positive_risk": "low",
       "framework_notes": {
@@ -2227,7 +2257,7 @@
         "svelte": "In SvelteKit, <main> must be a direct child of <body> — not nested inside another landmark. Place <main> in +layout.svelte wrapping <slot />, alongside (not inside) <header> and <footer>.",
         "astro": "In .astro layouts, <main> must be a direct child of <body>. Ensure no wrapper <div>, <section>, or other landmark nests the <main> element."
       },
-      "fix_difficulty_notes": "The main landmark must be a direct child of <body> or of a non-landmark container (like a <div> wrapper used for CSS layout). It must not be nested inside <header>, <footer>, <aside>, <nav>, or any element with an explicit landmark role. The fix is usually a layout restructure to ensure <main> sits at the correct level in the DOM hierarchy.",
+      "fix_difficulty_notes": "In SPAs and component-based architectures, <main> is often wrapped by layout shells, provider components, or CSS utility wrappers that may inadvertently introduce a landmark parent. The fix requires understanding which component owns the layout structure — in Next.js it is layout.tsx, in Nuxt layouts/default.vue, in SvelteKit +layout.svelte. Non-landmark <div> wrappers (for CSS Grid/Flexbox) are safe and do not trigger this rule.",
       "manual_test": {
         "description": "Verify the main landmark is at the top level of the landmark hierarchy.",
         "steps": [
@@ -2258,7 +2288,7 @@
     "landmark-no-duplicate-banner": {
       "fix": {
         "description": "Ensure only one <header> element (or role='banner') exists at the top level of the page, outside of sectioning elements.",
-        "code": "<body>\n  <!-- One top-level header (banner landmark): -->\n  <header><!-- site-wide header --></header>\n  <main>\n    <!-- Nested headers inside article/section do NOT create banner landmarks: -->\n    <article>\n      <header>Article header — not a banner landmark</header>\n    </article>\n  </main>\n  <footer>...</footer>\n</body>"
+        "code": "<body>\n  <!-- One top-level header (banner landmark): -->\n  <header>\n    <a href=\"/\" aria-label=\"Acme Corp home\">\n      <img src=\"/logo.svg\" alt=\"Acme Corp\" width=\"120\" height=\"40\">\n    </a>\n    <nav aria-label=\"Primary\">\n      <a href=\"/shop\">Shop</a>\n      <a href=\"/about\">About</a>\n    </nav>\n  </header>\n  <main>\n    <!-- Nested headers inside article/section do NOT create banner landmarks: -->\n    <article>\n      <header>Published on March 15, 2026</header>\n    </article>\n  </main>\n  <footer>...</footer>\n</body>"
       },
       "false_positive_risk": "medium",
       "framework_notes": {
@@ -2377,7 +2407,7 @@
     "landmark-one-main": {
       "fix": {
         "description": "Add a <main> landmark wrapping your page content.",
-        "code": "<main id=\"main-content\">\n  <!-- page content -->\n</main>"
+        "code": "<main id=\"main-content\">\n  <h1>Products</h1>\n  <section aria-labelledby=\"featured-heading\">\n    <h2 id=\"featured-heading\">Featured items</h2>\n  </section>\n</main>"
       },
       "false_positive_risk": "low",
       "framework_notes": {
@@ -2431,7 +2461,7 @@
     "landmark-unique": {
       "fix": {
         "description": "Add unique accessible labels to landmarks of the same type using aria-label or aria-labelledby.",
-        "code": "<nav aria-label=\"Primary navigation\">\n  <!-- main site links -->\n</nav>\n\n<nav aria-label=\"Breadcrumb\">\n  <!-- breadcrumb trail -->\n</nav>\n\n<nav aria-label=\"Footer links\">\n  <!-- footer navigation -->\n</nav>"
+        "code": "<nav aria-label=\"Primary navigation\">\n  <a href=\"/\">Home</a>\n  <a href=\"/shop\">Shop</a>\n  <a href=\"/about\">About</a>\n</nav>\n\n<nav aria-label=\"Breadcrumb\">\n  <ol>\n    <li><a href=\"/\">Home</a></li>\n    <li><a href=\"/shop\">Shop</a></li>\n    <li>Running Shoes</li>\n  </ol>\n</nav>\n\n<nav aria-label=\"Footer links\">\n  <a href=\"/privacy\">Privacy Policy</a>\n  <a href=\"/terms\">Terms of Service</a>\n</nav>"
       },
       "false_positive_risk": "low",
       "framework_notes": {
@@ -2441,7 +2471,7 @@
         "svelte": "In SvelteKit, if multiple <nav> elements exist, each must have a unique aria-label (e.g., 'Primary navigation', 'Footer navigation'). This applies to all landmarks that appear more than once.",
         "astro": "In .astro files, duplicate landmark types (multiple <nav>, <aside>, etc.) must each have a unique aria-label to distinguish them for screen reader users."
       },
-      "fix_difficulty_notes": "This applies to nav, aside, section with role, and form landmarks — any type appearing more than once. Keep labels short and descriptive: 'Primary', 'Footer', 'Breadcrumb'. Do not add aria-label to <main> or <header> unless they are duplicated (which is itself a separate violation). The label becomes part of the AT announcement: 'Primary navigation, navigation landmark'.",
+      "fix_difficulty_notes": "In component-based apps, duplicate landmarks often come from independently authored components that each render their own <nav> or <aside>. The challenge is coordinating unique labels across components that don't know about each other. Establish a naming convention early (e.g., 'Primary', 'Footer', 'Breadcrumb') and document it in your design system. The label becomes part of the AT announcement: 'Primary navigation, navigation landmark'.",
       "manual_test": {
         "description": "Navigate all landmarks and verify each has a unique, descriptive label.",
         "steps": [
@@ -2467,7 +2497,7 @@
     },
     "link-in-text-block": {
       "fix": {
-        "description": "Links within a block of text must be distinguishable from surrounding text by a visual cue other than color alone (e.g., underline, bold, outline). Users with color vision deficiency cannot rely on color difference to identify links (WCAG 1.4.1).",
+        "description": "Distinguish links within a block of text from surrounding text using a visual cue beyond color alone (e.g., underline, bold, outline). Users with color vision deficiency cannot rely on color difference alone to identify links (WCAG 1.4.1).",
         "code": "<!-- Before: link distinguished only by color -->\n<p>Read our <a href=\"/terms\" style=\"color: blue; text-decoration: none;\">terms of service</a>.</p>\n\n<!-- After: underline makes the link identifiable without color -->\n<p>Read our <a href=\"/terms\">terms of service</a>.</p>\n<!-- Browser default underline is sufficient -->\n\n<!-- Or use a visible underline + contrast -->\n<style>\n  a { text-decoration: underline; text-underline-offset: 0.2em; }\n</style>"
       },
       "false_positive_risk": "medium",
@@ -2486,7 +2516,13 @@
           "Identify all links within text blocks — each must be visually distinguishable from surrounding text.",
           "If a link is invisible in grayscale, add an underline or other non-color visual cue."
         ]
-      }
+      },
+      "related_rules": [
+        {
+          "id": "color-contrast",
+          "reason": "Links distinguished only by color need sufficient contrast — both rules enforce color-based visual distinction."
+        }
+      ]
     },
     "link-name": {
       "fix": {
@@ -2747,7 +2783,17 @@
           "Inspect the page source for <audio autoplay> or JavaScript .play() calls on page load.",
           "Confirm muted autoplay video produces no sound — muted is WCAG-compliant."
         ]
-      }
+      },
+      "related_rules": [
+        {
+          "id": "audio-caption",
+          "reason": "Auto-playing audio also needs captions if it conveys information — fix both together."
+        },
+        {
+          "id": "video-caption",
+          "reason": "Auto-playing video with audio needs captions — address media accessibility holistically."
+        }
+      ]
     },
     "object-alt": {
       "fix": {
@@ -2814,7 +2860,7 @@
     "page-has-heading-one": {
       "fix": {
         "description": "Add exactly one <h1> as the primary page heading.",
-        "code": "<h1>Main page heading</h1>"
+        "code": "<h1>Wireless Noise-Cancelling Headphones</h1>"
       },
       "false_positive_risk": "low",
       "framework_notes": {
@@ -2894,12 +2940,18 @@
           "On step 2 (e.g., shipping), check if the same data is pre-populated or a 'same as above' option is provided.",
           "If neither is present, the WCAG 3.3.7 violation stands."
         ]
-      }
+      },
+      "related_rules": [
+        {
+          "id": "accessible-auth-minimum",
+          "reason": "Both are WCAG 3.3.x input assistance criteria — review all form accessibility together."
+        }
+      ]
     },
     "region": {
       "fix": {
         "description": "Wrap all visible content in semantic landmark elements.",
-        "code": "<header><!-- header content --></header>\n<main><!-- main content --></main>\n<footer><!-- footer content --></footer>"
+        "code": "<header>\n  <a href=\"/\">Acme Corp</a>\n  <nav aria-label=\"Primary\">...</nav>\n</header>\n<main>\n  <h1>Shop all products</h1>\n</main>\n<footer>\n  <p>&copy; 2026 Acme Corp</p>\n</footer>"
       },
       "false_positive_risk": "medium",
       "framework_notes": {
@@ -2935,7 +2987,7 @@
     },
     "role-img-alt": {
       "fix": {
-        "description": "Elements with role='img' must have an accessible name via aria-label or aria-labelledby. This includes SVGs, CSS-styled elements, and custom image components that use role='img' to convey visual meaning.",
+        "description": "Add an accessible name via aria-label or aria-labelledby to every element with role='img', including SVGs, CSS-styled elements, and custom image components that use role='img' to convey visual meaning.",
         "code": "<!-- SVG with role='img' and aria-label -->\n<svg role=\"img\" aria-label=\"Company logo\" viewBox=\"0 0 100 100\">\n  <circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"#333\" />\n</svg>\n\n<!-- Decorative SVG: use role='presentation' or aria-hidden -->\n<svg role=\"presentation\" aria-hidden=\"true\" viewBox=\"0 0 100 100\">\n  <circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"#333\" />\n</svg>\n\n<!-- Div with role='img' (e.g., CSS background image) -->\n<div role=\"img\" aria-label=\"Sunset over mountains\"\n  style=\"background-image: url('sunset.jpg'); width: 300px; height: 200px;\"></div>"
       },
       "false_positive_risk": "low",
@@ -3011,7 +3063,7 @@
     "scrollable-region-focusable": {
       "fix": {
         "description": "Make scrollable regions keyboard-accessible by adding tabindex=\"0\" and a descriptive label.",
-        "code": "<div tabindex=\"0\" role=\"region\" aria-label=\"Content section\" style=\"overflow: auto;\">\n  <!-- scrollable content -->\n</div>"
+        "code": "<div tabindex=\"0\" role=\"region\" aria-label=\"Product comparison table\" style=\"overflow: auto;\">\n  <table>\n    <caption>Feature comparison</caption>\n    <thead><tr><th>Feature</th><th>Basic</th><th>Pro</th></tr></thead>\n    <tbody><tr><td>Storage</td><td>5 GB</td><td>100 GB</td></tr></tbody>\n  </table>\n</div>"
       },
       "false_positive_risk": "medium",
       "framework_notes": {
@@ -3059,7 +3111,7 @@
         "wordpress": "WordPress form plugins (Contact Form 7, WPForms, Gravity Forms) generate <select> with labels. Verify plugin-generated markup includes proper <label for='...'> associations. The Comment form's sort dropdown often lacks a label.",
         "drupal": "Drupal's Form API generates labels for select elements when #title is set. In Views exposed filters, select filters automatically get labels from the filter title. Custom Twig form templates must preserve the <label> element — do not remove it for visual reasons."
       },
-      "fix_difficulty_notes": "In design systems, <select> is commonly replaced with a custom dropdown (a div/button combination). If the custom dropdown lacks role='listbox', aria-expanded, and aria-labelledby pointing to the visible label, none of the standard label association patterns apply. Prefer the native <select> element wherever possible — it carries all required implicit accessibility semantics.",
+      "fix_difficulty_notes": "Custom dropdown replacements (div/button combinations) are the main challenge — they bypass native label association entirely. If the team uses a custom dropdown, it must implement role='listbox', aria-expanded, and aria-labelledby pointing to the visible label. Migrating to native <select> is the simplest fix but may face design pushback. When that happens, ensure the custom component's ARIA contract is fully implemented.",
       "manual_test": {
         "description": "Focus the select and verify the screen reader announces its label.",
         "steps": [
@@ -3149,7 +3201,7 @@
     },
     "summary-name": {
       "fix": {
-        "description": "Every <summary> element must have discernible text content so screen readers can announce its purpose. The <summary> serves as the visible heading and toggle control for a <details> disclosure widget.",
+        "description": "Add discernible text content to every <summary> element so screen readers can announce its purpose. The <summary> serves as the visible heading and toggle control for a <details> disclosure widget.",
         "code": "<!-- Before: empty summary -->\n<details>\n  <summary></summary>\n  <p>Additional information here.</p>\n</details>\n\n<!-- After: summary with descriptive text -->\n<details>\n  <summary>More information about shipping</summary>\n  <p>We offer free shipping on orders over $50.</p>\n</details>"
       },
       "false_positive_risk": "low",
@@ -3251,8 +3303,8 @@
         "react": "In React table components, avoid passing both caption and summary props with the same content. Remove the summary attribute entirely — it is deprecated.",
         "vue": "In Vue, do not bind :summary on <table>. Use <caption> for all table descriptions.",
         "angular": "In Angular, remove [attr.summary] bindings from table components. Migrate to <caption> with descriptive text or aria-describedby pointing to an adjacent description.",
-        "svelte": "In Svelte, if a <table> has a <caption> and an aria-label, the two must not have identical text — remove one. Prefer <caption> for visible tables and aria-label only when the caption is not visually displayed.",
-        "astro": "In .astro files, <table> should not have both a <caption> and an identical aria-label. Use one or the other to name the table."
+        "svelte": "In Svelte, remove the deprecated summary attribute from <table> elements. Use <caption> as the sole table description. If you must keep both a <caption> and a summary, ensure their text is different.",
+        "astro": "In .astro files, remove the deprecated summary attribute from <table> elements. Use <caption> as the sole table description. The summary attribute is a legacy HTML4 pattern that should not appear in modern Astro templates."
       },
       "fix_difficulty_notes": "The summary attribute is deprecated in HTML5 and should not be used in new code. The preferred pattern is to put all necessary description in the <caption> element. If legacy code uses both, the simplest fix is to remove the summary attribute entirely. For complex tables requiring navigation instructions, use aria-describedby pointing to a visible description paragraph adjacent to the table.",
       "manual_test": {
@@ -3272,7 +3324,7 @@
     },
     "table-fake-caption": {
       "fix": {
-        "description": "Tables that use the first row as a visual caption must use the <caption> element instead. A row spanning all columns to simulate a caption is not accessible — screen readers do not associate it with the table as a label.",
+        "description": "Replace any first-row fake caption (a <td> spanning all columns) with a proper <caption> element as the first child of <table>. Screen readers do not associate a spanning <td> with the table as a label.",
         "code": "<!-- Before: fake caption using first row -->\n<table>\n  <tr>\n    <td colspan=\"3\"><strong>Quarterly Sales</strong></td>\n  </tr>\n  <tr>\n    <th>Region</th><th>Q1</th><th>Q2</th>\n  </tr>\n  <tr>\n    <td>North</td><td>$100k</td><td>$120k</td>\n  </tr>\n</table>\n\n<!-- After: proper caption element -->\n<table>\n  <caption>Quarterly Sales</caption>\n  <thead>\n    <tr>\n      <th>Region</th><th>Q1</th><th>Q2</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>North</td><td>$100k</td><td>$120k</td>\n    </tr>\n  </tbody>\n</table>"
       },
       "false_positive_risk": "medium",
@@ -3301,7 +3353,7 @@
     },
     "target-size": {
       "fix": {
-        "description": "Interactive elements must have a minimum target size of 24×24 CSS pixels (WCAG 2.5.8). Larger targets (44×44 px) are recommended for touch interfaces.",
+        "description": "Increase small interactive elements to a minimum target size of 24×24 CSS pixels (WCAG 2.5.8). Use 44×44 px or larger for touch interfaces.",
         "code": "/* Minimum WCAG 2.2 AA target size */\n.btn, a, [role=\"button\"] {\n  min-width: 24px;\n  min-height: 24px;\n}\n\n/* Recommended for touch: */\n.btn {\n  min-width: 44px;\n  min-height: 44px;\n  padding: 0.5rem 1rem;\n}"
       },
       "false_positive_risk": "medium",
@@ -3320,11 +3372,17 @@
           "Check the computed width and height including padding in the Box Model panel.",
           "On a touch device or with DevTools device emulation, attempt to tap small targets to confirm they are hittable."
         ]
-      }
+      },
+      "related_rules": [
+        {
+          "id": "focus-appearance",
+          "reason": "Small targets with thin focus indicators are doubly inaccessible — fix size and focus visibility together."
+        }
+      ]
     },
     "td-has-header": {
       "fix": {
-        "description": "In data tables with more than one row and column, every non-empty <td> must be associated with a <th> header cell. Use <th> elements for column and row headers, and scope or headers attributes for complex tables.",
+        "description": "Associate every non-empty <td> in a multi-row/multi-column data table with a <th> header cell. Use <th> elements for column and row headers, and add scope or headers attributes for complex table structures.",
         "code": "<!-- Simple table: use <th> with scope -->\n<table>\n  <caption>Employee Directory</caption>\n  <thead>\n    <tr>\n      <th scope=\"col\">Name</th>\n      <th scope=\"col\">Department</th>\n      <th scope=\"col\">Extension</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>Jane Doe</td>\n      <td>Engineering</td>\n      <td>1234</td>\n    </tr>\n  </tbody>\n</table>\n\n<!-- Complex table with row and column headers -->\n<table>\n  <caption>Quarterly Revenue</caption>\n  <thead>\n    <tr><th></th><th scope=\"col\">Q1</th><th scope=\"col\">Q2</th></tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th scope=\"row\">North</th><td>$100k</td><td>$120k</td>\n    </tr>\n  </tbody>\n</table>"
       },
       "false_positive_risk": "medium",
@@ -3496,6 +3554,10 @@
         {
           "id": "audio-caption",
           "reason": "Both require media captions — fix all media accessibility violations together."
+        },
+        {
+          "id": "no-autoplay-audio",
+          "reason": "Auto-playing video with audio needs captions — address media accessibility holistically."
         }
       ]
     }
