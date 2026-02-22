@@ -25,6 +25,9 @@ Audit Intelligence:
 Execution & Emulation:
   --output <path>         Final HTML report location (default: audit/report.html).
   --color-scheme <val>    Emulate color scheme: "light" or "dark".
+  --wait-until <val>      Page load strategy: domcontentloaded|load|networkidle (default: domcontentloaded).
+  --framework <val>       Override auto-detected framework (react|vue|angular|svelte|astro|shopify|wordpress|drupal).
+  --viewport <WxH>        Viewport dimensions as WIDTHxHEIGHT (e.g., 375x812 for mobile).
   --headed                Run browser in visible mode (overrides headless).
   --skip-reports          Omit HTML and PDF report generation (Focus on AI resolution).
   --wait-ms <num>         Time to wait after page load (default: 2000).
@@ -116,6 +119,15 @@ async function main() {
       ? config.excludeSelectors.join(",")
       : null);
 
+  const waitUntil = getArgValue("wait-until") || config.waitUntil || null;
+  const framework = getArgValue("framework") || config.framework || null;
+  const viewportArg = getArgValue("viewport");
+  let viewport = null;
+  if (viewportArg) {
+    const [w, h] = viewportArg.split("x").map(Number);
+    if (w && h) viewport = { width: w, height: h };
+  }
+
   if (!baseUrl) {
     log.error("Missing required argument: --base-url");
     log.info("Usage: node scripts/run-audit.mjs --base-url <url> [options]");
@@ -149,7 +161,10 @@ async function main() {
     if (fs.existsSync(gitignorePath)) {
       const content = fs.readFileSync(gitignorePath, "utf-8");
       if (!/^audit\/?$/m.test(content)) {
-        fs.appendFileSync(gitignorePath, "\n# Generated accessibility reports\naudit/\n");
+        fs.appendFileSync(
+          gitignorePath,
+          "\n# Generated accessibility reports\naudit/\n",
+        );
         log.success(".gitignore updated — added audit/ entry.");
       }
     }
@@ -184,11 +199,16 @@ async function main() {
       scanArgs.push("--exclude-selectors", excludeSelectors);
     if (routes) scanArgs.push("--routes", routes);
     if (colorScheme) scanArgs.push("--color-scheme", colorScheme);
+    if (waitUntil) scanArgs.push("--wait-until", waitUntil);
+    if (viewport) {
+      scanArgs.push("--viewport", `${viewport.width}x${viewport.height}`);
+    }
 
     await runScript("run-scanner.mjs", scanArgs);
 
     const analyzerArgs = [];
     if (ignoreFindings) analyzerArgs.push("--ignore-findings", ignoreFindings);
+    if (framework) analyzerArgs.push("--framework", framework);
     await runScript("run-analyzer.mjs", analyzerArgs);
 
     const buildArgs = ["--output", output, "--base-url", baseUrl];

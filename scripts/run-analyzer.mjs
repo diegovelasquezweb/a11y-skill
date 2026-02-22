@@ -139,6 +139,34 @@ const MANAGED_LIBS = new Set([
   "material-ui",
 ]);
 
+// Maps detected framework IDs to intelligence.json keys
+const FRAMEWORK_TO_INTEL_KEY = {
+  nextjs: "react",
+  gatsby: "react",
+  nuxt: "vue",
+  react: "react",
+  vue: "vue",
+  angular: "angular",
+  astro: "astro",
+  svelte: "svelte",
+};
+
+// Maps detected framework IDs to cms_notes keys
+const FRAMEWORK_TO_CMS_KEY = {
+  shopify: "shopify",
+  wordpress: "wordpress",
+  drupal: "drupal",
+};
+
+function filterNotes(notes, framework) {
+  if (!notes || typeof notes !== "object") return null;
+  const intelKey = FRAMEWORK_TO_INTEL_KEY[framework];
+  if (intelKey && notes[intelKey]) return { [intelKey]: notes[intelKey] };
+  const cmsKey = FRAMEWORK_TO_CMS_KEY[framework];
+  if (cmsKey && notes[cmsKey]) return { [cmsKey]: notes[cmsKey] };
+  return null;
+}
+
 function getFileSearchPattern(framework, codeLang) {
   const globs = FRAMEWORK_GLOBS[framework];
   if (!globs) return null;
@@ -195,6 +223,7 @@ function parseArgs(argv) {
     if (key === "--output") args.output = value;
     if (key === "--ignore-findings")
       args.ignoreFindings = value.split(",").map((v) => v.trim());
+    if (key === "--framework") args.framework = value;
     i += 1;
   }
 
@@ -268,13 +297,14 @@ export function extractSearchHint(selector) {
   return specific;
 }
 
-function buildFindings(inputPayload) {
+function buildFindings(inputPayload, cliArgs) {
   const onlyRule = inputPayload.onlyRule;
   const routes = inputPayload.routes || [];
   const ctx = inputPayload.projectContext || {
     framework: null,
     uiLibraries: [],
   };
+  if (cliArgs?.framework) ctx.framework = cliArgs.framework;
   const findings = [];
 
   for (const route of routes) {
@@ -341,8 +371,8 @@ function buildFindings(inputPayload) {
             : [],
           false_positive_risk: ruleInfo.false_positive_risk ?? null,
           fix_difficulty_notes: ruleInfo.fix_difficulty_notes ?? null,
-          framework_notes: ruleInfo.framework_notes ?? null,
-          cms_notes: ruleInfo.cms_notes ?? null,
+          framework_notes: filterNotes(ruleInfo.framework_notes, ctx.framework),
+          cms_notes: filterNotes(ruleInfo.cms_notes, ctx.framework),
           total_instances: nodes.length,
           evidence: nodes.slice(0, 3).map((n) => ({
             html: n.html,
@@ -434,7 +464,7 @@ function main() {
   const payload = readJson(args.input);
   if (!payload) throw new Error(`Input not found or invalid: ${args.input}`);
 
-  const result = buildFindings(payload);
+  const result = buildFindings(payload, args);
 
   if (ignoredRules.size > 0) {
     const knownIds = new Set(

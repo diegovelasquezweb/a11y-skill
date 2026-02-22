@@ -49,7 +49,7 @@ All keys are optional. The engine will merge this file with internal defaults.
 - **`ignoreFindings`** _(array, default: [])_:
   Rule IDs that should be suppressed. Useful for rules that are known false positives in a specific framework environment.
 - **`framework`** _(string, default: null)_:
-  Overrides auto-detected framework for guardrails in the remediation guide. Accepted values: `"shopify"`, `"wordpress"`, `"drupal"`, `"generic"`. When `null`, the engine infers the framework from the base URL.
+  Overrides auto-detected framework for guardrails in the remediation guide. Accepted values: `"react"`, `"vue"`, `"angular"`, `"svelte"`, `"astro"`, `"shopify"`, `"wordpress"`, `"drupal"`, `"generic"`. When `null`, the engine infers the framework from the base URL. Equivalent to the `--framework` CLI flag.
 - **`onlyRule`** _(string, default: null)_:
   Run ONLY this specific Axe rule ID (e.g., `"color-contrast"`). Useful for targeted audits during active remediation. Equivalent to the `--only-rule` CLI flag.
 - **`axeRules`** _(object, default: {})_:
@@ -62,13 +62,13 @@ All keys are optional. The engine will merge this file with internal defaults.
 - **`timeoutMs`** _(number, default: 30000)_:
   Maximum milliseconds to wait for a page network request before skipping the route.
 - **`waitUntil`** _(string, default: "domcontentloaded")_:
-  Playwright page load strategy. Accepted values: `"domcontentloaded"` | `"load"` | `"networkidle"`. Use `"networkidle"` for SPAs that render after all network activity completes.
+  Playwright page load strategy. Accepted values: `"domcontentloaded"` | `"load"` | `"networkidle"`. Use `"networkidle"` for SPAs that render after all network activity completes. Equivalent to the `--wait-until` CLI flag.
 - **`colorScheme`** _(string, default: "light")_:
   Accepted values: `"light"` or `"dark"`. Controls the CSS media feature emulation.
 - **`headless`** _(boolean, default: true)_:
   Run the browser in headless (background) mode. Set to `false` to see the browser window during scanning — equivalent to the `--headed` CLI flag.
 - **`viewports`** _(array, default: system default)_:
-  List of `{ width, height, name }` objects. Only the first entry is used for scanning. Example: `[{ "width": 375, "height": 812, "name": "mobile" }]`.
+  List of `{ width, height, name }` objects. Only the first entry is used for scanning. Example: `[{ "width": 375, "height": 812, "name": "mobile" }]`. Also configurable via `--viewport 375x812` CLI flag.
 
 ## Precedence Logic
 
