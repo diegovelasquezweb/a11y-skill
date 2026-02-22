@@ -7,7 +7,6 @@ function printUsage() {
   node check-toolchain.mjs [options]
 
 Options:
-  --project <path>         Project path (kept for compatibility, unused for dependency check)
   -h, --help               Show this help
 `);
 }
