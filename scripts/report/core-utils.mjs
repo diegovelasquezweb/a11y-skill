@@ -1,5 +1,13 @@
 /**
- * Escapes HTML characters to prevent XSS.
+ * @file core-utils.mjs
+ * @description Shared formatting and string manipulation utilities for report generation.
+ * Includes HTML escaping, multiline formatting, and automatic URL linkification.
+ */
+
+/**
+ * Escapes special HTML characters in a string to prevent XSS and ensure proper rendering.
+ * @param {string} value - The raw string to escape.
+ * @returns {string} The HTML-escaped string.
  */
 export function escapeHtml(value) {
   return String(value ?? "")
@@ -11,14 +19,19 @@ export function escapeHtml(value) {
 }
 
 /**
- * Converts newlines to BR tags.
+ * Formats a multiline string for display in HTML by escaping it and converting newlines to <br> tags.
+ * @param {string} value - The multiline text to format.
+ * @returns {string} The formatted HTML string.
  */
 export function formatMultiline(value) {
   return escapeHtml(value).replace(/\r?\n/g, "<br>");
 }
 
 /**
- * Converts URLs into clickable anchor tags.
+ * Identifies URLs in a text string and converts them into clickable <a> anchor tags.
+ * Optimized for Tailwind-based or similar styling contexts.
+ * @param {string} text - The text containing potential URLs.
+ * @returns {string} The text with URLs converted to HTML links.
  */
 export function linkify(text) {
   const urlRegex = /(https?:\/\/[^\s]+)/g;

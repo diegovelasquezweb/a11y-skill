@@ -1,9 +1,17 @@
-import {
-  computeComplianceScore,
-  scoreLabel,
-} from "./core-findings.mjs";
+/**
+ * @file format-pdf.mjs
+ * @description PDF report component builders and formatting logic.
+ * Generates the structural HTML parts for the executive summary, legal risk,
+ * remediation roadmap, and technical methodology for the PDF report.
+ */
+
+import { computeComplianceScore, scoreLabel } from "./core-findings.mjs";
 import { escapeHtml } from "./core-utils.mjs";
 
+/**
+ * Maps compliance performance labels to risk assessments for the executive summary.
+ * @type {Object<string, string>}
+ */
 const RISK_LABELS = {
   Excellent: "Minimal Risk",
   Good: "Low Risk",
@@ -12,11 +20,23 @@ const RISK_LABELS = {
   Critical: "Severe Risk",
 };
 
+/**
+ * Returns the risk metrics (label and risk assessment) for a given compliance score.
+ * @param {number} score - The calculated compliance score.
+ * @returns {Object} An object containing 'label' and 'risk' strings.
+ */
 export function scoreMetrics(score) {
   const label = scoreLabel(score);
   return { label, risk: RISK_LABELS[label] };
 }
 
+/**
+ * Builds the Executive Summary section for the PDF report.
+ * @param {Object} args - The parsed CLI arguments.
+ * @param {Object[]} findings - The list of normalized findings.
+ * @param {Object<string, number>} totals - Summary counts per severity.
+ * @returns {string} The HTML string for the executive summary section.
+ */
 export function buildPdfExecutiveSummary(args, findings, totals) {
   const blockers = findings.filter(
     (f) => f.severity === "Critical" || f.severity === "High",
@@ -92,6 +112,11 @@ export function buildPdfExecutiveSummary(args, findings, totals) {
 </div>`;
 }
 
+/**
+ * Builds the Compliance & Legal Risk section for the PDF report.
+ * @param {Object<string, number>} totals - Summary counts per severity.
+ * @returns {string} The HTML string for the risk analysis section.
+ */
 export function buildPdfRiskSection(totals) {
   const score = computeComplianceScore(totals);
   const riskLevel =
@@ -161,6 +186,11 @@ export function buildPdfRiskSection(totals) {
 </div>`;
 }
 
+/**
+ * Builds the Remediation Roadmap section for the PDF report.
+ * @param {Object[]} findings - The normalized findings to prioritize.
+ * @returns {string} The HTML string for the roadmap section.
+ */
 export function buildPdfRemediationRoadmap(findings) {
   const critical = findings.filter((f) => f.severity === "Critical");
   const high = findings.filter((f) => f.severity === "High");
@@ -221,6 +251,12 @@ export function buildPdfRemediationRoadmap(findings) {
 </div>`;
 }
 
+/**
+ * Builds the Methodology & Scope section for the PDF report.
+ * @param {Object} args - The parsed CLI arguments.
+ * @param {Object[]} findings - The normalized findings for scope calculation.
+ * @returns {string} The HTML string for the methodology section.
+ */
 export function buildPdfMethodologySection(args, findings) {
   const pagesScanned = new Set(findings.map((f) => f.url)).size || 1;
   const scope = args.scope || "Full Site Scan";
@@ -268,6 +304,10 @@ export function buildPdfMethodologySection(args, findings) {
 </div>`;
 }
 
+/**
+ * Builds the Audit Scope & Limitations section for the PDF report.
+ * @returns {string} Reusable HTML block explaining automated audit limits.
+ */
 export function buildPdfAuditLimitations() {
   return `
 <div style="page-break-before: always;">
@@ -333,6 +373,15 @@ export function buildPdfAuditLimitations() {
 </div>`;
 }
 
+/**
+ * Builds the cover page for the PDF report.
+ * @param {Object} options - Cover page configuration.
+ * @param {string} options.siteHostname - The hostname of the audited site.
+ * @param {string} options.target - The compliance target (e.g., WCAG 2.2 AA).
+ * @param {number} options.score - The final compliance score.
+ * @param {string} options.coverDate - The formatted date for the cover.
+ * @returns {string} The HTML string for the cover page.
+ */
 export function buildPdfCoverPage({ siteHostname, target, score, coverDate }) {
   const metrics = scoreMetrics(score);
   const scoreColor =
@@ -375,6 +424,11 @@ export function buildPdfCoverPage({ siteHostname, target, score, coverDate }) {
     </div>`;
 }
 
+/**
+ * Builds the detailed issue summary table for the PDF report.
+ * @param {Object[]} findings - The list of findings to display in the table.
+ * @returns {string} The HTML string for the issue summary section.
+ */
 export function buildPdfIssueSummaryTable(findings) {
   if (findings.length === 0) {
     return `
@@ -420,4 +474,3 @@ export function buildPdfIssueSummaryTable(findings) {
       </table>
     </div>`;
 }
-

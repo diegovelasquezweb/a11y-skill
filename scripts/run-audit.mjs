@@ -1,9 +1,10 @@
 /**
  * @file run-audit.mjs
- * @description Main orchestrator for the accessibility audit pipeline.
- * It manages dependencies, coordinates the execution of the scanner and analyzer,
- * and handles the final report generation (HTML, PDF, Markdown).
+ * @description Orchestrator for the accessibility audit pipeline.
+ * Coordinates the multi-stage process including dependency verification,
+ * site discovery/crawling, automated analysis, and final report generation.
  */
+
 import { spawn, execSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -13,7 +14,8 @@ import { log, DEFAULTS, SKILL_ROOT, getInternalPath } from "./a11y-utils.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
- * Prints the CLI usage instructions and available options for the audit pipeline.
+ * Prints the CLI usage instructions and available command-line options.
+ * This is displayed when the user runs the script with --help or provides invalid arguments.
  */
 function printUsage() {
   log.info(`Usage:
@@ -45,15 +47,16 @@ Execution & Emulation:
 `);
 }
 
-const SCRIPT_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+/** @const {number} Execution timeout for child processes (15 minutes). */
+const SCRIPT_TIMEOUT_MS = 15 * 60 * 1000;
 
 /**
- * Spawns a child process to run a specific node script within the audit pipeline.
- * @param {string} scriptName - The name of the script to run.
- * @param {string[]} args - Arguments to pass to the script.
- * @param {Object} env - Additional environment variables for the child process.
- * @returns {Promise<void>} Resolves when the script completes successfully.
- * @throws {Error} If the script fails or times out.
+ * Helper function to run a Node.js script as a child process.
+ * @param {string} scriptName - File name of the script located in the same directory.
+ * @param {string[]} [args=[]] - Command line arguments to pass to the script.
+ * @param {Object} [env={}] - Optional environment variables for the child process.
+ * @returns {Promise<void>} Resolves when the script finishes successfully.
+ * @throws {Error} If the process exits with a non-zero code or times out.
  */
 async function runScript(scriptName, args = [], env = {}) {
   return new Promise((resolve, reject) => {
@@ -92,12 +95,24 @@ async function runScript(scriptName, args = [], env = {}) {
 }
 
 /**
- * The main execution function for the audit pipeline.
- * Coordinates dependency installation, scanner execution, analysis, and report generation.
+ * The main application entry point for the accessibility audit orchestrator.
+ * Orchestrates the entire audit flow:
+ * 1. Validates inputs and environment
+ * 2. Ensures dependencies and toolchain are ready
+ * 3. Executes site discovery and scanning
+ * 4. Runs findings analysis and enrichment
+ * 5. Generates the final audit reports (Markdown, HTML, PDF)
+ * @throws {Error} If any stage of the audit pipeline fails.
  */
 async function main() {
   const argv = process.argv.slice(2);
 
+  /**
+   * Internal helper to extract values from command line flags.
+   * Supports both --flag=value and --flag value formats.
+   * @param {string} name - The flag name without the leading dashes.
+   * @returns {string|null} The value of the flag.
+   */
   function getArgValue(name) {
     const entry = argv.find((a) => a.startsWith(`--${name}=`));
     if (entry) return entry.split("=")[1];
@@ -251,4 +266,8 @@ async function main() {
   }
 }
 
-main();
+// Initialize the audit execution pipeline.
+main().catch((error) => {
+  log.error(`Critical Audit Failure: ${error.message}`);
+  process.exit(1);
+});

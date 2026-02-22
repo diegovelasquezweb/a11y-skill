@@ -1,10 +1,27 @@
+/**
+ * @file format-md.mjs
+ * @description Markdown remediation guide builder optimized for AI agents.
+ * Generates an actionable markdown document containing technical solutions,
+ * surgical selectors, and framework-specific guardrails.
+ */
+
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { buildSummary } from "./core-findings.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Path to the manual check database asset.
+ * @type {string}
+ */
 const manualChecksPath = join(__dirname, "../../assets/manual-checks.json");
+
+/**
+ * List of manual accessibility checks for documentation.
+ * @type {Object[]}
+ */
 let MANUAL_CHECKS;
 try {
   MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
@@ -15,7 +32,9 @@ try {
 }
 
 /**
- * Builds the manual checks section in Markdown format for AI agents.
+ * Generates the manual checks section in Markdown format.
+ * Includes descriptions, verification steps, and remediation advice for AI agents.
+ * @returns {string} The manual checks remediation section.
  */
 function buildManualChecksMd() {
   const entries = MANUAL_CHECKS.map((check) => {
@@ -63,6 +82,13 @@ ${entries}
 `;
 }
 
+/**
+ * Resolves the active web framework or CMS platform to provide tailored guardrails.
+ * @param {Object} [metadata={}] - Scan metadata including project context.
+ * @param {string} [baseUrl=""] - The target base URL.
+ * @param {string} [configFramework=null] - Explicit framework override from config.
+ * @returns {string} The identified framework ID (e.g., 'shopify', 'nextjs', 'generic').
+ */
 function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
   if (configFramework) return configFramework.toLowerCase();
   const detected = metadata.projectContext?.framework;
@@ -75,6 +101,11 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
   return "generic";
 }
 
+/**
+ * Constructs a set of guardrail instructions tailored to a specific framework.
+ * @param {string} framework - The identified framework ID.
+ * @returns {string} A bulleted list of framework-specific operating procedures.
+ */
 function buildGuardrails(framework) {
   const shared = [
     `2.  **Surgical Selection**: Use the **Surgical Selector** and **Evidence from DOM** to verify you are editing the correct element. Accessibility fixes are context-sensitive.`,
@@ -96,7 +127,12 @@ function buildGuardrails(framework) {
 }
 
 /**
- * Builds the AI-optimized remediation guide in Markdown.
+ * Builds the full AI-optimized remediation guide in Markdown format.
+ * Includes a summary table, guardrails, component map, and detailed issue lists.
+ * @param {Object} args - The parsed CLI arguments.
+ * @param {Object[]} findings - The normalized findings to include.
+ * @param {Object} [metadata={}] - Optional scan metadata.
+ * @returns {string} The complete Markdown document.
  */
 export function buildMarkdownSummary(args, findings, metadata = {}) {
   const totals = buildSummary(findings);

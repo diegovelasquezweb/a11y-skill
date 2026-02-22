@@ -1,3 +1,10 @@
+/**
+ * @file format-html.mjs
+ * @description HTML report component builders and formatting logic.
+ * Responsible for generating individual UI components like issue cards, manual check sections,
+ * and technical evidence blocks for the final HTML report.
+ */
+
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -5,7 +12,17 @@ import { SEVERITY_ORDER } from "./core-findings.mjs";
 import { escapeHtml, formatMultiline, linkify } from "./core-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Path to the manual verification checks database.
+ * @type {string}
+ */
 const manualChecksPath = join(__dirname, "../../assets/manual-checks.json");
+
+/**
+ * List of manual accessibility checks loaded from the assets.
+ * @type {Object[]}
+ */
 let MANUAL_CHECKS;
 try {
   MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
@@ -17,6 +34,8 @@ try {
 
 /**
  * Renders technical evidence (HTML snippets and failure summaries) for the dashboard.
+ * @param {Object[]} evidence - List of evidence objects containing HTML and failure summaries.
+ * @returns {string} The formatted HTML string for the evidence block.
  */
 function formatEvidence(evidence) {
   const data = Array.isArray(evidence) ? evidence : [];
@@ -40,7 +59,9 @@ function formatEvidence(evidence) {
 }
 
 /**
- * Builds an interactive card for an automated accessibility violation.
+ * Builds an interactive HTML card for an automated accessibility violation finding.
+ * @param {Object} finding - The normalized finding object to render.
+ * @returns {string} The complete HTML string for the issue card.
  */
 export function buildIssueCard(finding) {
   const reproductionItems =
@@ -283,7 +304,9 @@ export function buildIssueCard(finding) {
 }
 
 /**
- * Builds a manual check card for the dashboard.
+ * Builds an interactive HTML card for a manual accessibility check.
+ * @param {Object} check - The manual check definition object.
+ * @returns {string} The complete HTML string for the manual check card.
  */
 function buildManualCheckCard(check) {
   const id = `manual-${check.criterion.replace(".", "-")}`;
@@ -349,10 +372,9 @@ function buildManualCheckCard(check) {
 }
 
 /**
- * Builds the entire manual checks section for the dashboard.
- */
-/**
- * Groups findings by page area and renders sorted issue cards per group.
+ * Groups findings by page area (URL or path) and renders sorted issue cards for each group.
+ * @param {Object[]} findings - The normalized list of findings to group and render.
+ * @returns {string} The complete HTML string for the grouped sections.
  */
 export function buildPageGroupedSection(findings) {
   if (findings.length === 0) return "";
@@ -385,6 +407,10 @@ export function buildPageGroupedSection(findings) {
     .join("");
 }
 
+/**
+ * Builds the entire manual checks section including progress bar and category descriptions.
+ * @returns {string} Reusable HTML block for manual verification.
+ */
 export function buildManualChecksSection() {
   const total = MANUAL_CHECKS.length;
   const cards = MANUAL_CHECKS.map((c) => buildManualCheckCard(c)).join("\n");

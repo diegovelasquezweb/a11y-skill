@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * @file build-report-pdf.mjs
  * @description Generates a professional PDF audit report using Playwright.
@@ -45,7 +44,7 @@ Options:
 /**
  * Parses command-line arguments into a configuration object for the PDF builder.
  * @param {string[]} argv - Array of command-line arguments.
- * @returns {Object} A configuration object.
+ * @returns {Object} A configuration object containing input, output, and target settings.
  */
 function parseArgs(argv) {
   const args = {
@@ -78,7 +77,7 @@ function parseArgs(argv) {
  * Constructs the HTML structure specifically tailored for PDF rendering.
  * @param {Object} args - The parsed CLI arguments.
  * @param {Object[]} findings - The normalized list of audit findings.
- * @returns {string} The HTML document string for PDF export.
+ * @returns {string} The HTML document string fully prepared for PDF export.
  */
 function buildPdfHtml(args, findings) {
   const totals = buildSummary(findings);
@@ -194,7 +193,7 @@ function buildPdfHtml(args, findings) {
 
 /**
  * The main execution function for the PDF report builder.
- * Uses a headless browser to render the report and save it as a PDF file.
+ * Uses a headless browser (Playwright) to render the report and save it as a PDF file.
  */
 async function main() {
   const args = parseArgs(process.argv.slice(2));
@@ -212,7 +211,7 @@ async function main() {
   const findings = normalizeFindings(inputPayload);
   const html = buildPdfHtml(args, findings);
 
-  log.info("Generating PDF report...");
+  log.info("Generating professional PDF report...");
 
   fs.mkdirSync(path.dirname(args.output), { recursive: true });
 
@@ -236,7 +235,7 @@ async function main() {
       displayHeaderFooter: false,
     });
 
-    log.success(`PDF report generated: ${args.output}`);
+    log.success(`PDF report generated successfully: ${args.output}`);
   } catch (error) {
     log.error(`Failed to generate PDF: ${error.message}`);
     process.exit(1);
@@ -245,4 +244,8 @@ async function main() {
   }
 }
 
-main();
+// Execute the PDF report generator.
+main().catch((error) => {
+  log.error(`Unhandled PDF Generation Error: ${error.message}`);
+  process.exit(1);
+});

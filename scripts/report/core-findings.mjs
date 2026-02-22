@@ -1,5 +1,21 @@
+/**
+ * @file core-findings.mjs
+ * @description Core data normalization and scoring logic for accessibility findings.
+ * Provides functions to process raw scanner results into a structured format used
+ * across all report types (HTML, Markdown, PDF).
+ */
+
+/**
+ * Defines the priority order for severity levels, where lower values indicate higher priority.
+ * @type {Object<string, number>}
+ */
 export const SEVERITY_ORDER = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 
+/**
+ * Calculates a weighted priority score for a finding based on severity, instance count, and fix availability.
+ * @param {Object} item - The finding item to score.
+ * @returns {number} A calculated score (typically 0-100).
+ */
 function computePriorityScore(item) {
   const sev = SEVERITY_ORDER[item.severity] ?? 3;
   // Severity: 0-50 pts (Critical=50, High=30, Medium=10, Low=0)
@@ -16,7 +32,12 @@ function computePriorityScore(item) {
 }
 
 /**
- * Normalizes raw AXE findings into a consistent structure used by all reports.
+ * Normalizes raw scanner finding objects into a consistent structure for reporting.
+ * Sorts the result by severity and then by ID.
+ * @param {Object} payload - The raw scanner result payload.
+ * @param {Object[]} payload.findings - The array of findings to normalize.
+ * @returns {Object[]} An array of normalized and sorted finding objects.
+ * @throws {Error} If the payload structure is invalid.
  */
 export function normalizeFindings(payload) {
   if (
@@ -78,7 +99,9 @@ export function normalizeFindings(payload) {
 }
 
 /**
- * Totals the findings by severity.
+ * Aggregates findings by their severity level.
+ * @param {Object[]} findings - The normalized list of findings.
+ * @returns {Object<string, number>} An object mapping severity labels to counts.
  */
 export function buildSummary(findings) {
   const totals = { Critical: 0, High: 0, Medium: 0, Low: 0 };
@@ -89,8 +112,10 @@ export function buildSummary(findings) {
 }
 
 /**
- * Calculates a 0-100 compliance score based on weighted severities.
- * Weights: Critical=15, High=5, Medium=2, Low=0.5
+ * Calculates a global compliance score (0-100) based on weighted severity counts.
+ * Penalty weights: Critical=15, High=5, Medium=2, Low=0.5
+ * @param {Object<string, number>} totals - The summary of counts per severity.
+ * @returns {number} An integer compliance score from 0 to 100.
  */
 export function computeComplianceScore(totals) {
   const raw =
@@ -103,7 +128,9 @@ export function computeComplianceScore(totals) {
 }
 
 /**
- * Returns a human-readable grade based on the score.
+ * Returns a human-readable performance label (grade) based on the compliance score.
+ * @param {number} score - The calculated compliance score.
+ * @returns {string} A label like "Excellent", "Good", "Fair", "Poor", or "Critical".
  */
 export function scoreLabel(score) {
   if (score >= 90) return "Excellent";
@@ -114,9 +141,12 @@ export function scoreLabel(score) {
 }
 
 /**
- * Categorizes findings into persona-based impact groups.
+ * Analyzes findings to determine the unique number of issues impacting specific user personas.
+ * @param {Object[]} findings - The normalized list of findings.
+ * @returns {Object} An object containing impact counts for screenReader, keyboard, vision, and cognitive personas.
  */
 export function buildPersonaSummary(findings) {
+  /** @type {Object<string, Object>} */
   const SMART_MAP = {
     screenReader: {
       rules: [

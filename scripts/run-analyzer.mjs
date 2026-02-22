@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * @file run-analyzer.mjs
  * @description Post-scan data processor.
@@ -14,10 +13,23 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Path to the core remediation intelligence database.
+ * @type {string}
+ */
 const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
+
+/**
+ * Path to shared rule metadata including WCAG mappings and APG patterns.
+ * @type {string}
+ */
 const ruleMetadataPath = path.join(__dirname, "../assets/rule-metadata.json");
+
 let INTELLIGENCE;
 let RULE_METADATA;
+
+// Initialize remediation and rule metadata assets.
 try {
   INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
 } catch {
@@ -25,6 +37,7 @@ try {
     `Missing or invalid intelligence.json at ${intelligencePath} — run pnpm install to reinstall.`,
   );
 }
+
 try {
   RULE_METADATA = JSON.parse(fs.readFileSync(ruleMetadataPath, "utf-8"));
 } catch {
@@ -38,7 +51,7 @@ try {
  * @param {string} ruleId - The ID of the accessibility rule.
  * @param {string} url - The URL of the page where the violation was found.
  * @param {string} selector - The CSS selector of the violating element.
- * @returns {string} A short unique hash (A11Y-xxxxxx).
+ * @returns {string} A short unique hash in the format A11Y-xxxxxx.
  */
 function makeFindingId(ruleId, url, selector) {
   const stableSelector = selector.split(",")[0].trim();
@@ -46,9 +59,13 @@ function makeFindingId(ruleId, url, selector) {
   return `A11Y-${createHash("sha256").update(key).digest("hex").slice(0, 6)}`;
 }
 
+/** @type {Object} */
 const RULES = INTELLIGENCE.rules || {};
+/** @type {Object<string, string>} */
 const APG_PATTERNS = RULE_METADATA.apgPatterns;
+/** @type {Object<string, string>} */
 const MDN = RULE_METADATA.mdn || {};
+/** @type {Object<string, string>} */
 const WCAG_CRITERION_MAP = RULE_METADATA.wcagCriterionMap || {};
 
 /**
@@ -65,13 +82,19 @@ function detectCodeLang(code) {
   return "html";
 }
 
+/**
+ * Regulatory links for accessibility compliance standards.
+ * @type {Object<string, string>}
+ */
 const US_REGULATORY = {
   default: "https://accessibility.18f.gov/checklist/",
   section508: "https://www.section508.gov/create/software-websites/",
   "18f": "https://accessibility.18f.gov/tools/",
 };
 
+/** @type {Object<string, string>} */
 const IMPACTED_USERS = RULE_METADATA.impactedUsers || {};
+/** @type {Object<string, string>} */
 const EXPECTED = RULE_METADATA.expected || {};
 
 /**
@@ -99,12 +122,17 @@ function getImpactedUsers(ruleId, tags) {
 /**
  * Returns the expected accessibility behavior for a given rule.
  * @param {string} ruleId - The ID of the accessibility rule.
- * @returns {string} A description of the expected state.
+ * @returns {string} A description of the expected state for compliance.
  */
 function getExpected(ruleId) {
   return EXPECTED[ruleId] || "WCAG accessibility check must pass.";
 }
 
+/**
+ * Framework-specific file search glob patterns.
+ * Used to help developers locate the source of an accessibility violation.
+ * @type {Object<string, Object>}
+ */
 const FRAMEWORK_GLOBS = {
   nextjs: {
     components: "app/**/*.tsx, components/**/*.tsx",
@@ -142,6 +170,10 @@ const FRAMEWORK_GLOBS = {
   },
 };
 
+/**
+ * Rules that are primarily managed by ARIA attributes or UI libraries.
+ * @type {Set<string>}
+ */
 const ARIA_MANAGED_RULES = new Set([
   "aria-required-attr",
   "aria-required-children",
@@ -155,6 +187,10 @@ const ARIA_MANAGED_RULES = new Set([
   "aria-prohibited-attr",
 ]);
 
+/**
+ * Known UI libraries that handle accessibility automatically.
+ * @type {Set<string>}
+ */
 const MANAGED_LIBS = new Set([
   "radix",
   "headless-ui",
@@ -163,7 +199,10 @@ const MANAGED_LIBS = new Set([
   "material-ui",
 ]);
 
-// Maps detected framework IDs to intelligence.json keys
+/**
+ * Maps detected framework IDs to their respective keys in intelligence.json.
+ * @type {Object<string, string>}
+ */
 const FRAMEWORK_TO_INTEL_KEY = {
   nextjs: "react",
   gatsby: "react",
@@ -175,7 +214,10 @@ const FRAMEWORK_TO_INTEL_KEY = {
   svelte: "svelte",
 };
 
-// Maps detected framework IDs to cms_notes keys
+/**
+ * Maps detected framework/CMS IDs to their respective keys for CMS-specific notes.
+ * @type {Object<string, string>}
+ */
 const FRAMEWORK_TO_CMS_KEY = {
   shopify: "shopify",
   wordpress: "wordpress",

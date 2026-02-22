@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * @file build-report-md.mjs
  * @description Generates a Markdown-based remediation guide and audit summary.
@@ -31,7 +30,7 @@ Options:
 /**
  * Parses command-line arguments into a configuration object for the Markdown builder.
  * @param {string[]} argv - Array of command-line arguments.
- * @returns {Object} A configuration object.
+ * @returns {Object} A configuration object containing input, output, and target settings.
  */
 function parseArgs(argv) {
   const args = {
@@ -64,6 +63,7 @@ function parseArgs(argv) {
 /**
  * The main execution function for the Markdown report builder.
  * Reads scan results, generates the Markdown string, and writes the output file.
+ * @throws {Error} If the input findings file is missing or invalid.
  */
 function main() {
   const args = parseArgs(process.argv.slice(2));
@@ -81,9 +81,10 @@ function main() {
   log.success(`Remediation guide written to ${args.output}`);
 }
 
+// Execute the Markdown remediation guide generator.
 try {
   main();
 } catch (error) {
-  log.error(error.message);
+  log.error(`Markdown Generation Error: ${error.message}`);
   process.exit(1);
 }

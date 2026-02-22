@@ -6,16 +6,18 @@ This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with
 
 Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between knowing a problem exists and fixing it by providing the exact intelligence an agent needs to resolve issues with precision.
 
-| Capability                  | With this skill                                                  | Without                                |
-| :-------------------------- | :--------------------------------------------------------------- | :------------------------------------- |
-| **Audit scope**             | ✅ Multi-page crawler with sitemap support                        | ❌ Single URL, manual                  |
-| **Rule coverage**           | ✅ 106 axe-core rules (100% WCAG A/AA + best-practice)            | ❌ Curated subset or proprietary engine |
-| **Fix intelligence**        | ✅ Surgical fix patterns per file with component batching          | ❌ Human reads report, copies fix      |
-| **Framework detection**     | ✅ Auto-detects 9 frameworks + 5 UI libraries                     | ❌ Generic HTML suggestions            |
-| **Parallel scanning**       | ✅ 3 concurrent browser tabs (~2-3x faster)                       | ❌ Sequential, one page at a time      |
-| **Compliance scoring**      | ✅ Weighted severity score with priority ranking                   | ❌ Flat list of issues                 |
-| **Visual reports**          | ✅ Interactive HTML dashboard + PDF executive summary              | ❌ Plain text or static link list      |
-| **Verification**            | ✅ Automatic re-audit after fixes                                  | ❌ Re-run manually                     |
+| Capability                  | With this skill                                                  | Without                                          |
+| :-------------------------- | :--------------------------------------------------------------- | :----------------------------------------------- |
+| **Audit scope**             | ✅ Built-in sitemap crawler + multi-page scanning                 | ❌ Agent must script multi-URL loops manually     |
+| **Rule coverage**           | ✅ 100% of axe-core WCAG A/AA + best-practice rules               | ❌ Lighthouse runs ~67 of ~90 applicable rules    |
+| **Fix intelligence**        | ✅ Surgical fix patterns per file with component batching          | ❌ Agent relies on general knowledge, no project-specific guidance |
+| **Framework detection**     | ✅ Next.js, Nuxt, React, Vue, Angular, Astro, Svelte              | ❌ Generic HTML suggestions, no framework context |
+| **CMS support**             | ✅ Shopify (Liquid), WordPress (PHP)                               | ❌ No CMS-aware file resolution                   |
+| **UI library awareness**    | ✅ Radix, Headless UI, Chakra, Mantine, Material UI               | ❌ No managed component detection                  |
+| **Parallel scanning**       | ✅ 3 concurrent browser tabs, built-in                             | ❌ Requires external tooling to parallelize       |
+| **Compliance scoring**      | ✅ Custom weighted severity with priority ranking                  | ❌ Basic impact tiers without remediation priority |
+| **Visual reports**          | ✅ HTML dashboard + PDF executive summary, on demand               | ❌ Agent must generate reports from scratch        |
+| **Verification**            | ✅ Orchestrated re-audit after each fix phase                      | ❌ Agent must wire fix-then-revalidate loop        |
 
 ## Installation
 
@@ -105,14 +107,14 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 
 | Resource                                               | Description                                                                   |
 | :----------------------------------------------------- | :---------------------------------------------------------------------------- |
-| [**Architecture**](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.         |
-| [**CLI Handbook**](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.               |
-| [**Data Validation**](docs/data-validation.md)         | Steps to verify and update intelligence data assets and WCAG mappings.        |
-| [**Engine Intelligence**](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system.  |
-| [**Scoring System**](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.         |
-| [**Scripts Catalog**](docs/scripts-catalog.md)         | Purpose and execution workflow of all engine automation scripts.              |
-| [**Skill Evaluations**](evals/README.md)               | 10 scenarios for testing skill behavior (Antigravity/Windsurf/Claude/Gemini). |
-| [**Testing Strategy**](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                      |
+| [Architecture](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.         |
+| [CLI Handbook](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.               |
+| [Data Validation](docs/data-validation.md)         | Steps to verify and update intelligence data assets and WCAG mappings.        |
+| [Engine Intelligence](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system.  |
+| [Scoring System](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.         |
+| [Scripts Catalog](docs/scripts-catalog.md)         | Purpose and execution workflow of all engine automation scripts.              |
+| [Skill Evaluations](evals/README.md)               | 10 scenarios for testing skill behavior (Antigravity/Windsurf/Claude/Gemini). |
+| [Testing Strategy](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                      |
 
 ## External Resources
 

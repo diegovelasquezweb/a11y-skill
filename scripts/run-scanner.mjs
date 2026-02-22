@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * @file run-scanner.mjs
  * @description Accessibility scanner core.
@@ -466,8 +465,9 @@ async function analyzeRoute(
 }
 
 /**
- * The main execution function for the scanner script.
- * Coordinates browser setup, discovery, parallel scanning, and result saving.
+ * The main execution function for the accessibility scanner.
+ * Coordinates browser setup, crawling/discovery, parallel scanning, and result saving.
+ * @throws {Error} If navigation to the base URL fails or browser setup issues occur.
  */
 async function main() {
   const args = parseArgs(process.argv.slice(2));
@@ -534,6 +534,10 @@ async function main() {
     process.exit(1);
   }
 
+  /**
+   * Selectors that should never be targeted for element screenshots.
+   * @type {Set<string>}
+   */
   const SKIP_SELECTORS = new Set(["html", "body", "head", ":root", "document"]);
 
   /**
@@ -593,6 +597,7 @@ async function main() {
     }
   }
 
+  /** @const {number} Default concurrency level for parallel scanning tabs. */
   const TAB_CONCURRENCY = 3;
   const results = new Array(routes.length);
   const total = routes.length;
@@ -663,9 +668,10 @@ async function main() {
   log.success(`Routes scan complete. Results saved to ${args.output}`);
 }
 
+// Start the scanning and discovery engine.
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main().catch((error) => {
-    log.error(error.message);
+    log.error(`Scanner Execution Error: ${error.message}`);
     process.exit(1);
   });
 }

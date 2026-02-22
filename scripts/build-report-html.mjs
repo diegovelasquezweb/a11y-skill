@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 /**
  * @file build-report-html.mjs
  * @description Generates a high-fidelity, interactive HTML accessibility audit report.
@@ -19,8 +18,19 @@ import {
 } from "./report/core-findings.mjs";
 import { escapeHtml } from "./report/core-utils.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Path to the manual checks JSON file.
+ * @type {string}
+ */
 const manualChecksPath = path.join(__dirname, "../assets/manual-checks.json");
+
+/**
+ * Parsed manual accessibility checks.
+ * @type {Object[]}
+ */
 const MANUAL_CHECKS = JSON.parse(fs.readFileSync(manualChecksPath, "utf-8"));
+
 import {
   buildIssueCard,
   buildManualChecksSection,
@@ -45,7 +55,7 @@ Options:
 /**
  * Parses command-line arguments into a structured configuration object for the HTML builder.
  * @param {string[]} argv - Array of command-line arguments.
- * @returns {Object} A configuration object.
+ * @returns {Object} A configuration object containing input/output paths and target settings.
  */
 function parseArgs(argv) {
   if (argv.includes("--help") || argv.includes("-h")) {
@@ -79,7 +89,7 @@ function parseArgs(argv) {
  * Constructs the final HTML string for the accessibility report.
  * @param {Object} args - The parsed CLI arguments.
  * @param {Object[]} findings - The normalized list of audit findings.
- * @param {Object} metadata - Metadata from the scan (e.g., date, target).
+ * @param {Object} [metadata={}] - Optional metadata from the scan (e.g., date, target).
  * @returns {string} The complete HTML document as a string.
  */
 function buildHtml(args, findings, metadata = {}) {
@@ -95,11 +105,13 @@ function buildHtml(args, findings, metadata = {}) {
 
   let siteHostname = args.baseUrl;
   try {
-    siteHostname = new URL(
+    /** @type {URL} */
+    const urlObj = new URL(
       args.baseUrl.startsWith("http")
         ? args.baseUrl
         : `https://${args.baseUrl}`,
-    ).hostname;
+    );
+    siteHostname = urlObj.hostname;
   } catch {}
 
   const statusColor = hasIssues
@@ -110,14 +122,24 @@ function buildHtml(args, findings, metadata = {}) {
     : `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
   const statusText = hasIssues ? "WCAG Violations Found" : "Audit Passed";
 
+  /** @type {Object<string, number>} */
   const _pageCounts = {};
   for (const f of findings) {
     _pageCounts[f.area] = (_pageCounts[f.area] || 0) + 1;
   }
   const _sortedPages = Object.entries(_pageCounts).sort((a, b) => b[1] - a[1]);
-  const selectClasses =
-    "pl-4 pr-10 py-3 bg-white border border-slate-300 rounded-2xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/10 focus:border-[var(--primary)] shadow-sm transition-all appearance-none cursor-pointer relative bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%23374151%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.5rem_center] bg-no-repeat";
 
+  /**
+   * Tailwind classes for the select inputs.
+   * @type {string}
+   */
+  const selectClasses =
+    "pl-4 pr-10 py-3 bg-white border border-slate-300 rounded-2xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-4 focus:ring-[var(--primary)]/10 focus:border-[var(--primary)] shadow-sm transition-all appearance-none cursor-pointer relative bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%23374151%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%3E%3Cpath%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[right_0.5rem_center] bg-no-repeat";
+
+  /**
+   * HTML markup for the page filter dropdown.
+   * @type {string}
+   */
   const pageSelectHtml =
     _sortedPages.length > 1
       ? `<div id="page-select-container" style="display:none" class="flex items-center gap-2 shrink-0">
@@ -131,10 +153,22 @@ function buildHtml(args, findings, metadata = {}) {
 
   const score = computeComplianceScore(totals);
   const label = scoreLabel(score);
+  /**
+   * The hue value for the compliance score gauge (green for high, orange for medium, red for low).
+   * @type {number}
+   */
   const scoreHue = score >= 75 ? 142 : score >= 55 ? 38 : 0;
 
+  /**
+   * Summary of issues grouped by user persona impact.
+   * @type {Object}
+   */
   const personaCounts = buildPersonaSummary(findings);
 
+  /**
+   * Configuration for the persona impact matrix UI.
+   * @type {Object}
+   */
   const personaGroups = {
     screenReader: {
       label: "Screen Readers",
@@ -795,6 +829,7 @@ function buildHtml(args, findings, metadata = {}) {
 /**
  * The main execution function for the HTML report builder.
  * Coordinates data reading, normalization, HTML generation, and file writing.
+ * @throws {Error} If required arguments are missing or input data is invalid.
  */
 function main() {
   const args = parseArgs(process.argv.slice(2));
@@ -802,8 +837,9 @@ function main() {
     throw new Error("Missing required --output flag for HTML report location.");
   }
   const inputPayload = readJson(args.input);
-  if (!inputPayload)
+  if (!inputPayload) {
     throw new Error(`Input findings file not found or invalid: ${args.input}`);
+  }
 
   const findings = normalizeFindings(inputPayload);
 
@@ -817,9 +853,10 @@ function main() {
   log.success(`HTML report written to ${args.output}`);
 }
 
+// Start the audit report generation pipeline.
 try {
   main();
 } catch (error) {
-  log.error(error.message);
+  log.error(`HTML Generation Error: ${error.message}`);
   process.exit(1);
 }
