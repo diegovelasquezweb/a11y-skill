@@ -6,12 +6,16 @@ This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with
 
 Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between knowing a problem exists and fixing it by providing the exact intelligence an agent needs to resolve issues with precision.
 
-| Feature / Capability          | `a11y`                                                                | Google Lighthouse                               | WebAIM WAVE                                 |
-| :---------------------------- | :-------------------------------------------------------------------- | :---------------------------------------------- | :------------------------------------------ |
-| **Targeted AI Remediation**   | <small>✅ (Actionable fix patterns & precise DOM selectors)</small>   | <small>⚠️ (Basic diagnostic hints only)</small> | <small>❌ (Manual inspection only)</small>  |
-| **Rule Coverage**             | <small>✅ (100% of axe-core WCAG A/AA + best-practice)</small>        | <small>⚠️ (Curated subset)</small>              | <small>⚠️ (Proprietary engine)</small>      |
-| **Automated Route Discovery** | <small>✅ (Multi-page crawler with sitemap & link discovery)</small>  | <small>❌ (Single URL per run)</small>          | <small>❌ (Single URL per run)</small>      |
-| **Verified Audit Evidence**   | <small>✅ (Interactive HTML dashboard & Executive PDF report)</small> | <small>❌ (Static link list only)</small>       | <small>⚠️ (Passive visual overlays)</small> |
+| Capability                  | With this skill                                                  | Without                                |
+| :-------------------------- | :--------------------------------------------------------------- | :------------------------------------- |
+| **Audit scope**             | ✅ Multi-page crawler with sitemap support                        | ❌ Single URL, manual                  |
+| **Rule coverage**           | ✅ 106 axe-core rules (100% WCAG A/AA + best-practice)            | ❌ Curated subset or proprietary engine |
+| **Fix intelligence**        | ✅ Surgical fix patterns per file with component batching          | ❌ Human reads report, copies fix      |
+| **Framework detection**     | ✅ Auto-detects 9 frameworks + 5 UI libraries                     | ❌ Generic HTML suggestions            |
+| **Parallel scanning**       | ✅ 3 concurrent browser tabs (~2-3x faster)                       | ❌ Sequential, one page at a time      |
+| **Compliance scoring**      | ✅ Weighted severity score with priority ranking                   | ❌ Flat list of issues                 |
+| **Visual reports**          | ✅ Interactive HTML dashboard + PDF executive summary              | ❌ Plain text or static link list      |
+| **Verification**            | ✅ Automatic re-audit after fixes                                  | ❌ Re-run manually                     |
 
 ## Installation
 
