@@ -33,7 +33,7 @@ Audit Progress:
 - [ ] Step 3a: Structural fixes (Critical → High → Medium → Low)
 - [ ] Step 3b: Style-dependent fixes (with explicit approval)
 - [ ] Step 3c: Manual checks
-- [ ] Step 3d: Re-run audit to verify
+- [ ] Step 3d: Verification re-audit (automatic)
 - [ ] Step 4: Deliver results + offer final reports
 ```
 
@@ -158,13 +158,15 @@ Process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`:
 1. Search the project source for each pattern. Skip checks that don't apply.
 2. Present confirmed violations as a batch and wait for permission before applying.
 
-**3d. Final Certification Audit**:
+**3d. Verification re-audit** (automatic — no user input needed):
+
+Re-run the audit to confirm all fixes are clean:
 
 ```bash
 node scripts/run-audit.mjs --base-url <URL> --skip-reports
 ```
 
-If **new issues or regressions** appear (not previously seen), present them and restart from 3a. Issues the user already declined do not trigger a restart.
+If **new issues or regressions** appear (not previously seen), present them to the user and restart from 3a. Issues the user already declined do not trigger a restart. If the audit is clean, proceed to Step 4.
 
 ### Step 4 — Deliver results
 
