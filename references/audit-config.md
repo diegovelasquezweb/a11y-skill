@@ -1,8 +1,9 @@
 # `a11y.config.json` Reference
 
-Persist **project-level** audit settings by placing this file in the audited project root. CLI flags take precedence when both are set.
+Persist **project-level** audit settings at `audit/a11y.config.json` inside the audited project. The file is created by the agent on demand — it does not exist until the user requests a persistent setting. CLI flags take precedence when both are set.
 
 > **CLI flags** = per-execution (change between runs). **Config file** = per-project (persist forever).
+> **Location**: `<project-root>/audit/a11y.config.json`
 
 ## Project-Level Keys
 

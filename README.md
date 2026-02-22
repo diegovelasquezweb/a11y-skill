@@ -83,7 +83,7 @@ You can manage settings through the AI agent using natural language:
 "Configure the scanner to use a Mobile viewport (375x812) and dark mode."
 ```
 
-Changes to `a11y.config.json` are dynamic and automatically applied during the next audit run. For the full CLI flag and JSON key reference, see [CLI Handbook](docs/cli-handbook.md) and [Configuration](docs/configuration.md).
+The agent creates `audit/a11y.config.json` in your project when you request a persistent setting. Changes are automatically applied on the next audit run. For the full CLI flag and JSON key reference, see [CLI Handbook](docs/cli-handbook.md) and [Configuration](docs/configuration.md).
 
 ## Audit Engine (CI/CD & Local Validation)
 

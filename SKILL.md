@@ -127,7 +127,7 @@ Example:
 
 ### Multi-Viewport Testing
 
-1. The auditor uses a single viewport by default. For responsive testing, configure `viewports` in `a11y.config.json`.
+1. The auditor uses a single viewport by default. For responsive testing, configure `viewports` in `audit/a11y.config.json`.
 2. Only the first entry is used per audit — run separate audits for each viewport.
 3. Only flag viewport-specific findings when a violation appears at one breakpoint but not another.
 
@@ -137,6 +137,8 @@ Example:
 
 **CLI flags** are for per-execution decisions — parameters that change between runs. **`a11y.config.json`** is for per-project decisions — settings that persist across all future runs.
 
+**Config location**: `<project-root>/audit/a11y.config.json`. This file does not exist by default — create it only when the user requests a persistent setting.
+
 | User instruction                 | Action                                         | Why                    |
 | -------------------------------- | ---------------------------------------------- | ---------------------- |
 | "Audit this site"                | CLI: `--base-url https://...`                  | Changes every run      |
@@ -145,6 +147,23 @@ Example:
 | "Always ignore color-contrast"   | Config: `"ignoreFindings": ["color-contrast"]` | Persistent decision    |
 | "Exclude the third-party widget" | Config: `"excludeSelectors": [".widget"]`      | Persistent exclusion   |
 
-**Decision rule**: If the user's instruction implies "always" or "for this project", edit `a11y.config.json`. If it implies "this time" or is a runtime parameter, use a CLI flag.
+**Decision rule**: If the user's instruction implies "always" or "for this project", edit `audit/a11y.config.json`. If it implies "this time" or is a runtime parameter, use a CLI flag.
+
+### Managing the config
+
+When creating or updating the config:
+
+1. Read the existing file at `audit/a11y.config.json` (it may not exist yet).
+2. Merge the new key into the existing object (do not overwrite unrelated keys).
+3. Write the updated JSON back to `audit/a11y.config.json`.
+
+Example — user says "Always ignore color-contrast":
+
+```json
+// audit/a11y.config.json
+{
+  "ignoreFindings": ["color-contrast"]
+}
+```
 
 For the full schema of all keys and their CLI equivalents, see [references/audit-config.md](references/audit-config.md).

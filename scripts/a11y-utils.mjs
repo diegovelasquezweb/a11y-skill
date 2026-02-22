@@ -65,10 +65,12 @@ function validateConfig(userConfig) {
 }
 
 /**
- * Load a11y.config.json if it exists
+ * Load a11y.config.json with fallback chain:
+ *   1. Project-level: <cwd>/audit/a11y.config.json  (per-project, persistent)
+ *   2. Skill defaults (hardcoded below)
  */
 export function loadConfig() {
-  const configPath = path.join(SKILL_ROOT, "a11y.config.json");
+  const projectConfigPath = path.join(process.cwd(), "audit", "a11y.config.json");
   const defaults = {
     maxRoutes: 10,
     complianceTarget: "WCAG 2.2 AA",
@@ -78,19 +80,18 @@ export function loadConfig() {
     internalDir: "audit/internal",
     colorScheme: "light",
     viewports: [{ width: 1280, height: 800, name: "Desktop" }],
-    // Visibility Defaults
     headless: true,
   };
 
-  if (fs.existsSync(configPath)) {
+  if (fs.existsSync(projectConfigPath)) {
     try {
-      const userConfig = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+      const userConfig = JSON.parse(fs.readFileSync(projectConfigPath, "utf-8"));
       validateConfig(userConfig);
-      const merged = { ...defaults, ...userConfig };
-      return merged;
+      log.info(`Config loaded from ${projectConfigPath}`);
+      return { ...defaults, ...userConfig };
     } catch (e) {
       log.warn(
-        `Failed to parse a11y.config.json: ${e.message}. Using defaults.`,
+        `Failed to parse ${projectConfigPath}: ${e.message}. Using defaults.`,
       );
     }
   }

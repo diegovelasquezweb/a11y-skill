@@ -11,7 +11,7 @@
 - [Precedence Logic](#precedence-logic)
 - [Example Config](#example-config-for-a-complex-spa)
 
-The skill uses an optional `a11y.config.json` file in the project root for **per-project decisions** that persist across all audit runs.
+The skill uses an optional `a11y.config.json` file at `audit/a11y.config.json` (inside the audited project) for **per-project decisions** that persist across all audit runs. The file is created on demand by the agent when the user requests a persistent setting — it does not exist by default.
 
 > [!IMPORTANT]
 > **CLI flags** = per-execution (change between runs). **Config file** = per-project (persist forever).
@@ -79,7 +79,7 @@ All keys are optional. The engine will merge this file with internal defaults.
 The engine resolves configuration using the following priority (highest to lowest):
 
 1. **CLI Flags**: (e.g., `--max-routes 50`) — Always wins.
-2. **`a11y.config.json`**: Project-specific persistent settings.
+2. **`audit/a11y.config.json`**: Project-specific persistent settings (created on demand).
 3. **Internal Defaults**: Hardcoded safe values.
 
 ## Example Config for a Complex SPA
