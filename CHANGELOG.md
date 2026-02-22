@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] — 2026-02-22
+
+### Changed
+- SKILL.md rewritten following Agent Skills spec (agentskills.io) best practices: 316 → 220 lines
+- `description` frontmatter expanded with exhaustive trigger keywords (accessibility, a11y, WCAG, ADA, screen reader, color contrast, alt text, ARIA, etc.)
+- Added Resource Map table at top of SKILL.md with "Load when" guidance for progressive disclosure of references
+- Added "scripts as black boxes" constraint — agents run scripts with `--help`, never read source
+- Added `REMEDIATION_PATH` fallback: if absent in output, read `audit/internal/remediation.md` directly
+- Added `pnpm`/`npm` fallback note in Constraints
+- Initialization section simplified to 3-line per-platform routing (Claude/Cursor/Codex: auto, Antigravity/Windsurf: see references, Gemini CLI: `/skills reload`)
+- Message templates compressed — agents adapt tone and structure, no verbatim copying
+- Standardized imperative voice throughout SKILL.md
+- CLI Reference table moved from SKILL.md to `references/cli-reference.md` (progressive disclosure)
+- Multi-Viewport Testing section moved from SKILL.md Edge Cases to `references/cli-reference.md`
+- README compatibility table updated — removed references to deleted config files, added setup notes per platform
+
+### Added
+- `references/cli-reference.md` — CLI flags table and multi-viewport testing instructions (moved from SKILL.md body)
+
+### Removed
+- `.agent/workflows/a11y.md` — duplicate of template in `references/platform-setup.md`; Antigravity reads from the project directory, not the skill directory
+- `.cursor/rules/a11y.md` — legacy; Cursor reads `SKILL.md` natively
+- `.windsurf/workflows/a11y.md` — duplicate of template in `references/platform-setup.md`; Windsurf reads from the project directory
+- `agents/openai.yaml` — legacy; Codex reads `SKILL.md` natively
+- `workflows/a11y.md` — duplicate of `.agent/` version with no consumer
+
+---
+
 ## [0.6.0] — 2026-02-22
 
 ### Added
