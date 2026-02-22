@@ -10,17 +10,15 @@ metadata:
 
 # Web Accessibility Audit — Agent Playbook
 
-> [!TIP]
-> **Zero-Config Audit**: By default, the tool autodiscovers routes and uses industry-standard rules. Start with a basic audit before exploring advanced configuration.
-
 ## Constraints
 
 These rules apply at all times, independent of any workflow step.
 
-- Never install, remove, or initialize packages in the audited project (`package.json`, lockfiles, `node_modules`).
+- Never install, remove, or initialize packages in the user's project. The skill has its own `node_modules` — only run `pnpm install` inside the skill directory, never in the audited project.
 - Never edit files in `audit/` manually — reports only change via re-audit.
 - Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
 - Never declare "100% accessible" based on a targeted audit. Only a Final Certification Audit can confirm that.
+- Always ensure `audit/` is in the user's project `.gitignore` before running an audit. The pipeline auto-appends it when a `.gitignore` exists in the project root; if the project has none, create one first.
 
 **Platform quirks**: See [references/platform-setup.md](references/platform-setup.md) for Antigravity, Windsurf, Codex, and Gemini CLI notes.
 
@@ -61,7 +59,7 @@ Read `audit/remediation.md` and:
 
 For finding field requirements and deliverable format, see [references/report-standards.md](references/report-standards.md).
 
-If the user declines, remind them that unresolved accessibility issues exclude users with disabilities and may violate legal requirements (ADA, EAA, EN 301 549). Offer to revisit later and stop here.
+If the user declines, remind them that unresolved issues exclude users with disabilities and may violate legal requirements (ADA, EAA, EN 301 549). Offer to revisit later and stop here.
 
 ### Step 3 — Fix
 
@@ -100,8 +98,8 @@ If **new issues or regressions** appear (not previously seen), present them and 
 
 1. Summarize: total issues found, issues resolved, files modified, remaining issues (if any).
 2. Provide absolute paths to `audit/report.html` and `audit/remediation.md`.
-3. Remind the user to add `audit/` to `.gitignore`. The pipeline auto-appends it when a `.gitignore` exists; if the project has none, tell the user to create one.
-4. If all issues are resolved, confirm the site now passes WCAG 2.2 AA automated checks.
+3. If all issues are resolved, confirm the site now passes WCAG 2.2 AA automated checks.
+4. Congratulate the user — accessibility work directly improves the experience for users with disabilities and strengthens legal compliance.
 5. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
 
 ## Edge Cases

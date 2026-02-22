@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.1] — 2026-02-21
+
+### Changed
+- SKILL.md optimized for Claude Skills best practices checklist (21/21):
+  - Description: "selectors" → "violations/issues" for clearer skill discovery
+  - Added copy-paste audit progress checklist for agent workflow tracking
+  - Removed redundant constraints already covered by workflow steps (3 removed)
+  - Trimmed obvious constraints Claude already knows ("Write in English", "Prefer DOM evidence")
+  - Unified terminology: "scan/scanner" → "audit/auditor" throughout
+  - Constraints clarified: skill vs. audited project boundaries for `node_modules` and `.gitignore`
+  - `.gitignore` constraint elevated to pre-audit precondition (was post-delivery reminder)
+  - Removed `> [!TIP]` callout (GitHub-only rendering, no value to agents)
+- Troubleshooting table moved to `references/troubleshooting.md` (progressive disclosure)
+- `a11y.config.json` reference table moved to `references/config.md` (progressive disclosure)
+- Report route path convention moved to `references/report-standards.md`
+- Analyzer: `recommended_fix` simplified from up to 3 links (APG + a11ySupport + Inclusive Components) to a single reference link (APG preferred, helpUrl fallback) — reduces noise for both HTML report and agent remediation guide
+- Removed unused `A11Y_SUPPORT` and `INCLUSIVE_COMPONENTS` constants from `run-analyzer.mjs`
+- Terminology consistency: "scan" → "audit" in evals (`01-basic-audit.json`, `evals/README.md`)
+
+---
+
 ## [0.5.0] — 2026-02-21
 
 ### Added
