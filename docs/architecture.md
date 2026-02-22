@@ -103,26 +103,28 @@ The Markdown report is the primary interface between the audit engine and the AI
 ## Data Flow Diagram
 
 ```mermaid
-%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0', 'actorTextColor': '#1e293b', 'noteTextColor': '#1e293b', 'signalColor': '#3b5cd9', 'signalTextColor': '#1e293b' } } }%%
-sequenceDiagram
-    autonumber
-    participant CLI as 🖥️ Audit Trigger
-    participant S as 🔍 Scanner
-    participant A as 🧠 Analyzer
-    participant B as 🏗️ Builder
-    participant FS as 📂 Local Filesystem
+%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0', 'clusterBkg': '#f8fafc', 'clusterBorder': '#cbd5e1' } } }%%
+flowchart LR
+    Start([CLI Trigger]) --> S[Scanner]
+    S --> Raw[(Raw Scan<br/>JSON)]
 
-    CLI->>S: base-url + options
-    Note over S,FS: Emulates Browser
-    S->>FS: Save Raw Scan (JSON)
-    S-->>A: Trigger Analysis
-    A->>FS: Load intelligence.json
-    rect rgb(241, 245, 249)
-        Note right of A: Context-Aware Logic
-        A->>A: Generate Patch Logic
-    end
-    A->>FS: Save Findings (JSON)
-    A-->>B: Trigger Formatting
-    B->>FS: Generate HTML, MD & PDF
-    B-->>CLI: Final Success Output
+    Raw --> A[Analyzer]
+    A --> Logic{Enrichment<br/>Logic}
+    Intel[(Intelligence<br/>Database)] --> Logic
+
+    Logic --> Findings[(Final Findings<br/>JSON)]
+    Findings --> B[Builder]
+
+    B --> HTML([HTML Report])
+    B --> MD([AI Roadmap])
+    B --> PDF([PDF Summary])
+
+    classDef default font-family:Inter,sans-serif,font-size:12px;
+    classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a,stroke-width:2px;
+    classDef storage fill:#f1f5f9,stroke:#cbd5e1,stroke-dasharray: 5 5;
+    classDef trigger fill:#1e293b,color:#fff,stroke:#0f172a;
+
+    class S,A,B core;
+    class Raw,Intel,Findings storage;
+    class Start,HTML,MD,PDF trigger;
 ```
