@@ -16,7 +16,7 @@ The a11y skill maintains a robust test suite to ensure the **Audit Engine** rema
 ## Overview
 
 - **Framework**: [Vitest](https://vitest.dev/)
-- **Total Tests**: 817
+- **Total Tests**: 711
 - **Command**: `pnpm test`
 
 ## Test Categories

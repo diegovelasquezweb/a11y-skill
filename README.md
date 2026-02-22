@@ -1,10 +1,10 @@
 # a11y - Accessibility Audit & Remediation Skill
 
-This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints including precise DOM selectors and fix patterns to autonomously patch vulnerabilities directly in the source code. It follows [Claude's Best Practices for Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) for reliable agent interaction.
+This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. It follows [Claude's Best Practices for Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) for reliable agent interaction.
 
 ## Why this Skill?
 
-Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between **knowing** a problem exists and **fixing** it by providing the exact intelligence an agent needs to resolve issues with precision.
+Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between knowing a problem exists and fixing it by providing the exact intelligence an agent needs to resolve issues with precision.
 
 | Feature / Capability          | `a11y`                                                                | Google Lighthouse                               | WebAIM WAVE                                 |
 | :---------------------------- | :-------------------------------------------------------------------- | :---------------------------------------------- | :------------------------------------------ |
