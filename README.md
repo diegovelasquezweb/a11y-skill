@@ -6,18 +6,18 @@ This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with
 
 Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between knowing a problem exists and fixing it by providing the exact intelligence an agent needs to resolve issues with precision.
 
-| Capability                  | With this skill                                                  | Without                                          |
-| :-------------------------- | :--------------------------------------------------------------- | :----------------------------------------------- |
-| **Audit scope**             | ✅ Built-in sitemap crawler + multi-page scanning                 | ❌ Agent must script multi-URL loops manually     |
-| **Rule coverage**           | ✅ 100% of axe-core WCAG A/AA + best-practice rules               | ❌ Lighthouse runs ~67 of ~90 applicable rules    |
-| **Fix intelligence**        | ✅ Surgical fix patterns per file with component batching          | ❌ Agent relies on general knowledge, no project-specific guidance |
-| **Framework detection**     | ✅ Next.js, Nuxt, React, Vue, Angular, Astro, Svelte              | ❌ Generic HTML suggestions, no framework context |
-| **CMS support**             | ✅ Shopify (Liquid), WordPress (PHP)                               | ❌ No CMS-aware file resolution                   |
-| **UI library awareness**    | ✅ Radix, Headless UI, Chakra, Mantine, Material UI               | ❌ No managed component detection                  |
-| **Parallel scanning**       | ✅ 3 concurrent browser tabs, built-in                             | ❌ Requires external tooling to parallelize       |
-| **Compliance scoring**      | ✅ Custom weighted severity with priority ranking                  | ❌ Basic impact tiers without remediation priority |
-| **Visual reports**          | ✅ HTML dashboard + PDF executive summary, on demand               | ❌ Agent must generate reports from scratch        |
-| **Verification**            | ✅ Orchestrated re-audit after each fix phase                      | ❌ Agent must wire fix-then-revalidate loop        |
+| Capability               | With this skill                                                                | Without                                                            |
+| :----------------------- | :----------------------------------------------------------------------------- | :----------------------------------------------------------------- |
+| **Audit scope**          | ✅ Built-in sitemap crawler + multi-page scanning                              | ❌ Agent must script multi-URL loops manually                      |
+| **Rule coverage**        | ✅ 100% of axe-core WCAG A/AA + best-practice rules                            | ❌ Lighthouse runs ~67 of ~90 applicable rules                     |
+| **Fix intelligence**     | ✅ Surgical fix patterns per file with component batching                      | ❌ Agent relies on general knowledge, no project-specific guidance |
+| **Framework detection**  | ✅ Next.js, Nuxt, React, Vue, Angular, Astro, Svelte                           | ❌ Generic HTML suggestions, no framework context                  |
+| **CMS support**          | ✅ Shopify (Liquid), WordPress (PHP)                                           | ❌ No CMS-aware file resolution                                    |
+| **UI library awareness** | ✅ Radix, Headless UI, Polaris, React Aria, Ariakit, Shadcn, PrimeVue, Vuetify | ❌ No managed component detection                                  |
+| **Parallel scanning**    | ✅ 3 concurrent browser tabs, built-in                                         | ❌ Requires external tooling to parallelize                        |
+| **Compliance scoring**   | ✅ Custom weighted severity with priority ranking                              | ❌ Basic impact tiers without remediation priority                 |
+| **Visual reports**       | ✅ HTML dashboard + PDF executive summary, on demand                           | ❌ Agent must generate reports from scratch                        |
+| **Verification**         | ✅ Orchestrated re-audit after each fix phase                                  | ❌ Agent must wire fix-then-revalidate loop                        |
 
 ## Installation
 
@@ -33,14 +33,14 @@ Restart your CLI-based agent session after installation to ensure the new skill 
 
 This skill follows the [Agent Skills standard](https://agentskills.io) and is aligned with [Claude's Best Practices for Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
-| Agent / IDE     | Skill Install Path (Global/User)                |
-| :-------------- | :---------------------------------------------- |
-| **Claude**      | `~/.claude/skills/a11y/`                        |
-| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  |
-| **Codex**       | `~/.codex/skills/a11y/`                         |
-| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`            |
-| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`              |
-| **Gemini CLI**  | `~/.gemini/skills/a11y/`                        |
+| Agent / IDE     | Skill Install Path (Global/User)               |
+| :-------------- | :--------------------------------------------- |
+| **Claude**      | `~/.claude/skills/a11y/`                       |
+| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex) |
+| **Codex**       | `~/.codex/skills/a11y/`                        |
+| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`           |
+| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`             |
+| **Gemini CLI**  | `~/.gemini/skills/a11y/`                       |
 
 ## How to Audit
 
@@ -105,8 +105,8 @@ pnpm a11y --base-url https://mysite.com --only-rule color-contrast
 
 For a comprehensive understanding of the a11y engine, explore the following technical manuals:
 
-| Resource                                               | Description                                                                   |
-| :----------------------------------------------------- | :---------------------------------------------------------------------------- |
+| Resource                                           | Description                                                                   |
+| :------------------------------------------------- | :---------------------------------------------------------------------------- |
 | [Architecture](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.         |
 | [CLI Handbook](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.               |
 | [Data Validation](docs/data-validation.md)         | Steps to verify and update intelligence data assets and WCAG mappings.        |
