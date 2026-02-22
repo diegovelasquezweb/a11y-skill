@@ -18,9 +18,21 @@ These rules apply at all times, independent of any workflow step.
 - Never edit files in `audit/` manually — reports only change via re-audit.
 - Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
 - Never declare "100% accessible" based on a targeted audit. Only a Final Certification Audit can confirm that.
-- Always ensure `audit/` is in the user's project `.gitignore` before running an audit. The pipeline auto-appends it when a `.gitignore` exists in the project root; if the project has none, create one first.
+- Never modify the user's `.gitignore` without asking first.
 
 **Platform quirks**: See [references/platform-setup.md](references/platform-setup.md) for Antigravity, Windsurf, Codex, and Gemini CLI notes.
+
+## Communication Rules
+
+Follow these rules for every message to the user:
+
+1. **Use closed questions** — prefer yes/no or multiple choice over open-ended questions. This reduces ambiguity and errors.
+2. **Be concise and technical** — no filler, no over-explaining. State what you found, what you propose, and ask for a decision.
+3. **Always provide options** — never ask "what do you want to do?" without listing concrete choices.
+4. **Explain the "why"** — when presenting a fix or a choice, briefly state why it matters (user impact, legal risk, design implications).
+5. **One question per message** — don't stack multiple decisions in a single message. Let the user answer one thing at a time.
+
+Every user-facing message in the workflow below is a template. Follow the tone and structure — adapt the data, keep the format.
 
 ## Workflow
 
@@ -39,7 +51,11 @@ Audit Progress:
 
 ### Step 1 — Run the audit
 
-If the user did not provide a URL, ask for it before proceeding. The `--base-url` flag requires a full URL with protocol. Normalize the user's input before running:
+If the user did not provide a URL, ask for it before proceeding:
+
+> "What URL should I audit? For example: `https://mysite.com` or `localhost:3000`."
+
+The `--base-url` flag requires a full URL with protocol. Normalize the user's input before running:
 
 - `"localhost:3000"` → `http://localhost:3000`
 - `"mysite.com"` → `https://mysite.com`
@@ -52,6 +68,12 @@ Before running, inform the user about route scope:
 > - **Specific pages only**: `--routes /,/about,/contact`"
 
 If the user adjusts scope, add the corresponding flags. Otherwise, proceed with defaults.
+
+Before running, check if `audit/` is in the project's `.gitignore`. If not, ask:
+
+> "The audit will generate reports in an `audit/` folder. Should I add `audit/` to your `.gitignore` to keep generated files out of version control? (yes/no)"
+
+If yes, append `audit/` to `.gitignore` (or create the file if it doesn't exist). If no, proceed without modifying it.
 
 Run the audit with `--skip-reports` by default (faster — only generates the remediation guide the agent needs):
 
@@ -89,7 +111,12 @@ open audit/report.html   # HTML dashboard
 open audit/report.pdf    # PDF summary
 ```
 
-If the script fails (network error, Chromium crash, timeout), report the error to the user and ask whether to retry or adjust the target URL.
+If the script fails (network error, Chromium crash, timeout):
+
+> "The audit failed: `[error message]`. This could be a network issue, the site may be down, or the URL may be incorrect. Would you like me to:
+> - **Retry** the same URL
+> - **Try a different URL**
+> - **Skip** and troubleshoot manually"
 
 ### Step 2 — Present findings and request permission
 
@@ -109,6 +136,10 @@ Read `audit/remediation.md` and:
 The default behavior (if the user just says "fix" or "go ahead") is **severity by severity**.
 
 For finding field requirements and deliverable format, see [references/report-standards.md](references/report-standards.md).
+
+If the audit found **0 automated issues**, skip Step 3 and go directly to Step 4:
+
+> "No automated accessibility issues detected — your site passes WCAG 2.2 AA automated checks. Keep in mind that automated tools catch roughly 30–50% of accessibility barriers. I recommend verifying the manual checks I'll list next."
 
 If the user declines:
 
@@ -132,11 +163,19 @@ If the user chose **severity by severity** (default):
    - For framework and CMS file locations, see [references/source-patterns.md](references/source-patterns.md).
 2. Checkpoint — list every file modified and fix applied, ask the user to verify visually.
 
-   > "Critical fixes applied — 3 files modified (`Header.tsx`, `Nav.astro`, `Footer.tsx`). Please verify visually and confirm when ready to proceed with High severity fixes."
+   > "Critical fixes applied — 3 files modified (`Header.tsx`, `Nav.astro`, `Footer.tsx`). Please verify visually. Ready to proceed with High severity fixes? (yes/no)"
 
 3. Repeat for each remaining severity group.
 
-If the user chose **fix all structural**: apply all severity groups in a single pass, then report all modified files at once.
+If the user chose **fix all structural**: apply all severity groups in a single pass, then report all modified files at once:
+
+> "All structural fixes applied — 8 files modified across 12 issues. Here's the full list:
+> - `Header.tsx`: added `aria-label` to nav, fixed heading hierarchy
+> - `Footer.astro`: added `role="contentinfo"`, missing `lang` attribute
+> - `Card.tsx`: added `alt` text to images
+> - _(etc.)_
+>
+> Please verify visually. Ready to continue with style-dependent fixes? (yes/no)"
 
 **3b. Style-dependent fixes** (color-contrast, font-size, spacing):
 
@@ -144,19 +183,25 @@ These can change the site's appearance. **Always show the exact proposed changes
 
 Example:
 
-> "I also found 3 style-dependent issues that affect your site's visual design. These require your review:
+> "I found 3 style-dependent issues that affect your site's visual design. These require your review:
 > - `color-contrast` on `.hero-title`: change `color` from `#999` → `#595959` (contrast ratio 3.2:1 → 7:1)
 > - `color-contrast` on `.nav-link`: change `color` from `#aaa` → `#767676`
 > - `font-size` on `.fine-print`: change from `10px` → `12px`
 >
-> Should I apply these? You may want to review them against your design system first."
+> Should I apply these changes? (yes / no / let me pick which ones)"
 
 **3c. Manual checks**:
 
 Process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`:
 
 1. Search the project source for each pattern. Skip checks that don't apply.
-2. Present confirmed violations as a batch and wait for permission before applying.
+2. Present confirmed violations as a batch and wait for permission before applying:
+
+> "I found 2 additional issues from static code analysis that the automated scanner can't detect:
+> - `ProductCard.tsx:45` — `<div onClick={...}>` used as a button without keyboard support. Should be a `<button>` or add `role="button"`, `tabIndex={0}`, and `onKeyDown`.
+> - `Modal.tsx:12` — focus is not trapped inside the modal when open. Users can Tab to elements behind the overlay.
+>
+> Should I fix these? (yes / no / let me pick which ones)"
 
 **3d. Verification re-audit** (automatic — no user input needed):
 
@@ -166,7 +211,13 @@ Re-run the audit to confirm all fixes are clean:
 node scripts/run-audit.mjs --base-url <URL> --skip-reports
 ```
 
-If **new issues or regressions** appear (not previously seen), present them to the user and restart from 3a. Issues the user already declined do not trigger a restart. If the audit is clean, proceed to Step 4.
+If the audit is clean, proceed to Step 4. If **new issues or regressions** appear (not previously seen), present them and restart from 3a. Issues the user already declined do not trigger a restart.
+
+> "The verification re-audit found 2 new issues that weren't in the original scan — likely caused by the fixes we applied:
+> - `heading-order` on `/about`: the `<h2>` we added created a gap in heading hierarchy (missing `<h3>`).
+> - `aria-required-attr` on `SearchForm.tsx`: the `role="combobox"` we added requires `aria-expanded`.
+>
+> I'll fix these now and re-verify."
 
 ### Step 4 — Deliver results
 

@@ -161,12 +161,14 @@ async function main() {
     if (fs.existsSync(gitignorePath)) {
       const content = fs.readFileSync(gitignorePath, "utf-8");
       if (!/^audit\/?$/m.test(content)) {
-        fs.appendFileSync(
-          gitignorePath,
-          "\n# Generated accessibility reports\naudit/\n",
+        log.warn(
+          "GITIGNORE_MISSING_AUDIT=true — audit/ is not in .gitignore. The agent should ask the user before adding it.",
         );
-        log.success(".gitignore updated — added audit/ entry.");
       }
+    } else {
+      log.warn(
+        "GITIGNORE_NOT_FOUND=true — no .gitignore found. The agent should ask the user before creating one.",
+      );
     }
 
     const absoluteOutputPath = path.isAbsolute(output)
