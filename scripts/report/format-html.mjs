@@ -278,7 +278,6 @@ export function buildIssueCard(finding) {
     ${evidenceHtml}
   </div>
   </div>
-  </div>
 </article>`;
 }
 
