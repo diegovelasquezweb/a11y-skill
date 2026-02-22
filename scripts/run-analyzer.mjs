@@ -171,33 +171,14 @@ const FRAMEWORK_GLOBS = {
 };
 
 /**
- * Rules that are primarily managed by ARIA attributes or UI libraries.
- * @type {Set<string>}
+ * Rules with managed_by_libraries in intelligence.json — derived at load time.
+ * @type {Map<string, string[]>}
  */
-const ARIA_MANAGED_RULES = new Set([
-  "aria-required-attr",
-  "aria-required-children",
-  "aria-required-parent",
-  "aria-valid-attr",
-  "aria-valid-attr-value",
-  "aria-allowed-attr",
-  "aria-allowed-role",
-  "aria-dialog-name",
-  "aria-toggle-field-name",
-  "aria-prohibited-attr",
-]);
-
-/**
- * Known UI libraries that handle accessibility automatically.
- * @type {Set<string>}
- */
-const MANAGED_LIBS = new Set([
-  "radix",
-  "headless-ui",
-  "chakra",
-  "mantine",
-  "material-ui",
-]);
+const MANAGED_RULES = new Map(
+  Object.entries(INTELLIGENCE.rules)
+    .filter(([, rule]) => Array.isArray(rule.managed_by_libraries))
+    .map(([id, rule]) => [id, rule.managed_by_libraries]),
+);
 
 /**
  * Maps detected framework IDs to their respective keys in intelligence.json.
@@ -253,13 +234,15 @@ function getFileSearchPattern(framework, codeLang) {
 
 /**
  * Checks if a rule is typically managed by a UI library like Radix or Headless UI.
+ * Uses managed_by_libraries from intelligence.json instead of hardcoded lists.
  * @param {string} ruleId - The ID of the accessibility rule.
  * @param {string[]} uiLibraries - List of detected UI libraries.
  * @returns {string|null} The name of the managing library or null.
  */
 function getManagedByLibrary(ruleId, uiLibraries) {
-  if (!ARIA_MANAGED_RULES.has(ruleId)) return null;
-  const managed = uiLibraries.filter((lib) => MANAGED_LIBS.has(lib));
+  const allowedLibs = MANAGED_RULES.get(ruleId);
+  if (!allowedLibs) return null;
+  const managed = uiLibraries.filter((lib) => allowedLibs.includes(lib));
   if (managed.length === 0) return null;
   return managed.join(", ");
 }
