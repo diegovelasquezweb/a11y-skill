@@ -10,6 +10,18 @@ metadata:
 
 # Web Accessibility Audit — Agent Playbook
 
+## Initialization
+
+Before the first audit, ensure the `/a11y` slash command is available by initializing the project-level workflow. See [references/platform-setup.md](references/platform-setup.md) for full technical specifications for each agent.
+
+**If missing**:
+
+1. Identify your environment (Antigravity, Windsurf, etc.).
+2. Create the appropriate workflow directory (e.g., `.agent/workflows/` or `.windsurf/workflows/`).
+3. Write the `a11y.md` workflow file using the template defined in [references/platform-setup.md](references/platform-setup.md).
+
+---
+
 ## Constraints
 
 These rules apply at all times, independent of any workflow step.
@@ -64,6 +76,7 @@ The `--base-url` flag requires a full URL with protocol. Normalize the user's in
 Before running, inform the user about route scope:
 
 > "If your site has a **sitemap.xml**, I'll scan every page listed in it. If there's no sitemap, I'll crawl links starting from the homepage — up to **10 pages by default**. You can adjust this:
+>
 > - **More pages (no sitemap)**: `--max-routes 30` (or set `maxRoutes` in the config for all future runs)
 > - **Specific pages only**: `--routes /,/about,/contact`"
 
@@ -84,6 +97,7 @@ node scripts/run-audit.mjs --base-url <URL> --skip-reports
 After the scan completes, ask whether the user wants visual reports:
 
 > "Audit complete — I have the remediation roadmap ready. Would you also like me to generate visual reports?
+>
 > - **HTML Dashboard** — interactive web report with severity cards, compliance score, and evidence screenshots.
 > - **PDF Executive Summary** — formal A4 document for clients or stakeholders.
 > - **Both**
@@ -114,6 +128,7 @@ open audit/report.pdf    # PDF summary
 If the script fails (network error, Chromium crash, timeout):
 
 > "The audit failed: `[error message]`. This could be a network issue, the site may be down, or the URL may be incorrect. Would you like me to:
+>
 > - **Retry** the same URL
 > - **Try a different URL**
 > - **Skip** and troubleshoot manually"
@@ -129,6 +144,7 @@ Read `audit/remediation.md` and:
 5. Ask the user how to proceed:
 
 > "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). How would you like to proceed?
+>
 > - **Severity by severity** (recommended) — I'll fix one severity group at a time with a checkpoint after each so you can verify. Safest approach.
 > - **Fix all structural** — I'll apply all structural fixes (ARIA, alt text, labels, DOM order) at once. Style changes (colors, font sizes) will still require your approval separately.
 > - **Only critical** — fix only Critical severity issues for now."
@@ -170,6 +186,7 @@ If the user chose **severity by severity** (default):
 If the user chose **fix all structural**: apply all severity groups in a single pass, then report all modified files at once:
 
 > "All structural fixes applied — 8 files modified across 12 issues. Here's the full list:
+>
 > - `Header.tsx`: added `aria-label` to nav, fixed heading hierarchy
 > - `Footer.astro`: added `role="contentinfo"`, missing `lang` attribute
 > - `Card.tsx`: added `alt` text to images
@@ -184,6 +201,7 @@ These can change the site's appearance. **Always show the exact proposed changes
 Example:
 
 > "I found 3 style-dependent issues that affect your site's visual design. These require your review:
+>
 > - `color-contrast` on `.hero-title`: change `color` from `#999` → `#595959` (contrast ratio 3.2:1 → 7:1)
 > - `color-contrast` on `.nav-link`: change `color` from `#aaa` → `#767676`
 > - `font-size` on `.fine-print`: change from `10px` → `12px`
@@ -198,6 +216,7 @@ Process the "WCAG 2.2 Static Code Checks" section from `audit/remediation.md`:
 2. Present confirmed violations as a batch and wait for permission before applying:
 
 > "I found 2 additional issues from static code analysis that the automated scanner can't detect:
+>
 > - `ProductCard.tsx:45` — `<div onClick={...}>` used as a button without keyboard support. Should be a `<button>` or add `role="button"`, `tabIndex={0}`, and `onKeyDown`.
 > - `Modal.tsx:12` — focus is not trapped inside the modal when open. Users can Tab to elements behind the overlay.
 >
@@ -214,6 +233,7 @@ node scripts/run-audit.mjs --base-url <URL> --skip-reports
 If the audit is clean, proceed to Step 4. If **new issues or regressions** appear (not previously seen), present them and restart from 3a. Issues the user already declined do not trigger a restart.
 
 > "The verification re-audit found 2 new issues that weren't in the original scan — likely caused by the fixes we applied:
+>
 > - `heading-order` on `/about`: the `<h2>` we added created a gap in heading hierarchy (missing `<h3>`).
 > - `aria-required-attr` on `SearchForm.tsx`: the `role="combobox"` we added requires `aria-expanded`.
 >
@@ -226,6 +246,7 @@ If the audit is clean, proceed to Step 4. If **new issues or regressions** appea
 3. Present manual verification checks the user must perform. These cannot be automated — list only the ones relevant to the project:
 
 > "The automated audit is complete. These checks require human verification — I can't test them for you:
+>
 > - **Keyboard navigation**: Can you Tab through all interactive elements? Is the focus ring visible?
 > - **Focus order**: Does the tab sequence follow a logical reading order?
 > - **Screen reader**: Do page announcements make sense? (Test with VoiceOver on macOS or NVDA on Windows)
@@ -237,6 +258,7 @@ If the audit is clean, proceed to Step 4. If **new issues or regressions** appea
 4. Offer to generate (or regenerate) visual reports reflecting the final state:
 
 > "Would you like me to generate final reports?
+>
 > - **HTML Dashboard** — interactive web report with the updated compliance score.
 > - **PDF Executive Summary** — formal document to share with clients or stakeholders.
 > - **Both**
@@ -271,17 +293,7 @@ Example (complete):
 
 **CLI flags** are for per-execution decisions — parameters that change between runs. **`a11y.config.json`** is for per-project decisions — settings that persist across all future runs.
 
-**Config location**: `<project-root>/audit/a11y.config.json`. This file does not exist by default — create it only when the user requests a persistent setting.
-
-| User instruction                 | Action                                         | Why                    |
-| -------------------------------- | ---------------------------------------------- | ---------------------- |
-| "Audit this site"                | CLI: `--base-url https://...`                  | Changes every run      |
-| "Use mobile viewport"            | CLI: `--viewport 375x812`                      | Varies per audit       |
-| "This project is Shopify"        | Config: `"framework": "shopify"`               | Permanent project fact |
-| "Always ignore color-contrast"   | Config: `"ignoreFindings": ["color-contrast"]` | Persistent decision    |
-| "Exclude the third-party widget" | Config: `"excludeSelectors": [".widget"]`      | Persistent exclusion   |
-
-**Decision rule**: If the user's instruction implies "always" or "for this project", edit `audit/a11y.config.json`. If it implies "this time" or is a runtime parameter, use a CLI flag.
+For a full list of configuration keys, CLI equivalents, and decision examples, see [references/audit-config.md](references/audit-config.md).
 
 ### Managing the config
 
@@ -290,14 +302,3 @@ When creating or updating the config:
 1. Read the existing file at `audit/a11y.config.json` (it may not exist yet).
 2. Merge the new key into the existing object (do not overwrite unrelated keys).
 3. Write the updated JSON back to `audit/a11y.config.json`.
-
-Example — user says "Always ignore color-contrast":
-
-```json
-// audit/a11y.config.json
-{
-  "ignoreFindings": ["color-contrast"]
-}
-```
-
-For the full schema of all keys and their CLI equivalents, see [references/audit-config.md](references/audit-config.md).

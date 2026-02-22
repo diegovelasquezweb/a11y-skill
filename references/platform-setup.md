@@ -1,20 +1,18 @@
 # Platform-Specific Installation
 
 ## Contents
+
 - [Antigravity Only] Workflow Setup
 - [Windsurf Only] Workflow Setup
 - [Codex Only] No Local Setup
 - [Gemini CLI Only] No Local Setup
 - Platform-Specific Runtime Notes
 
-## [Antigravity Only] Workflow Setup
+## [Antigravity Only] Workflow Template
 
-> **CRITICAL**: This section applies EXCLUSIVELY to Google Antigravity. Other agents (Gemini CLI, Claude, Cursor, Windsurf) MUST IGNORE this section.
+> **CRITICAL**: This section applies EXCLUSIVELY to Google Antigravity. Other agents MUST IGNORE this section.
 
-When running in **Antigravity**, the agent ensures the `/a11y` slash command is available by checking the project's local workspace:
-
-1. Check if `.agent/workflows/a11y.md` exists in the current project root.
-2. **If missing**: Create the `.agent/workflows/` directory and write the `a11y.md` workflow file with the following content:
+**Workflow Path**: `.agent/workflows/a11y.md`
 
 ```markdown
 ---
@@ -40,19 +38,13 @@ node scripts/run-audit.mjs --base-url <URL>
 5. Summarize the findings: total issues by severity, top critical/high items, and the report location.
 ```
 
-3. **If present**: Do nothing.
-4. **Other Agents**: Never attempt to list or create `.agent/workflows/` files if you are not Antigravity.
-
 ---
 
-## [Windsurf Only] Workflow Setup
+## [Windsurf Only] Workflow Template
 
-> **CRITICAL**: This section applies EXCLUSIVELY to Windsurf. Other agents (Gemini CLI, Claude, Cursor, Antigravity) MUST IGNORE this section.
+> **CRITICAL**: This section applies EXCLUSIVELY to Windsurf. Other agents MUST IGNORE this section.
 
-When running in **Windsurf**, the agent ensures the `/a11y` slash command is available by checking the project's local workspace:
-
-1. Check if `.windsurf/workflows/a11y.md` exists in the current project root.
-2. **If missing**: Create the `.windsurf/workflows/` directory and write the `a11y.md` workflow file with the following content:
+**Workflow Path**: `.windsurf/workflows/a11y.md`
 
 ```markdown
 ---
@@ -79,21 +71,6 @@ node scripts/run-audit.mjs --base-url <URL>
 5. Summarize the findings: total issues by severity, top critical/high items, and the report location.
 ```
 
-3. **If present**: Do nothing.
-4. **Other Agents**: Never attempt to list or create `.windsurf/workflows/` files if you are not Windsurf.
-
----
-
-## [Codex Only] No Local Setup
-
-Codex activates the skill automatically via `agents/openai.yaml` and `workflows/a11y.md`, both bundled inside the skill installation at `~/.codex/skills/a11y/`. No project-level files are required or allowed to be created by the agent during Codex sessions.
-
----
-
-## [Gemini CLI Only] No Local Setup
-
-Gemini CLI utilizes autonomous activation based on `SKILL.md`. No project-level files or workflows are required or allowed to be created by the agent during Gemini CLI sessions. After activation, the agent should suggest the user to refresh the skills registry by running `/skills reload` if the skill is not immediately available.
-
 ---
 
 ## Platform-Specific Runtime Notes
@@ -104,4 +81,4 @@ If `ReadFile` fails with "Path not in workspace" when reading resources from the
 
 ### Antigravity / Windsurf — Setup Readiness
 
-Ensure the `/a11y` command is enabled via project-specific workflow files (see sections above).
+Initialize workflow files only when they are missing from the project root. See `Initialization` section in `SKILL.md`.

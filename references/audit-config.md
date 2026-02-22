@@ -33,3 +33,28 @@ Prefer CLI flags for these — config serves as fallback defaults.
 | `headless`    | `boolean` | `--headed`       | Run browser in background (default: true).                                                          |
 | `colorScheme` | `string`  | `--color-scheme` | Emulate `"light"` or `"dark"` during the audit.                                                     |
 | `viewports`   | `array`   | `--viewport WxH` | `{ width, height, name }` objects. Only the first entry is used per audit.                          |
+
+---
+
+## Decision Rule: CLI vs Config
+
+Choose based on the **intent** of the instruction:
+
+| User instruction                 | Action                                         | Why                    |
+| -------------------------------- | ---------------------------------------------- | ---------------------- |
+| "Audit this site"                | CLI: `--base-url https://...`                  | Changes every run      |
+| "Use mobile viewport"            | CLI: `--viewport 375x812`                      | Varies per audit       |
+| "This project is Shopify"        | Config: `"framework": "shopify"`               | Permanent project fact |
+| "Always ignore color-contrast"   | Config: `"ignoreFindings": ["color-contrast"]` | Persistent decision    |
+| "Exclude the third-party widget" | Config: `"excludeSelectors": [".widget"]`      | Persistent exclusion   |
+
+### Example Config File
+
+Example `audit/a11y.config.json` for a Shopify project that ignores color contrast:
+
+```json
+{
+  "framework": "shopify",
+  "ignoreFindings": ["color-contrast"]
+}
+```
