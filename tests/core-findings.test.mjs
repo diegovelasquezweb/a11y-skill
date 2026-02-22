@@ -4,6 +4,7 @@ import {
   scoreLabel,
   normalizeFindings,
   buildSummary,
+  buildPersonaSummary,
 } from "../scripts/report/core-findings.mjs";
 
 describe("core-findings logic", () => {
@@ -116,6 +117,79 @@ describe("core-findings logic", () => {
 
     it("returns empty array for empty findings list", () => {
       expect(normalizeFindings({ findings: [] })).toEqual([]);
+    });
+  });
+
+  describe("buildPersonaSummary", () => {
+    it("categorizes color-contrast under vision", () => {
+      const findings = [
+        {
+          ruleId: "color-contrast",
+          title: "Low contrast",
+          impactedUsers: "Vision",
+        },
+      ];
+      const summary = buildPersonaSummary(findings);
+      expect(summary.vision).toBe(1);
+      expect(summary.screenReader).toBe(0);
+    });
+
+    it("categorizes aria-label under screen-reader", () => {
+      const findings = [
+        {
+          ruleId: "button-name",
+          title: "Missing label",
+          impactedUsers: "Screen reader users",
+        },
+      ];
+      const summary = buildPersonaSummary(findings);
+      expect(summary.screenReader).toBe(1);
+    });
+
+    it("categorizes tabindex under keyboard", () => {
+      const findings = [
+        {
+          ruleId: "tabindex",
+          title: "Invalid tabindex",
+          impactedUsers: "Keyboard users",
+        },
+      ];
+      const summary = buildPersonaSummary(findings);
+      expect(summary.keyboard).toBe(1);
+    });
+
+    it("categorizes heading-order under cognitive", () => {
+      const findings = [
+        {
+          ruleId: "heading-order",
+          title: "Wrong order",
+          impactedUsers: "Users navigating via hierarchy",
+        },
+      ];
+      const summary = buildPersonaSummary(findings);
+      expect(summary.cognitive).toBe(1);
+    });
+
+    it("counts unique issues per persona (not instances)", () => {
+      const findings = [
+        { ruleId: "image-alt", title: "Image 1", impactedUsers: "Vision" },
+        { ruleId: "image-alt", title: "Image 1", impactedUsers: "Vision" }, // Same issue
+      ];
+      const summary = buildPersonaSummary(findings);
+      expect(summary.vision).toBe(1);
+    });
+
+    it("handles multiple personas for a single finding", () => {
+      const findings = [
+        {
+          ruleId: "nested-interactive",
+          title: "Nested",
+          impactedUsers: "Screen reader and keyboard users",
+        },
+      ];
+      const summary = buildPersonaSummary(findings);
+      expect(summary.screenReader).toBe(1);
+      expect(summary.keyboard).toBe(1);
     });
   });
 });

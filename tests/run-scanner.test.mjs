@@ -207,11 +207,48 @@ describe("discoverRoutes (BFS)", () => {
     });
     const originalGoto = page.goto;
     page.goto = async (url) => {
-      if (new URL(url).pathname === "/broken") throw new Error("Navigation failed");
+      if (new URL(url).pathname === "/broken")
+        throw new Error("Navigation failed");
       return originalGoto(url);
     };
     const routes = await discoverRoutes(page, ORIGIN, 10, 2);
     expect(routes).toContain("/contact");
     expect(routes).toContain("/broken");
+  });
+
+  it("handles empty link discovery gracefully", async () => {
+    const page = createMockPage({ "/": [] });
+    const routes = await discoverRoutes(page, ORIGIN, 10, 1);
+    expect(routes).toEqual(["/"]);
+  });
+});
+
+describe("Scanner Batching (Process Simulation)", () => {
+  it("simulates batch execution across multiple tabs", async () => {
+    const routes = ["/1", "/2", "/3", "/4", "/5"];
+    const results = new Array(routes.length);
+    const tabPages = [createMockPage({}), createMockPage({})];
+
+    // Simulate main.mjs batch loop logic
+    for (let i = 0; i < routes.length; i += tabPages.length) {
+      const batch = [];
+      for (let j = 0; j < tabPages.length && i + j < routes.length; j++) {
+        const idx = i + j;
+        const tabPage = tabPages[j];
+        batch.push(
+          (async () => {
+            await tabPage.goto(`${ORIGIN}${routes[idx]}`);
+            results[idx] = { path: routes[idx], status: "done" };
+          })(),
+        );
+      }
+      await Promise.all(batch);
+    }
+
+    expect(results.length).toBe(5);
+    expect(results.every((r) => r.status === "done")).toBe(true);
+    // Verify tabs were reused
+    expect(tabPages[0].navigations.length).toBe(3); // /1, /3, /5
+    expect(tabPages[1].navigations.length).toBe(2); // /2, /4
   });
 });

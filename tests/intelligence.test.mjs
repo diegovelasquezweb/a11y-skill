@@ -38,13 +38,22 @@ let axeRules = null;
 
 beforeAll(async () => {
   try {
-    const axePath = path.join(__dirname, "../node_modules/axe-core/axe.js");
+    // Robust path resolution for axe-core
+    const axeRelativePath = "../node_modules/axe-core/axe.js";
+    const axePath = path.resolve(__dirname, axeRelativePath);
+
+    if (!fs.existsSync(axePath)) {
+      log.warn(`Axe-core not found at ${axePath}, skipping coverage tests.`);
+      return;
+    }
+
     const axe = await import(pathToFileURL(axePath).href);
     axeRules = Object.fromEntries(
       (axe.default ?? axe).getRules().map((r) => [r.ruleId, r]),
     );
-  } catch {
+  } catch (error) {
     // axe-core unavailable — coverage checks will be skipped
+    console.warn(`Failed to load axe-core for tests: ${error.message}`);
   }
 });
 
