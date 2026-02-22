@@ -40,9 +40,6 @@ This skill follows the [Agent Skills standard](https://agentskills.io) and is al
 
 Initialize a scan to discover vulnerabilities and generate a compliance baseline:
 
-```bash
-"Audit my local dev server"
-```
 
 ```bash
 "Check accessibility localhost:3000"
