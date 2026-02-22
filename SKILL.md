@@ -39,7 +39,11 @@ Audit Progress:
 
 ### Step 1 — Run the audit
 
-If the user did not provide a URL, ask for it before proceeding.
+If the user did not provide a URL, ask for it before proceeding. The `--base-url` flag requires a full URL with protocol. Normalize the user's input before running:
+
+- `"localhost:3000"` → `http://localhost:3000`
+- `"mysite.com"` → `https://mysite.com`
+- `"https://example.com"` → use as-is
 
 Run the audit with `--skip-reports` by default (faster — only generates the remediation guide the agent needs):
 
@@ -144,20 +148,31 @@ If **new issues or regressions** appear (not previously seen), present them and 
 
 1. Summarize: total issues found, issues resolved, files modified, remaining issues (if any).
 2. If all issues are resolved, confirm the site now passes WCAG 2.2 AA automated checks.
-3. Offer to generate (or regenerate) visual reports reflecting the final state:
+3. Present manual verification checks the user must perform. These cannot be automated — list only the ones relevant to the project:
 
-> "All 12 issues resolved across 7 files. Your site now passes WCAG 2.2 AA automated checks. Would you like me to generate final reports?
+> "The automated audit is complete. These checks require human verification — I can't test them for you:
+> - **Keyboard navigation**: Can you Tab through all interactive elements? Is the focus ring visible?
+> - **Focus order**: Does the tab sequence follow a logical reading order?
+> - **Screen reader**: Do page announcements make sense? (Test with VoiceOver on macOS or NVDA on Windows)
+> - **Motion & animation**: Can users who are sensitive to motion use the site comfortably? (Check `prefers-reduced-motion`)
+> - **Zoom**: Does the page remain usable at 200% browser zoom?
+>
+> If you generated the HTML report, it includes an interactive checklist to track these."
+
+4. Offer to generate (or regenerate) visual reports reflecting the final state:
+
+> "Would you like me to generate final reports?
 > - **HTML Dashboard** — interactive web report with the updated compliance score.
 > - **PDF Executive Summary** — formal document to share with clients or stakeholders.
 > - **Both**
 > - **No thanks**"
 
-4. If the user requests reports, generate and open them (same commands as Step 1).
-5. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
+5. If the user requests reports, generate and open them (same commands as Step 1).
+6. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
 
 Example (complete):
 
-> "All 12 issues resolved across 7 files. Your site now passes WCAG 2.2 AA automated checks. The final HTML report is open in your browser. Great work investing in accessibility — this directly improves the experience for users with disabilities and strengthens your legal compliance. Next steps: schedule periodic re-audits, and consider testing with a screen reader (VoiceOver, NVDA) for manual coverage."
+> "All 12 issues resolved across 7 files. Your site now passes WCAG 2.2 AA automated checks. Please verify the 5 manual checks above before considering the audit complete. The final HTML report is open in your browser — it includes an interactive checklist for tracking them. Great work investing in accessibility — this directly improves the experience for users with disabilities and strengthens your legal compliance."
 
 ## Edge Cases
 

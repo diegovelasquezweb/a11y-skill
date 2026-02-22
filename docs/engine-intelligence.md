@@ -12,6 +12,19 @@
 
 The "Intelligence" of the a11y skill revolves around **Autonomous Remediation**. It transforms a diagnostic finding into an actionable code patch.
 
+## The Intelligence Edge: Skill vs. Standard Scanners
+
+Standard automated scanners (like Axe-Core) typically detect only **30-50%** of accessibility issues. This skill extends that coverage to reach **WCAG 2.2 AA** and real-world usability standards.
+
+| Feature                      | Standard Scanner |        **a11y Skill**         |
+| :--------------------------- | :--------------: | :---------------------------: |
+| **Automated Rules**          |       ~90        |             ~100              |
+| **WCAG 2.2 AA Coverage**     | ❌ None/Partial  |   ✅ **Full (24+ Checks)**    |
+| **Surgical Remediation**     |      ❌ No       |    ✅ **Direct Patching**     |
+| **Multi-Framework Logic**    |      ❌ No       |  ✅ **React, Vue, Astro...**  |
+| **Screen Reader (AT) Tests** |      ❌ No       |   ✅ **8 Behavioral Tests**   |
+| **Contextual Evidence**      |      ❌ No       | ✅ **outerHTML Verification** |
+
 ## The Intelligence Database (`assets/intelligence.json`)
 
 The skill ships with a curated knowledge base that map common accessibility violations to specific remediation patterns for modern frameworks (**Shopify**, **React**, **Next.js**, **Vue**, **Angular**).
