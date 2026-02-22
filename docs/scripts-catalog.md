@@ -15,9 +15,12 @@ When you trigger an audit (e.g., `pnpm a11y`), the engine follows this linear pi
 flowchart TD
     A[run-audit.mjs] -- 1 --> C[run-scanner.mjs]
     A -- 2 --> D[run-analyzer.mjs]
-    A -- 3 --> E[build-report-html.mjs]
-    A -- 4 --> G[build-report-pdf.mjs]
-    A -- 5 --> F[build-report-md.mjs]
+    subgraph Parallel Report Building
+    E[build-report-html.mjs]
+    G[build-report-pdf.mjs]
+    F[build-report-md.mjs]
+    end
+    D -- 3 --> Parallel Report Building
 
     classDef default font-family:Inter,sans-serif,font-size:12px;
     classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a;
@@ -37,7 +40,6 @@ flowchart TD
 
 ### 2. Validation & Setup
 
-- **`validate-urls.mjs`**: Pre-scan validation. Checks if the target URLs are reachable and properly formatted before spinning up the browser.
 - **`check-toolchain.mjs`**: A diagnostic utility to verify the environment (Node.js version, installed dependencies like Playwright) and troubleshoot installation issues.
 
 ### 3. Core Engine
@@ -45,7 +47,7 @@ flowchart TD
 - **`run-scanner.mjs`**: The "Eyes". Uses Playwright and Axe-core to perform the technical scan on the target routes. It generates the raw JSON results with all DOM violations.
 - **`run-analyzer.mjs`**: The "Brain". Enriches the raw scan results using the internal Intelligence Database. It generates the "Surgical Selectors" and maps findings to WCAG criteria.
 
-### 4. Reporting & Delivery
+### 4. Reporting & Delivery (Executed in parallel)
 
 - **`build-report-html.mjs`**: The "Designer". Transforms analyzed findings into the interactive HTML dashboard.
 - **`build-report-pdf.mjs`**: The "Executive". Generates a high-fidelity PDF summary for stakeholders, derived from the HTML content.

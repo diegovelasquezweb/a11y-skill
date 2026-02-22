@@ -40,6 +40,7 @@ Execution & Emulation:
   --framework <val>       Override auto-detected framework (react|vue|angular|svelte|astro|shopify|wordpress|drupal).
   --viewport <WxH>        Viewport dimensions as WIDTHxHEIGHT (e.g., 375x812 for mobile).
   --headed                Run browser in visible mode (overrides headless).
+  --with-reports          Generate HTML and PDF reports (requires --output).
   --skip-reports          Omit HTML and PDF report generation (default).
   --wait-ms <num>         Time to wait after page load (default: 2000).
   --timeout-ms <num>      Network timeout (default: 30000).
