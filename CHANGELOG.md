@@ -9,6 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0] — 2026-02-21
+
+### Added
+- BFS multi-level route discovery with configurable `crawlDepth` (1-3, default: 2) — replaces single-level link scraping
+- `--crawl-depth` CLI flag for scanner and orchestrator
+- Sitemap + crawl supplementation: if sitemap doesn't fill `maxRoutes`, BFS crawl supplements remaining budget
+- `references/source-patterns.md` — framework & CMS file location patterns (Next.js, Nuxt, React, Vue, Angular, Astro, Gatsby, Svelte, Shopify, WordPress) and Tailwind v3/v4 design token paths
+- `.gitignore` auto-append: pipeline adds `audit/` to `.gitignore` automatically when the file exists; warns user to create one if absent
+- Guardrail: style/visual changes (colors, fonts, spacing, layouts) require explicit user approval — fixes must be structural/semantic unless approved
+- Error recovery instructions: audit script failure handling (Step 1) and certification regression loop (Step 3d)
+- Step 4 — Deliver results: summary, report paths, accessibility encouragement, and next steps
+- Evaluation scenarios (`evals/`): 10 test cases covering basic audit, fix checkpoints, user decline, auth routes, script failure, style separation, framework detection, managed components, config customization, and gitignore behavior
+- Model testing matrix in `evals/README.md` for Antigravity, Windsurf, Sonnet, and Gemini CLI
+
+### Changed
+- SKILL.md rewritten as a sequential 4-step playbook following Claude Skills best practices
+- Workflow restructured: Audit Workflow + Fix Workflow + Manual Checks → single `## Workflow` with Steps 1-4
+- Fix workflow split into sub-phases: 3a (structural by severity), 3b (style-dependent with approval gate), 3c (manual checks), 3d (certification audit)
+- Description rewritten: includes trigger context ("Use when...") and toolchain details, removed philosophy statements
+- Dead instructions removed: `--skip-reports` / Surgery Mode references (no intermediate scans exist)
+- Certification loop guard: only new issues/regressions trigger restart — user-declined issues do not loop
+- `references/platform-setup.md` now includes a table of contents (>100 lines best practice)
+- `crawlDepth` added to `a11y.config.json` schema and config reference table
+- Test suite expanded from 764 to 772 tests (8 BFS discovery tests)
+
+### Removed
+- `references/baseline-checks.md` — redundant with axe-core automated checks
+- `references/manual-checks.md` — duplicate of `assets/manual-checks.json` (generated dynamically into `remediation.md`)
+- Philosophy line from SKILL.md intro ("Resolution is the core objective...")
+
+---
+
 ## [0.4.0] — 2026-02-21
 
 ### Added
