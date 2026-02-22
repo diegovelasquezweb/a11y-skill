@@ -31,7 +31,7 @@ This skill follows the [Agent Skills standard](https://agentskills.io) and is al
 | :-------------- | :---------------------------------------------- | :------------------------ | :------------------------- |
 | **Antigravity** | `~/.gemini/antigravity/skills/a11y/`            | —                         | `.agent/`, `workflows/`    |
 | **Codex**       | `~/.codex/skills/a11y/`                         | `agents/openai.yaml`      | `workflows/`               |
-| **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`, `.claude/`   | `workflows/`               |
+| **Claude**      | `~/.claude/skills/a11y/`                        | `CLAUDE.md`               | `workflows/`               |
 | **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex)  | `.cursor/rules/`          | `workflows/`               |
 | **Gemini CLI**  | `~/.gemini/skills/a11y/` (or `.agents/skills/`) | `~/.gemini/settings.json` | —                          |
 | **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`              | —                         | `.windsurf/`, `workflows/` |
@@ -39,7 +39,6 @@ This skill follows the [Agent Skills standard](https://agentskills.io) and is al
 ## How to Audit
 
 Initialize a scan to discover vulnerabilities and generate a compliance baseline:
-
 
 ```bash
 "Check accessibility localhost:3000"
