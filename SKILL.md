@@ -1,20 +1,24 @@
 ---
 name: a11y
-description: Detects and fixes WCAG 2.2 AA accessibility issues on websites using automated scanning (axe-core + Playwright). Use when the user requests an accessibility audit, WCAG compliance check, or a11y fixes for a URL.
-compatibility: Requires Node.js 18+, pnpm, and internet access to the target URL. Playwright + Chromium are installed automatically on first run.
+description: Detects and fixes WCAG 2.2 AA accessibility issues on websites using automated scanning (axe-core + Playwright). Use when requested to audit a URL for WCAG compliance or fix accessibility selectors.
+compatibility: Requires Node.js 18+, pnpm, and internet access. Playwright + Chromium are auto-installed on first run.
 license: Proprietary (All Rights Reserved)
 metadata:
   author: diegovelasquezweb
-  version: "0.5.0"
+  version: "0.5.1"
 ---
 
 # Web Accessibility Audit — Agent Playbook
+
+> [!TIP]
+> **Zero-Config Audit**: By default, the tool autodiscovers routes and uses industry-standard rules. Start with a basic audit before exploring advanced configuration.
 
 ## Constraints
 
 These rules apply at all times during audit and fix workflows.
 
 **Never do:**
+
 - Modify source code, config, or dependencies without presenting the change first.
 - Initialize package managers or install/remove dependencies in the audited project.
 - Create or modify `package.json`, lockfiles, or `node_modules` in the audited project.
@@ -25,6 +29,7 @@ These rules apply at all times during audit and fix workflows.
 - Declare "100% accessible" based on a targeted scan. Only a Final Certification Audit can confirm that.
 
 **Always do:**
+
 - Write all outputs in English.
 - Use route paths (`/`, `/products`) as primary locations — local URLs go under `Test Environment`.
 - Prefer DOM/selector evidence over screenshots. Capture screenshots only when tied 1:1 to a specific issue.
@@ -117,24 +122,39 @@ If **new issues or regressions** appear (not previously seen), present them and 
 2. Only the first entry is used per scan — run separate scans for each viewport.
 3. Only flag viewport-specific findings when a violation appears at one breakpoint but not another.
 
+## Troubleshooting & Feedback Loops
+
+If a command fails, use the following guide to self-correct before asking the user.
+
+| Failure                       | Potential Cause                  | Suggested Action                                           |
+| :---------------------------- | :------------------------------- | :--------------------------------------------------------- |
+| **Timeout (30000ms reached)** | Heavy JS payload or slow server. | Increase `--timeout-ms 60000` or use `waitUntil: "load"`.  |
+| **Auth Error (401/403)**      | Protected routes or IP blocking. | Verify URL accessibility or ask user for session cookies.  |
+| **Chromium Error**            | Broken Playwright install.       | Run `npx playwright install chromium` and retry.           |
+| **0 Routes Discovered**       | No same-origin links or SPA.     | Provide a static list of `--routes "/,/about"` to the CLI. |
+
+### Feedback Loop: Verification
+
+After applying a fix, **always re-run the audit** (Step 3d). If the issue persists in the report, double-check that the selector used in your edit matches the one reported in `audit/report.html`.
+
 ## `a11y.config.json` Reference
 
 Persist scan settings across runs by placing this file in the audited project root. All keys are optional — CLI flags take precedence.
 
-| Key                | Type      | Description                                                                                                     |
-| :----------------- | :-------- | :-------------------------------------------------------------------------------------------------------------- |
-| `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                                  |
-| `viewports`        | `array`   | `{ width, height, name }` objects. Only the first entry is used per scan.                                       |
-| `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                             |
-| `crawlDepth`       | `number`  | How deep to follow links during route discovery (1-3, default: 2).                                              |
-| `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                         |
-| `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                          |
-| `axeRules`         | `object`  | Fine-grained Axe-Core rule config passed directly to the scanner.                                               |
-| `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                        |
-| `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                               |
-| `onlyRule`         | `string`  | Only check for this specific rule ID.                                                                           |
-| `waitMs`           | `number`  | Timeout ceiling for dynamic content (default: 2000).                                                            |
-| `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                                |
-| `waitUntil`        | `string`  | Playwright load event: `"domcontentloaded"` \| `"load"` \| `"networkidle"` (default: `"domcontentloaded"`).     |
-| `headless`         | `boolean` | Run browser in background (default: true).                                                                      |
-| `framework`        | `string`  | Override auto-detected framework. Accepted: `"shopify"` \| `"wordpress"` \| `"drupal"` \| `"generic"`.         |
+| Key                | Type      | Description                                                                                                 |
+| :----------------- | :-------- | :---------------------------------------------------------------------------------------------------------- |
+| `colorScheme`      | `string`  | Emulate `"light"` or `"dark"` during scanning.                                                              |
+| `viewports`        | `array`   | `{ width, height, name }` objects. Only the first entry is used per scan.                                   |
+| `maxRoutes`        | `number`  | Max URLs to discover (default: 10).                                                                         |
+| `crawlDepth`       | `number`  | How deep to follow links during route discovery (1-3, default: 2).                                          |
+| `routes`           | `array`   | Static list of paths to scan (overrides autodiscovery).                                                     |
+| `complianceTarget` | `string`  | Report label (default: "WCAG 2.2 AA").                                                                      |
+| `axeRules`         | `object`  | Fine-grained Axe-Core rule config passed directly to the scanner.                                           |
+| `ignoreFindings`   | `array`   | Axe rule IDs to silence.                                                                                    |
+| `excludeSelectors` | `array`   | DOM selectors to ignore entirely.                                                                           |
+| `onlyRule`         | `string`  | Only check for this specific rule ID.                                                                       |
+| `waitMs`           | `number`  | Timeout ceiling for dynamic content (default: 2000).                                                        |
+| `timeoutMs`        | `number`  | Network timeout for page loads (default: 30000).                                                            |
+| `waitUntil`        | `string`  | Playwright load event: `"domcontentloaded"` \| `"load"` \| `"networkidle"` (default: `"domcontentloaded"`). |
+| `headless`         | `boolean` | Run browser in background (default: true).                                                                  |
+| `framework`        | `string`  | Override auto-detected framework. Accepted: `"shopify"` \| `"wordpress"` \| `"drupal"` \| `"generic"`.      |
