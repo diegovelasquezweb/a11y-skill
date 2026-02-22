@@ -62,7 +62,19 @@
       ]
     },
     "aria-allowed-attr": {
-      "managed_by_libraries": ["radix", "headless-ui", "chakra", "mantine", "material-ui"],
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Remove or replace ARIA attributes that are not supported by the element's role. Each ARIA role defines a specific set of allowed states and properties — using unsupported attributes causes unpredictable screen reader behavior.",
         "code": "<!-- aria-checked is NOT allowed on role='textbox' -->\n<!-- Before: -->\n<div role=\"textbox\" aria-checked=\"true\" contenteditable=\"true\">Text</div>\n<!-- After: remove the unsupported attribute -->\n<div role=\"textbox\" contenteditable=\"true\">Text</div>\n\n<!-- aria-expanded IS allowed on role='button' -->\n<button aria-expanded=\"false\" aria-controls=\"menu-list\">Menu</button>"
@@ -96,7 +108,19 @@
       ]
     },
     "aria-allowed-role": {
-      "managed_by_libraries": ["radix", "headless-ui", "chakra", "mantine", "material-ui"],
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Remove or change the role attribute so it is appropriate for the element. Certain HTML elements restrict which ARIA roles can be applied — for example, <input type='text'> cannot have role='button'. Use a native element that matches the desired role instead.",
         "code": "<!-- Invalid: role='button' on a text input -->\n<!-- <input type=\"text\" role=\"button\"> -->\n\n<!-- Valid: use a <button> for button semantics -->\n<button type=\"button\">Click me</button>\n\n<!-- Valid: role='search' on a <form> is allowed -->\n<form role=\"search\">\n  <label for=\"q\">Search</label>\n  <input type=\"search\" id=\"q\">\n</form>\n\n<!-- Valid: role='presentation' on a layout <table> -->\n<table role=\"presentation\">\n  <tr><td>Layout content</td></tr>\n</table>"
@@ -208,7 +232,19 @@
       ]
     },
     "aria-dialog-name": {
-      "managed_by_libraries": ["radix", "headless-ui", "chakra", "mantine", "material-ui"],
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Ensure every element with role='dialog' or role='alertdialog' has an accessible name via aria-label or aria-labelledby pointing to a visible heading inside the dialog.",
         "code": "<!-- Using aria-labelledby (preferred — references visible heading): -->\n<div role=\"dialog\" aria-labelledby=\"dialog-title\" aria-modal=\"true\">\n  <h2 id=\"dialog-title\">Confirm deletion</h2>\n  <p>Are you sure you want to delete this item?</p>\n  <button>Cancel</button>\n  <button>Delete</button>\n</div>\n\n<!-- Using aria-label (when no visible heading exists): -->\n<div role=\"alertdialog\" aria-label=\"Session expiring\" aria-modal=\"true\">\n  <p>Your session will expire in 2 minutes.</p>\n  <button>Extend session</button>\n</div>"
@@ -348,7 +384,19 @@
       ]
     },
     "aria-prohibited-attr": {
-      "managed_by_libraries": ["radix", "headless-ui", "chakra", "mantine", "material-ui"],
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Remove ARIA attributes that are prohibited for the element's role. Each ARIA role has a defined set of allowed attributes — attributes outside that set are ignored or cause incorrect AT behavior.",
         "code": "<!-- aria-label is prohibited on role='presentation' and role='none' -->\n<!-- Before: -->\n<div role=\"none\" aria-label=\"Section wrapper\">...</div>\n<!-- After: -->\n<div>...</div>\n\n<!-- aria-checked is prohibited on role='button' -->\n<!-- Before: -->\n<button role=\"button\" aria-checked=\"true\">Toggle</button>\n<!-- After (use role='switch' for toggle state): -->\n<button role=\"switch\" aria-checked=\"true\">Toggle</button>"
@@ -386,7 +434,19 @@
       ]
     },
     "aria-required-attr": {
-      "managed_by_libraries": ["radix", "headless-ui", "chakra", "mantine", "material-ui"],
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Add the missing required ARIA attribute(s) for the element's role. Common examples: role='combobox' requires aria-expanded and aria-controls; role='slider' requires aria-valuenow, aria-valuemin, and aria-valuemax; role='checkbox' requires aria-checked.",
         "code": "<!-- combobox requires: aria-expanded + aria-controls -->\n<div role=\"combobox\" aria-expanded=\"false\" aria-controls=\"listbox-id\" aria-haspopup=\"listbox\">\n  <input type=\"text\" aria-autocomplete=\"list\">\n</div>\n<ul role=\"listbox\" id=\"listbox-id\">...</ul>\n\n<!-- scrollbar requires: aria-controls + aria-valuenow + aria-valuemin + aria-valuemax -->\n<div role=\"scrollbar\" aria-controls=\"scrollable-region\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\"></div>"
@@ -432,7 +492,19 @@
       ]
     },
     "aria-required-children": {
-      "managed_by_libraries": ["radix", "headless-ui", "chakra", "mantine", "material-ui"],
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Add the required child roles to composite ARIA elements. For example, give role='list' children with role='listitem', and give role='tablist' children with role='tab'.",
         "code": "<!-- role='list' requires role='listitem' children -->\n<div role=\"list\">\n  <div role=\"listitem\">Item 1</div>\n  <div role=\"listitem\">Item 2</div>\n</div>\n\n<!-- role='tablist' requires role='tab' children -->\n<div role=\"tablist\" aria-label=\"Settings\">\n  <button role=\"tab\" aria-selected=\"true\" aria-controls=\"panel-1\">General</button>\n  <button role=\"tab\" aria-selected=\"false\" aria-controls=\"panel-2\">Advanced</button>\n</div>"
@@ -458,7 +530,19 @@
       ]
     },
     "aria-required-parent": {
-      "managed_by_libraries": ["radix", "headless-ui", "chakra", "mantine", "material-ui"],
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Nest each ARIA role inside its required parent role. For example, wrap role='listitem' inside role='list', and wrap role='tab' inside role='tablist'.",
         "code": "<!-- role='listitem' must be inside role='list' -->\n<div role=\"list\">\n  <div role=\"listitem\">Item 1</div>\n  <div role=\"listitem\">Item 2</div>\n</div>\n\n<!-- role='tab' must be inside role='tablist' -->\n<div role=\"tablist\" aria-label=\"Account settings\">\n  <button role=\"tab\" aria-selected=\"true\">Profile</button>\n  <button role=\"tab\" aria-selected=\"false\">Security</button>\n</div>"
@@ -555,7 +639,19 @@
       "fix_difficulty_notes": "role='text' is a convenience for preventing AT from splitting visually contiguous text into separate announcements (e.g., prices with styled currency symbols). It is not a WCAG requirement — if removing it causes no usability regression, removal is the safest fix. If role='text' is needed, audit all descendants to ensure none are focusable (no links, buttons, inputs, or elements with tabindex >= 0)."
     },
     "aria-toggle-field-name": {
-      "managed_by_libraries": ["radix", "headless-ui", "chakra", "mantine", "material-ui"],
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Add an accessible name to toggle input fields (checkbox, radio, switch) via a <label>, aria-label, or aria-labelledby.",
         "code": "<!-- Checkbox with associated label: -->\n<label for=\"subscribe\">\n  <input type=\"checkbox\" id=\"subscribe\"> Subscribe to newsletter\n</label>\n\n<!-- Custom ARIA switch with aria-label: -->\n<button role=\"switch\" aria-checked=\"false\" aria-label=\"Enable dark mode\">\n  <span class=\"toggle-knob\" aria-hidden=\"true\"></span>\n</button>"
@@ -625,7 +721,19 @@
       ]
     },
     "aria-valid-attr": {
-      "managed_by_libraries": ["radix", "headless-ui", "chakra", "mantine", "material-ui"],
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Replace any misspelled or invented aria-* attribute names with valid ARIA attribute names from the WAI-ARIA specification. Invalid aria-* attributes are silently ignored by assistive technologies.",
         "code": "<!-- Before: misspelled or invalid ARIA attributes -->\n<button aria-labelled=\"Save\">Save</button>  <!-- should be aria-label -->\n<div aria-role=\"alert\">Error</div>  <!-- aria-role is not valid; use role=\"alert\" -->\n\n<!-- After: corrected attributes -->\n<button aria-label=\"Save\">Save</button>\n<div role=\"alert\">Error</div>"
@@ -647,7 +755,19 @@
       ]
     },
     "aria-valid-attr-value": {
-      "managed_by_libraries": ["radix", "headless-ui", "chakra", "mantine", "material-ui"],
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Set a valid value for the ARIA attribute. Consult the WAI-ARIA spec for the list of allowed values.",
         "code": "<!-- Common invalid → valid corrections: -->\n\n<!-- aria-live: must be 'off' | 'polite' | 'assertive' -->\n<div aria-live=\"polite\">...</div>  <!-- not aria-live=\"yes\" -->\n\n<!-- aria-expanded: must be 'true' | 'false' -->\n<button aria-expanded=\"false\">Menu</button>  <!-- not aria-expanded=\"0\" -->\n\n<!-- aria-haspopup: must be 'true' | 'false' | 'menu' | 'listbox' | 'tree' | 'grid' | 'dialog' -->\n<button aria-haspopup=\"menu\">Options</button>  <!-- not aria-haspopup=\"dropdown\" -->"

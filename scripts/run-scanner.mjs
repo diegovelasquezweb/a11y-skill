@@ -346,6 +346,12 @@ async function detectProjectContext(page) {
         ["@mantine", "mantine"],
         ["@mui", "material-ui"],
         ["antd", "ant-design"],
+        ["@shopify/polaris", "polaris"],
+        ["@react-aria", "react-aria"],
+        ["ariakit", "ariakit"],
+        ["shadcn-ui", "shadcn"],
+        ["primevue", "primevue"],
+        ["vuetify", "vuetify"],
       ];
       for (const [prefix, name] of LIB_SIGNALS) {
         if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
