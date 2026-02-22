@@ -58,11 +58,13 @@ Read `audit/remediation.md` and:
 5. Provide the absolute path to `audit/report.html` as visual proof.
 
 Example:
+
 > "I found 12 accessibility issues (3 Critical, 5 High, 4 Medium). The full visual report is at `/path/to/audit/report.html`. I have patches ready for all of them — should I apply the fixes?"
 
 For finding field requirements and deliverable format, see [references/report-standards.md](references/report-standards.md).
 
 If the user declines:
+
 > "Understood. Keep in mind that these 12 issues currently prevent users who rely on screen readers, keyboard navigation, or assistive technology from using parts of your site. Unresolved violations may also expose legal risk under ADA, EAA, or EN 301 549. I can revisit these fixes anytime — just ask."
 
 ### Step 3 — Fix
@@ -78,7 +80,9 @@ If the user declines:
 2. Checkpoint — list every file modified and fix applied, ask the user to verify visually.
 
    Example:
+
    > "Critical fixes applied — 3 files modified (`Header.tsx`, `Nav.astro`, `Footer.tsx`). Please verify visually and confirm when ready to proceed with High severity fixes."
+
 3. Repeat for each remaining severity group.
 
 **3b. Style-dependent fixes** (color-contrast, font-size, spacing):
@@ -108,6 +112,7 @@ If **new issues or regressions** appear (not previously seen), present them and 
 4. Recommend next steps: schedule periodic re-audits, test with screen readers, or conduct manual user testing.
 
 Example:
+
 > "All 12 issues resolved across 7 files. Your site now passes WCAG 2.2 AA automated checks. Great work investing in accessibility — this directly improves the experience for users with disabilities and strengthens your legal compliance. Next steps: schedule periodic re-audits, and consider testing with a screen reader (VoiceOver, NVDA) for manual coverage."
 
 ## Edge Cases
@@ -128,14 +133,34 @@ Example:
 
 **Troubleshooting**: If a command fails, see [references/troubleshooting.md](references/troubleshooting.md) to self-correct before asking the user.
 
-## `a11y.config.json`
+## CLI vs `a11y.config.json`
 
-Place this file in the audited project root to persist settings across runs. All keys are optional — CLI flags take precedence. Common keys:
+**CLI flags** are for per-execution decisions — parameters that change between runs. **`a11y.config.json`** is for per-project decisions — settings that persist across all future runs.
 
-- `routes` — static list of paths to audit (overrides autodiscovery)
-- `maxRoutes` — max URLs to discover (default: 10)
-- `viewports` — `{ width, height, name }` objects for responsive testing
-- `ignoreFindings` — axe rule IDs to silence
-- `excludeSelectors` — DOM selectors to skip entirely
+| User instruction                 | Action                                         | Why                    |
+| -------------------------------- | ---------------------------------------------- | ---------------------- |
+| "Audit this site"                | CLI: `--base-url https://...`                  | Changes every run      |
+| "Use mobile viewport"            | CLI: `--viewport 375x812`                      | Varies per audit       |
+| "This project is Shopify"        | Config: `"framework": "shopify"`               | Permanent project fact |
+| "Always ignore color-contrast"   | Config: `"ignoreFindings": ["color-contrast"]` | Persistent decision    |
+| "Exclude the third-party widget" | Config: `"excludeSelectors": [".widget"]`      | Persistent exclusion   |
 
-For the full schema (16 keys), see [references/audit-config.md](references/audit-config.md).
+**Decision rule**: If the user's instruction implies "always" or "for this project", edit `a11y.config.json`. If it implies "this time" or is a runtime parameter, use a CLI flag.
+
+### `a11y.config.json`
+
+Place this file in the audited project root. All keys are optional — CLI flags take precedence when both are set.
+
+**Project-level keys** (edit via config):
+
+- `framework` — override auto-detected framework (`--framework` CLI equivalent)
+- `ignoreFindings` — rule IDs to silence (`--ignore-findings` CLI equivalent)
+- `excludeSelectors` — DOM selectors to skip (`--exclude-selectors` CLI equivalent)
+- `routes` — static list of paths to audit (`--routes` CLI equivalent)
+- `axeRules` — fine-grained axe-core rule config (config-only, no CLI equivalent)
+
+**Execution-level keys** (prefer CLI, config as fallback):
+
+- `maxRoutes`, `waitMs`, `timeoutMs`, `crawlDepth`, `headless`, `colorScheme`, `waitUntil`, `viewports`
+
+For the full schema, see [references/audit-config.md](references/audit-config.md).

@@ -11,7 +11,11 @@
 - [Precedence Logic](#precedence-logic)
 - [Example Config](#example-config-for-a-complex-spa)
 
-The skill uses an optional `a11y.config.json` file in the project root to persist settings across audit runs. This file allows you to define project-specific guardrails and preferences.
+The skill uses an optional `a11y.config.json` file in the project root for **per-project decisions** that persist across all audit runs.
+
+> [!IMPORTANT]
+> **CLI flags** = per-execution (change between runs). **Config file** = per-project (persist forever).
+> If the user says "always" or "for this project", edit the config. If it's a runtime parameter, use a CLI flag.
 
 ## Schema Overview
 

@@ -120,11 +120,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         .join("\n\n");
     })();
 
-    const reproBlock =
-      f.reproduction && f.reproduction.length > 0
-        ? `**To reproduce:**\n${f.reproduction.map((s, i) => `${i + 1}. ${s}`).join("\n")}`
-        : null;
-
     const codeLang = f.fixCodeLang || "html";
     const fixBlock =
       f.fixDescription || f.fixCode
@@ -199,8 +194,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `**Expected Behavior:** ${f.expected}`,
       ``,
       `**Observed Violation:** ${f.actual}`,
-      reproBlock ? `` : null,
-      reproBlock,
       searchPatternBlock ? `` : null,
       searchPatternBlock,
       ``,
@@ -217,10 +210,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       evidenceHtml ? `${evidenceLabel}\n${evidenceHtml}` : null,
       ruleRef ? `` : null,
       ruleRef,
-      f.fixDescription || f.fixCode ? `` : null,
-      f.fixDescription || f.fixCode
-        ? `**Context & Patterns:** ${f.recommendedFix}`
-        : null,
       relatedBlock ? `` : null,
       relatedBlock,
       verifyBlock ? `` : null,

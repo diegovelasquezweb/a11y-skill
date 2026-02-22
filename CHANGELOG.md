@@ -22,11 +22,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `.gitignore` constraint elevated to pre-audit precondition (was post-delivery reminder)
   - Removed `> [!TIP]` callout (GitHub-only rendering, no value to agents)
 - Troubleshooting table moved to `references/troubleshooting.md` (progressive disclosure)
-- `a11y.config.json` reference table moved to `references/config.md` (progressive disclosure)
+- `a11y.config.json` reference table moved to `references/audit-config.md` (progressive disclosure)
 - Report route path convention moved to `references/report-standards.md`
 - Analyzer: `recommended_fix` simplified from up to 3 links (APG + a11ySupport + Inclusive Components) to a single reference link (APG preferred, helpUrl fallback) — reduces noise for both HTML report and agent remediation guide
 - Removed unused `A11Y_SUPPORT` and `INCLUSIVE_COMPONENTS` constants from `run-analyzer.mjs`
 - Terminology consistency: "scan" → "audit" in evals (`01-basic-audit.json`, `evals/README.md`)
+- Analyzer: `framework_notes` and `cms_notes` now filtered to only the detected framework — agent receives 1 relevant note per finding instead of 5-7
+- Added `filterNotes()` with `FRAMEWORK_TO_INTEL_KEY` and `FRAMEWORK_TO_CMS_KEY` mappings in `run-analyzer.mjs`
+- Remediation guide (MD): removed `reproduction` steps — agents cannot open a browser, and the selector + search pattern already provide location context
+- Remediation guide (MD): removed redundant "Context & Patterns" block — was duplicating `recommended_fix` (generic link) when intelligence-sourced `fixDescription`/`fixCode` already provided a superior solution
+
+### Added
+- Complete `framework_notes` coverage: added 5-key notes (react, vue, angular, svelte, astro) to `focus-appearance`, `input-image-alt`, `object-alt`, `target-size` in `intelligence.json`
+- Added missing `angular` key to `consistent-help` framework_notes
+- Inline communication examples in SKILL.md for proposal, decline, checkpoint, and delivery moments
+- Common `a11y.config.json` keys documented inline in SKILL.md with link to full schema
 
 ---
 
