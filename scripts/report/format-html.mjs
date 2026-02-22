@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { SEVERITY_ORDER } from "./core-findings.mjs";
 import { escapeHtml, formatMultiline, linkify } from "./core-utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -350,6 +351,40 @@ function buildManualCheckCard(check) {
 /**
  * Builds the entire manual checks section for the dashboard.
  */
+/**
+ * Groups findings by page area and renders sorted issue cards per group.
+ */
+export function buildPageGroupedSection(findings) {
+  if (findings.length === 0) return "";
+
+  const pageGroups = {};
+  for (const f of findings) {
+    if (!pageGroups[f.area]) pageGroups[f.area] = [];
+    pageGroups[f.area].push(f);
+  }
+
+  const sorted = Object.entries(pageGroups).sort(
+    (a, b) => b[1].length - a[1].length,
+  );
+
+  return sorted
+    .map(([page, pageFinding]) => {
+      const cards = pageFinding
+        .sort(
+          (a, b) =>
+            (SEVERITY_ORDER[a.severity] ?? 99) -
+            (SEVERITY_ORDER[b.severity] ?? 99),
+        )
+        .map((f) => buildIssueCard(f))
+        .join("\n");
+
+      return `<div class="page-group mb-10" data-page="${escapeHtml(page)}">
+      ${cards}
+    </div>`;
+    })
+    .join("");
+}
+
 export function buildManualChecksSection() {
   const total = MANUAL_CHECKS.length;
   const cards = MANUAL_CHECKS.map((c) => buildManualCheckCard(c)).join("\n");

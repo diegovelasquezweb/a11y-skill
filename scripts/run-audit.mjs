@@ -209,13 +209,15 @@ async function main() {
       const buildArgs = ["--output", absoluteOutputPath, "--base-url", baseUrl];
       if (target) buildArgs.push("--target", target);
 
+      const pdfOutput = absoluteOutputPath.replace(".html", ".pdf");
+      const pdfArgs = ["--output", pdfOutput, "--base-url", baseUrl];
+      if (target) pdfArgs.push("--target", target);
+
       await Promise.all([
         runScript("build-report-html.mjs", buildArgs),
         runScript("build-report-md.mjs", mdArgs),
+        runScript("build-report-pdf.mjs", pdfArgs),
       ]);
-
-      const pdfOutput = absoluteOutputPath.replace(".html", ".pdf");
-      await runScript("build-report-pdf.mjs", [absoluteOutputPath, pdfOutput]);
 
       console.log(`REPORT_PATH=${absoluteOutputPath}`);
     }

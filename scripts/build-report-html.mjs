@@ -18,16 +18,8 @@ const MANUAL_CHECKS = JSON.parse(fs.readFileSync(manualChecksPath, "utf-8"));
 import {
   buildIssueCard,
   buildManualChecksSection,
-} from "./report/format-html.mjs";
-import {
-  buildPdfExecutiveSummary,
-  buildPdfMethodologySection,
-  buildPdfRiskSection,
-  buildPdfRemediationRoadmap,
-  buildPdfAuditLimitations,
   buildPageGroupedSection,
-  scoreMetrics,
-} from "./report/format-pdf.mjs";
+} from "./report/format-html.mjs";
 
 function printUsage() {
   log.info(`Usage:
@@ -88,11 +80,6 @@ function buildHtml(args, findings, metadata = {}) {
         : `https://${args.baseUrl}`,
     ).hostname;
   } catch {}
-  const coverDate = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 
   const statusColor = hasIssues
     ? "text-rose-600 bg-rose-50 border-rose-200"
@@ -165,12 +152,9 @@ function buildHtml(args, findings, metadata = {}) {
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    /* WEB STYLES (Screen) */
-    @media screen {
-      .pdf-only { display: none !important; }
-      :root {
+    :root {
         --primary-h: 226;
         --primary-s: 70%;
         --primary-l: 50%;
@@ -203,80 +187,6 @@ function buildHtml(args, findings, metadata = {}) {
       .score-gauge { transform: rotate(-90deg); }
       .score-gauge-bg { fill: none; stroke: var(--slate-100); stroke-width: 3; }
       .score-gauge-val { fill: none; stroke-width: 3; stroke-linecap: round; transition: stroke-dasharray 1s ease-out; }
-    }
-
-    /* PDF STYLES (Print) */
-    @media print {
-      .web-only { display: none !important; }
-      .pdf-only { display: block !important; }
-
-      @page {
-        size: A4;
-        margin: 2cm;
-      }
-
-      body {
-        background: white !important;
-        color: black !important;
-        font-family: 'Libre Baskerville', serif !important;
-        font-size: 11pt !important;
-        line-height: 1.6;
-      }
-
-      h1, h2, h3, h4 { font-family: 'Inter', sans-serif !important; color: black !important; margin-top: 1.5rem !important; margin-bottom: 1rem !important; }
-
-      .cover-page {
-        height: 25.5cm;
-        display: flex;
-        flex-direction: column;
-        page-break-after: always;
-      }
-
-      .finding-entry {
-        border-top: 1pt solid black;
-        padding-top: 1.5rem;
-        margin-top: 2rem;
-        page-break-inside: avoid;
-      }
-
-      .severity-tag {
-        font-weight: 800;
-        text-transform: uppercase;
-        border: 1.5pt solid black;
-        padding: 2pt 6pt;
-        font-size: 9pt;
-        margin-bottom: 1rem;
-        display: inline-block;
-      }
-
-      .remediation-box {
-        background-color: #f3f4f6 !important;
-        border-left: 4pt solid black;
-        padding: 1rem;
-        margin: 1rem 0;
-        font-style: italic;
-      }
-
-      pre {
-        background: #f9fafb !important;
-        border: 1pt solid #ddd !important;
-        padding: 10pt !important;
-        font-size: 8pt !important;
-        overflow: hidden !important;
-        white-space: pre-wrap !important;
-      }
-
-      .stats-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 2rem 0;
-      }
-      .stats-table th, .stats-table td {
-        border: 1pt solid black;
-        padding: 10pt;
-        text-align: left;
-      }
-    }
   </style>
   <script type="application/ld+json">
   ${JSON.stringify(
@@ -302,8 +212,7 @@ function buildHtml(args, findings, metadata = {}) {
 </head>
 <body class="text-slate-900 min-h-screen">
 
-  <!-- WEB VERSION -->
-  <div class="web-only">
+  <div>
     <div class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-slate-200/80 shadow-sm" id="navbar">
       <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
         <div class="flex items-center gap-3">
@@ -504,102 +413,11 @@ function buildHtml(args, findings, metadata = {}) {
       </div>
 
       ${buildManualChecksSection()}
-    </div>
-  </div>
 
-  <!-- PDF VERSION (Pure Document Design) -->
-  <div class="pdf-only">
-
-    <!-- Cover -->
-    <div class="cover-page">
-      <!-- Top accent line -->
-      <div style="border-top: 5pt solid #111827; padding-top: 1.3cm;">
-        <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; letter-spacing: 3.5pt; text-transform: uppercase; color: #9ca3af; margin: 0;">Accessibility Assessment</p>
-      </div>
-
-      <!-- Main content -->
-      <div style="flex: 1; padding: 2cm 0 1.5cm 0;">
-        <p style="font-family: 'Inter', sans-serif; font-size: 13pt; color: #6b7280; margin: 0 0 0.4cm 0; font-weight: 400;">${escapeHtml(siteHostname)}</p>
-        <h1 style="font-family: 'Inter', sans-serif !important; font-size: 38pt !important; font-weight: 900 !important; line-height: 1.08 !important; color: #111827 !important; margin: 0 0 1.8cm 0 !important; border: none !important; padding: 0 !important;">Web Accessibility<br>Audit</h1>
-        <div style="border-top: 1.5pt solid #111827; width: 4.5cm; margin-bottom: 1.5cm;"></div>
-
-        <!-- Score + meta -->
-        <div style="display: flex; align-items: flex-start;">
-          <div style="min-width: 7cm;">
-            <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 5pt 0;">Compliance Score</p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 40pt; font-weight: 900; line-height: 1; margin: 0; color: ${score >= 75 ? "#16a34a" : score >= 55 ? "#d97706" : "#dc2626"};">${score}<span style="font-size: 16pt; font-weight: 400; color: #9ca3af;"> / 100</span></p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 9.5pt; font-weight: 700; color: #374151; margin: 5pt 0 0 0;">${scoreMetrics(score).label} &mdash; ${scoreMetrics(score).risk}</p>
-          </div>
-          <div style="border-left: 1pt solid #e5e7eb; padding-left: 2cm;">
-            <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 4pt 0;">Standard</p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 11pt; font-weight: 700; color: #111827; margin: 0 0 1.1cm 0;">${escapeHtml(args.target)}</p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; text-transform: uppercase; letter-spacing: 2.5pt; color: #9ca3af; margin: 0 0 4pt 0;">Audit Date</p>
-            <p style="font-family: 'Inter', sans-serif; font-size: 11pt; font-weight: 700; color: #111827; margin: 0;">${coverDate}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div style="border-top: 1pt solid #e5e7eb; padding-top: 0.6cm; display: flex; justify-content: space-between; align-items: center;">
-        <p style="font-family: 'Inter', sans-serif; font-size: 8pt; color: #9ca3af; margin: 0;">Generated by <strong style="color: #6b7280;">a11y</strong></p>
-        <p style="font-family: 'Inter', sans-serif; font-size: 8pt; color: #9ca3af; margin: 0;">github.com/diegovelasquezweb/a11y</p>
-      </div>
-    </div>
-
-    <!-- 1. Executive Summary -->
-    ${buildPdfExecutiveSummary(args, findings, totals)}
-
-    <!-- 2. Methodology & Scope -->
-    ${buildPdfMethodologySection(args, findings)}
-
-    <!-- 3. Compliance & Legal Risk -->
-    ${buildPdfRiskSection(totals)}
-
-    <!-- 4. Remediation Roadmap -->
-    ${buildPdfRemediationRoadmap(findings)}
-
-    <!-- 5. Issue Summary -->
-    <div style="page-break-before: always;">
-      <h2 style="margin-top: 0;">5. Issue Summary</h2>
-      <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 1rem;">
-        The table below lists all accessibility issues detected during the automated scan.
-        Each issue is identified by severity, affected page, and the user groups it impacts.
-        Full technical detail for developers is provided in the accompanying HTML report.
-      </p>
-      ${
-        findings.length === 0
-          ? `<p style="font-style: italic; color: #6b7280; font-size: 10pt;">No accessibility violations were detected during the automated scan.</p>`
-          : `<table class="stats-table">
-            <thead>
-              <tr><th>ID</th><th>Issue</th><th>Page</th><th>Severity</th><th>Users Affected</th></tr>
-            </thead>
-            <tbody>
-              ${findings
-                .map(
-                  (f) => `
-              <tr>
-                <td style="font-family: monospace; font-size: 8pt; white-space: nowrap;">${escapeHtml(f.id)}</td>
-                <td style="font-size: 9pt;">${escapeHtml(f.title)}</td>
-                <td style="font-family: monospace; font-size: 8pt; white-space: nowrap;">${escapeHtml(f.area)}</td>
-                <td style="font-weight: 700; font-size: 9pt; white-space: nowrap;">${escapeHtml(f.severity)}</td>
-                <td style="font-size: 9pt;">${escapeHtml(f.impactedUsers)}</td>
-              </tr>`,
-                )
-                .join("")}
-            </tbody>
-          </table>`
-      }
-    </div>
-
-    <!-- 6. Audit Scope & Limitations -->
-    ${buildPdfAuditLimitations()}
-
-    </div>
-
-    <footer class="mt-10 py-6 border-t border-slate-200 text-center">
+      <footer class="mt-10 py-6 border-t border-slate-200 text-center">
         <p class="text-slate-400 text-sm font-medium">Generated by <a href="https://github.com/diegovelasquezweb/a11y" target="_blank" class="text-slate-500 hover:text-[var(--primary)] font-semibold transition-colors">a11y</a> &bull; <span class="text-slate-500">${escapeHtml(args.target)}</span></p>
-    </footer>
-
+      </footer>
+    </div>
   </div>
 
   <script>
