@@ -2862,7 +2862,13 @@
         "angular": "Replace with <button (click)=\"handle()\">. If a div is required, add role=\"button\" [attr.tabindex]=\"0\" (keydown.enter)=\"handle()\" (keydown.space)=\"handle()\".",
         "svelte": "Replace with <button on:click={handle}>. If a div is required, add role=\"button\" tabindex=\"0\" on:keydown={(e) => (e.key === \"Enter\" || e.key === \" \") && handle(e)}.",
         "astro": "In Astro islands, replace with <button>. In static .astro files, use <a> or <button> with form actions — no client-side click handlers."
-      }
+      },
+      "false_positive_risk": "medium",
+      "managed_by_libraries": [
+        "radix-ui",
+        "headless-ui",
+        "shadcn-ui"
+      ]
     },
     "focus-outline-suppressed": {
       "description": "An interactive element suppresses the focus ring (outline: none or outline: 0) without providing a visible :focus-visible replacement. Keyboard users lose the visual indicator of where they are.",
@@ -2882,7 +2888,8 @@
         "angular": "Check component styles and global styles.css. Angular Material suppresses outlines by default in some themes — override in your theme.",
         "svelte": "Check <style> blocks in .svelte files and global CSS. Tailwind users replace focus:outline-none with focus-visible: variants.",
         "astro": "Check global CSS in /src/styles/ and component <style> blocks. Tailwind users audit all focus:outline-none instances."
-      }
+      },
+      "false_positive_risk": "low"
     },
     "missing-skip-link": {
       "description": "The page has no skip navigation link. Keyboard and screen reader users must Tab through every navigation item on every page to reach main content.",
@@ -2902,7 +2909,8 @@
         "angular": "Add in app.component.html as the first element. Ensure <main> id persists across routes.",
         "svelte": "Add in +layout.svelte before the <slot>.",
         "astro": "Add in BaseLayout.astro as the first element inside <body>."
-      }
+      },
+      "false_positive_risk": "low"
     },
     "positive-tabindex": {
       "description": "An element has a tabIndex greater than 0. This overrides natural DOM tab order, causing unpredictable keyboard navigation.",
@@ -2922,7 +2930,8 @@
         "angular": "Search for [attr.tabindex] bindings and static tabindex attributes > 0.",
         "svelte": "Search for tabindex attributes > 0 in component templates.",
         "astro": "Search for tabindex > 0 in both static HTML and island components."
-      }
+      },
+      "false_positive_risk": "low"
     },
     "mouse-only-handler": {
       "description": "An element has onMouseOver/onMouseEnter/onMouseLeave without equivalent onFocus/onBlur handlers. Touch and keyboard users cannot trigger the interaction.",
@@ -2942,7 +2951,13 @@
         "angular": "Pair (mouseenter)/(mouseleave) with (focus)/(blur) bindings.",
         "svelte": "Pair on:mouseenter/on:mouseleave with on:focus/on:blur.",
         "astro": "Ensure island components include both mouse and focus event handlers."
-      }
+      },
+      "false_positive_risk": "medium",
+      "managed_by_libraries": [
+        "radix-ui",
+        "headless-ui",
+        "shadcn-ui"
+      ]
     },
     "small-touch-target": {
       "description": "An interactive element has a rendered size smaller than 24x24px, making it difficult to activate for users with motor impairments or on touch devices.",
@@ -2962,7 +2977,8 @@
         "angular": "Angular Material mat-icon-button provides 40px target by default. For custom components, add min-width/min-height.",
         "svelte": "Search for small size utilities on <button> and <a> elements.",
         "astro": "Audit both static HTML and island interactive elements for small touch targets."
-      }
+      },
+      "false_positive_risk": "medium"
     },
     "drag-no-keyboard-alt": {
       "description": "An element is draggable without a keyboard-accessible alternative to perform the same action.",
@@ -2982,7 +2998,13 @@
         "angular": "Angular CDK DragDrop lacks keyboard support — add keyboard event listeners manually.",
         "svelte": "svelte-dnd-action has some keyboard support. For custom implementations, add arrow key handlers.",
         "astro": "Ensure island drag components include keyboard support."
-      }
+      },
+      "false_positive_risk": "medium",
+      "managed_by_libraries": [
+        "dnd-kit",
+        "react-beautiful-dnd",
+        "vue-draggable"
+      ]
     },
     "missing-autocomplete": {
       "description": "Form inputs collecting personal data (name, email, phone, address, payment) are missing the `autocomplete` attribute. Browsers and assistive technology cannot auto-fill values, increasing cognitive load for users with motor or cognitive disabilities.",
@@ -3002,7 +3024,8 @@
         "angular": "Add `autocomplete=\"given-name\"` directly in the template element — Angular does not strip it.",
         "svelte": "Add `autocomplete=\"given-name\"` as a native HTML attribute in the template markup.",
         "astro": "Add `autocomplete=\"given-name\"` to input elements in .astro files or component templates."
-      }
+      },
+      "false_positive_risk": "high"
     },
     "autoplay-media": {
       "description": "An `<audio>` or `<video>` element has the `autoplay` attribute without being muted. Auto-playing audio interferes with screen readers and disorienting for users with cognitive disabilities.",
@@ -3022,7 +3045,8 @@
         "angular": "Remove the `autoplay` attribute. Only use `[attr.autoplay]` together with `muted` and `controls` bindings.",
         "svelte": "Remove `autoplay` from `<video>` or `<audio>`. If needed: `<video autoplay muted controls {src}>`.",
         "astro": "Remove `autoplay` from media elements in .astro templates. If required, add `muted controls`."
-      }
+      },
+      "false_positive_risk": "low"
     },
     "orientation-lock": {
       "description": "The page calls `screen.orientation.lock()` to restrict display to portrait or landscape mode. Users who mount their device in a fixed position (e.g., on a wheelchair) cannot physically rotate it.",
@@ -3042,7 +3066,8 @@
         "angular": "Remove from `ngOnInit` or service initialization. Check Ionic platform orientation settings if applicable.",
         "svelte": "Remove from `onMount()`. Check any Capacitor/Cordova integration for orientation lock config.",
         "astro": "This is a client-side JS pattern. Remove from any `<script>` blocks or client-side island components."
-      }
+      },
+      "false_positive_risk": "low"
     },
     "character-key-shortcut": {
       "description": "An `accesskey` attribute creates single-character keyboard shortcuts that conflict with screen reader and browser shortcuts, with no mechanism for users to remap or disable them.",
@@ -3062,7 +3087,8 @@
         "angular": "Remove `accesskey` from templates. For custom shortcuts, use Angular CDK keyboard events with modifier keys.",
         "svelte": "Remove `accesskey` from markup. For custom shortcuts, use `on:keydown` with modifier key guards.",
         "astro": "Remove `accesskey` from .astro template elements and any component files."
-      }
+      },
+      "false_positive_risk": "low"
     },
     "motion-actuation-no-alt": {
       "description": "Device motion or orientation events (`devicemotion`, `deviceorientation`) trigger actions (e.g., shake to undo) with no UI button alternative. Users who mount their device on a wheelchair or stand cannot physically perform these gestures.",
@@ -3082,7 +3108,8 @@
         "angular": "Add a `(click)` button alongside the device motion subscription. Extract the action to a shared method.",
         "svelte": "Add an `on:click` button alongside the `devicemotion` event listener. Both call the same function.",
         "astro": "In client-side island components, ensure every device motion handler has a paired clickable button."
-      }
+      },
+      "false_positive_risk": "medium"
     }
   }
 }

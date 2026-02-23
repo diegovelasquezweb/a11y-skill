@@ -338,56 +338,13 @@ If **Yes**: immediately append the reports folder path to `.gitignore` (create t
 
 7. **MANDATORY** — output the following message verbatim before finishing:
 
-`[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following checks require human judgment — please verify them manually. Full verification steps and code examples for each item are in the **"WCAG 2.2 Static Code Checks"** section of the remediation guide.
+`[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually. The **HTML report** includes the complete checklist (30+ criteria) with step-by-step verification instructions for each.
 
-**Media**
-- [ ] Audio-only content has a text transcript (WCAG 1.2.1)
-- [ ] Prerecorded video has synchronized captions — verify accuracy and timing, not just presence (WCAG 1.2.2)
-- [ ] Prerecorded video with meaningful visuals has an audio description track (WCAG 1.2.5)
-
-**Keyboard & Focus**
-- [ ] All interactive elements are reachable and operable by keyboard alone (WCAG 2.1.1)
-- [ ] No keyboard trap — Tab always moves focus forward; Shift+Tab moves it backward (WCAG 2.1.2)
-- [ ] Focus order is logical and matches the visual reading sequence (WCAG 2.4.3)
-- [ ] Every focused element has a visible focus indicator (WCAG 2.4.7 / 2.4.11)
-- [ ] No context change (navigation, form submit, popup) triggered by focus alone (WCAG 3.2.1)
-- [ ] No context change triggered by changing an input value without a submit button (WCAG 3.2.2)
-
-**Screen Reader**
-- [ ] Headings create a logical document outline (AT-1)
-- [ ] Landmark regions are present and correctly structured (AT-2)
-- [ ] All form inputs have programmatically associated labels (AT-3)
-- [ ] Interactive elements are announced and activatable (AT-4)
-- [ ] Live regions announce dynamic content changes (AT-5)
-- [ ] Modal dialogs trap focus correctly and announce role (AT-6)
-- [ ] Data tables have proper headers and scope (AT-7)
-- [ ] Form errors are announced and associated with the relevant field (AT-8)
-
-**Motion, Timing & Animation**
-- [ ] `prefers-reduced-motion` is respected for all animations (WCAG 2.3.3)
-- [ ] No content flashes more than 3 times per second (WCAG 2.3.1)
-- [ ] Auto-playing carousels and moving content have a visible pause/stop control (WCAG 2.2.2)
-- [ ] Session timeouts show a warning with at least 20s to extend the session (WCAG 2.2.1)
-
-**Visual & Layout**
-- [ ] Page is usable at 200% browser zoom with no content loss (WCAG 1.4.4)
-- [ ] Text content is not rendered as images (logos exempt) (WCAG 1.4.5)
-- [ ] Instructions do not rely solely on shape, color, size, or position (WCAG 1.3.3)
-- [ ] Page is not locked to a single screen orientation (WCAG 1.3.4)
-- [ ] Information is not conveyed by color alone (WCAG 1.4.1)
-
-**Pointer & Gestures**
-- [ ] All multi-point or path-based gestures (pinch, swipe) have a single-pointer alternative (WCAG 2.5.1)
-- [ ] Pointer actions activate on release (up-event), not on press (down-event) (WCAG 2.5.2)
-
-**Navigation & Consistency**
-- [ ] At least two ways to find any page: navigation + search, sitemap, or related links (WCAG 2.4.5)
-- [ ] Repeated navigation appears in the same relative order across pages (WCAG 3.2.3)
-- [ ] Components with the same function have the same accessible name across pages (WCAG 3.2.4)
-
-**Forms & Errors**
-- [ ] Error messages provide specific correction suggestions, not just "invalid input" (WCAG 3.3.3)
-- [ ] Legal, financial, or data-modifying actions have a review step or confirmation dialog (WCAG 3.3.4)
+- [ ] **Keyboard navigation** — Tab through all interactive elements; verify visible focus ring and no keyboard traps.
+- [ ] **Screen reader** — Test with VoiceOver (macOS) or NVDA (Windows); verify headings, landmarks, forms, and modals are announced correctly.
+- [ ] **Media** — Prerecorded video has accurate captions and an audio description track; audio-only content has a text transcript.
+- [ ] **Motion & timing** — `prefers-reduced-motion` is respected; no content flashes >3×/sec; auto-playing content has a pause control.
+- [ ] **Forms & errors** — Error messages give specific correction guidance; financial/legal submissions have a confirmation step.
 
 8. **MANDATORY** — output the following closing message verbatim. Do not skip it:
 

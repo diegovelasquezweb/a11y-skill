@@ -68,6 +68,17 @@ function buildCodePatternsMd(patterns, framework) {
         .filter(Boolean)
         .join("\n");
 
+      const fpRisk =
+        pattern.false_positive_risk && pattern.false_positive_risk !== "low"
+          ? `> ⚠️ **False Positive Risk (${pattern.false_positive_risk}):** Verify the match is a real violation before applying the fix — the search regex may match code that already handles this correctly at a higher level.`
+          : null;
+
+      const managedBlock =
+        Array.isArray(pattern.managed_by_libraries) &&
+        pattern.managed_by_libraries.length > 0
+          ? `> ⚠️ **Managed Component Warning:** This pattern may match components managed by **${pattern.managed_by_libraries.join(", ")}** — verify the library does not already handle this before applying a fix.`
+          : null;
+
       return [
         `---`,
         `### \`${id}\` — ${pattern.severity.charAt(0).toUpperCase() + pattern.severity.slice(1)} (WCAG ${pattern.wcag})`,
@@ -76,6 +87,9 @@ function buildCodePatternsMd(patterns, framework) {
         ``,
         `**Search for:** \`${pattern.detection.search}\``,
         `**In files:** \`${pattern.detection.files}\``,
+        ``,
+        managedBlock,
+        fpRisk,
         ``,
         fixBlock,
         frameworkNote || null,
