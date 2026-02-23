@@ -187,6 +187,13 @@ Show: property, current value → proposed value, contrast ratio change (for col
 2. **No** — skip style fixes
 3. **Let me pick** — I'll choose which ones to apply
 
+If the user chooses **Yes** or **Let me pick**: apply the changes, list the files and exact values modified, then ask:
+
+`[QUESTION]` **I've applied the style changes. Please verify visually — does everything look correct?**
+
+1. **Looks good** — proceed to 4c
+2. **Something's wrong** — tell me what to revert or adjust
+
 #### 4c. Manual checks
 
 Process the "WCAG 2.2 Static Code Checks" section from the remediation guide:
@@ -200,6 +207,13 @@ Process the "WCAG 2.2 Static Code Checks" section from the remediation guide:
 2. **Let me pick** — I'll choose which ones to apply
 3. **Skip** — don't apply any manual fixes
 
+If the user chooses **Yes, fix all** or **Let me pick**: apply the fixes, list the files and changes made, then ask:
+
+`[QUESTION]` **I've applied the manual fixes. Please verify visually — does everything look correct?**
+
+1. **Looks good** — proceed to Step 5
+2. **Something's wrong** — tell me what to revert or adjust
+
 If the user chooses **Skip**, show the following message before proceeding to Step 5:
 
 `[MESSAGE]` Skipping manual fixes is fine for now, but keep in mind these patterns affect real users — missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page. These findings will remain in the remediation guide if you decide to revisit them.
@@ -212,7 +226,7 @@ Common patterns: `<div onClick>` without keyboard support, untrapped focus in mo
 
 This step is **mandatory** — always run it after fixes, no exceptions. Do not skip, do not ask the user whether to run it. If no fixes were applied in Step 4 (user skipped all sub-steps), skip this step and proceed to Step 6.
 
-Inform the user before running:
+Inform the user before running, then **immediately** execute the script without waiting for user input:
 
 `[MESSAGE]` Running a verification re-audit to make sure all fixes are clean and no new issues were introduced.
 
