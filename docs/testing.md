@@ -16,7 +16,7 @@ The a11y skill maintains a robust test suite to ensure the **Audit Engine** rema
 ## Overview
 
 - **Framework**: [Vitest](https://vitest.dev/)
-- **Total Tests**: 714
+- **Total Tests**: 937
 - **Command**: `pnpm test`
 
 ## Test Categories
@@ -45,7 +45,7 @@ The core of our "Fix-First" promise.
 Ensures math accuracy for stakeholders.
 
 - **Weighted Penalties**: Verifies that Critical issues correctly subtract 15 points and scores are clamped at zero.
-- **Grade Labels**: Covers all 5 score buckets (Excellent / Good / Fair / Needs Improvement / Poor).
+- **Grade Labels**: Covers all 5 score buckets (Excellent / Good / Fair / Poor / Critical).
 - **Sorting**: Ensures Critical findings always appear at the top of report data.
 - **Field Normalization**: Verifies that `wcagCriterionId`, `falsePositiveRisk`, `fixDifficultyNotes`, `frameworkNotes`, and `relatedRules` are correctly mapped and default safely when absent.
 

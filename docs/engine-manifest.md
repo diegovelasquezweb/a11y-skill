@@ -24,7 +24,7 @@ The core engine is a three-stage pipeline designed for **Autonomous Remediation*
 - **`scripts/report-html.mjs`**: Generates the interactive dashboard.
 - **`scripts/report-md.mjs`**: Creates the `remediation.md` logic used by AI agents.
 - **`scripts/report-pdf.mjs`**: Produces formal executive summaries.
-- **`scripts/renderers/`**: Modular rendering logic (`html.mjs`, `md.mjs`, `pdf.mjs`) and core data normalization (`findings.mjs`).
+- **`scripts/renderers/`**: Modular rendering logic (`html.mjs`, `md.mjs`, `pdf.mjs`), core data normalization (`findings.mjs`), and shared rendering utilities (`utils.mjs`).
 
 ### Infrastructure
 
@@ -41,7 +41,7 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 | :-------------------------- | :------------ | :----------------------------------------------------------------------------------- |
 | **`intelligence.json`**     | Fix Database  | Resolution code patterns, framework-specific fix notes, and related rules.           |
 | **`rule-metadata.json`**    | Rule Mapping  | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags.      |
-| **`manual-checks.json`**    | Verification  | 24+ manual audit criteria for WCAG 2.2 areas that automation cannot detect.          |
+| **`manual-checks.json`**    | Verification  | 42 manual audit criteria for WCAG 2.2 areas that automation cannot detect.           |
 | **`scoring-config.json`**   | Risk Engine   | Severity order, penalty weights, grade thresholds, and effort multipliers.           |
 | **`framework-config.json`** | Environment   | Dom signals for auto-detection (React, Shopify, etc.) and file-search glob patterns. |
 | **`scanner-config.json`**   | Filter Engine | Blocked file extensions, excluded external domains, and robots.txt settings.         |
@@ -93,6 +93,8 @@ flowchart LR
     subgraph Knowledge ["Operational References"]
         R1[troubleshooting.md] -.-> A
         R2[source-patterns.md] -.-> A
+        R3[cli-reference.md] -.-> A
+        R4[report-standards.md] -.-> A
     end
 
     classDef default font-family:Inter,sans-serif,font-size:12px;

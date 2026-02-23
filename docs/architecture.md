@@ -65,7 +65,7 @@ flowchart TD
 ### 1. The Scanner (`scanner.mjs`)
 
 - **Engine**: Uses Playwright to emulate a real user environment (Light/Dark mode, Viewport).
-- **Compliance**: Injects `axe-core` to run 106 accessibility rules (100% of axe-core WCAG A/AA + best-practice coverage).
+- **Compliance**: Injects `axe-core` 4.11.1 to run 104 accessibility rules (100% of axe-core WCAG A/AA + best-practice coverage).
 - **Discovery**: If the site has a `sitemap.xml`, all listed URLs are scanned. Otherwise, BFS multi-level crawl starting from `base-url`, configurable via `--crawl-depth` (1-3, default: 2), capped at `maxRoutes` (default: 10).
 - **Parallel Scanning**: Routes are scanned across 3 concurrent browser tabs for ~2-3x faster throughput.
 - **Smart Wait**: Uses `networkidle` signal instead of a fixed delay — proceeds as soon as the page is ready, with `waitMs` as the timeout ceiling.

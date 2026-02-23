@@ -88,7 +88,7 @@ If an image is found missing alt text, the Agent does not just "add an alt". It 
 
 ## Manual Checks (`assets/manual-checks.json`)
 
-axe-core is an automated tool — it cannot verify criteria that require human judgment or live assistive technology interaction. The skill ships a second knowledge base, `assets/manual-checks.json`, with **24 checks** covering WCAG 2.2 AA criteria and screen reader behavior that automation cannot assess.
+axe-core is an automated tool — it cannot verify criteria that require human judgment or live assistive technology interaction. The skill ships a second knowledge base, `assets/manual-checks.json`, with **42 checks** covering WCAG 2.2 AA criteria and screen reader behavior that automation cannot assess.
 
 These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Checks"** — at the end of every `remediation.md` report.
 
@@ -114,6 +114,18 @@ These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Che
 **Perception:** Use of Color (1.4.1), Reflow (1.4.10), Non-text Contrast (1.4.11), Text Spacing (1.4.12), Error Identification (3.3.1)
 
 **Screen Reader (AT-1 → AT-8):** Heading navigation, landmark navigation, form labels, interactive element activation, live region announcements, modal dialog behavior, table reading, form error announcement
+
+**Media (Prerecorded):** Audio-only and Video-only (1.2.1), Captions (1.2.2), Audio Description (1.2.5)
+
+**Visual & Adaptability:** Sensory Characteristics (1.3.3), Resize Text (1.4.4), Images of Text (1.4.5)
+
+**Timing & Motion:** Timing Adjustable (2.2.1), Pause Stop Hide (2.2.2), Three Flashes or Below Threshold (2.3.1)
+
+**Navigation & Input:** Multiple Ways (2.4.5), Pointer Gestures (2.5.1), Pointer Cancellation (2.5.2)
+
+**Predictable Behavior:** On Focus (3.2.1), On Input (3.2.2), Consistent Navigation (3.2.3), Consistent Identification (3.2.4)
+
+**Error Handling:** Error Suggestion (3.3.3), Error Prevention (3.3.4)
 
 ### How to add a new manual check
 
