@@ -634,6 +634,7 @@ function buildHtml(args, findings, metadata = {}) {
         card.dataset.collapsed = 'true';
         if (chevron) chevron.style.transform = '';
       }
+      header.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
       _syncExpandBtn();
     }
 
@@ -644,11 +645,11 @@ function buildHtml(args, findings, metadata = {}) {
         const body = card.querySelector('.card-body');
         const chevron = card.querySelector('.card-chevron');
         if (anyCollapsed) {
-          body.style.display = '';
+          body.style.gridTemplateRows = '1fr';
           card.dataset.collapsed = 'false';
           if (chevron) chevron.style.transform = 'rotate(180deg)';
         } else {
-          body.style.display = 'none';
+          body.style.gridTemplateRows = '0fr';
           card.dataset.collapsed = 'true';
           if (chevron) chevron.style.transform = '';
         }
@@ -765,7 +766,7 @@ function buildHtml(args, findings, metadata = {}) {
         const body = el.querySelector('.card-body');
         const chevron = el.querySelector('.card-chevron');
         if (el.dataset.collapsed === 'true') {
-            body.style.display = '';
+            body.style.gridTemplateRows = '1fr';
             el.dataset.collapsed = 'false';
             if (chevron) chevron.style.transform = 'rotate(180deg)';
         }
@@ -788,9 +789,9 @@ function buildHtml(args, findings, metadata = {}) {
     }
 
     async function copyToClipboard(text, btn) {
+        const original = btn.innerHTML;
         try {
             await navigator.clipboard.writeText(text);
-            const original = btn.innerHTML;
             btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
             btn.classList.add('bg-emerald-500');
             setTimeout(() => {
@@ -801,9 +802,8 @@ function buildHtml(args, findings, metadata = {}) {
             btn.textContent = 'Failed';
             btn.classList.add('bg-red-500');
             setTimeout(() => {
-                btn.textContent = originalText;
+                btn.innerHTML = original;
                 btn.classList.remove('bg-red-500');
-                btn.classList.add('bg-emerald-500');
             }, 2000);
         }
     }

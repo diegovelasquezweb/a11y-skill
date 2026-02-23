@@ -266,7 +266,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         : null;
 
     const ruleRef = f.ruleId
-      ? `**Rule Logic:** https://dequeuniversity.com/rules/axe/4.10/${f.ruleId}`
+      ? `**Rule Logic:** https://dequeuniversity.com/rules/axe/4.11/${f.ruleId}`
       : null;
 
     const searchPatternBlock = f.fileSearchPattern

@@ -379,10 +379,11 @@ function buildFindings(inputPayload, cliArgs) {
         const ruleInfo = RULES[v.id] || {};
         const fixInfo = ruleInfo.fix || {};
 
-        let recFix = v.helpUrl ? `See ${v.helpUrl}` : "Fix the violation.";
-        if (apgUrl) {
-          recFix = `Reference: ${apgUrl}`;
-        }
+        let recFix = apgUrl
+          ? `Reference: ${apgUrl}`
+          : v.helpUrl
+            ? `See ${v.helpUrl}`
+            : "Fix the violation.";
 
         const codeLang = detectCodeLang(fixInfo.code);
 
@@ -504,11 +505,7 @@ function buildFindings(inputPayload, cliArgs) {
  */
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const ignoredRules = new Set(
-    args.ignoreFindings && args.ignoreFindings.length > 0
-      ? args.ignoreFindings
-      : [],
-  );
+  const ignoredRules = new Set(args.ignoreFindings);
 
   const payload = readJson(args.input);
   if (!payload) throw new Error(`Input not found or invalid: ${args.input}`);

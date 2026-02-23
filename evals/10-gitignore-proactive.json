@@ -1,18 +1,19 @@
 {
   "id": "10-gitignore-proactive",
-  "title": "Procedural compliance — gitignore reminder",
+  "title": "Report saving — .gitignore handling",
   "skills": [
     "a11y"
   ],
-  "query": "I'm ready to run an audit on my project",
+  "query": "Audit https://example.com and save the HTML report to ./audit/",
   "expected_behavior": [
-    "Executes the audit steps correctly",
-    "Follows the 'Always do' rule: 'Remind the user to add audit/ to .gitignore after every audit run'",
-    "Checks if a `.gitignore` file exists in the project",
-    "If `.gitignore` exists, explains that the pipeline attempts to auto-append but user should verify",
-    "If no `.gitignore` exists, explicitly tells the user to create one and add the `audit/` folder"
+    "Completes the audit and presents findings",
+    "Since the save path is inside the project, asks whether to add the reports folder to .gitignore",
+    "If user answers Yes: appends the path to .gitignore (creates the file if missing) and confirms before generating",
+    "If user answers No: generates the report directly without touching .gitignore",
+    "Does NOT modify .gitignore without asking first",
+    "Skips the .gitignore question if the save path is outside the project (e.g., ~/Desktop/)"
   ],
   "model_notes": {
-    "all_agents": "Testing adherence to strict procedural 'Always do' requirements."
+    "all_agents": "Testing the conditional .gitignore prompt: it must only trigger when the save path is inside the project root."
   }
 }

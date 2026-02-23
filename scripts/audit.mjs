@@ -137,14 +137,10 @@ async function main() {
 
   const colorScheme = getArgValue("color-scheme");
   const target = getArgValue("target");
-  const headless = argv.includes("--headless")
-    ? getArgValue("headless") === "true"
-    : argv.includes("--headed")
-      ? false
-      : DEFAULTS.headless;
+  const headless = !argv.includes("--headed");
 
   const onlyRule = getArgValue("only-rule");
-  const skipReports = !argv.includes("--with-reports");
+  const skipReports = argv.includes("--skip-reports") || !argv.includes("--with-reports");
   const ignoreFindings = getArgValue("ignore-findings");
   const excludeSelectors = getArgValue("exclude-selectors");
 
@@ -183,7 +179,11 @@ async function main() {
       log.info(
         "First run detected — installing skill dependencies (one-time setup)...",
       );
-      execSync("pnpm install", { cwd: SKILL_ROOT, stdio: "ignore" });
+      try {
+        execSync("pnpm install", { cwd: SKILL_ROOT, stdio: "ignore" });
+      } catch {
+        execSync("npm install", { cwd: SKILL_ROOT, stdio: "ignore" });
+      }
       log.success("Dependencies ready.");
     }
 
@@ -207,7 +207,6 @@ async function main() {
       "--crawl-depth",
       crawlDepth.toString(),
     ];
-    if (!headless) scanArgs.push("--headed");
     if (onlyRule) scanArgs.push("--only-rule", onlyRule);
     if (excludeSelectors)
       scanArgs.push("--exclude-selectors", excludeSelectors);
@@ -246,7 +245,7 @@ async function main() {
       const buildArgs = ["--output", absoluteOutputPath, "--base-url", baseUrl];
       if (target) buildArgs.push("--target", target);
 
-      const pdfOutput = absoluteOutputPath.replace(".html", ".pdf");
+      const pdfOutput = absoluteOutputPath.replace(/\.html$/, ".pdf");
       const pdfArgs = ["--output", pdfOutput, "--base-url", baseUrl];
       if (target) pdfArgs.push("--target", target);
 

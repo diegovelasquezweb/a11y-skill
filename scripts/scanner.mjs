@@ -78,8 +78,12 @@ function parseArgs(argv) {
 
   for (let i = 0; i < argv.length; i += 1) {
     const key = argv[i];
+    if (!key.startsWith("--")) continue;
+
+    if (key === "--headed") { args.headless = false; continue; }
+
     const value = argv[i + 1];
-    if (!key.startsWith("--") || value === undefined) continue;
+    if (value === undefined) continue;
 
     if (key === "--base-url") args.baseUrl = value;
     if (key === "--routes") args.routes = value;
@@ -88,7 +92,6 @@ function parseArgs(argv) {
     if (key === "--wait-ms") args.waitMs = Number.parseInt(value, 10);
     if (key === "--timeout-ms") args.timeoutMs = Number.parseInt(value, 10);
     if (key === "--headless") args.headless = value !== "false";
-    if (key === "--headed") args.headless = false;
     if (key === "--only-rule") args.onlyRule = value;
     if (key === "--crawl-depth") args.crawlDepth = Number.parseInt(value, 10);
     if (key === "--wait-until") args.waitUntil = value;
@@ -518,7 +521,7 @@ async function main() {
       log.info("Autodiscovering routes...");
       const sitemapRoutes = await discoverFromSitemap(origin);
       if (sitemapRoutes.length > 0) {
-        routes = [...new Set(["/", ...sitemapRoutes])];
+        routes = [...new Set(["/", ...sitemapRoutes])].slice(0, args.maxRoutes);
         log.info(
           `Sitemap: ${routes.length} route(s) discovered from /sitemap.xml`,
         );
@@ -604,8 +607,8 @@ async function main() {
 
   /** @const {number} Default concurrency level for parallel scanning tabs. */
   const TAB_CONCURRENCY = 3;
-  const results = new Array(routes.length);
-  const total = routes.length;
+  let results = [];
+  let total = 0;
 
   try {
     const disallowed = await fetchDisallowedPaths(origin);
@@ -616,6 +619,9 @@ async function main() {
       if (skipped > 0)
         log.info(`robots.txt: ${skipped} route(s) excluded (Disallow rules)`);
     }
+
+    results = new Array(routes.length);
+    total = routes.length;
 
     log.info(
       `Targeting ${routes.length} routes (${Math.min(TAB_CONCURRENCY, routes.length)} parallel tabs): ${routes.join(", ")}`,

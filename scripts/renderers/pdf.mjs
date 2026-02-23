@@ -262,7 +262,7 @@ export function buildPdfMethodologySection(args, findings) {
   <table class="stats-table" style="margin-bottom: 1.2rem;">
     <tbody>
       <tr><td style="width: 35%; font-weight: 700;">Method</td><td>Automated scanning via axe-core engine injected into a live Chromium browser</td></tr>
-      <tr><td style="font-weight: 700;">Engine</td><td>axe-core 4.10+ (Deque Systems) — industry-standard accessibility rules library</td></tr>
+      <tr><td style="font-weight: 700;">Engine</td><td>axe-core 4.11.1 (Deque Systems) — industry-standard accessibility rules library</td></tr>
       <tr><td style="font-weight: 700;">Browser</td><td>Chromium (headless) via Playwright</td></tr>
       <tr><td style="font-weight: 700;">Standard</td><td>${escapeHtml(args.target)}</td></tr>
       <tr><td style="font-weight: 700;">Audit date</td><td>${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</td></tr>

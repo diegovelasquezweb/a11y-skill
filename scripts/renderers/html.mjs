@@ -88,7 +88,7 @@ export function buildIssueCard(finding) {
       </div>`
     : "";
 
-  const evidenceHtml = finding.evidence
+  const evidenceHtml = finding.evidence && finding.evidence.length > 0
     ? `<div class="mt-8 bg-slate-900 rounded-xl p-6 border border-slate-700 shadow-2xl relative overflow-hidden">
         <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
         <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 relative z-10 flex items-center gap-2">
@@ -415,6 +415,7 @@ export function buildManualChecksSection() {
   const total = MANUAL_CHECKS.length;
   const cards = MANUAL_CHECKS.map((c) => buildManualCheckCard(c)).join("\n");
   return `
+<div id="manual-checks-section">
 <div class="mt-16 mb-4">
   <div class="flex items-center gap-3 mb-2">
     <h3 class="text-lg font-bold text-slate-900">Manual Verification Required</h3>
@@ -436,5 +437,6 @@ export function buildManualChecksSection() {
   <button onclick="resetManualChecks()" class="text-xs text-slate-400 hover:text-rose-500 transition-colors font-medium whitespace-nowrap">Reset all</button>
 </div>
 
-${cards}`;
+${cards}
+</div>`;
 }
