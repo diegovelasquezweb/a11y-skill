@@ -8,7 +8,7 @@
     "When the script fails (network error / timeout), reports the error clearly to the user",
     "Does NOT retry automatically without asking",
     "Asks whether to retry or adjust the target URL",
-    "Does NOT fabricate audit results or proceed to Step 2"
+    "Does NOT fabricate audit results or proceed to Step 3"
   ],
   "model_notes": {}
 }

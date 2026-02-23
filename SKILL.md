@@ -29,20 +29,15 @@ These rules apply at all times, independent of any workflow step.
 - All pipeline files (scan results, findings, remediation guide, screenshots) stay inside the skill directory — never in the user's project.
 - Visual reports (HTML/PDF) are only created when explicitly requested, at the user's chosen location.
 - Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
-- Never declare "100% accessible" based on a targeted audit. Only a Final Certification Audit can confirm that.
+- Never declare "100% accessible" based on a targeted audit. Only a comprehensive full-site verification can confirm that.
 - Never modify the user's `.gitignore` without asking first.
 - Treat scripts as black boxes: run with `--help` to discover flags. Do not read script source — it consumes context budget for no benefit.
 - If `pnpm` is not available, use `npm` as fallback.
 
 ## Communication Rules
 
-1. **Closed questions only** — yes/no or numbered vertical list (1, 2, 3…). Never inline bullets.
-2. **Concise and technical** — state findings, propose action, ask for a decision.
-3. **Always provide options** — never ask open-ended "what do you want?"
-4. **Explain the "why"** — user impact, legal risk, or design implication.
-5. **One question per message** — do not stack multiple decisions.
-6. **Acknowledge effort** — at final delivery (Step 6), close with a genuine acknowledgment of the user's accessibility investment, regardless of how many issues were fixed.
-7. **Message tags** — this playbook uses tags to mark messages that must follow a specific format. When you reach a tagged block, present it as a **standalone message** — never merge with informational lists, findings, summaries, or other content. Tags:
+1. **Tone** — concise and technical. State findings, propose action, ask for a decision.
+2. **Message tags** — this playbook uses two tags to mark formatted messages. When you reach a tagged block, present it as a **standalone message** — never merge with informational lists, findings, summaries, or other content.
    - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options.
    - `[MESSAGE]` — a pre-written message. **Copy verbatim** — do not rephrase, summarize, or adapt. Output the exact text every time.
 
@@ -50,18 +45,16 @@ These rules apply at all times, independent of any workflow step.
 
 ## Workflow
 
-Follow these steps sequentially. Copy this checklist and track progress:
+Follow these steps sequentially — **never skip a step**, even if the user provides information ahead of time. Every step must execute in order. Copy this checklist and track progress:
 
 ```
-Audit Progress:
+Progress:
 - [ ] Step 1: Page discovery
 - [ ] Step 2: Run audit
 - [ ] Step 3: Present findings + request permission
-- [ ] Step 4a: Structural fixes (Critical → High → Medium → Low)
-- [ ] Step 4b: Style-dependent fixes (explicit approval)
-- [ ] Step 4c: Manual checks
-- [ ] Step 5: Verification re-audit (mandatory)
-- [ ] Step 6: Deliver results + offer reports
+- [ ] Step 4: Fix (structural → style → code patterns)
+- [ ] Step 5: Verification re-audit
+- [ ] Step 6: Deliver results
 ```
 
 ### Step 1 — Page discovery
@@ -131,20 +124,21 @@ Read the remediation guide and:
 1. **Fix by severity** — work through Critical → High → Medium → Low, one group at a time with a checkpoint after each
 2. **Reports first, then fix by severity** — generate visual reports now, then fix severity by severity
 3. **Other criteria** — tell me how you'd like to prioritize the fixes
+4. **Skip fixes** — don't fix anything right now
 
 Default (if user says "fix" or "go ahead") is **Fix by severity**.
 
 If the user chooses **Reports first**: jump to the report generation commands from Step 6, deliver the reports, then return to Step 4 to begin fixes by severity.
 
-**0 issues found** → skip to Step 6. Note: automated tools cannot catch every barrier; recommend manual checks.
-
-**User declines** → present the following message:
+If the user chooses **Skip fixes**: present the following message, then skip to Step 6.
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA (US), the European Accessibility Act (EU), and EN 301 549. These findings will remain available if you decide to revisit them later.
 
+**0 issues found** → skip to Step 6. Note: automated tools cannot catch every barrier; recommend manual checks.
+
 ### Step 4 — Fix
 
-Work through each phase in order.
+Work through each phase in order. If the user chose **Other criteria** in Step 3, follow their specified prioritization instead of the default severity order throughout this step.
 
 #### 4a. Structural fixes (Critical → High → Medium → Low)
 
@@ -155,7 +149,12 @@ Load [references/source-patterns.md](references/source-patterns.md) to locate so
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
-Apply one severity group at a time (Critical → High → Medium → Low). After each group: checkpoint (list files + fixes applied) → ask user to verify visually → proceed to next group.
+Apply one severity group at a time (Critical → High → Medium → Low). After each group, list the files and fixes applied, then ask:
+
+`[QUESTION]` **I've applied all [severity] fixes. Please verify visually — does everything look correct?**
+
+1. **Looks good** — proceed to next severity group
+2. **Something's wrong** — tell me what to revert or adjust
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
@@ -174,13 +173,19 @@ Show: property, current value → proposed value, contrast ratio change (for col
 Process the "WCAG 2.2 Static Code Checks" section from the remediation guide:
 
 1. Search the project source for each pattern. Skip non-applicable checks.
-2. Present confirmed violations as a batch and wait for permission before applying.
+2. Present confirmed violations as a batch, then ask:
+
+`[QUESTION]` **I found [N] code patterns that need manual fixes. Apply them?**
+
+1. **Yes, fix all** — apply all proposed changes
+2. **Let me pick** — I'll choose which ones to apply
+3. **Skip** — don't apply any manual fixes
 
 Common patterns: `<div onClick>` without keyboard support, untrapped focus in modals, missing skip links, decorative images without `aria-hidden`.
 
 ### Step 5 — Verification re-audit (mandatory)
 
-This step is **mandatory** — always run it after fixes, no exceptions. Do not skip, do not ask the user whether to run it.
+This step is **mandatory** — always run it after fixes, no exceptions. Do not skip, do not ask the user whether to run it. If no fixes were applied in Step 4 (user skipped all sub-steps), skip this step and proceed to Step 6.
 
 Inform the user before running:
 
@@ -197,7 +202,7 @@ After completion, parse the results:
 
 `[MESSAGE]` The verification re-audit found new issues that were not present in the initial scan. This is expected — some issues only surface after earlier fixes change the DOM structure. Here are the new findings:
 
-Present the new issues using the same format as Step 3 (grouped by severity). Fix them following Step 4 procedures, then run this Step 5 again. Repeat until clean. Previously declined issues do not trigger a restart.
+Present the new issues using the same format as Step 3 (grouped by severity). Fix them following Step 4 procedures, then run this Step 5 again. Repeat until clean, up to a maximum of **3 re-audit cycles**. If issues persist after 3 cycles, list the remaining issues and proceed to Step 6. Previously declined issues do not trigger a restart.
 
 ### Step 6 — Deliver results
 

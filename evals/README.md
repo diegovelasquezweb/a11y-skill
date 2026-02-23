@@ -15,7 +15,7 @@ Each `.json` file is a self-contained test case. There is no built-in runner —
 | :------------------ | :---------------------- | :-------------------------------------------------------- |
 | **Antigravity**     | High tool precision     | Verify it follows the Resource Map for progressive loading. |
 | **Windsurf**        | Fast execution          | Verify it follows the Resource Map for progressive loading. |
-| **Sonnet (Claude)** | Best-in-class reasoning | Ensure it follows the full 3a-3d sub-phase cycle.           |
+| **Sonnet (Claude)** | Best-in-class reasoning | Ensure it follows the full 4a-4c sub-phase cycle + Step 5 re-audit. |
 | **Gemini CLI**      | Reliable automation     | Watch for `ReadFile` fallbacks in the skill directory.      |
 
 ## Scenarios

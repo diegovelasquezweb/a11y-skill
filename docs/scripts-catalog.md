@@ -15,12 +15,12 @@ When you trigger an audit (e.g., `pnpm a11y`), the engine follows this linear pi
 flowchart TD
     A[run-audit.mjs] -- 1 --> C[run-scanner.mjs]
     A -- 2 --> D[run-analyzer.mjs]
-    subgraph Parallel Report Building
+    subgraph Reports["Parallel Report Building"]
     E[build-report-html.mjs]
     G[build-report-pdf.mjs]
     F[build-report-md.mjs]
     end
-    D -- 3 --> Parallel Report Building
+    D -- 3 --> Reports
 
     classDef default font-family:Inter,sans-serif,font-size:12px;
     classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a;

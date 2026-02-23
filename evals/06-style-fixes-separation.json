@@ -5,13 +5,13 @@
   "query": "Audit and fix https://example.com",
   "setup": "Audit results include both structural issues (missing alt text, missing labels) and style issues (color-contrast failures)",
   "expected_behavior": [
-    "Applies structural fixes first in 3a (alt text, ARIA roles, labels)",
-    "Does NOT modify colors, fonts, or spacing during 3a",
-    "Presents color-contrast and other style fixes separately in 3b",
+    "Applies structural fixes first in 4a (alt text, ARIA roles, labels)",
+    "Does NOT modify colors, fonts, or spacing during 4a",
+    "Presents color-contrast and other style fixes separately in 4b",
     "Shows the exact CSS/color values proposed before applying",
     "Waits for explicit user approval before applying any style change",
-    "If user declines style fixes, proceeds to 3c without them",
-    "Declined style fixes do NOT trigger a restart loop after certification (3d)"
+    "If user declines style fixes, proceeds to 4c without them",
+    "Declined style fixes do NOT trigger a restart loop after verification re-audit (Step 5)"
   ],
   "model_notes": {}
 }

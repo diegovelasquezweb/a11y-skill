@@ -11,4 +11,4 @@ If a command fails, use this guide to self-correct before asking the user.
 
 ## Feedback Loop: Verification
 
-After applying a fix, **always re-run the audit** (Step 3d). If the issue persists, double-check that the selector used in your edit matches the one reported in the remediation guide.
+After applying a fix, **always re-run the audit** (Step 5). If the issue persists, double-check that the selector used in your edit matches the one reported in the remediation guide.
