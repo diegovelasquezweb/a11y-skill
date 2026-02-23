@@ -1,10 +1,10 @@
 # a11y - Accessibility Audit & Remediation Skill
 
-This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. Built on the [Agent Skills Standard](https://agentskills.io/specification) and following [skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. Built following [skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 ## Why this Skill?
 
-Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between knowing a problem exists and fixing it by providing the exact intelligence an agent needs to resolve issues with precision.
+This skill transforms accessibility audits into actionable fix roadmaps. It runs a full WCAG 2.2 AA scan, identifies the exact code locations responsible for each violation, and guides the agent through fixes with framework-aware intelligence.
 
 | Capability             | With a11y                                                                          | Without                                                                        |
 | :--------------------- | :--------------------------------------------------------------------------------- | :----------------------------------------------------------------------------- |
@@ -32,6 +32,7 @@ The agent will clone the repository and run `install.sh`, which auto-detects you
 | Gemini CLI | `~/.gemini/skills/a11y/` |
 | Codex | `~/.agents/skills/a11y/` |
 | Windsurf | `~/.codeium/windsurf/skills/a11y/` |
+| Antigravity | `~/.gemini/antigravity/skills/a11y/` |
 
 To uninstall, ask your agent: `"Uninstall skill a11y"`
 
