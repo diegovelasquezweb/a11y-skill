@@ -113,9 +113,9 @@ node scripts/audit.mjs --base-url <URL> --max-routes <N>
 
 For local projects with framework auto-detection, add `--project-dir <path>`. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
 
-After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user.
+After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user. Proceed to Step 3.
 
-If the script fails, consult [references/troubleshooting.md](references/troubleshooting.md) to self-correct before asking the user. If unrecoverable, offer: (1) Retry, (2) Different URL, (3) Skip and troubleshoot manually.
+If the script fails, consult [references/troubleshooting.md](references/troubleshooting.md) to self-correct before asking the user. If unrecoverable, offer: (1) Retry, (2) Different URL, (3) Skip and troubleshoot manually. After resolving, proceed to Step 3.
 
 ### Step 3 — Present findings and request permission
 
@@ -135,7 +135,7 @@ Read the remediation guide and:
 3. **Other criteria** — tell me how you'd like to prioritize the fixes
 4. **Skip fixes** — don't fix anything right now
 
-Default (if user says "fix" or "go ahead") is **Fix by severity**.
+Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
 
 If the user chooses **Reports first**: the "yes to reports" is already implied — skip the Yes/No question and ask:
 
@@ -145,7 +145,24 @@ If the user chooses **Reports first**: the "yes to reports" is already implied �
 2. **PDF Executive Summary** — formal document for stakeholders
 3. **Both**
 
-Then continue: save location → gitignore (only if path is inside the project) → generate → **open each file**. After the reports are open, return here and continue to Step 4 to begin fixes by severity.
+Then ask save location (first time only — reuse afterward):
+
+`[QUESTION]` **Where should I save the reports?**
+
+1. **Project audit folder** — `./audit/` (Recommended)
+2. **Desktop** — `~/Desktop/`
+3. **Custom path** — tell me the exact folder path
+
+If the chosen path is inside the project, ask (first time only):
+
+`[QUESTION]` **Should I add the reports folder to `.gitignore`?**
+
+1. **Yes** — ignore generated reports
+2. **No** — keep reports tracked
+
+If **Yes**: append the path to `.gitignore` (create if missing), confirm, then generate. If **No**: generate directly.
+
+Generate and **open each file**. After the reports are open, return here and continue to Step 4 to begin fixes by severity.
 
 If the user chooses **Skip fixes**: present the following message, then skip to Step 6.
 
@@ -163,6 +180,8 @@ Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM orde
 
 > **Scope boundary**: 4a covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in 4b — regardless of their axe severity level. If a Critical or High finding involves a color or visual property, set it aside for 4b. Do not apply it here.
 
+If there are no structural findings to fix, skip directly to 4b.
+
 Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework.
 
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
@@ -172,12 +191,16 @@ Apply one severity group at a time (Critical → High → Medium → Low). **App
 
 `[QUESTION]` **I've applied all [severity] fixes. Please verify visually — does everything look correct?**
 
-1. **Looks good** — proceed to next severity group
+1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
+
+If **Looks good**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
 > **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
+
+If there are no style findings (no color-contrast, font-size, or spacing violations), skip directly to 4c.
 
 Show: property, current value → proposed value, contrast ratio change (for color). Then ask:
 
@@ -187,12 +210,16 @@ Show: property, current value → proposed value, contrast ratio change (for col
 2. **No** — skip style fixes
 3. **Let me pick** — I'll choose which ones to apply
 
+If **No**: proceed to 4c.
+
 If the user chooses **Yes** or **Let me pick**: apply the changes, list the files and exact values modified, then ask:
 
 `[QUESTION]` **I've applied the style changes. Please verify visually — does everything look correct?**
 
-1. **Looks good** — proceed to 4c
+1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
+
+If **Looks good** or after resolving **Something's wrong**: proceed to 4c.
 
 #### 4c. Manual checks
 
@@ -211,8 +238,10 @@ If the user chooses **Yes, fix all** or **Let me pick**: apply the fixes, list t
 
 `[QUESTION]` **I've applied the manual fixes. Please verify visually — does everything look correct?**
 
-1. **Looks good** — proceed to Step 5
+1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
+
+If **Looks good** or after resolving **Something's wrong**: proceed to Step 5.
 
 If the user chooses **Skip**, show the following message before proceeding to Step 5:
 
@@ -250,10 +279,10 @@ After completion, parse ALL findings — new regressions and unresolved original
 
      `[QUESTION]` **The re-audit still shows [N] issue(s) after attempting fixes. How would you like to proceed?**
 
-     1. **Keep fixing** — continue working through the remaining issues
-     2. **Move on** — proceed to delivery with known remaining issues documented
+     1. **Keep fixing**
+     2. **Move on** — I'll proceed with the remaining issues noted
 
-  6. If the user chooses **Move on**, proceed to Step 6. If they choose **Keep fixing**, repeat from step 3.
+  6. If the user chooses **Move on**, proceed to Step 6. If they choose **Keep fixing**, go back to step 2 of this sequence (present findings and fix following Step 4 procedures).
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 
@@ -269,6 +298,8 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 1. **Yes**
 2. **No thanks**
+
+If **No thanks**: skip to step 7.
 
    If **Yes**, wait for that answer, then ask which format in a new message:
 
@@ -293,7 +324,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 1. **Yes** — ignore generated reports
 2. **No** — keep reports tracked
 
-   If the user answers **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message before continuing.
+If **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message, then proceed to step 6. If **No**: proceed to step 6.
 
 6. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
 
@@ -320,6 +351,15 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 8. **MANDATORY** — output the following closing message verbatim. Do not skip it:
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
+
+9. After the closing message, ask:
+
+`[QUESTION]` **Is there anything else I can help you with?**
+
+1. **Yes** — tell me what you need
+2. **No, we're done**
+
+If **Yes**: help the user with their request, then ask this question again. If **No, we're done**: the workflow is complete.
 
 ---
 
