@@ -78,8 +78,8 @@ Once the URL is confirmed, ask the discovery method:
 
 `[QUESTION]` **How should I discover the pages to audit?**
 
-1. **Sitemap** — read your `sitemap.xml` and scan every listed page
-2. **Crawler** — let the scanner discover pages automatically from the homepage
+1. **Crawler** — let the scanner discover pages automatically from the homepage
+2. **Sitemap** — read your `sitemap.xml` and scan every listed page
 
 If the user chooses **Sitemap**: fetch `<URL>/sitemap.xml`. If found, confirm page count and proceed to Step 2. If not found, inform the user and fall back to the Crawler question below.
 
@@ -87,11 +87,9 @@ If the user chooses **Crawler**: wait for that answer, then ask the scan scope i
 
 `[QUESTION]` **How many pages should I crawl?**
 
-1. 5 pages
-2. 10 pages (Recommended)
-3. 15 pages
-4. 20 pages
-5. All reachable pages
+1. **10 pages (Recommended)** — covers main page types, fast
+2. **All reachable pages** — comprehensive, may take several minutes on large sites
+3. **Custom** — tell me the exact number
 
 Store the user's choice. Proceed to Step 2.
 
@@ -103,11 +101,15 @@ Run the audit with the discovery settings from Step 1:
 # Sitemap mode
 node scripts/run-audit.mjs --base-url <URL>
 
-# Crawler mode (example with 10 pages)
+# Crawler — 10 pages (option 1, omit flag to use default)
+node scripts/run-audit.mjs --base-url <URL>
+
+# Crawler — all reachable pages (option 2)
+node scripts/run-audit.mjs --base-url <URL> --max-routes 999
+
+# Crawler — custom count (option 3)
 node scripts/run-audit.mjs --base-url <URL> --max-routes <N>
 ```
-
-For "All reachable pages", omit `--max-routes` (the scanner crawls without limit).
 
 For local projects with framework auto-detection, add `--project-dir <path>`. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
 
@@ -135,7 +137,15 @@ Read the remediation guide and:
 
 Default (if user says "fix" or "go ahead") is **Fix by severity**.
 
-If the user chooses **Reports first**: jump to the report generation commands from Step 6, deliver the reports, then return to Step 4 to begin fixes by severity.
+If the user chooses **Reports first**: the "yes to reports" is already implied — skip the Yes/No question and ask:
+
+`[QUESTION]` **Which format?**
+
+1. **HTML Dashboard** — interactive web report with compliance score
+2. **PDF Executive Summary** — formal document for stakeholders
+3. **Both**
+
+Then continue: save location → gitignore (only if path is inside the project) → generate → **open each file**. After the reports are open, return here and continue to Step 4 to begin fixes by severity.
 
 If the user chooses **Skip fixes**: present the following message, then skip to Step 6.
 
@@ -237,12 +247,18 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 `[QUESTION]` **Would you like a visual report?**
 
-1. **HTML Dashboard** — interactive web report with compliance score
-2. **PDF Executive Summary** — formal document for stakeholders
-3. **Both**
-4. **No thanks**
+1. **Yes**
+2. **No thanks**
 
-4. If reports requested, wait for the answer above, then ask save location (first time only — reuse afterward):
+   If **Yes**, wait for that answer, then ask which format in a new message:
+
+   `[QUESTION]` **Which format?**
+
+   1. **HTML Dashboard** — interactive web report with compliance score
+   2. **PDF Executive Summary** — formal document for stakeholders
+   3. **Both**
+
+4. If reports requested, wait for the format answer above, then ask save location (first time only — reuse afterward):
 
 `[QUESTION]` **Where should I save the reports?**
 
@@ -250,7 +266,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 2. **Desktop** — `~/Desktop/`
 3. **Custom path** — tell me the exact folder path
 
-5. After the user answers the save location, ask about `.gitignore` (first time only — skip if already asked this session):
+5. After the user answers the save location, ask about `.gitignore` **only if the chosen path is inside the project** (e.g., `./audit/` or any relative path). If the user chose Desktop or any path outside the project root, skip this question entirely. Ask once per session — skip if already asked:
 
 `[QUESTION]` **Should I add the reports folder to `.gitignore`?**
 
