@@ -38,8 +38,15 @@ These rules apply at all times, independent of any workflow step.
 
 1. **Tone** — concise and technical. State findings, propose action, ask for a decision.
 2. **Message tags** — this playbook uses two tags to mark formatted messages. When you reach a tagged block, present it as a **standalone message** — never merge with informational lists, findings, summaries, or other content.
-   - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options.
-   - `[MESSAGE]` — a pre-written message. **Copy verbatim** — do not rephrase, summarize, or adapt. Output the exact text every time.
+   - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options. **Send one `[QUESTION]` per message. Never present two questions at once. Always wait for the user's answer before showing the next question.** Format: always output the question text on its own line, followed by each option as a numbered item on its own line — never inline, never collapsed to "Yes/No". Example output:
+     ```
+     How many pages should I crawl?
+
+     1. 5 pages
+     2. 10 pages (Recommended)
+     3. 15 pages
+     ```
+   - `[MESSAGE]` — a mandatory pre-written message. **You MUST output the exact text — never skip, rephrase, summarize, or adapt it.** Skipping a `[MESSAGE]` block is not allowed under any circumstance.
 
 ---
 
@@ -76,7 +83,7 @@ Once the URL is confirmed, ask the discovery method:
 
 If the user chooses **Sitemap**: fetch `<URL>/sitemap.xml`. If found, confirm page count and proceed to Step 2. If not found, inform the user and fall back to the Crawler question below.
 
-If the user chooses **Crawler**: ask the scan scope:
+If the user chooses **Crawler**: wait for that answer, then ask the scan scope in a new message:
 
 `[QUESTION]` **How many pages should I crawl?**
 
@@ -144,12 +151,14 @@ Work through each phase in order. If the user chose **Other criteria** in Step 3
 
 Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM order, lang, heading hierarchy).
 
+> **Scope boundary**: 4a covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in 4b — regardless of their axe severity level. If a Critical or High finding involves a color or visual property, set it aside for 4b. Do not apply it here.
+
 Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework.
 
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
-Apply one severity group at a time (Critical → High → Medium → Low). After each group, list the files and fixes applied, then ask:
+Apply one severity group at a time (Critical → High → Medium → Low). **Apply all fixes in the group first — do not ask for permission before applying.** After applying, list the files and changes made, then ask:
 
 `[QUESTION]` **I've applied all [severity] fixes. Please verify visually — does everything look correct?**
 
@@ -158,7 +167,7 @@ Apply one severity group at a time (Critical → High → Medium → Low). After
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
-> **Style-dependent protection**: these fixes change the site's appearance. Always show exact proposed changes and wait for explicit approval — even if the user previously said "fix all". Never modify visual properties without the user seeing the change first.
+> **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
 Show: property, current value → proposed value, contrast ratio change (for color). Then ask:
 
@@ -195,20 +204,36 @@ Inform the user before running:
 node scripts/run-audit.mjs --base-url <URL>
 ```
 
-After completion, parse the results:
+After completion, parse ALL findings — new regressions and unresolved originals:
 
-- **Clean (0 new issues)** → proceed to Step 6.
-- **New issues found** → inform the user with the following message, then fix and re-audit again:
+- **All clear (0 issues)** → proceed to Step 6.
+- **Issues found (any kind)** → follow this sequence:
 
-`[MESSAGE]` The verification re-audit found new issues that were not present in the initial scan. This is expected — some issues only surface after earlier fixes change the DOM structure. Here are the new findings:
+  1. If the issues are new regressions (not seen before the fixes), inform the user first:
 
-Present the new issues using the same format as Step 3 (grouped by severity). Fix them following Step 4 procedures, then run this Step 5 again. Repeat until clean, up to a maximum of **3 re-audit cycles**. If issues persist after 3 cycles, list the remaining issues and proceed to Step 6. Previously declined issues do not trigger a restart.
+     `[MESSAGE]` The verification re-audit found new issues that were not present in the initial scan. This is expected — some issues only surface after earlier fixes change the DOM structure. Here are the new findings:
+
+  2. Present all findings using the same format as Step 3 (grouped by severity).
+  3. Fix them following Step 4 procedures (4a for structural, 4b approval gate for style). Do not skip to Step 6.
+  4. Run the re-audit again.
+  5. If issues **still persist after fixing**, ask:
+
+     `[QUESTION]` **The re-audit still shows [N] issue(s) after attempting fixes. How would you like to proceed?**
+
+     1. **Keep fixing** — continue working through the remaining issues
+     2. **Move on** — proceed to delivery with known remaining issues documented
+
+  6. If the user chooses **Move on**, proceed to Step 6. If they choose **Keep fixing**, repeat from step 3.
+
+Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
+
+**Do not proceed to Step 6 until either: the re-audit is clean, the user explicitly chooses to move on, or 3 cycles are exhausted.**
 
 ### Step 6 — Deliver results
 
 1. **Summarize**: total found, resolved, files modified, remaining (if any).
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
-3. Ask about reports:
+3. Ask about reports. Wait for the answer before continuing:
 
 `[QUESTION]` **Would you like a visual report?**
 
@@ -217,20 +242,36 @@ Present the new issues using the same format as Step 3 (grouped by severity). Fi
 3. **Both**
 4. **No thanks**
 
-4. If reports requested, ask save location (first time only — reuse afterward). Ask about `.gitignore` (first time only).
+4. If reports requested, wait for the answer above, then ask save location (first time only — reuse afterward):
+
+`[QUESTION]` **Where should I save the reports?**
+
+1. **Project audit folder** — `./audit/` (Recommended)
+2. **Desktop** — `~/Desktop/`
+3. **Custom path** — tell me the exact folder path
+
+5. After the user answers the save location, ask about `.gitignore` (first time only — skip if already asked this session):
+
+`[QUESTION]` **Should I add the reports folder to `.gitignore`?**
+
+1. **Yes** — ignore generated reports
+2. **No** — keep reports tracked
+
+   If the user answers **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message before continuing.
+
+6. After all questions are answered, generate:
 
    ```bash
    # HTML
    node scripts/build-report-html.mjs --output <path>/report.html --base-url <URL>
    open <path>/report.html
 
-   # PDF (requires HTML first)
-   node scripts/build-report-html.mjs --output <path>/report.html --base-url <URL>
-   node scripts/build-report-pdf.mjs <path>/report.html <path>/report.pdf
+   # PDF
+   node scripts/build-report-pdf.mjs --output <path>/report.pdf --base-url <URL>
    open <path>/report.pdf
    ```
 
-5. Present the manual verification checklist:
+7. **MANDATORY** — output the following message verbatim before finishing:
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following checks require human judgment and cannot be automated — please verify them manually:
 
@@ -240,7 +281,7 @@ Present the new issues using the same format as Step 3 (grouped by severity). Fi
 - [ ] **Motion** — verify `prefers-reduced-motion` is respected.
 - [ ] **Zoom** — page usable at 200% browser zoom (WCAG 1.4.4).
 
-6. Close with the following message:
+8. **MANDATORY** — output the following closing message verbatim. Do not skip it:
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 
