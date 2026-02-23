@@ -43,6 +43,57 @@ try {
 }
 
 /**
+ * Renders the source code pattern audit section from intelligence.json code_patterns.
+ * Each pattern includes a detection regex, file globs, and a concrete code fix.
+ * @param {Object} patterns - The code_patterns object from intelligence.json (via metadata).
+ * @param {string} [framework] - Detected framework ID for filtering framework-specific notes.
+ * @returns {string} The source code pattern audit section, or empty string if no patterns.
+ */
+function buildCodePatternsMd(patterns, framework) {
+  if (!patterns || Object.keys(patterns).length === 0) return "";
+
+  const entries = Object.entries(patterns)
+    .map(([id, pattern]) => {
+      const frameworkNote =
+        framework && pattern.framework_notes?.[framework]
+          ? `\n**${framework.charAt(0).toUpperCase() + framework.slice(1)} Note:** ${pattern.framework_notes[framework]}`
+          : "";
+
+      const fixBlock = [
+        pattern.fix?.description
+          ? `**Fix:** ${pattern.fix.description}`
+          : null,
+        pattern.fix?.code ? `\`\`\`jsx\n${pattern.fix.code}\n\`\`\`` : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      return [
+        `---`,
+        `### \`${id}\` — ${pattern.severity.charAt(0).toUpperCase() + pattern.severity.slice(1)} (WCAG ${pattern.wcag})`,
+        ``,
+        `${pattern.description}`,
+        ``,
+        `**Search for:** \`${pattern.detection.search}\``,
+        `**In files:** \`${pattern.detection.files}\``,
+        ``,
+        fixBlock,
+        frameworkNote || null,
+      ]
+        .filter((line) => line !== null)
+        .join("\n");
+    })
+    .join("\n\n");
+
+  return `## 🔍 Source Code Pattern Audit
+
+> These patterns are not detectable by axe-core at runtime. Use the search regex to grep source files and apply the fixes wherever the pattern is found.
+
+${entries}
+`;
+}
+
+/**
  * Generates the manual checks section in Markdown format.
  * Includes descriptions, verification steps, and remediation advice for AI agents.
  * @returns {string} The manual checks remediation section.
@@ -134,6 +185,11 @@ function buildGuardrails(framework) {
  * @returns {string} The complete Markdown document.
  */
 export function buildMarkdownSummary(args, findings, metadata = {}) {
+  const framework = resolveFramework(
+    metadata,
+    args.baseUrl,
+    args.framework ?? null,
+  );
   const totals = buildSummary(findings);
   const status = findings.length === 0 ? "PASS" : "ISSUES FOUND";
 
@@ -338,7 +394,7 @@ Total findings: **${findings.length} issues**
 
 **FOLLOW THESE RULES TO PREVENT REGRESSIONS AND HALLUCINATIONS:**
 
-${buildGuardrails(resolveFramework(metadata, args.baseUrl, args.framework ?? null))}
+${buildGuardrails(framework)}
 
 ---
 
@@ -346,6 +402,7 @@ ${buildComponentMap()}${blockers ? `## 🔴 Priority Fixes (Critical & High)\n\n
 
 ${deferred ? `## 🔵 Deferred Issues (Medium & Low)\n\n${deferred}` : "## Deferred Issues\n\nNo medium or low severity issues found."}
 
+${buildCodePatternsMd(metadata.code_patterns, framework)}
 ${buildManualChecksMd()}
 ${referencesSection}`.trimEnd() + "\n"
   );

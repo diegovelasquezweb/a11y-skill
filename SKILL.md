@@ -221,22 +221,22 @@ If the user chooses **Yes** or **Let me pick**: apply the changes, list the file
 
 If **Looks good** or after resolving **Something's wrong**: proceed to 4c.
 
-#### 4c. Manual checks
+#### 4c. Source code patterns
 
-Process the "WCAG 2.2 Static Code Checks" section from the remediation guide:
+Process the "🔍 Source Code Pattern Audit" section from the remediation guide. Each entry has a `detection.search` regex and `detection.files` glob — use these to grep the project source:
 
-1. Search the project source for each pattern. Skip non-applicable checks.
-2. Present confirmed violations as a batch, then ask:
+1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
+2. Present confirmed matches as a batch with the proposed fix from the pattern's `fix.description` and `fix.code`, then ask:
 
-`[QUESTION]` **I found [N] code patterns that need manual fixes. Apply them?**
+`[QUESTION]` **I found [N] source code patterns that need fixes. Apply them?**
 
 1. **Yes, fix all** — apply all proposed changes
 2. **Let me pick** — I'll choose which ones to apply
-3. **Skip** — don't apply any manual fixes
+3. **Skip** — don't apply any source code fixes
 
-If the user chooses **Yes, fix all** or **Let me pick**: apply the fixes, list the files and changes made, then ask:
+If the user chooses **Yes, fix all** or **Let me pick**: apply the fixes using the exact `fix.code` from the remediation guide, list the files and changes made, then ask:
 
-`[QUESTION]` **I've applied the manual fixes. Please verify visually — does everything look correct?**
+`[QUESTION]` **I've applied the source code fixes. Please verify visually — does everything look correct?**
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
@@ -245,11 +245,9 @@ If **Looks good** or after resolving **Something's wrong**: proceed to Step 5.
 
 If the user chooses **Skip**, show the following message before proceeding to Step 5:
 
-`[MESSAGE]` Skipping manual fixes is fine for now, but keep in mind these patterns affect real users — missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page. These findings will remain in the remediation guide if you decide to revisit them.
+`[MESSAGE]` Skipping source code fixes is fine for now, but keep in mind these patterns affect real users — missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page. These findings will remain in the remediation guide if you decide to revisit them.
 
-If 0 violations were found, proceed automatically to Step 5 without showing the message.
-
-Common patterns: `<div onClick>` without keyboard support, untrapped focus in modals, missing skip links, decorative images without `aria-hidden`.
+If 0 matches were found, proceed automatically to Step 5 without showing the message.
 
 ### Step 5 — Verification re-audit (mandatory)
 

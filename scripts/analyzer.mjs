@@ -92,6 +92,8 @@ function makeFindingId(ruleId, url, selector) {
 
 /** @type {Object} */
 const RULES = INTELLIGENCE.rules || {};
+/** @type {Object} */
+const CODE_PATTERNS = INTELLIGENCE.code_patterns || {};
 /** @type {Object<string, string>} */
 const APG_PATTERNS = RULE_METADATA.apgPatterns;
 /** @type {Object<string, string>} */
@@ -491,6 +493,7 @@ function buildFindings(inputPayload, cliArgs) {
       regulatory: US_REGULATORY,
       checklist: "https://www.a11yproject.com/checklist/",
       projectContext: ctx,
+      code_patterns: CODE_PATTERNS,
     },
   };
 }

@@ -342,3 +342,57 @@ describe("manual-checks.json — schema", () => {
     });
   }
 });
+
+describe("code_patterns", () => {
+  const patterns = intel.code_patterns;
+  const VALID_SEVERITIES = new Set(["critical", "high", "medium", "low"]);
+
+  it("code_patterns section exists and is non-empty", () => {
+    expect(patterns).toBeDefined();
+    expect(typeof patterns).toBe("object");
+    expect(Object.keys(patterns).length).toBeGreaterThan(0);
+  });
+
+  for (const [id, pattern] of Object.entries(patterns ?? {})) {
+    describe(`pattern: ${id}`, () => {
+      it("has a non-empty description", () => {
+        expect(pattern.description?.trim()).toBeTruthy();
+      });
+
+      it("has a detection.search regex string", () => {
+        expect(typeof pattern.detection?.search).toBe("string");
+        expect(pattern.detection.search.trim()).toBeTruthy();
+      });
+
+      it("has a detection.files glob string", () => {
+        expect(typeof pattern.detection?.files).toBe("string");
+        expect(pattern.detection.files.trim()).toBeTruthy();
+      });
+
+      it("has a fix.description", () => {
+        expect(pattern.fix?.description?.trim()).toBeTruthy();
+      });
+
+      it("has a fix.code snippet", () => {
+        expect(pattern.fix?.code?.trim()).toBeTruthy();
+      });
+
+      it("has a valid wcag criterion (e.g. 2.1.1)", () => {
+        expect(pattern.wcag).toMatch(/^\d+\.\d+\.\d+$/);
+      });
+
+      it("has a valid severity", () => {
+        expect(VALID_SEVERITIES.has(pattern.severity)).toBe(true);
+      });
+
+      it("has framework_notes with at least one known framework", () => {
+        expect(typeof pattern.framework_notes).toBe("object");
+        const keys = Object.keys(pattern.framework_notes);
+        expect(keys.length).toBeGreaterThan(0);
+        for (const key of keys) {
+          expect(VALID_FW_KEYS.has(key)).toBe(true);
+        }
+      });
+    });
+  }
+});
