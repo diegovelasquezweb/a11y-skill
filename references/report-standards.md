@@ -27,7 +27,7 @@ Always return results in this exact order:
 
 ## File Output
 
-1. **Internal pipeline files** (always stored in the skill's `audit/internal/` directory):
+1. **Internal pipeline files** (always stored in the skill's `.audit/` directory):
    - `a11y-scan-results.json` — raw scan data
    - `a11y-findings.json` — enriched findings
    - `remediation.md` — AI-optimized remediation guide

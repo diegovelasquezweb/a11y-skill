@@ -25,9 +25,9 @@ describe("a11y-utils", () => {
   });
 
   describe("getInternalPath", () => {
-    it("returns path inside SKILL_ROOT/audit/internal", () => {
+    it("returns path inside SKILL_ROOT/.audit", () => {
       const result = getInternalPath("a11y-findings.json");
-      expect(result).toBe(path.join(SKILL_ROOT, "audit", "internal", "a11y-findings.json"));
+      expect(result).toBe(path.join(SKILL_ROOT, ".audit", "a11y-findings.json"));
     });
   });
 

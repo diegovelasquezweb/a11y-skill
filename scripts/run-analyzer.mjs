@@ -243,7 +243,7 @@ function printUsage() {
   node run-analyzer.mjs --input <route-checks.json> [options]
 
 Options:
-  --output <path>          Output findings JSON path (default: audit/internal/a11y-findings.json)
+  --output <path>          Output findings JSON path (default: .audit/a11y-findings.json)
   --ignore-findings <csv> Ignore specific rule IDs (overrides config)
   -h, --help               Show this help
 `);

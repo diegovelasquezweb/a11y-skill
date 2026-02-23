@@ -101,5 +101,5 @@ export function readJson(filePath) {
  * @returns {string} The resolved absolute path.
  */
 export function getInternalPath(filename) {
-  return path.join(SKILL_ROOT, "audit", "internal", filename);
+  return path.join(SKILL_ROOT, ".audit", filename);
 }

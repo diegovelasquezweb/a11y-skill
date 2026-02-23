@@ -63,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `description` frontmatter expanded with exhaustive trigger keywords (accessibility, a11y, WCAG, ADA, screen reader, color contrast, alt text, ARIA, etc.)
 - Added Resource Map table at top of SKILL.md with "Load when" guidance for progressive disclosure of references
 - Added "scripts as black boxes" constraint — agents run scripts with `--help`, never read source
-- Added `REMEDIATION_PATH` fallback: if absent in output, read `audit/internal/remediation.md` directly
+- Added `REMEDIATION_PATH` fallback: if absent in output, read `.audit/remediation.md` directly
 - Added `pnpm`/`npm` fallback note in Constraints
 - Message templates compressed — agents adapt tone and structure, no verbatim copying
 - Standardized imperative voice throughout SKILL.md

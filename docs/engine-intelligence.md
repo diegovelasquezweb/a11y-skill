@@ -18,19 +18,16 @@ The skill ships with a curated knowledge base that map common accessibility viol
 
 ### Core Intelligence Fields
 
-For every rule (e.g., `image-alt`), the engine provides:
+For every rule (e.g., `aria-dialog-name`), the engine provides a roadmap for the **AI Agent** to execute the fix:
 
-- **`fix.description`**: A human-friendly explanation of _what_ to do.
-- **`fix.code`**: A "surgical" code snippet (HTML/JSX/Liquid) that demonstrates the fix.
-- **`framework_notes`**: Platform-specific advice for React, Vue, and Angular.
-- **`false_positive_risk`**: Calibrated confidence level (`low` / `medium` / `high`). Medium/high triggers a warning badge in the report so agents verify before applying a fix.
-- **`fix_difficulty_notes`**: Edge cases and caveats beyond the obvious fix (e.g., label-vs-placeholder tradeoffs, voice control conflicts).
-- **`related_rules`**: Linked rule IDs commonly resolved together, with the reason why (e.g., `label` → `autocomplete-valid`).
-- **`mdn`**: Direct MDN Web Docs link for the relevant HTML element or ARIA attribute.
-
-### WCAG Criterion Map (`wcagCriterionMap`)
-
-A top-level lookup in `intelligence.json` that maps every rule ID to its WCAG criterion number (e.g., `"image-alt" → "1.1.1"`). The analyzer injects `wcag_criterion_id` into every finding using this map — no per-rule duplication required.
+- **`fix.description`**: The primary remediation strategy. The agent should use this to understand the high-level goal before looking at the code.
+- **`fix.code`**: A surgical code snippet. The agent should treat this as a structural template for the patch, adapting it to the specific variable names and context of the source file.
+- **`framework_notes`**: Platform-specific logic for **React**, **Vue**, **Angular**, **Svelte**, and **Astro**. The agent must consult the corresponding key for the framework detected in the codebase to avoid anti-patterns (e.g., using `htmlFor` instead of `for` in React).
+- **`managed_by_libraries`**: A list of component libraries (e.g., Radix, Shadcn) that handle this rule automatically. If the agent detects these libraries in `package.json` or the component imports, it should verify if the library's built-in accessibility is being bypassed before applying a manual fix.
+- **`cms_notes`**: Environment-specific constraints for **Shopify**, **WordPress**, and **Drupal**. The agent must follow these if the project structure matches one of these platforms (e.g., Liquid-specific alt-text filters in Shopify).
+- **`false_positive_risk`**: Confidence level (`low` / `medium` / `high`). If `high`, the agent must prioritize manual verification and look for existing patterns that might satisfy the rule in a non-standard way.
+- **`fix_difficulty_notes`**: Edge cases and caveats. The agent must read this to avoid "blind fixing" (e.g., knowing that a missing label might be an intentional design trade-off requiring a different ARIA approach).
+- **`related_rules`**: Linked rule IDs. If the agent is fixing a rule, it should proactively check if related rules are also failing to ensure the affected component is fully remediated in one pass.
 
 ## Surgical Patch Generation
 
@@ -77,17 +74,17 @@ flowchart LR
     class Roadmap roadmap;
 ```
 
-## Example: The "Fix-First" Flow
+## Example: The "Fix-First" Flow (Agent Logic)
 
-If an image is missing alt text:
+If an image is found missing alt text, the Agent does not just "add an alt". It follows the intelligence data to determine the context:
 
-- **Scanner**: Detects `img` missing `alt`.
-- **Analyzer**:
-  - Identifies `ruleId: image-alt`.
-  - Extracts selector: `div.hero > img`.
-  - Generates search hint: `<img`.
-  - Fetches patch from Intelligence: `<img src="..." alt="Description">`.
-- **Roadmap**: Tells the AI: _"Search for `<img` inside the Hero component and add an `alt` attribute."_
+1.  **Scanner Detection**: `ruleId: image-alt`.
+2.  **Surgical ID**: Agent finds `<img class="product-shot">` inside `Hero.tsx`.
+3.  **Intelligence Lookup**:
+    - **Framework Filter**: Project is **Shopify + React**. Agent ignores Vue/Angular notes and reads the **Shopify CMS Note**: _"add a fallback: alt='{{ image.alt | default: product.title }}'"_.
+    - **Difficulty Audit**: Agent reads `fix_difficulty_notes` and realizes it must check if the image is decorative. It sees the image is used as a background texture and decides to use `alt=""` instead of a description.
+    - **Related Checks**: Agent notices `related_rules` includes `image-redundant-alt`. It verifies that there is no "Product Image" text immediately below the image to avoid duplicate announcements.
+4.  **Remediation**: The Agent proposes a patch that uses the correct Liquid filter for Shopify while adhering to React's JSX syntax, ensuring the fix is both accessible and platform-compatible.
 
 ## Manual Checks (`assets/manual-checks.json`)
 

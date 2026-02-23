@@ -49,7 +49,7 @@ function printUsage() {
   node build-report-html.mjs [options]
 
 Options:
-  --input <path>           Findings JSON path (default: audit/internal/a11y-findings.json)
+  --input <path>           Findings JSON path (default: .audit/a11y-findings.json)
   --output <path>          Output HTML path (required)
   --target <text>          Compliance target label (default: WCAG 2.2 AA)
   -h, --help               Show this help
