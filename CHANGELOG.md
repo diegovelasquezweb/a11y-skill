@@ -9,6 +9,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.0] — 2026-02-22
+
+### Changed
+
+- Workflow restructured from 4 steps to 6 steps with clearer separation of concerns:
+  - Step 1: Page discovery (NEW — was merged into old Step 1)
+  - Step 2: Run audit
+  - Step 3: Present findings + request permission
+  - Step 4: Fix (sub-phases 4a structural, 4b style, 4c code patterns)
+  - Step 5: Verification re-audit (promoted from sub-step 3d to mandatory standalone step)
+  - Step 6: Deliver results
+- Page discovery (Step 1) now asks user to choose between Sitemap and Crawler, with configurable page count (5/10/15/20/All) for crawler mode
+- Step 3 fix strategy options replaced: "Fix by severity", "Reports first, then fix by severity", "Other criteria", "Skip fixes" (was: severity by severity, fix all structural, only critical)
+- Communication Rules reduced from 7 rules to 2 (tone + message tags) — redundant rules replaced by structured tags
+- All user-facing questions now use `[QUESTION]` tag for consistent formatting — prevents agents from merging question options with informational lists
+- All pre-written messages now use `[MESSAGE]` tag with verbatim output requirement — agents copy exact text, no rephrasing
+- Step 4a checkpoint formalized as `[QUESTION]` ("Looks good" / "Something's wrong")
+- Step 4c permission formalized as `[QUESTION]` ("Yes, fix all" / "Let me pick" / "Skip")
+- Step 5 (verification re-audit) is now mandatory with explicit skip condition (only if no fixes were applied)
+- Step 5 loop capped at 3 re-audit cycles to prevent infinite loops
+- Step 6 manual verification checklist converted from numbered list to checkbox format with `[MESSAGE]` tag
+- Step 6 closing message includes positive reinforcement ("Great work!" / "Keep it up!")
+- "Final Certification Audit" terminology replaced with "comprehensive full-site verification"
+- "Audit Progress" renamed to "Progress" — reflects full workflow, not just auditing
+- Progress checklist simplified: 6 flat steps instead of 8 with sub-steps (4a-4c remain in detailed instructions only)
+- Removed hardcoded "30-50%" statistic — replaced with "cannot catch every barrier"
+- Description frontmatter: fixed multi-line YAML parsing issue, wrapped in quotes to prevent colon-space ambiguity
+- Anti-skip rule added to workflow intro: agents must follow every step in order, even if user provides info ahead of time
+- "Other criteria" in Step 3 now has explicit follow-through: Step 4 respects user's custom prioritization
+
+### Added
+
+- `[QUESTION]` tag system for all user-facing questions (5 total across workflow)
+- `[MESSAGE]` tag system for pre-written verbatim messages (4 total: impact reminder, re-audit start, re-audit findings, manual checklist, closing)
+- "Skip fixes" option (option 4) in Step 3 — triggers `[MESSAGE]` impact reminder about disability exclusion and legal risk
+- Explicit re-audit notification messages: agent informs user before running and explains new findings if discovered
+
+### Fixed
+
+- Mermaid diagram in `docs/scripts-catalog.md` — subgraph had no ID, causing parse error on GitHub. Added `Reports` ID
+- Eval step references updated to match new 6-step numbering (02, 03, 05, 06)
+- `evals/README.md` model notes updated: "3a-3d" → "4a-4c + Step 5 re-audit"
+- `references/troubleshooting.md` verification reference updated: "Step 3d" → "Step 5"
+
+---
+
 ## [0.7.0] — 2026-02-22
 
 ### Changed

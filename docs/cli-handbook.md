@@ -1,6 +1,6 @@
 # CLI Handbook
 
-**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Data Validation](data-validation.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Scripts](scripts-catalog.md) • [Testing](testing.md)
+**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Manifest](engine-manifest.md) • [Testing](testing.md)
 
 ---
 
@@ -10,7 +10,18 @@
 - [Command Categories](#command-categories)
 - [Advanced Patterns](#advanced-patterns)
 
-The a11y skill provides a decoupled **Audit Engine** that can be run independently of AI agents for local validation or CI/CD integration.
+## Environment & Execution Paths
+
+This skill follows the [Agent Skills standard](https://agentskills.io) and is aligned with [Claude's Best Practices for Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+
+| Agent / IDE     | Skill Install Path (Global/User)               | Verification Command           |
+| :-------------- | :--------------------------------------------- | :----------------------------- |
+| **Claude**      | `~/.claude/skills/a11y/`                       | `claude skills`                |
+| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`           | `antigravity status`           |
+| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex) | Check "Specialized Skills" tab |
+| **Codex**       | `~/.codex/skills/a11y/`                        | `codex status`                 |
+| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`             | `windsurf status`              |
+| **Gemini CLI**  | `~/.gemini/skills/a11y/`                       | `gemini status`                |
 
 ## Basic Usage
 
@@ -50,14 +61,14 @@ Flags used to customize _how_ the engine interprets rules.
 
 Flags used to control the _browser_ and _output_.
 
-| Flag             | Argument                              | Default             | Description                                                                     |
-| :--------------- | :------------------------------------ | :------------------ | :------------------------------------------------------------------------------ |
-| `--project-dir`  | `<path>`                              | (none)              | Path to the audited project (for framework/library auto-detection).             |
-| `--color-scheme` | `light\|dark`                         | `light`             | Emulates browser `prefers-color-scheme`.                                        |
-| `--headed`       | (No arg)                              | `false`             | Runs the browser in visible mode (useful for debugging).                        |
-| `--wait-ms`      | `<num>`                               | `2000`              | Max wait for `networkidle` after page load (acts as timeout, not fixed delay).  |
-| `--timeout-ms`   | `<num>`                               | `30000`             | Global network timeout for each page load.                                      |
-| `--wait-until`   | `domcontentloaded\|load\|networkidle` | `domcontentloaded`  | Playwright page load strategy. Use `networkidle` for SPAs with async rendering. |
+| Flag             | Argument                              | Default            | Description                                                                     |
+| :--------------- | :------------------------------------ | :----------------- | :------------------------------------------------------------------------------ |
+| `--project-dir`  | `<path>`                              | (none)             | Path to the audited project (for framework/library auto-detection).             |
+| `--color-scheme` | `light\|dark`                         | `light`            | Emulates browser `prefers-color-scheme`.                                        |
+| `--headed`       | (No arg)                              | `false`            | Runs the browser in visible mode (useful for debugging).                        |
+| `--wait-ms`      | `<num>`                               | `2000`             | Max wait for `networkidle` after page load (acts as timeout, not fixed delay).  |
+| `--timeout-ms`   | `<num>`                               | `30000`            | Global network timeout for each page load.                                      |
+| `--wait-until`   | `domcontentloaded\|load\|networkidle` | `domcontentloaded` | Playwright page load strategy. Use `networkidle` for SPAs with async rendering. |
 
 ## Advanced Patterns
 

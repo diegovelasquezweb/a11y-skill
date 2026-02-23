@@ -16,6 +16,17 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * Path to the manual check database asset.
  * @type {string}
  */
+const frameworkConfigPath = join(__dirname, "../../assets/framework-config.json");
+
+let FRAMEWORK_CONFIG;
+try {
+  FRAMEWORK_CONFIG = JSON.parse(readFileSync(frameworkConfigPath, "utf-8"));
+} catch {
+  throw new Error(
+    "Missing or invalid assets/framework-config.json — reinstall the skill.",
+  );
+}
+
 const manualChecksPath = join(__dirname, "../../assets/manual-checks.json");
 
 /**
@@ -94,10 +105,10 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
   const detected = metadata.projectContext?.framework;
   if (detected) return detected;
   const url = baseUrl.toLowerCase();
-  if (url.includes("myshopify.com") || url.includes(".myshopify."))
-    return "shopify";
-  if (url.includes("wp-content") || url.includes("wordpress"))
-    return "wordpress";
+  const urlSignals = FRAMEWORK_CONFIG.frameworkDetection?.urlSignals || [];
+  for (const signal of urlSignals) {
+    if (url.includes(signal.pattern)) return signal.framework;
+  }
   return "generic";
 }
 
@@ -107,23 +118,11 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
  * @returns {string} A bulleted list of framework-specific operating procedures.
  */
 function buildGuardrails(framework) {
-  const shared = [
-    `2.  **Surgical Selection**: Use the **Surgical Selector** and **Evidence from DOM** to verify you are editing the correct element. Accessibility fixes are context-sensitive.`,
-    `3.  **Global Component Check**: If an issue repeats across multiple pages, it is likely inside a Global Component (e.g., \`Header.tsx\`, \`Button.vue\`). Fix it once at the source.`,
-    `4.  **Verification**: After applying a fix, explain *why* it resolves the WCAG criterion mentioned.`,
-    `5.  **No Placeholders**: Do not add "todo" comments. Provide the complete code fix.`,
-  ];
-
-  const frameworkRule = {
-    shopify: `1.  **Shopify Project**: Edit \`.liquid\` files in \`sections/\`, \`snippets/\`, or \`layout/\`. **NEVER** edit compiled assets in \`assets/*.min.js\`. Source of Truth: fix at the template, not the rendered DOM.`,
-    wordpress: `1.  **WordPress Project**: Work only in \`wp-content/themes/\` or \`plugins/\`. **NEVER** edit \`wp-admin/\` or \`wp-includes/\` or any cached file. Source of Truth: fix at the theme template.`,
-    drupal: `1.  **Drupal Project**: Search for \`.html.twig\` in \`themes/\`. Clear cache with \`drush cr\` after changes. **NEVER** edit compiled or cached files.`,
-    generic: `1.  **Framework & CMS Awareness**: This project may use React, Vue, Next.js, Astro, **Shopify** (.liquid), **WordPress** (.php), or **Drupal** (.twig).\n    - **NEVER** edit compiled, minified, or cached files (e.g., \`dist/\`, \`.next/\`, \`build/\`, \`wp-content/cache/\`, \`assets/*.min.js\`).\n    - **Source of Truth**: Traced DOM violations must be fixed at the **Source Component** or **Server-side Template**. Edit the origin, not the output.`,
-  };
-
-  return [frameworkRule[framework] ?? frameworkRule.generic, ...shared].join(
-    "\n",
-  );
+  const guardrails = FRAMEWORK_CONFIG.guardrails || {};
+  const shared = guardrails.shared || [];
+  const frameworkRules = guardrails.framework || {};
+  const frameworkRule = frameworkRules[framework] ?? frameworkRules.generic;
+  return [frameworkRule, ...shared].join("\n");
 }
 
 /**
