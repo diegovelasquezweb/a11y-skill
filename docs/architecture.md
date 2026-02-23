@@ -37,12 +37,12 @@ flowchart TD
 
     subgraph P3 ["Phase 3: Delivery"]
         direction TB
-        D["<b>3. Builder</b><br/>(Multi-format)"]
+        D["<b>3. Builder</b><br/>(Parallel Rendering)"]
         D1["AI Roadmap (MD)"]
         D2["Visual Evidence (HTML)"]
         D3["Executive Summary (PDF)"]
         D4["Internal Data (JSON)"]
-        D --> D1 & D2 & D3 & D4
+        D --- D1 & D2 & D3 & D4
     end
 
     A(["Target URL / Project"]) --> P1
