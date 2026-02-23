@@ -2983,6 +2983,106 @@
         "svelte": "svelte-dnd-action has some keyboard support. For custom implementations, add arrow key handlers.",
         "astro": "Ensure island drag components include keyboard support."
       }
+    },
+    "missing-autocomplete": {
+      "description": "Form inputs collecting personal data (name, email, phone, address, payment) are missing the `autocomplete` attribute. Browsers and assistive technology cannot auto-fill values, increasing cognitive load for users with motor or cognitive disabilities.",
+      "detection": {
+        "search": "name=[\"'](?:first[_\\-]?name|last[_\\-]?name|full[_\\-]?name|given[_\\-]?name|family[_\\-]?name|email|phone|tel|mobile|address|street|zip|postal|city|state|country|credit|card|cvv|cvc|birth|dob)",
+        "files": "**/*.html, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.astro"
+      },
+      "fix": {
+        "description": "Add the appropriate `autocomplete` token (e.g. `given-name`, `family-name`, `email`, `tel`, `street-address`, `postal-code`, `cc-number`) to each input collecting personal data. Full token list: https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill",
+        "code": "<!-- Before -->\n<input type=\"text\" name=\"firstName\" />\n<input type=\"email\" name=\"userEmail\" />\n<input type=\"tel\" name=\"phone\" />\n\n<!-- After -->\n<input type=\"text\" name=\"firstName\" autocomplete=\"given-name\" />\n<input type=\"email\" name=\"userEmail\" autocomplete=\"email\" />\n<input type=\"tel\" name=\"phone\" autocomplete=\"tel\" />"
+      },
+      "wcag": "1.3.5",
+      "severity": "medium",
+      "framework_notes": {
+        "react": "Pass `autocomplete` as a prop — React maps it directly to the DOM attribute: `<input autocomplete=\"given-name\" />`.",
+        "vue": "Add as a static attribute: `autocomplete=\"given-name\"`. To bind dynamically: `:autocomplete=\"'given-name'\"`.",
+        "angular": "Add `autocomplete=\"given-name\"` directly in the template element — Angular does not strip it.",
+        "svelte": "Add `autocomplete=\"given-name\"` as a native HTML attribute in the template markup.",
+        "astro": "Add `autocomplete=\"given-name\"` to input elements in .astro files or component templates."
+      }
+    },
+    "autoplay-media": {
+      "description": "An `<audio>` or `<video>` element has the `autoplay` attribute without being muted. Auto-playing audio interferes with screen readers and disorienting for users with cognitive disabilities.",
+      "detection": {
+        "search": "<(?:audio|video)[^>\\n]*\\bautoplay\\b(?![^>]*\\bmuted\\b)",
+        "files": "**/*.html, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.astro"
+      },
+      "fix": {
+        "description": "Remove `autoplay`, or if the video must autoplay, add `muted` and ensure `controls` is present so the user can pause and adjust volume.",
+        "code": "<!-- Before — auto-plays with audio, no controls -->\n<video autoplay src=\"intro.mp4\"></video>\n\n<!-- After option 1 — no autoplay -->\n<video controls src=\"intro.mp4\"></video>\n\n<!-- After option 2 — silent autoplay with controls -->\n<video autoplay muted controls src=\"intro.mp4\"></video>"
+      },
+      "wcag": "1.4.2",
+      "severity": "high",
+      "framework_notes": {
+        "react": "Remove the `autoPlay` prop (React uses camelCase). If required, add `muted` and `controls`: `<video autoPlay muted controls src={src} />`.",
+        "vue": "Remove `autoplay` from the element. If required, add `muted controls`: `<video autoplay muted controls :src=\"src\" />`.",
+        "angular": "Remove the `autoplay` attribute. Only use `[attr.autoplay]` together with `muted` and `controls` bindings.",
+        "svelte": "Remove `autoplay` from `<video>` or `<audio>`. If needed: `<video autoplay muted controls {src}>`.",
+        "astro": "Remove `autoplay` from media elements in .astro templates. If required, add `muted controls`."
+      }
+    },
+    "orientation-lock": {
+      "description": "The page calls `screen.orientation.lock()` to restrict display to portrait or landscape mode. Users who mount their device in a fixed position (e.g., on a wheelchair) cannot physically rotate it.",
+      "detection": {
+        "search": "screen\\.orientation\\.lock\\(|lockOrientation\\(",
+        "files": "**/*.ts, **/*.js, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte"
+      },
+      "fix": {
+        "description": "Remove the orientation lock unless it is essential to the content (e.g., a piano keyboard app that genuinely requires landscape). If essential, show a non-blocking in-UI notice that the user can dismiss.",
+        "code": "// Before — locks to portrait, breaks mounted devices\nscreen.orientation.lock('portrait');\n\n// After — remove the lock entirely\n// Only if truly essential, show a dismissible notice:\nif (isEssentiallyLandscapeOnly && !userDismissedNotice) {\n  showOrientationNotice(); // non-blocking banner, not a modal\n}"
+      },
+      "wcag": "1.3.4",
+      "severity": "medium",
+      "framework_notes": {
+        "react": "Remove `screen.orientation.lock()` calls from `useEffect` hooks. If a native app wrapper (Capacitor, Expo) sets orientation, configure it only for specific screens.",
+        "vue": "Remove from `mounted()` hooks or composables. Check Capacitor/Cordova plugins that may enforce orientation globally.",
+        "angular": "Remove from `ngOnInit` or service initialization. Check Ionic platform orientation settings if applicable.",
+        "svelte": "Remove from `onMount()`. Check any Capacitor/Cordova integration for orientation lock config.",
+        "astro": "This is a client-side JS pattern. Remove from any `<script>` blocks or client-side island components."
+      }
+    },
+    "character-key-shortcut": {
+      "description": "An `accesskey` attribute creates single-character keyboard shortcuts that conflict with screen reader and browser shortcuts, with no mechanism for users to remap or disable them.",
+      "detection": {
+        "search": "\\baccesskey=",
+        "files": "**/*.html, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.astro"
+      },
+      "fix": {
+        "description": "Remove `accesskey` attributes. If essential keyboard shortcuts are needed, use multi-key combinations (e.g., Alt+Shift+character) and provide a UI panel where users can view or disable them.",
+        "code": "<!-- Before — single-character shortcut, no override mechanism -->\n<button accesskey=\"s\">Save</button>\n\n<!-- After option 1 — remove accesskey -->\n<button type=\"button\">Save</button>\n\n<!-- After option 2 — multi-key shortcut with disclosure -->\n<button\n  type=\"button\"\n  aria-keyshortcuts=\"Alt+Shift+S\"\n  title=\"Save (Alt+Shift+S)\">\n  Save\n</button>"
+      },
+      "wcag": "2.1.4",
+      "severity": "medium",
+      "framework_notes": {
+        "react": "Remove the `accessKey` prop (React camelCase). For custom shortcuts, implement a `useKeyboardShortcut` hook using modifier keys (Alt+Shift+key).",
+        "vue": "Remove `accesskey` from template elements. For custom shortcuts, use `@keydown` with modifier checks (e.g., `Alt+Shift`).",
+        "angular": "Remove `accesskey` from templates. For custom shortcuts, use Angular CDK keyboard events with modifier keys.",
+        "svelte": "Remove `accesskey` from markup. For custom shortcuts, use `on:keydown` with modifier key guards.",
+        "astro": "Remove `accesskey` from .astro template elements and any component files."
+      }
+    },
+    "motion-actuation-no-alt": {
+      "description": "Device motion or orientation events (`devicemotion`, `deviceorientation`) trigger actions (e.g., shake to undo) with no UI button alternative. Users who mount their device on a wheelchair or stand cannot physically perform these gestures.",
+      "detection": {
+        "search": "DeviceMotionEvent|DeviceOrientationEvent|addEventListener.*['\"]device(?:motion|orientation)['\"]",
+        "files": "**/*.ts, **/*.js, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte"
+      },
+      "fix": {
+        "description": "Add a visible UI button or keyboard-accessible control as an alternative for every motion-triggered action. The motion listener can remain, but the action must also be reachable without it.",
+        "code": "// Before — shake-only, no alternative\nwindow.addEventListener('devicemotion', (e) => {\n  if (isShake(e)) undoLastAction();\n});\n\n// After — motion + visible button alternative\nwindow.addEventListener('devicemotion', (e) => {\n  if (isShake(e)) undoLastAction();\n});\n\n{/* Add a visible UI alternative */}\n<button type=\"button\" onClick={undoLastAction}>\n  Undo\n</button>"
+      },
+      "wcag": "2.5.4",
+      "severity": "medium",
+      "framework_notes": {
+        "react": "Keep the DeviceMotion listener but add an `<button onClick={action}>` control. Expose the same handler to both triggers.",
+        "vue": "Add a `@click` button alongside the `devicemotion` listener. Share the same handler method.",
+        "angular": "Add a `(click)` button alongside the device motion subscription. Extract the action to a shared method.",
+        "svelte": "Add an `on:click` button alongside the `devicemotion` event listener. Both call the same function.",
+        "astro": "In client-side island components, ensure every device motion handler has a paired clickable button."
+      }
     }
   }
 }
