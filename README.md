@@ -18,6 +18,7 @@ Traditional accessibility tools are built for humans to read reports. This skill
 | **Compliance scoring**   | ✅ Custom weighted severity with priority ranking                              | ❌ Basic impact tiers without remediation priority                 |
 | **Visual reports**       | ✅ HTML dashboard + PDF executive summary, on demand                           | ❌ Agent must generate reports from scratch                        |
 | **Verification**         | ✅ Orchestrated re-audit after each fix phase                                  | ❌ Agent must wire fix-then-revalidate loop                        |
+| **Token efficiency**     | ✅ Local analysis + AI-optimized blueprints                                    | ❌ Context-heavy raw HTML parsing & trial-and-error edits          |
 
 ## Installation
 
@@ -86,7 +87,7 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 | [CLI Handbook](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.              |
 | [Engine Intelligence](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system. |
 | [Scoring System](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.        |
-| [Scripts Catalog](docs/scripts-catalog.md)         | Purpose and execution workflow of all engine automation scripts.             |
+| [Engine Manifest](docs/engine-manifest.md)         | Technical inventory of all engine scripts, JSON assets, and references.      |
 | [Testing Strategy](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                     |
 
 ## External Resources
