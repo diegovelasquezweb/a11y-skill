@@ -8,11 +8,11 @@ Traditional accessibility tools are built for humans to read reports. This skill
 
 | Capability          | With a11y                                                       | Without                                                     |
 | :------------------ | :-------------------------------------------------------------- | :---------------------------------------------------------- |
-| **Scale & Speed**   | ✅ Sitemap crawler + 3 concurrent parallel tabs                 | ❌ Manual single-page scans & slow discovery                |
-| **Stack Awareness** | ✅ Native detection for major Frameworks, CMS, and UI libraries | ❌ Generic DOM-only feedback with no file context           |
 | **Remediation IQ**  | ✅ Surgical fix blueprints + automated re-audit loop            | ❌ Manual source-code search & unverified fixes             |
-| **Token Economy**   | ✅ Local analysis; saves ~90% of context window                 | ❌ High context drain from raw HTML parsing                 |
-| **Rule Compliance** | ✅ Full WCAG 2.2 AA (Auto + Manual) + PDF exports               | ❌ Partial automated scans or generic best-practice guesses |
+| **Rule Compliance** | ✅ 100% of axe-core WCAG A/AA + manual checklist + PDF exports  | ❌ Partial automated scans or generic best-practice guesses |
+| **Token Economy**   | ✅ On-device analysis; agent reads only a compact fix roadmap   | ❌ High context drain from reading raw HTML data            |
+| **Stack Awareness** | ✅ Native detection for major Frameworks, CMS, and UI libraries | ❌ Generic DOM-only feedback with no file context           |
+| **Scale & Speed**   | ✅ Sitemap crawler + 3 concurrent parallel tabs                 | ❌ Manual single-page scans & slow discovery                |
 
 ## Installation
 
