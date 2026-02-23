@@ -6,19 +6,13 @@ This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with
 
 Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between knowing a problem exists and fixing it by providing the exact intelligence an agent needs to resolve issues with precision.
 
-| Capability               | With this skill                                                                | Without                                                            |
-| :----------------------- | :----------------------------------------------------------------------------- | :----------------------------------------------------------------- |
-| **Audit scope**          | ✅ Built-in sitemap crawler + multi-page scanning                              | ❌ Agent must script multi-URL loops manually                      |
-| **Rule coverage**        | ✅ 100% of axe-core WCAG A/AA + best-practice rules                            | ❌ Lighthouse runs ~67 of ~90 applicable rules                     |
-| **Fix intelligence**     | ✅ Surgical fix patterns per file with component batching                      | ❌ Agent relies on general knowledge, no project-specific guidance |
-| **Framework detection**  | ✅ Next.js, Nuxt, React, Vue, Angular, Astro, Svelte                           | ❌ Generic HTML suggestions, no framework context                  |
-| **CMS support**          | ✅ Shopify (Liquid), WordPress (PHP)                                           | ❌ No CMS-aware file resolution                                    |
-| **UI library awareness** | ✅ Radix, Headless UI, Polaris, React Aria, Ariakit, Shadcn, PrimeVue, Vuetify | ❌ No managed component detection                                  |
-| **Parallel scanning**    | ✅ 3 concurrent browser tabs, built-in                                         | ❌ Requires external tooling to parallelize                        |
-| **Compliance scoring**   | ✅ Custom weighted severity with priority ranking                              | ❌ Basic impact tiers without remediation priority                 |
-| **Visual reports**       | ✅ HTML dashboard + PDF executive summary, on demand                           | ❌ Agent must generate reports from scratch                        |
-| **Verification**         | ✅ Orchestrated re-audit after each fix phase                                  | ❌ Agent must wire fix-then-revalidate loop                        |
-| **Token efficiency**     | ✅ Local analysis + AI-optimized blueprints                                    | ❌ Context-heavy raw HTML parsing & trial-and-error edits          |
+| Capability          | With a11y                                                       | Without                                                     |
+| :------------------ | :-------------------------------------------------------------- | :---------------------------------------------------------- |
+| **Scale & Speed**   | ✅ Sitemap crawler + 3 concurrent parallel tabs                 | ❌ Manual single-page scans & slow discovery                |
+| **Stack Awareness** | ✅ Native detection for major Frameworks, CMS, and UI libraries | ❌ Generic DOM-only feedback with no file context           |
+| **Remediation IQ**  | ✅ Surgical fix blueprints + automated re-audit loop            | ❌ Manual source-code search & unverified fixes             |
+| **Token Economy**   | ✅ Local analysis; saves ~90% of context window                 | ❌ High context drain from raw HTML parsing                 |
+| **Rule Compliance** | ✅ Full WCAG 2.2 AA (Auto + Manual) + PDF exports               | ❌ Partial automated scans or generic best-practice guesses |
 
 ## Installation
 
