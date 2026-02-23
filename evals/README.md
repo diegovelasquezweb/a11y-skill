@@ -11,12 +11,14 @@ Each `.json` file is a self-contained test case. There is no built-in runner —
 3. Compare agent behavior against `expected_behavior`.
 4. Note any deviations in `model_notes`.
 
-| Model / Agent       | Strengths               | Watch for                                                 |
-| :------------------ | :---------------------- | :-------------------------------------------------------- |
-| **Antigravity**     | High tool precision     | Verify it follows the Resource Map for progressive loading. |
-| **Windsurf**        | Fast execution          | Verify it follows the Resource Map for progressive loading. |
-| **Sonnet (Claude)** | Best-in-class reasoning | Ensure it follows the full 4a-4c sub-phase cycle + Step 5 re-audit. |
-| **Gemini CLI**      | Reliable automation     | Watch for `ReadFile` fallbacks in the skill directory.      |
+| Model / Agent       | Strengths               | Watch for                                                                                          |
+| :------------------ | :---------------------- | :------------------------------------------------------------------------------------------------- |
+| **Antigravity**     | High tool precision     | Verify it follows the Resource Map for progressive loading.                                        |
+| **Windsurf**        | Fast execution          | Verify it follows the Resource Map for progressive loading.                                        |
+| **Opus (Claude)**   | Deep reasoning          | May over-explain findings — verify it stays concise and outputs `[MESSAGE]` tags verbatim.         |
+| **Sonnet (Claude)** | Best-in-class reasoning | Ensure it follows the full 4a-4c sub-phase cycle + Step 5 re-audit.                               |
+| **Haiku (Claude)**  | Fast, economical        | May skip steps or merge questions — verify each `[QUESTION]` is sent separately and Step 5 runs.  |
+| **Gemini CLI**      | Reliable automation     | Watch for `ReadFile` fallbacks in the skill directory.                                             |
 
 ## Scenarios
 
