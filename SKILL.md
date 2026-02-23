@@ -130,14 +130,14 @@ Read the remediation guide and:
 
 `[QUESTION]` **How would you like to proceed?**
 
-1. **Fix by severity** — work through Critical → High → Medium → Low, one group at a time with a checkpoint after each
-2. **Reports first, then fix by severity** — generate visual reports now, then fix severity by severity
+1. **Fix by severity** — start with the most critical issues first
+2. **Reports first, then fix** — generate visual reports now, then fix issues by severity
 3. **Other criteria** — tell me how you'd like to prioritize the fixes
 4. **Skip fixes** — don't fix anything right now
 
 Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Reports first**: the "yes to reports" is already implied — skip the Yes/No question and ask:
+If the user chooses **Reports first, then fix**: the "yes to reports" is already implied — skip the Yes/No question and ask:
 
 `[QUESTION]` **Which format?**
 
@@ -228,15 +228,15 @@ Process the "🔍 Source Code Pattern Audit" section from the remediation guide.
 1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
 2. Present confirmed matches as a batch with the proposed fix from the pattern's `fix.description` and `fix.code`, then ask:
 
-`[QUESTION]` **I found [N] source code patterns that need fixes. Apply them?**
+`[QUESTION]` **I found [N] accessibility issues in your source code that the automated scan couldn't detect. Apply fixes?**
 
 1. **Yes, fix all** — apply all proposed changes
 2. **Let me pick** — I'll choose which ones to apply
-3. **Skip** — don't apply any source code fixes
+3. **Skip** — don't apply any of these fixes
 
 If the user chooses **Yes, fix all** or **Let me pick**: apply the fixes using the exact `fix.code` from the remediation guide, list the files and changes made, then ask:
 
-`[QUESTION]` **I've applied the source code fixes. Please verify visually — does everything look correct?**
+`[QUESTION]` **I've applied the fixes. Please verify visually — does everything look correct?**
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
@@ -245,7 +245,7 @@ If **Looks good** or after resolving **Something's wrong**: proceed to Step 5.
 
 If the user chooses **Skip**, show the following message before proceeding to Step 5:
 
-`[MESSAGE]` Skipping source code fixes is fine for now, but keep in mind these patterns affect real users — missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page. These findings will remain in the remediation guide if you decide to revisit them.
+`[MESSAGE]` No problem — these issues will remain in the remediation guide if you decide to revisit them. Keep in mind they affect real users: missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page.
 
 If 0 matches were found, proceed automatically to Step 5 without showing the message.
 
@@ -278,7 +278,7 @@ After completion, parse ALL findings — new regressions and unresolved original
      `[QUESTION]` **The re-audit still shows [N] issue(s) after attempting fixes. How would you like to proceed?**
 
      1. **Keep fixing**
-     2. **Move on** — I'll proceed with the remaining issues noted
+     2. **Move on** — accept the remaining issues and continue
 
   6. If the user chooses **Move on**, proceed to Step 6. If they choose **Keep fixing**, go back to step 2 of this sequence (present findings and fix following Step 4 procedures).
 
@@ -322,7 +322,7 @@ If **No thanks**: skip to step 7.
 1. **Yes** — ignore generated reports
 2. **No** — keep reports tracked
 
-If **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message, then proceed to step 6. If **No**: proceed to step 6.
+If **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message, then proceed to item 6 below (generate the reports). If **No**: proceed to item 6 below (generate the reports).
 
 6. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
 
