@@ -829,6 +829,20 @@ function main() {
 
   const findings = normalizeFindings(inputPayload);
 
+  const screenshotsDir = getInternalPath("screenshots");
+  for (const finding of findings) {
+    if (finding.screenshotPath) {
+      const filename = path.basename(finding.screenshotPath);
+      const absolutePath = path.join(screenshotsDir, filename);
+      if (fs.existsSync(absolutePath)) {
+        const data = fs.readFileSync(absolutePath);
+        finding.screenshotPath = `data:image/png;base64,${data.toString("base64")}`;
+      } else {
+        finding.screenshotPath = null;
+      }
+    }
+  }
+
   const html = buildHtml(args, findings, inputPayload.metadata);
   fs.mkdirSync(path.dirname(args.output), { recursive: true });
   fs.writeFileSync(args.output, html, "utf-8");
