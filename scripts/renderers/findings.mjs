@@ -1,5 +1,5 @@
 /**
- * @file core-findings.mjs
+ * @file findings.mjs
  * @description Core data normalization and scoring logic for accessibility findings.
  * Provides functions to process raw scanner results into a structured format used
  * across all report types (HTML, Markdown, PDF).

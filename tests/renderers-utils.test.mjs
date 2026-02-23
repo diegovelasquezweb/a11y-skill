@@ -3,9 +3,9 @@ import {
   escapeHtml,
   formatMultiline,
   linkify,
-} from "../scripts/report/core-utils.mjs";
+} from "../scripts/renderers/utils.mjs";
 
-describe("core-utils HTML utilities", () => {
+describe("renderers/utils HTML utilities", () => {
   describe("escapeHtml", () => {
     it("escapes special HTML characters", () => {
       const input = '<div class="test"> & \' </div>';

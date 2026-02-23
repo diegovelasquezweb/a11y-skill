@@ -1,5 +1,5 @@
 /**
- * @file build-report-pdf.mjs
+ * @file report-pdf.mjs
  * @description Generates a professional PDF audit report using Playwright.
  * It renders an internal HTML template optimized for print and exports it
  * as a formal A4 accessibility compliance document.
@@ -8,12 +8,12 @@
 import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
-import { readJson, log, getInternalPath, DEFAULTS } from "./a11y-utils.mjs";
+import { readJson, log, getInternalPath, DEFAULTS } from "./utils.mjs";
 import {
   normalizeFindings,
   buildSummary,
   computeComplianceScore,
-} from "./report/core-findings.mjs";
+} from "./renderers/findings.mjs";
 import {
   scoreMetrics,
   buildPdfExecutiveSummary,
@@ -23,14 +23,14 @@ import {
   buildPdfAuditLimitations,
   buildPdfCoverPage,
   buildPdfIssueSummaryTable,
-} from "./report/format-pdf.mjs";
+} from "./renderers/pdf.mjs";
 
 /**
  * Prints the CLI usage instructions and available options for the PDF report builder.
  */
 function printUsage() {
   log.info(`Usage:
-  node build-report-pdf.mjs [options]
+  node report-pdf.mjs [options]
 
 Options:
   --input <path>           Findings JSON path (default: internal)

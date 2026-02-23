@@ -8,8 +8,8 @@
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { SEVERITY_ORDER } from "./core-findings.mjs";
-import { escapeHtml, formatMultiline, linkify } from "./core-utils.mjs";
+import { SEVERITY_ORDER } from "./findings.mjs";
+import { escapeHtml, formatMultiline, linkify } from "./utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

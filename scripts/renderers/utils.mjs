@@ -1,5 +1,5 @@
 /**
- * @file core-utils.mjs
+ * @file utils.mjs
  * @description Shared formatting and string manipulation utilities for report generation.
  * Includes HTML escaping, multiline formatting, and automatic URL linkification.
  */

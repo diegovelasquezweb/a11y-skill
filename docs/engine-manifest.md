@@ -12,24 +12,24 @@ The core engine is a three-stage pipeline designed for **Autonomous Remediation*
 
 ### The Orchestrator
 
-- **`scripts/run-audit.mjs`**: The master controller. Manages CLI arguments, dependency health, and coordinates the scanner → analyzer → builder flow.
+- **`scripts/audit.mjs`**: The master controller. Manages CLI arguments, dependency health, and coordinates the scanner → analyzer → builder flow.
 
 ### Core Engine
 
-- **`scripts/run-scanner.mjs`**: The "Eyes". Powered by Playwright and Axe-core. Handles browser emulation, route discovery (Crawling/Sitemap), and parallel DOM analysis.
-- **`scripts/run-analyzer.mjs`**: The "Brain". Consumes raw results and enriches them with intelligence data to generate surgical fix roadmaps.
+- **`scripts/scanner.mjs`**: The "Eyes". Powered by Playwright and Axe-core. Handles browser emulation, route discovery (Crawling/Sitemap), and parallel DOM analysis.
+- **`scripts/analyzer.mjs`**: The "Brain". Consumes raw results and enriches them with intelligence data to generate surgical fix roadmaps.
 
 ### Rendering Engine
 
-- **`scripts/build-report-html.mjs`**: Generates the interactive dashboard.
-- **`scripts/build-report-md.mjs`**: Creates the `remediation.md` logic used by AI agents.
-- **`scripts/build-report-pdf.mjs`**: Produces formal executive summaries.
-- **`scripts/report/`**: Modular rendering logic (`format-html.mjs`, `format-md.mjs`, `format-pdf.mjs`) and core data normalization (`core-findings.mjs`).
+- **`scripts/report-html.mjs`**: Generates the interactive dashboard.
+- **`scripts/report-md.mjs`**: Creates the `remediation.md` logic used by AI agents.
+- **`scripts/report-pdf.mjs`**: Produces formal executive summaries.
+- **`scripts/renderers/`**: Modular rendering logic (`html.mjs`, `md.mjs`, `pdf.mjs`) and core data normalization (`findings.mjs`).
 
 ### Infrastructure
 
-- **`scripts/a11y-utils.mjs`**: Shared utilities for path resolution, logging, and JSON I/O.
-- **`scripts/check-toolchain.mjs`**: Environment diagnostic utility.
+- **`scripts/utils.mjs`**: Shared utilities for path resolution, logging, and JSON I/O.
+- **`scripts/toolchain.mjs`**: Environment diagnostic utility.
 
 ---
 
@@ -75,11 +75,11 @@ These Markdown guides define the **Operational Standards** that the AI Agent fol
 ```mermaid
 %%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0' } } }%%
 flowchart LR
-    A[SKILL.md] -- "1. Orchestrates" --> B[run-audit.mjs]
+    A[SKILL.md] -- "1. Orchestrates" --> B[audit.mjs]
 
     subgraph Engine ["Logic Core"]
-        B --> C[run-scanner.mjs]
-        C --> D[run-analyzer.mjs]
+        B --> C[scanner.mjs]
+        C --> D[analyzer.mjs]
         D --> E[Builders]
     end
 

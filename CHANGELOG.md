@@ -110,12 +110,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sitemap discovery now scans all URLs in `sitemap.xml` without `maxRoutes` cap — `maxRoutes` only applies to BFS crawl fallback when no sitemap is found
 - Verification re-audit (Step 3d) is now automatic — agent runs it without asking, only surfaces regressions if found
 - All user-facing questions converted to closed format: yes/no or multiple choice with explicit options
-- `.gitignore` auto-append removed from `run-audit.mjs` — replaced with warning signals for the agent to ask the user
+- `.gitignore` auto-append removed from `audit.mjs` — replaced with warning signals for the agent to ask the user
 
 ### Removed
 
 - `a11y.config.json` from skill root (was an empty `{}` placeholder)
-- `.gitignore` auto-modification from `run-audit.mjs` pipeline
+- `.gitignore` auto-modification from `audit.mjs` pipeline
 - `manual_test` field from all 106 rules in `intelligence.json` — per-rule manual testing steps were only rendered in the HTML report, never surfaced to agents via `remediation.md`. General manual checks (`assets/manual-checks.json`) remain and power the Step 3c WCAG static code checks workflow
 
 ---
@@ -137,10 +137,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `a11y.config.json` reference table moved to `references/audit-config.md` (progressive disclosure)
 - Report route path convention moved to `references/report-standards.md`
 - Analyzer: `recommended_fix` simplified from up to 3 links (APG + a11ySupport + Inclusive Components) to a single reference link (APG preferred, helpUrl fallback) — reduces noise for both HTML report and agent remediation guide
-- Removed unused `A11Y_SUPPORT` and `INCLUSIVE_COMPONENTS` constants from `run-analyzer.mjs`
+- Removed unused `A11Y_SUPPORT` and `INCLUSIVE_COMPONENTS` constants from `analyzer.mjs`
 - Terminology consistency: "scan" → "audit" in evals (`01-basic-audit.json`, `evals/README.md`)
 - Analyzer: `framework_notes` and `cms_notes` now filtered to only the detected framework — agent receives 1 relevant note per finding instead of 5-7
-- Added `filterNotes()` with `FRAMEWORK_TO_INTEL_KEY` and `FRAMEWORK_TO_CMS_KEY` mappings in `run-analyzer.mjs`
+- Added `filterNotes()` with `FRAMEWORK_TO_INTEL_KEY` and `FRAMEWORK_TO_CMS_KEY` mappings in `analyzer.mjs`
 - Remediation guide (MD): removed `reproduction` steps — agents cannot open a browser, and the selector + search pattern already provide location context
 - Remediation guide (MD): removed redundant "Context & Patterns" block — was duplicating `recommended_fix` (generic link) when intelligence-sourced `fixDescription`/`fixCode` already provided a superior solution
 
@@ -245,7 +245,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - PDF generation now uses `waitUntil: "load"` instead of `"networkidle"` — faster and more reliable for local `file://` URLs
-- `parseArgs` in `check-toolchain.mjs` no longer returns a dead empty object
+- `parseArgs` in `toolchain.mjs` no longer returns a dead empty object
 
 ### Tests
 
@@ -259,7 +259,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `a11y.config.json` supports `colorScheme` and `viewports` for scan emulation configuration
-- Vitest unit tests covering `core-findings`, `a11y-utils`, `core-utils`, and `run-analyzer` (39 tests)
+- Vitest unit tests covering ``findings`, `utils`, `renderers-utils`, and `analyzer` (39 tests)
 - `detectImplicitRole()` — resolves implicit ARIA roles for native HTML elements (`<button>`, `<a>`, `<input>`, etc.)
 - `extractSearchHint()` — converts CSS selectors into source-code search patterns for AI agent reproduction steps
 - Asset loading guards: missing `intelligence.json` or `manual-checks.json` now produce actionable error messages
@@ -270,13 +270,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `data-manual-checks.mjs` extracted to `assets/manual-checks.json` (machine-readable static asset)
 - APG patterns, A11y Support, and Inclusive Components mappings extracted to `assets/intelligence.json`
 - `SKILL.md` reduced from 373 to 233 lines — detailed content moved to `references/`
-- `escapeHtml` import in `format-pdf.mjs` corrected to `core-utils.mjs`
+- `escapeHtml` import in `pdf.mjs` corrected to `utils.mjs`
 
 ### Fixed
 
 - Manual findings for h1/main no longer trigger false positives when route metadata is absent
 - `impactedUsers` fallback corrected — no longer inherits `impact` description field
-- `getInternalPath` missing import in `build-report-md.mjs` (was a runtime `ReferenceError`)
+- `getInternalPath` missing import in `report-md.mjs` (was a runtime `ReferenceError`)
 - Section numbering in `SKILL.md` was non-sequential — corrected to 1–11
 
 ---
@@ -293,8 +293,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Pipeline refactored into dedicated modules: `format-md.mjs`, `format-html.mjs`, `format-pdf.mjs`, `core-findings.mjs`, `core-utils.mjs`
-- `run-audit.mjs` orchestrates the full pipeline: scanner → analyzer → HTML → MD → PDF
+- Pipeline refactored into dedicated modules: `report/md.mjs`, `report/html.mjs`, `report/pdf.mjs`, `findings.mjs`, `utils.mjs`
+- `audit.mjs` orchestrates the full pipeline: scanner → analyzer → HTML → MD → PDF
 - Report artifacts: `audit/report.html`, `audit/remediation.md`, `audit/report.pdf`
 - Finding IDs are now deterministic SHA256-based hashes
 
@@ -309,7 +309,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release: Playwright + axe-core scanner (`run-scanner.mjs`)
+- Initial release: Playwright + axe-core scanner (`scanner.mjs`)
 - WCAG 2.1/2.2 A/AA/best-practice tag coverage
 - Route auto-discovery from same-origin `<a href>` links
 - Interactive HTML report with issue cards, search, severity filters, and page filters

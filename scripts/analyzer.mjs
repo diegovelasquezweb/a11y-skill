@@ -1,12 +1,12 @@
 /**
- * @file run-analyzer.mjs
+ * @file analyzer.mjs
  * @description Post-scan data processor.
  * Transforms raw axe-core results into enriched findings by applying
  * framework-specific logic, remediation intelligence, and WCAG mapping
  * to generate a structured audit overview.
  */
 
-import { log, readJson, writeJson, getInternalPath } from "./a11y-utils.mjs";
+import { log, readJson, writeJson, getInternalPath } from "./utils.mjs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
@@ -240,7 +240,7 @@ function extractComponentHint(selector) {
  */
 function printUsage() {
   log.info(`Usage:
-  node run-analyzer.mjs --input <route-checks.json> [options]
+  node analyzer.mjs --input <route-checks.json> [options]
 
 Options:
   --output <path>          Output findings JSON path (default: .audit/a11y-findings.json)
@@ -339,7 +339,7 @@ export function extractSearchHint(selector) {
 /**
  * Processes scan results into a high-level auditing findings object.
  * Enriches findings with intelligence metadata, framework notes, and fix recommendations.
- * @param {Object} inputPayload - The raw JSON payload from run-scanner.mjs.
+ * @param {Object} inputPayload - The raw JSON payload from scanner.mjs.
  * @param {Object} cliArgs - Arguments passed to the analyzer.
  * @returns {Object} A structured object containing findings and metadata.
  */

@@ -1,11 +1,11 @@
 /**
- * @file build-report-html.mjs
+ * @file report-html.mjs
  * @description Generates a high-fidelity, interactive HTML accessibility audit report.
  * It processes the audit findings, calculates compliance scores, and applies
  * a premium design system with persona-based impact analysis.
  */
 
-import { log, readJson, getInternalPath, DEFAULTS } from "./a11y-utils.mjs";
+import { log, readJson, getInternalPath, DEFAULTS } from "./utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,8 +15,8 @@ import {
   computeComplianceScore,
   scoreLabel,
   buildPersonaSummary,
-} from "./report/core-findings.mjs";
-import { escapeHtml } from "./report/core-utils.mjs";
+} from "./renderers/findings.mjs";
+import { escapeHtml } from "./renderers/utils.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
@@ -39,14 +39,14 @@ import {
   buildIssueCard,
   buildManualChecksSection,
   buildPageGroupedSection,
-} from "./report/format-html.mjs";
+} from "./renderers/html.mjs";
 
 /**
  * Prints the CLI usage instructions and available options for the HTML report builder.
  */
 function printUsage() {
   log.info(`Usage:
-  node build-report-html.mjs [options]
+  node report-html.mjs [options]
 
 Options:
   --input <path>           Findings JSON path (default: .audit/a11y-findings.json)

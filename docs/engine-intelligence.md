@@ -117,7 +117,7 @@ These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Che
 
 ### How to add a new manual check
 
-Add an entry to `assets/manual-checks.json`. No code changes required — `build-report-md.mjs` reads the file at build time and injects all checks automatically.
+Add an entry to `assets/manual-checks.json`. No code changes required — `report-md.mjs` reads the file at build time and injects all checks automatically.
 
 ## Reference Links
 

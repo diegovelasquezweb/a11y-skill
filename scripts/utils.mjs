@@ -1,5 +1,5 @@
 /**
- * @file a11y-utils.mjs
+ * @file utils.mjs
  * @description Core utility functions and shared configuration for the a11y skill.
  * Provides logging, file I/O operations, and path management used throughout the audit pipeline.
  */

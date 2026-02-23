@@ -8,8 +8,8 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { computeComplianceScore, scoreLabel } from "./core-findings.mjs";
-import { escapeHtml } from "./core-utils.mjs";
+import { computeComplianceScore, scoreLabel } from "./findings.mjs";
+import { escapeHtml } from "./utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

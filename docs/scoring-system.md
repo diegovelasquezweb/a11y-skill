@@ -9,7 +9,7 @@
 - [Penalty Weights](#penalty-weights)
 - [The Formula](#the-formula)
 - [Grade Thresholds](#grade-thresholds)
-- [Calculation Logic](#calculation-logic-scriptsreportcore-findingsmjs)
+- [Calculation Logic](#calculation-logic-scriptsrenderersfindingsmjs)
 
 The a11y skill uses a **Weighted Debt Model** to calculate the Compliance Score. Instead of a simple percentage of passed rules, it penalizes the score based on the severity and frequency of issues.
 
@@ -73,7 +73,7 @@ The score is mapped to a letter grade for quick stakeholder communication:
 | **35 - 54**  | **Poor**      | Significant accessibility debt |
 | **0 - 34**   | **Critical**  | Critical blockers detected     |
 
-## Calculation Logic (`scripts/report/core-findings.mjs`)
+## Calculation Logic (`scripts/renderers/findings.mjs`)
 
 1. **Grouping**: Multiple DOM instances of the same rule violation on a given route are grouped into one finding (with evidence showing up to 3 instances). Each unique rule-per-route counts as one penalty unit.
 2. **Weighting**: Each unique finding's severity is matched against the penalty table.

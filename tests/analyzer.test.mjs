@@ -5,7 +5,7 @@ import path from "node:path";
 import {
   detectImplicitRole,
   extractSearchHint,
-} from "../scripts/run-analyzer.mjs";
+} from "../scripts/analyzer.mjs";
 
 describe("assets/intelligence.json schema", () => {
   let intelligence;

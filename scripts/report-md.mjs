@@ -1,22 +1,22 @@
 /**
- * @file build-report-md.mjs
+ * @file report-md.mjs
  * @description Generates a Markdown-based remediation guide and audit summary.
  * This report is optimized for developers and intended to be used as a
  * backlog or README-style remediation roadmap.
  */
 
-import { readJson, log, getInternalPath, DEFAULTS } from "./a11y-utils.mjs";
+import { readJson, log, getInternalPath, DEFAULTS } from "./utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
-import { normalizeFindings } from "./report/core-findings.mjs";
-import { buildMarkdownSummary } from "./report/format-md.mjs";
+import { normalizeFindings } from "./renderers/findings.mjs";
+import { buildMarkdownSummary } from "./renderers/md.mjs";
 
 /**
  * Prints the CLI usage instructions and available options for the Markdown report builder.
  */
 function printUsage() {
   log.info(`Usage:
-  node build-report-md.mjs [options]
+  node report-md.mjs [options]
 
 Options:
   --input <path>           Findings JSON path (default: internal)

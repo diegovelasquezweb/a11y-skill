@@ -1,5 +1,5 @@
 /**
- * @file run-scanner.mjs
+ * @file scanner.mjs
  * @description Accessibility scanner core.
  * Responsible for crawling the target website, discovering routes,
  * and performing the automated axe-core analysis on identified pages
@@ -8,7 +8,7 @@
 
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
-import { log, DEFAULTS, writeJson, getInternalPath } from "./a11y-utils.mjs";
+import { log, DEFAULTS, writeJson, getInternalPath } from "./utils.mjs";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -27,7 +27,7 @@ const FRAMEWORK_CONFIG = JSON.parse(
  */
 function printUsage() {
   log.info(`Usage:
-  node run-scanner.mjs --base-url <url> [options]
+  node scanner.mjs --base-url <url> [options]
 
 Options:
   --routes <csv|newline>      Optional route list (same-origin paths/urls)

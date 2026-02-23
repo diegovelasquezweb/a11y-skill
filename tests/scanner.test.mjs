@@ -3,7 +3,7 @@ import {
   normalizePath,
   parseRoutesArg,
   discoverRoutes,
-} from "../scripts/run-scanner.mjs";
+} from "../scripts/scanner.mjs";
 
 const ORIGIN = "https://example.com";
 

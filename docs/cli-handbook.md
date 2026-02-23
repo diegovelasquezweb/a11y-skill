@@ -25,7 +25,7 @@ This skill follows the [Agent Skills standard](https://agentskills.io) and is al
 
 ## Basic Usage
 
-The primary command is `pnpm a11y`. It is an alias for `node scripts/run-audit.mjs`.
+The primary command is `pnpm a11y`. It is an alias for `node scripts/audit.mjs`.
 
 ```bash
 pnpm a11y --base-url https://example.com

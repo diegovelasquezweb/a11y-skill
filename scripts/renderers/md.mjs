@@ -8,7 +8,7 @@
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { buildSummary } from "./core-findings.mjs";
+import { buildSummary } from "./findings.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

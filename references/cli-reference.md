@@ -1,6 +1,6 @@
 # CLI Reference
 
-Run `node scripts/run-audit.mjs --help` for the full and up-to-date list. Common flags:
+Run `node scripts/audit.mjs --help` for the full and up-to-date list. Common flags:
 
 | Flag | Description | Default |
 | :--- | :--- | :--- |

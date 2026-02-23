@@ -5,9 +5,9 @@ import {
   normalizeFindings,
   buildSummary,
   buildPersonaSummary,
-} from "../scripts/report/core-findings.mjs";
+} from "../scripts/renderers/findings.mjs";
 
-describe("core-findings logic", () => {
+describe("findings logic", () => {
   describe("computeComplianceScore", () => {
     it("returns 100 when there are no findings", () => {
       const totals = { Critical: 0, High: 0, Medium: 0, Low: 0 };

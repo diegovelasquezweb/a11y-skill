@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { DEFAULTS, readJson, getInternalPath, SKILL_ROOT } from "../scripts/a11y-utils.mjs";
+import { DEFAULTS, readJson, getInternalPath, SKILL_ROOT } from "../scripts/utils.mjs";
 
 vi.mock("node:fs");
 
-describe("a11y-utils", () => {
+describe("utils", () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });

@@ -99,16 +99,16 @@ Run the audit with the discovery settings from Step 1:
 
 ```bash
 # Sitemap mode
-node scripts/run-audit.mjs --base-url <URL>
+node scripts/audit.mjs --base-url <URL>
 
 # Crawler — 10 pages (option 1, omit flag to use default)
-node scripts/run-audit.mjs --base-url <URL>
+node scripts/audit.mjs --base-url <URL>
 
 # Crawler — all reachable pages (option 2)
-node scripts/run-audit.mjs --base-url <URL> --max-routes 999
+node scripts/audit.mjs --base-url <URL> --max-routes 999
 
 # Crawler — custom count (option 3)
-node scripts/run-audit.mjs --base-url <URL> --max-routes <N>
+node scripts/audit.mjs --base-url <URL> --max-routes <N>
 ```
 
 For local projects with framework auto-detection, add `--project-dir <path>`. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
@@ -231,7 +231,7 @@ Inform the user before running, then **immediately** execute the script without 
 `[MESSAGE]` Running a verification re-audit to make sure all fixes are clean and no new issues were introduced.
 
 ```bash
-node scripts/run-audit.mjs --base-url <URL>
+node scripts/audit.mjs --base-url <URL>
 ```
 
 After completion, parse ALL findings — new regressions and unresolved originals:
@@ -299,10 +299,10 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
    ```bash
    # HTML (run if HTML or Both was selected)
-   node scripts/build-report-html.mjs --output <path>/report.html --base-url <URL>
+   node scripts/report-html.mjs --output <path>/report.html --base-url <URL>
 
    # PDF (run if PDF or Both was selected)
-   node scripts/build-report-pdf.mjs --output <path>/report.pdf --base-url <URL>
+   node scripts/report-pdf.mjs --output <path>/report.pdf --base-url <URL>
    ```
 
    After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present.
