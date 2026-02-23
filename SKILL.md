@@ -200,6 +200,12 @@ Process the "WCAG 2.2 Static Code Checks" section from the remediation guide:
 2. **Let me pick** — I'll choose which ones to apply
 3. **Skip** — don't apply any manual fixes
 
+If the user chooses **Skip**, show the following message before proceeding to Step 5:
+
+`[MESSAGE]` Skipping manual fixes is fine for now, but keep in mind these patterns affect real users — missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page. These findings will remain in the remediation guide if you decide to revisit them.
+
+If 0 violations were found, proceed automatically to Step 5 without showing the message.
+
 Common patterns: `<div onClick>` without keyboard support, untrapped focus in modals, missing skip links, decorative images without `aria-hidden`.
 
 ### Step 5 — Verification re-audit (mandatory)
@@ -275,17 +281,17 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
    If the user answers **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message before continuing.
 
-6. After all questions are answered, generate:
+6. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
 
    ```bash
-   # HTML
+   # HTML (run if HTML or Both was selected)
    node scripts/build-report-html.mjs --output <path>/report.html --base-url <URL>
-   open <path>/report.html
 
-   # PDF
+   # PDF (run if PDF or Both was selected)
    node scripts/build-report-pdf.mjs --output <path>/report.pdf --base-url <URL>
-   open <path>/report.pdf
    ```
+
+   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present.
 
 7. **MANDATORY** — output the following message verbatim before finishing:
 
