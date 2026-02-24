@@ -56,7 +56,7 @@ flowchart TD
 
 | File                        | Technical Scope                                                              |
 | :-------------------------- | :--------------------------------------------------------------------------- |
-| `assets/rule-metadata.json` | `wcagCriterionMap`, URLs (`mdn`, `apgPatterns`), `impactedUsers`, `expected` |
+| `assets/wcag-reference.json` | `wcagCriterionMap`, URLs (`mdn`, `apgPatterns`), `impactedUsers`, `expected` |
 | `assets/intelligence.json`  | `fix`, `framework_notes`, `cms_notes`, `false_positive_risk`                 |
 | `assets/manual-checks.json` | `criterion` mapping, `steps`, `remediation`, `code_example`                  |
 
@@ -83,7 +83,7 @@ Consult the **WCAG Understanding** page for each rule to verify:
 
 1.  **`fix.description`**: Is it technically accurate per the spec?
 2.  **`fix.code`**: Does it follow WCAG recommended techniques?
-3.  **`framework_notes`**: Valid keys are `react`, `vue`, `angular`, `svelte`, `astro`, `generic`.
+3.  **`framework_notes`**: Valid keys are `react`, `vue`, `angular`, `svelte`, `astro`.
 4.  **`cms_notes`**: Valid keys are `shopify`, `wordpress`, `drupal`. Must be separate from `framework_notes`.
 5.  **`false_positive_risk`**: Does it reflect actual axe-core edge cases?
 

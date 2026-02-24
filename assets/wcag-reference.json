@@ -39,7 +39,6 @@
     "group": "https://www.w3.org/WAI/ARIA/apg/patterns/landmarks/examples/form.html"
   },
   "mdn": {
-    "accessible-auth-minimum": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Understanding_WCAG/Understandable",
     "accesskeys": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/accesskey",
     "area-alt": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/area",
     "aria-allowed-attr": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes",
@@ -73,17 +72,14 @@
     "button-name": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/button_role",
     "bypass": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/a",
     "color-contrast": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Understanding_WCAG/Perceivable#contrast_minimum",
-    "consistent-help": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Understanding_WCAG/Understandable",
     "css-orientation-lock": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/@media/orientation",
     "definition-list": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dl",
     "dlitem": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dd",
     "document-title": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/title",
-    "dragging-movements": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Understanding_WCAG/Operable",
     "duplicate-id": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/id",
     "duplicate-id-aria": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/id",
     "empty-heading": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/Heading_Elements",
     "empty-table-header": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th",
-    "focus-appearance": "https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:focus-visible",
     "focus-order-semantics": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/tabindex",
     "form-field-multiple-labels": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/label",
     "frame-focusable-content": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe",
@@ -126,7 +122,6 @@
     "p-as-heading": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/Heading_Elements",
     "page-has-heading-one": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/Heading_Elements",
     "presentation-role-conflict": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/presentation_role",
-    "redundant-entry": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/Guides/Understanding_WCAG/Understandable",
     "region": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/header",
     "role-img-alt": "https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/img_role",
     "scope-attr-valid": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/th#scope",
@@ -147,7 +142,6 @@
     "video-caption": "https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/track"
   },
   "wcagCriterionMap": {
-    "accessible-auth-minimum": "3.3.8",
     "accesskeys": "2.1.1",
     "area-alt": "2.4.4",
     "aria-allowed-attr": "4.1.2",
@@ -181,17 +175,14 @@
     "button-name": "4.1.2",
     "bypass": "2.4.1",
     "color-contrast": "1.4.3",
-    "consistent-help": "3.2.6",
     "css-orientation-lock": "1.3.4",
     "definition-list": "1.3.1",
     "dlitem": "1.3.1",
     "document-title": "2.4.2",
-    "dragging-movements": "2.5.7",
     "duplicate-id": "4.1.2",
     "duplicate-id-aria": "4.1.2",
     "empty-heading": "2.4.6",
     "empty-table-header": "1.3.1",
-    "focus-appearance": "2.4.11",
     "focus-order-semantics": "2.4.3",
     "form-field-multiple-labels": "3.3.2",
     "frame-focusable-content": "2.1.1",
@@ -234,7 +225,6 @@
     "p-as-heading": "1.3.1",
     "page-has-heading-one": "2.4.6",
     "presentation-role-conflict": "4.1.2",
-    "redundant-entry": "3.3.7",
     "region": "1.3.6",
     "role-img-alt": "1.1.1",
     "scope-attr-valid": "1.3.1",
@@ -255,7 +245,6 @@
     "video-caption": "1.2.2"
   },
   "impactedUsers": {
-    "accessible-auth-minimum": "Users with cognitive disabilities (dyslexia, memory impairments)",
     "accesskeys": "Keyboard-only users and screen reader users (duplicate access keys cause unpredictable focus jumps)",
     "area-alt": "Screen reader users navigating image maps",
     "aria-allowed-attr": "Screen reader users (invalid attributes cause unpredictable AT behavior)",
@@ -289,17 +278,14 @@
     "button-name": "Screen reader users and voice control users",
     "bypass": "Keyboard-only users and screen reader users",
     "color-contrast": "Users with low vision or color blindness",
-    "consistent-help": "Users with cognitive disabilities who rely on consistent page layouts",
     "css-orientation-lock": "Users with motor disabilities who mount devices in a fixed orientation",
     "definition-list": "Screen reader users (incorrect dl structure breaks term/definition relationships)",
     "dlitem": "Screen reader users (dd/dt elements outside dl lose semantic meaning)",
     "document-title": "Screen reader users and users with cognitive disabilities",
-    "dragging-movements": "Users with motor disabilities who cannot perform drag gestures",
     "duplicate-id": "Screen reader users (broken element references)",
     "duplicate-id-aria": "Screen reader users (broken accessible name, description, or widget relationships)",
     "empty-heading": "Screen reader users navigating by headings",
     "empty-table-header": "Screen reader users (empty headers provide no context for associated data cells)",
-    "focus-appearance": "Keyboard-only users and users with low vision",
     "focus-order-semantics": "Keyboard-only users and screen reader users",
     "form-field-multiple-labels": "Screen reader users",
     "frame-focusable-content": "Keyboard-only users (focusable content trapped in inaccessible frames)",
@@ -342,7 +328,6 @@
     "p-as-heading": "Screen reader users navigating by headings",
     "page-has-heading-one": "Screen reader users navigating by headings",
     "presentation-role-conflict": "Screen reader users (conflicting roles cause AT to ignore or misrepresent elements)",
-    "redundant-entry": "Users with cognitive disabilities and motor disabilities",
     "region": "Screen reader users navigating by landmarks",
     "role-img-alt": "Blind users relying on screen readers",
     "scope-attr-valid": "Screen reader users navigating data tables",
@@ -363,7 +348,6 @@
     "video-caption": "Deaf users and users with hearing disabilities"
   },
   "expected": {
-    "accessible-auth-minimum": "Authentication processes must not require solving a cognitive function test without providing an accessible alternative method (WCAG 3.3.8).",
     "accesskeys": "The accesskey attribute value must be unique across the page to prevent conflicting keyboard shortcuts.",
     "area-alt": "Every <area> element in an image map must have an alt attribute that describes the link destination.",
     "aria-allowed-attr": "ARIA attributes used on an element must be valid for that element's role. Invalid attributes must be removed.",
@@ -397,17 +381,14 @@
     "button-name": "Every <button> and [role=\"button\"] must have a non-empty accessible name.",
     "bypass": "Page must provide a mechanism to skip repetitive navigation (e.g., a skip link).",
     "color-contrast": "Text contrast ratio must be at least 4.5:1 for normal text, 3:1 for large text.",
-    "consistent-help": "Help mechanisms must appear in the same relative order on every page where they are provided (WCAG 3.2.6).",
     "css-orientation-lock": "Content must not be locked to a single display orientation (portrait or landscape) unless a specific orientation is essential (WCAG 1.3.4).",
     "definition-list": "A <dl> element must only contain <dt> and <dd> groups, <div>, <script>, or <template> elements as direct children.",
     "dlitem": "Every <dt> and <dd> element must be contained within a <dl> element.",
     "document-title": "Page must have a descriptive, unique <title> element.",
-    "dragging-movements": "All drag-and-drop functionality must have an equivalent single-pointer alternative operable without dragging (WCAG 2.5.7).",
     "duplicate-id": "All id attributes must be unique within the document.",
     "duplicate-id-aria": "All IDs referenced by ARIA attributes must be unique within the document. Duplicate ARIA-referenced IDs cause AT to resolve to the first matching element, breaking all subsequent references.",
     "empty-heading": "Every heading element must contain non-empty, meaningful text content.",
     "empty-table-header": "Table header cells (<th>) must contain non-empty text content so screen readers can announce column or row context.",
-    "focus-appearance": "Focus indicators must be clearly visible, with a minimum area of the component perimeter × 2 CSS px and a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
     "focus-order-semantics": "Elements in the focus order must have an appropriate interactive role. Non-interactive elements with tabindex=\"0\" should use a suitable ARIA role.",
     "form-field-multiple-labels": "Each form input must have exactly one accessible name source (label, aria-label, or aria-labelledby).",
     "frame-focusable-content": "Frames with tabindex=\"-1\" must not contain focusable content, as keyboard users cannot reach it.",
@@ -450,7 +431,6 @@
     "p-as-heading": "Text that visually functions as a section heading must be marked up with a heading element (<h1>–<h6>), not a styled paragraph.",
     "page-has-heading-one": "Page must have exactly one <h1> element as the primary heading.",
     "presentation-role-conflict": "Elements with role=\"presentation\" or role=\"none\" must not have global ARIA attributes or focusable states that conflict with the presentation role.",
-    "redundant-entry": "Information already submitted during the same session must be auto-populated or selectable without requiring re-entry (WCAG 3.3.7).",
     "region": "All visible page content must be contained within a landmark element (main, nav, header, footer, aside).",
     "role-img-alt": "Elements with role=\"img\" must have a non-empty accessible name via aria-label or aria-labelledby.",
     "scope-attr-valid": "The scope attribute on <th> elements must use a valid value (row, col, rowgroup, colgroup) and must not be used on <td> elements.",
@@ -487,7 +467,14 @@
     "wcag21a": "WCAG 2.1 A",
     "wcag2a": "WCAG 2.1 A"
   },
-  "wcagTagPrecedence": ["wcag22aa", "wcag22a", "wcag21aa", "wcag2aa", "wcag21a", "wcag2a"],
+  "wcagTagPrecedence": [
+    "wcag22aa",
+    "wcag22a",
+    "wcag21aa",
+    "wcag2aa",
+    "wcag21a",
+    "wcag2a"
+  ],
   "implicitRoles": {
     "tagMap": {
       "a": "link",
@@ -543,11 +530,25 @@
         "focus-order-semantics",
         "tabindex"
       ],
-      "keywords": ["keyboard", "focusable", "tab order", "interactive"]
+      "keywords": [
+        "keyboard",
+        "focusable",
+        "tab order",
+        "interactive"
+      ]
     },
     "vision": {
-      "rules": ["color-contrast", "image-redundant-alt", "image-alt"],
-      "keywords": ["vision", "color", "contrast", "blind"]
+      "rules": [
+        "color-contrast",
+        "image-redundant-alt",
+        "image-alt"
+      ],
+      "keywords": [
+        "vision",
+        "color",
+        "contrast",
+        "blind"
+      ]
     },
     "cognitive": {
       "rules": [

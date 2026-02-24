@@ -62,17 +62,17 @@ flowchart TD
 
 ## Internal Component Roles
 
-### 1. The Scanner (`run-scanner.mjs`)
+### 1. The Scanner (`scanner.mjs`)
 
 - **Engine**: Uses Playwright to emulate a real user environment (Light/Dark mode, Viewport).
-- **Compliance**: Injects `axe-core` to run 106 accessibility rules (100% of axe-core WCAG A/AA + best-practice coverage).
+- **Compliance**: Injects `axe-core` 4.11.1 to run 104 accessibility rules (100% of axe-core WCAG A/AA + best-practice coverage).
 - **Discovery**: If the site has a `sitemap.xml`, all listed URLs are scanned. Otherwise, BFS multi-level crawl starting from `base-url`, configurable via `--crawl-depth` (1-3, default: 2), capped at `maxRoutes` (default: 10).
 - **Parallel Scanning**: Routes are scanned across 3 concurrent browser tabs for ~2-3x faster throughput.
 - **Smart Wait**: Uses `networkidle` signal instead of a fixed delay — proceeds as soon as the page is ready, with `waitMs` as the timeout ceiling.
 - **Project Context Detection**: Auto-detects the project's framework (Next.js, Nuxt, React, Vue, Angular, Astro, Svelte, Shopify, WordPress) from DOM signals, and UI component libraries (Radix, Headless UI, Chakra, Mantine, Material UI) from `package.json`.
 - **Output**: Generates a raw `a11y-scan-results.json` containing every violation found in the DOM plus the detected `projectContext`.
 
-### 2. The Analyzer (`run-analyzer.mjs`)
+### 2. The Analyzer (`analyzer.mjs`)
 
 - **Brain**: Consumes the raw scan results and enriches them using `assets/intelligence.json`.
 - **Fix Logic**: Generates the `fixCode`, `fixDescription`, `wcag_criterion_id`, and `framework_notes` for each finding.
@@ -82,9 +82,9 @@ flowchart TD
   - `managed_by_library` — warns when an ARIA rule violation may be on a component managed by a UI library (Radix, Headless UI, etc.).
   - `component_hint` — extracts the likely component name from the CSS selector (e.g., `.product-card__title` → `product-card`) for batch fixing.
   - `verification_command` — a targeted re-scan command (`--routes` + `--only-rule`) for quick post-fix verification.
-- **Triage**: Maps axe-core impact levels to severity tiers (Critical / High / Medium / Low). Compliance score calculation happens downstream in `core-findings.mjs`.
+- **Triage**: Maps axe-core impact levels to severity tiers (Critical / High / Medium / Low). Compliance score calculation happens downstream in `findings.mjs`.
 
-### 3. The Builder (`run-audit.mjs` orchestrator)
+### 3. The Builder (`audit.mjs` orchestrator)
 
 - **Assembly**: Coordinates the execution of the Scanner and Analyzer.
 - **Formatting**: Triggers the report builders (HTML dashboard, Markdown remediation guide, PDF summary).

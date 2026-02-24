@@ -1,10 +1,10 @@
 {
   "name": "a11y",
-  "version": "0.7.0",
+  "version": "0.9.0",
   "description": "WCAG 2.2 AA accessibility audit skill for AI coding agents",
   "type": "module",
   "scripts": {
-    "a11y": "node scripts/run-audit.mjs",
+    "a11y": "node scripts/audit.mjs",
     "test": "vitest run",
     "postinstall": "npx playwright install chromium"
   },

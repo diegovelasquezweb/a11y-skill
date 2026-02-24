@@ -18,19 +18,16 @@ The skill ships with a curated knowledge base that map common accessibility viol
 
 ### Core Intelligence Fields
 
-For every rule (e.g., `image-alt`), the engine provides:
+For every rule (e.g., `aria-dialog-name`), the engine provides a roadmap for the **AI Agent** to execute the fix:
 
-- **`fix.description`**: A human-friendly explanation of _what_ to do.
-- **`fix.code`**: A "surgical" code snippet (HTML/JSX/Liquid) that demonstrates the fix.
-- **`framework_notes`**: Platform-specific advice for React, Vue, and Angular.
-- **`false_positive_risk`**: Calibrated confidence level (`low` / `medium` / `high`). Medium/high triggers a warning badge in the report so agents verify before applying a fix.
-- **`fix_difficulty_notes`**: Edge cases and caveats beyond the obvious fix (e.g., label-vs-placeholder tradeoffs, voice control conflicts).
-- **`related_rules`**: Linked rule IDs commonly resolved together, with the reason why (e.g., `label` → `autocomplete-valid`).
-- **`mdn`**: Direct MDN Web Docs link for the relevant HTML element or ARIA attribute.
-
-### WCAG Criterion Map (`wcagCriterionMap`)
-
-A top-level lookup in `intelligence.json` that maps every rule ID to its WCAG criterion number (e.g., `"image-alt" → "1.1.1"`). The analyzer injects `wcag_criterion_id` into every finding using this map — no per-rule duplication required.
+- **`fix.description`**: The primary remediation strategy. The agent should use this to understand the high-level goal before looking at the code.
+- **`fix.code`**: A surgical code snippet. The agent should treat this as a structural template for the patch, adapting it to the specific variable names and context of the source file.
+- **`framework_notes`**: Platform-specific logic for **React**, **Vue**, **Angular**, **Svelte**, and **Astro**. The agent must consult the corresponding key for the framework detected in the codebase to avoid anti-patterns (e.g., using `htmlFor` instead of `for` in React).
+- **`managed_by_libraries`**: A list of component libraries (e.g., Radix, Shadcn) that handle this rule automatically. If the agent detects these libraries in `package.json` or the component imports, it should verify if the library's built-in accessibility is being bypassed before applying a manual fix.
+- **`cms_notes`**: Environment-specific constraints for **Shopify**, **WordPress**, and **Drupal**. The agent must follow these if the project structure matches one of these platforms (e.g., Liquid-specific alt-text filters in Shopify).
+- **`false_positive_risk`**: Confidence level (`low` / `medium` / `high`). If `high`, the agent must prioritize manual verification and look for existing patterns that might satisfy the rule in a non-standard way.
+- **`fix_difficulty_notes`**: Edge cases and caveats. The agent must read this to avoid "blind fixing" (e.g., knowing that a missing label might be an intentional design trade-off requiring a different ARIA approach).
+- **`related_rules`**: Linked rule IDs. If the agent is fixing a rule, it should proactively check if related rules are also failing to ensure the affected component is fully remediated in one pass.
 
 ## Surgical Patch Generation
 
@@ -77,23 +74,23 @@ flowchart LR
     class Roadmap roadmap;
 ```
 
-## Example: The "Fix-First" Flow
+## Example: The "Fix-First" Flow (Agent Logic)
 
-If an image is missing alt text:
+If an image is found missing alt text, the Agent does not just "add an alt". It follows the intelligence data to determine the context:
 
-- **Scanner**: Detects `img` missing `alt`.
-- **Analyzer**:
-  - Identifies `ruleId: image-alt`.
-  - Extracts selector: `div.hero > img`.
-  - Generates search hint: `<img`.
-  - Fetches patch from Intelligence: `<img src="..." alt="Description">`.
-- **Roadmap**: Tells the AI: _"Search for `<img` inside the Hero component and add an `alt` attribute."_
+1.  **Scanner Detection**: `ruleId: image-alt`.
+2.  **Surgical ID**: Agent finds `<img class="product-shot">` inside `Hero.tsx`.
+3.  **Intelligence Lookup**:
+    - **Framework Filter**: Project is **Shopify + React**. Agent ignores Vue/Angular notes and reads the **Shopify CMS Note**: _"add a fallback: alt='{{ image.alt | default: product.title }}'"_.
+    - **Difficulty Audit**: Agent reads `fix_difficulty_notes` and realizes it must check if the image is decorative. It sees the image is used as a background texture and decides to use `alt=""` instead of a description.
+    - **Related Checks**: Agent notices `related_rules` includes `image-redundant-alt`. It verifies that there is no "Product Image" text immediately below the image to avoid duplicate announcements.
+4.  **Remediation**: The Agent proposes a patch that uses the correct Liquid filter for Shopify while adhering to React's JSX syntax, ensuring the fix is both accessible and platform-compatible.
 
 ## Manual Checks (`assets/manual-checks.json`)
 
-axe-core is an automated tool — it cannot verify criteria that require human judgment or live assistive technology interaction. The skill ships a second knowledge base, `assets/manual-checks.json`, with **24 checks** covering WCAG 2.2 AA criteria and screen reader behavior that automation cannot assess.
+axe-core is an automated tool — it cannot verify criteria that require human judgment or live assistive technology interaction. The skill ships a second knowledge base, `assets/manual-checks.json`, with **41 checks** covering WCAG 2.2 A/AA criteria and screen reader behavior that automation cannot assess.
 
-These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Checks"** — at the end of every `remediation.md` report.
+These checks are delivered as a standalone **`checklist.html`** file — a testing companion generated alongside every audit report.
 
 ### What each check contains
 
@@ -101,7 +98,7 @@ These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Che
 | :------------- | :------------------------------------------------------------------------------------- |
 | `criterion`    | WCAG 2.2 criterion number (e.g., `"2.4.11"`) or screen reader test ID (e.g., `"AT-1"`) |
 | `title`        | Human-readable criterion name                                                          |
-| `level`        | WCAG conformance level (`A` or `AA`)                                                   |
+| `level`        | WCAG conformance level: `A`, `AA`, or `AT` (assistive technology)                      |
 | `description`  | What the criterion requires and why it matters                                         |
 | `steps`        | Step-by-step verification instructions for a human or agent                            |
 | `remediation`  | Recommended fix patterns if a violation is found                                       |
@@ -112,15 +109,27 @@ These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Che
 
 **WCAG 2.2 New Criteria (AA):** Focus Appearance (2.4.11), Dragging Movements (2.5.7), Target Size Minimum (2.5.8), Consistent Help (3.2.6), Redundant Entry (3.3.7), Accessible Authentication (3.3.8)
 
-**Interactive Behavior (axe blind spots):** Keyboard Access (2.1.1), No Keyboard Trap (2.1.2), Focus Order (2.4.3), Content on Hover or Focus (1.4.13), Animation from Interactions (2.3.3)
+**Interactive Behavior (axe blind spots):** Keyboard Access (2.1.1), No Keyboard Trap (2.1.2), Focus Order (2.4.3), Content on Hover or Focus (1.4.13)
 
 **Perception:** Use of Color (1.4.1), Reflow (1.4.10), Non-text Contrast (1.4.11), Text Spacing (1.4.12), Error Identification (3.3.1)
 
 **Screen Reader (AT-1 → AT-8):** Heading navigation, landmark navigation, form labels, interactive element activation, live region announcements, modal dialog behavior, table reading, form error announcement
 
+**Media (Prerecorded):** Audio-only and Video-only (1.2.1), Captions (1.2.2), Audio Description (1.2.5)
+
+**Visual & Adaptability:** Sensory Characteristics (1.3.3), Resize Text (1.4.4), Images of Text (1.4.5)
+
+**Timing & Motion:** Timing Adjustable (2.2.1), Pause Stop Hide (2.2.2), Three Flashes or Below Threshold (2.3.1)
+
+**Navigation & Input:** Multiple Ways (2.4.5), Pointer Gestures (2.5.1), Pointer Cancellation (2.5.2)
+
+**Predictable Behavior:** On Focus (3.2.1), On Input (3.2.2), Consistent Navigation (3.2.3), Consistent Identification (3.2.4)
+
+**Error Handling:** Error Suggestion (3.3.3), Error Prevention (3.3.4)
+
 ### How to add a new manual check
 
-Add an entry to `assets/manual-checks.json`. No code changes required — `build-report-md.mjs` reads the file at build time and injects all checks automatically.
+Add an entry to `assets/manual-checks.json`. No code changes required — `report-checklist.mjs` reads the file at build time and injects all checks into `checklist.html` automatically.
 
 ## Reference Links
 

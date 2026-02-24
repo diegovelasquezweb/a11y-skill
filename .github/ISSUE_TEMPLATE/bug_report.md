@@ -36,4 +36,4 @@ What actually happened. Include the full error output or wrong report content.
 
 ## Additional context
 
-Paste relevant sections of `audit/internal/a11y-findings.json` or terminal output if applicable.
+Paste relevant sections of `.audit/a11y-findings.json` or terminal output if applicable.

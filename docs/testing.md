@@ -16,14 +16,14 @@ The a11y skill maintains a robust test suite to ensure the **Audit Engine** rema
 ## Overview
 
 - **Framework**: [Vitest](https://vitest.dev/)
-- **Total Tests**: 714
+- **Total Tests**: 937
 - **Command**: `pnpm test`
 
 ## Test Categories
 
 The suite is organized into logical groups that mirror the engine's capacities.
 
-### 1. Scouting & Discovery (`run-scanner.test.mjs`)
+### 1. Scouting & Discovery (`scanner.test.mjs`)
 
 Validates that the crawler is smart and safe.
 
@@ -32,7 +32,7 @@ Validates that the crawler is smart and safe.
 - **Filtering**: Verifies that assets like `.pdf`, `.jpg`, and `.svg` are excluded from the HTML scan.
 - **BFS Discovery**: Validates multi-level crawling (depth 1, depth 2, maxRoutes cap, no-revisit, pagination dedup, external filtering, error recovery).
 
-### 2. Remediation Intelligence (`run-analyzer.test.mjs`)
+### 2. Remediation Intelligence (`analyzer.test.mjs`)
 
 The core of our "Fix-First" promise.
 
@@ -40,16 +40,16 @@ The core of our "Fix-First" promise.
 - **Surgical Selectors**: Ensures that complex CSS paths are simplified into useful "Search Hints" (prefers ID > Class > Tag).
 - **Intelligence Schema**: Validates that `assets/intelligence.json` has all required top-level keys (`axeVersion`, `wcagCriterionMap`, `rules`, `apgPatterns`, etc.) and that `wcagCriterionMap` covers every rule defined in `rules`.
 
-### 3. Compliance & Scoring (`core-findings.test.mjs`)
+### 3. Compliance & Scoring (`findings.test.mjs`)
 
 Ensures math accuracy for stakeholders.
 
 - **Weighted Penalties**: Verifies that Critical issues correctly subtract 15 points and scores are clamped at zero.
-- **Grade Labels**: Covers all 5 score buckets (Excellent / Good / Fair / Needs Improvement / Poor).
+- **Grade Labels**: Covers all 5 score buckets (Excellent / Good / Fair / Poor / Critical).
 - **Sorting**: Ensures Critical findings always appear at the top of report data.
 - **Field Normalization**: Verifies that `wcagCriterionId`, `falsePositiveRisk`, `fixDifficultyNotes`, `frameworkNotes`, and `relatedRules` are correctly mapped and default safely when absent.
 
-### 4. Utilities & Cleanup (`core-utils.test.mjs` / `a11y-utils.test.mjs`)
+### 4. Utilities & Cleanup (`renderers-utils.test.mjs` / `utils.test.mjs`)
 
 - **Sanitization**: Validates HTML escaping and safe character entities.
 - **URL Linkification**: Ensures references and MDN links are correctly formatted as anchor tags.
@@ -71,4 +71,4 @@ pnpm vitest
 
 ## Adding a New Rule Test
 
-When adding a new rule to `intelligence.json`, the `wcagCriterionMap` coverage test in `run-analyzer.test.mjs` will automatically catch if the new rule is missing from the map — no additional test is required for basic schema health. Add a targeted test only if the rule introduces new logic (e.g., a new selector extraction path or a custom impact override).
+When adding a new rule to `intelligence.json`, the `wcagCriterionMap` coverage test in `analyzer.test.mjs` will automatically catch if the new rule is missing from the map — no additional test is required for basic schema health. Add a targeted test only if the rule introduces new logic (e.g., a new selector extraction path or a custom impact override).

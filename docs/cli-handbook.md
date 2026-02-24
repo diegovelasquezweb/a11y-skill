@@ -25,7 +25,7 @@ This skill follows the [Agent Skills standard](https://agentskills.io) and is al
 
 ## Basic Usage
 
-The primary command is `pnpm a11y`. It is an alias for `node scripts/run-audit.mjs`.
+The primary command is `pnpm a11y`. It is an alias for `node scripts/audit.mjs`.
 
 ```bash
 pnpm a11y --base-url https://example.com
@@ -52,10 +52,11 @@ Flags used to customize _how_ the engine interprets rules.
 
 | Flag                  | Argument | Default       | Description                                                  |
 | :-------------------- | :------- | :------------ | :----------------------------------------------------------- |
-| `--target`            | `<text>` | `WCAG 2.2 AA` | Label for the compliance target in reports.                  |
-| `--only-rule`         | `<id>`   | `null`        | Run ONLY this specific Axe rule ID (e.g., `color-contrast`). |
-| `--ignore-findings`   | `<csv>`  | `null`        | List of rule IDs to exclude from the final report.           |
-| `--exclude-selectors` | `<csv>`  | `null`        | CSS selectors to ignore during the DOM scan.                 |
+| `--target`            | `<text>` | `WCAG 2.2 AA` | Label for the compliance target in reports.                                                          |
+| `--only-rule`         | `<id>`   | `null`        | Run ONLY this specific Axe rule ID (e.g., `color-contrast`).                                         |
+| `--ignore-findings`   | `<csv>`  | `null`        | List of rule IDs to exclude from the final report.                                                   |
+| `--exclude-selectors` | `<csv>`  | `null`        | CSS selectors to ignore during the DOM scan.                                                         |
+| `--framework`         | `<name>` | `null`        | Override auto-detected framework (`react\|vue\|angular\|svelte\|astro\|shopify\|wordpress\|drupal`). |
 
 ### 3. Execution & Emulation
 
@@ -69,6 +70,9 @@ Flags used to control the _browser_ and _output_.
 | `--wait-ms`      | `<num>`                               | `2000`             | Max wait for `networkidle` after page load (acts as timeout, not fixed delay).  |
 | `--timeout-ms`   | `<num>`                               | `30000`            | Global network timeout for each page load.                                      |
 | `--wait-until`   | `domcontentloaded\|load\|networkidle` | `domcontentloaded` | Playwright page load strategy. Use `networkidle` for SPAs with async rendering. |
+| `--viewport`     | `<WxH>`                               | (none)             | Viewport dimensions (e.g., `375x812` for mobile, `1440x900` for desktop).      |
+| `--with-reports` | (No arg)                              | `false`            | Generate HTML and PDF reports alongside the audit. Requires `--output <path>`.  |
+| `--skip-reports` | (No arg)                              | `true`             | Omit HTML and PDF report generation (default behavior).                         |
 
 ## Advanced Patterns
 

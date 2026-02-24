@@ -312,27 +312,6 @@
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html"
   },
   {
-    "criterion": "2.3.3",
-    "title": "Animation from Interactions",
-    "level": "AAA",
-    "description": "Motion animations triggered by interaction must be disableable unless the animation is essential to the functionality.",
-    "steps": [
-      "Enable 'Reduce Motion' in your OS (macOS: System Settings → Accessibility → Display → Reduce Motion).",
-      "Interact with the page — confirm transitions, parallax effects, and non-essential animations are suppressed.",
-      "Check that page content is still fully functional with motion disabled."
-    ],
-    "remediation": [
-      "Wrap non-essential CSS animations in a @media (prefers-reduced-motion: reduce) query and set them to a simple opacity or instant transition.",
-      "Never use animation as the only way to convey state change."
-    ],
-    "code_example": {
-      "lang": "css",
-      "before": "/* BEFORE — animation plays regardless of user's motion preference */\n.card {\n  transition: transform 0.5s ease;\n}\n.card:hover {\n  transform: translateY(-8px);\n}",
-      "after": "/* AFTER — motion only when user has not requested reduced motion */\n.card { transition: opacity 0.2s ease; }\n@media (prefers-reduced-motion: no-preference) {\n  .card {\n    transition: transform 0.5s ease, opacity 0.2s ease;\n  }\n  .card:hover {\n    transform: translateY(-8px);\n  }\n}"
-    },
-    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html"
-  },
-  {
     "criterion": "AT-1",
     "title": "Screen Reader: Heading Navigation",
     "level": "AT",
@@ -508,5 +487,390 @@
       "after": "<!-- AFTER — error summary announced via role=alert, field marked invalid -->\n<div role=\"alert\" id=\"error-summary\">\n  <p>1 error: <a href=\"#email\">Email is required</a></p>\n</div>\n<label for=\"email\">Email</label>\n<input\n  type=\"email\"\n  id=\"email\"\n  aria-invalid=\"true\"\n  aria-describedby=\"email-err\"\n  class=\"invalid\"\n>\n<p id=\"email-err\">Email is required.</p>"
     },
     "ref": "https://www.w3.org/WAI/tutorials/forms/validation/"
+  },
+  {
+    "criterion": "1.2.1",
+    "title": "Audio-only and Video-only (Prerecorded)",
+    "level": "A",
+    "description": "Audio-only content needs a text transcript. Video-only content needs a text or audio description of the visual information.",
+    "steps": [
+      "Find all <audio> and <video> elements on the page.",
+      "For audio-only content: check for a link to a text transcript near the player.",
+      "For video-only content (no audio track): check for a text description or an audio description track."
+    ],
+    "remediation": [
+      "Add a linked transcript below or near audio-only players.",
+      "For video-only content, add a <track kind=\"descriptions\"> element or provide a written description adjacent to the player."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<audio src=\"podcast.mp3\" controls></audio>",
+      "after": "<audio src=\"podcast.mp3\" controls></audio>\n<p><a href=\"podcast-transcript.html\">Read the transcript</a></p>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/audio-only-and-video-only-prerecorded.html"
+  },
+  {
+    "criterion": "1.2.2",
+    "title": "Captions (Prerecorded)",
+    "level": "A",
+    "description": "All prerecorded video content with audio must have synchronized captions. Note: axe-core only checks that a <track kind=\"captions\"> element exists — it cannot verify caption accuracy, completeness, or synchronization.",
+    "steps": [
+      "Find all <video> elements on the page.",
+      "Verify a <track kind=\"captions\"> element is present inside each <video>.",
+      "Play the video and confirm captions appear, are synchronized with speech, and include non-speech audio cues (e.g., [music], [applause])."
+    ],
+    "remediation": [
+      "Add <track kind=\"captions\" src=\"captions.vtt\" srclang=\"en\" label=\"English\" default> inside each <video> element.",
+      "Generate accurate captions — auto-generated captions alone do not satisfy this criterion."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<video src=\"talk.mp4\" controls></video>",
+      "after": "<video src=\"talk.mp4\" controls>\n  <track kind=\"captions\" src=\"talk-captions.vtt\" srclang=\"en\" label=\"English\" default>\n</video>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/captions-prerecorded.html"
+  },
+  {
+    "criterion": "1.2.5",
+    "title": "Audio Description (Prerecorded)",
+    "level": "AA",
+    "description": "Prerecorded video content must have an audio description track so that blind users can access information conveyed visually (actions, scene changes, on-screen text).",
+    "steps": [
+      "Watch the video with eyes closed.",
+      "Determine whether all meaningful visual information (actions, scene changes, on-screen text) can be understood from the audio alone.",
+      "If not, an audio description track is required."
+    ],
+    "remediation": [
+      "Add <track kind=\"descriptions\" src=\"descriptions.vtt\" srclang=\"en\" label=\"Audio Description\"> inside the <video> element.",
+      "Alternatively, provide a separate version of the video with audio descriptions mixed into the main audio track."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<video src=\"tutorial.mp4\" controls></video>",
+      "after": "<video src=\"tutorial.mp4\" controls>\n  <track kind=\"descriptions\" src=\"tutorial-descriptions.vtt\" srclang=\"en\" label=\"Audio Description\">\n</video>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/audio-description-prerecorded.html"
+  },
+  {
+    "criterion": "1.3.3",
+    "title": "Sensory Characteristics",
+    "level": "A",
+    "description": "Instructions must not rely solely on sensory characteristics like shape, color, size, visual location, or sound. Users who are blind or color-blind cannot perceive these cues.",
+    "steps": [
+      "Find all instructional text: tooltips, help text, error messages, onboarding copy.",
+      "Check for phrases like \"click the round button\", \"see the red warning\", \"the menu on the left\", or \"press the large button\".",
+      "Verify each sensory reference has a non-sensory alternative such as a text label, role, or accessible name."
+    ],
+    "remediation": [
+      "Replace sensory-only references with text labels: use \"Click the Save button\" instead of \"Click the blue button on the right\".",
+      "Add aria-label or visible text to differentiate elements that look the same."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<p>Click the blue button to continue.</p>",
+      "after": "<p>Click the <strong>Continue</strong> button to proceed.</p>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/sensory-characteristics.html"
+  },
+  {
+    "criterion": "1.4.4",
+    "title": "Resize Text",
+    "level": "AA",
+    "description": "Text must be resizable up to 200% using browser zoom without loss of content or functionality. Fixed pixel font sizes and viewport-locked layouts break this.",
+    "steps": [
+      "Set browser zoom to 200% (Cmd+Plus on macOS / Ctrl+Plus on Windows).",
+      "Verify all text is readable and no content is clipped or hidden.",
+      "Confirm no horizontal scrolling is required (except for data tables or maps).",
+      "Verify all functionality remains operable at 200% zoom."
+    ],
+    "remediation": [
+      "Replace px font sizes with rem or em units.",
+      "Remove max-height constraints on elements that contain text.",
+      "Avoid overflow: hidden on text containers."
+    ],
+    "code_example": {
+      "lang": "css",
+      "before": "body { font-size: 14px; }\n.card { max-height: 100px; overflow: hidden; }",
+      "after": "body { font-size: 0.875rem; }\n.card { overflow: visible; }"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html"
+  },
+  {
+    "criterion": "1.4.5",
+    "title": "Images of Text",
+    "level": "AA",
+    "description": "Text must not be rendered as images unless essential (e.g., logos, brand wordmarks). Images of text cannot be resized, recolored, or adapted by user stylesheets.",
+    "steps": [
+      "Inspect images on the page.",
+      "If an image contains readable text (not a logo), verify whether the same visual result can be achieved with real HTML text styled with CSS.",
+      "Right-click and Inspect — if it is an <img> or a background-image containing text, it may violate this criterion."
+    ],
+    "remediation": [
+      "Replace image-based text with real HTML text styled with CSS.",
+      "For decorative text effects, use CSS text-shadow, background-clip: text, or filter.",
+      "Logos and brand wordmarks are exempt from this criterion."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<img src=\"welcome-banner.png\" alt=\"Welcome to our site\" />",
+      "after": "<h1 class=\"banner-heading\">Welcome to our site</h1>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/images-of-text.html"
+  },
+  {
+    "criterion": "2.2.1",
+    "title": "Timing Adjustable",
+    "level": "A",
+    "description": "If a time limit is set for any content or interaction (session timeout, timed quiz, auto-logout), users must be able to turn it off, adjust it to at least 10 times the default, or extend it with at least 20 seconds warning before expiry.",
+    "steps": [
+      "Identify session timeouts, timed forms, auto-expiring modals, or sliding banners with time limits.",
+      "Trigger or simulate the timeout.",
+      "Check for a warning with enough time to extend the session.",
+      "Verify the extension mechanism is keyboard accessible."
+    ],
+    "remediation": [
+      "Add a warning dialog at least 20 seconds before session expiry with a keyboard-accessible \"Extend session\" button.",
+      "For non-essential time limits, provide a settings option to disable them entirely."
+    ],
+    "code_example": {
+      "lang": "js",
+      "before": "// No warning — user is logged out after 5 minutes with no notice\nsetTimeout(() => logout(), 5 * 60 * 1000);",
+      "after": "const WARNING_MS = 20 * 1000;\nconst TIMEOUT_MS = 5 * 60 * 1000;\n\nsetTimeout(() => showExtendSessionDialog(), TIMEOUT_MS - WARNING_MS);\n\nfunction showExtendSessionDialog() {\n  // Render a keyboard-accessible dialog with \"Extend Session\" and \"Log out\" buttons\n}"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/timing-adjustable.html"
+  },
+  {
+    "criterion": "2.2.2",
+    "title": "Pause, Stop, Hide",
+    "level": "A",
+    "description": "Moving, blinking, scrolling, or auto-updating content that starts automatically and lasts more than 5 seconds must have a mechanism to pause, stop, or hide it.",
+    "steps": [
+      "Find carousels, hero sliders, scrolling tickers, auto-advancing slideshows, and auto-refreshing live data.",
+      "Verify a pause, stop, or hide button is visible and keyboard accessible for each."
+    ],
+    "remediation": [
+      "Add a visible \"Pause\" button to carousels and auto-advancing content.",
+      "For CSS animations running indefinitely, respect the prefers-reduced-motion media query.",
+      "For live data feeds, add a pause toggle so users can read content without it updating."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<div class=\"carousel\" data-autoplay=\"true\">\n  <!-- slides -->\n</div>",
+      "after": "<div class=\"carousel\" data-autoplay=\"true\">\n  <button type=\"button\" aria-label=\"Pause carousel\" class=\"carousel__pause\">&#9646;&#9646;</button>\n  <!-- slides -->\n</div>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html"
+  },
+  {
+    "criterion": "2.3.1",
+    "title": "Three Flashes or Below Threshold",
+    "level": "A",
+    "description": "Content must not flash more than 3 times per second, as rapid flashing can trigger seizures in users with photosensitive epilepsy.",
+    "steps": [
+      "Review all animated content: GIFs, CSS animations, videos, and canvas animations.",
+      "Look for rapid alternating high-contrast flashing.",
+      "Use the PEAT tool (Photosensitivity Epilepsy Analysis Tool) for thorough analysis if in doubt."
+    ],
+    "remediation": [
+      "Limit animation flash rate to below 3 Hz.",
+      "Replace rapid alternating animations with smooth transitions.",
+      "Add prefers-reduced-motion guards for all animations."
+    ],
+    "code_example": {
+      "lang": "css",
+      "before": "@keyframes flash {\n  0%, 50% { background: white; }\n  51%, 100% { background: black; }\n}\n.alert { animation: flash 0.2s infinite; }",
+      "after": "@media (prefers-reduced-motion: no-preference) {\n  @keyframes fade {\n    0%, 100% { opacity: 1; }\n    50% { opacity: 0.5; }\n  }\n  .alert { animation: fade 0.8s ease-in-out infinite; }\n}"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/three-flashes-or-below-threshold.html"
+  },
+  {
+    "criterion": "2.4.5",
+    "title": "Multiple Ways",
+    "level": "AA",
+    "description": "At least two ways must exist to locate a page within a set of pages (e.g., navigation + search, navigation + sitemap, navigation + related links).",
+    "steps": [
+      "Check if the site has at least two of: global navigation, search functionality, site map page, breadcrumb trail, or related pages links.",
+      "Verify the search field is keyboard accessible and has a visible label."
+    ],
+    "remediation": [
+      "Add a site-wide search field if one is not present.",
+      "Alternatively, add a sitemap page linked from the footer.",
+      "Breadcrumbs on deep pages also satisfy this criterion alongside main navigation."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<nav aria-label=\"Main\">\n  <!-- nav links only -->\n</nav>",
+      "after": "<nav aria-label=\"Main\">\n  <!-- nav links -->\n</nav>\n<form role=\"search\">\n  <label for=\"site-search\">Search</label>\n  <input id=\"site-search\" type=\"search\" />\n  <button type=\"submit\">Search</button>\n</form>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/multiple-ways.html"
+  },
+  {
+    "criterion": "2.5.1",
+    "title": "Pointer Gestures",
+    "level": "A",
+    "description": "All functionality using multi-point gestures (pinch-to-zoom, two-finger swipe) or path-based gestures (swipe left/right) must have a single-pointer alternative (a button or click).",
+    "steps": [
+      "Identify map controls, carousels, sliders, and galleries.",
+      "Test whether all actions (zoom in/out, next/previous, drag to reposition) can be completed with a single tap or click using visible buttons."
+    ],
+    "remediation": [
+      "Add +/- buttons alongside pinch-to-zoom maps.",
+      "Add Previous/Next buttons for swipe-navigated carousels.",
+      "Add drag-handle buttons or keyboard alternatives for path-based interactions."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<div class=\"carousel\">\n  <!-- swipe gesture only, no buttons -->\n</div>",
+      "after": "<div class=\"carousel\">\n  <button type=\"button\" aria-label=\"Previous slide\">&#8249;</button>\n  <!-- slides -->\n  <button type=\"button\" aria-label=\"Next slide\">&#8250;</button>\n</div>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/pointer-gestures.html"
+  },
+  {
+    "criterion": "2.5.2",
+    "title": "Pointer Cancellation",
+    "level": "A",
+    "description": "Single-pointer actions must not be triggered on the down-event unless essential. Users need to be able to cancel accidental activations by moving the pointer away or releasing on a different element.",
+    "steps": [
+      "Test interactive elements (buttons, links, custom controls) — click and hold, then drag the pointer off the element before releasing.",
+      "Verify the action does not fire when the pointer is released outside the element.",
+      "Confirm buttons activate on mouseup/touchend (release), not mousedown/touchstart (press)."
+    ],
+    "remediation": [
+      "Use click events (which fire on release) instead of mousedown or pointerdown for triggering actions.",
+      "If pointerdown is essential, provide an abort or undo mechanism."
+    ],
+    "code_example": {
+      "lang": "js",
+      "before": "button.addEventListener('mousedown', () => deleteItem());",
+      "after": "// 'click' fires on mouseup — allows the user to move away to cancel\nbutton.addEventListener('click', () => deleteItem());"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/pointer-cancellation.html"
+  },
+  {
+    "criterion": "3.2.1",
+    "title": "On Focus (No Context Change)",
+    "level": "A",
+    "description": "Receiving keyboard focus must not automatically trigger a context change (e.g., submitting a form, opening a new window, navigating to another page).",
+    "steps": [
+      "Tab through all interactive elements on the page.",
+      "Verify that receiving focus alone does not trigger navigation, form submission, alerts, or page reloads.",
+      "Select menus and dropdowns may open on focus but must not navigate until a selection is confirmed with Enter or a click."
+    ],
+    "remediation": [
+      "Move context-changing logic from focus events to change or click events.",
+      "If a dropdown opens on focus, ensure navigation requires an explicit Enter keypress or pointer click."
+    ],
+    "code_example": {
+      "lang": "js",
+      "before": "select.addEventListener('focus', () => navigate(select.value));",
+      "after": "select.addEventListener('change', () => navigate(select.value));"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/on-focus.html"
+  },
+  {
+    "criterion": "3.2.2",
+    "title": "On Input (No Context Change)",
+    "level": "A",
+    "description": "Changing the value of a UI component must not automatically cause a context change without prior notification. Auto-submitting forms or navigating on dropdown change violates this.",
+    "steps": [
+      "Change select dropdowns, radio buttons, and checkboxes.",
+      "Verify no automatic navigation or form submission occurs on input change.",
+      "If auto-navigation does occur, check that the user was warned in advance."
+    ],
+    "remediation": [
+      "Move form submission or navigation logic to an explicit submit button.",
+      "If auto-submit is essential (e.g., a language selector), add visible notice: \"Selecting a language will reload the page.\""
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<select onchange=\"location.href=this.value\">\n  <option value=\"/en\">English</option>\n  <option value=\"/es\">Español</option>\n</select>",
+      "after": "<select id=\"nav-select\">\n  <option value=\"/en\">English</option>\n  <option value=\"/es\">Español</option>\n</select>\n<button type=\"button\" onclick=\"navigate()\">Go</button>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/on-input.html"
+  },
+  {
+    "criterion": "3.2.3",
+    "title": "Consistent Navigation",
+    "level": "AA",
+    "description": "Navigation that repeats across pages must appear in the same relative order. Users with cognitive disabilities rely on consistent placement to predict where controls are.",
+    "steps": [
+      "Visit at least 3 different pages on the site.",
+      "Verify the main navigation, search bar, and any site-wide controls appear in the same relative order on each page.",
+      "Minor differences in active states are acceptable; reordering of items is not."
+    ],
+    "remediation": [
+      "Extract repeated navigation into a shared layout component.",
+      "Avoid reordering nav items based on page context or user actions.",
+      "If an item must be added for a specific page, append it at the end — do not rearrange existing items."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- Page A -->\n<nav><a href=\"/\">Home</a><a href=\"/about\">About</a><a href=\"/contact\">Contact</a></nav>\n<!-- Page B (items reordered) -->\n<nav><a href=\"/contact\">Contact</a><a href=\"/\">Home</a><a href=\"/about\">About</a></nav>",
+      "after": "<!-- Both pages use the same nav component with consistent order -->\n<nav><a href=\"/\">Home</a><a href=\"/about\">About</a><a href=\"/contact\">Contact</a></nav>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/consistent-navigation.html"
+  },
+  {
+    "criterion": "3.2.4",
+    "title": "Consistent Identification",
+    "level": "AA",
+    "description": "Components with the same function must be identified consistently across pages (same label, same icon, same accessible name).",
+    "steps": [
+      "Find repeated interactive elements: search buttons, cart icons, login links, close buttons.",
+      "Verify their visible label and aria-label are identical across all pages.",
+      "A search icon labeled \"Search\" on one page and \"Find\" on another violates this criterion."
+    ],
+    "remediation": [
+      "Centralize labels for repeated components using constants or i18n keys.",
+      "Audit all aria-label values on shared components to ensure consistency."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- Page A -->\n<button aria-label=\"Search\"><svg>...</svg></button>\n<!-- Page B -->\n<button aria-label=\"Find content\"><svg>...</svg></button>",
+      "after": "<!-- Both pages -->\n<button aria-label=\"Search\"><svg>...</svg></button>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/consistent-identification.html"
+  },
+  {
+    "criterion": "3.3.3",
+    "title": "Error Suggestion",
+    "level": "AA",
+    "description": "When an input error is identified, a suggestion for correction must be provided if possible (unless it would compromise security). Vague errors like \"Invalid input\" do not satisfy this.",
+    "steps": [
+      "Submit forms with intentional errors: wrong email format, empty required fields, invalid date.",
+      "Verify error messages explain what went wrong.",
+      "Confirm messages provide specific corrective guidance (e.g., \"Enter a valid email address, like name@example.com\")."
+    ],
+    "remediation": [
+      "Replace generic error messages with specific, actionable suggestions.",
+      "Include format hints in the error text.",
+      "Associate error messages with the relevant field using aria-describedby."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<input type=\"email\" id=\"email\" />\n<span class=\"error\">Invalid input</span>",
+      "after": "<input type=\"email\" id=\"email\" aria-describedby=\"email-error\" />\n<span id=\"email-error\" class=\"error\">Enter a valid email address — for example, name@example.com</span>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/error-suggestion.html"
+  },
+  {
+    "criterion": "3.3.4",
+    "title": "Error Prevention (Legal, Financial, Data)",
+    "level": "AA",
+    "description": "Pages that result in legal commitments, financial transactions, account deletion, or data submission must be reversible, verifiable, or confirmed before submission.",
+    "steps": [
+      "Identify checkout flows, form submissions with permanent effects, and account deletion flows.",
+      "Verify at least one of: a review/confirmation step before final submit, a way to correct data before finalizing, or a reversal mechanism (cancel order, undo delete)."
+    ],
+    "remediation": [
+      "Add a review step before checkout completion.",
+      "Add a confirmation dialog before irreversible actions such as account deletion or data purge.",
+      "Provide an order cancellation window (even 5 minutes) for financial transactions."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<button type=\"button\" onclick=\"deleteAccount()\">Delete Account</button>",
+      "after": "<!-- Step 1: trigger -->\n<button type=\"button\" onclick=\"showConfirmDialog()\">Delete Account</button>\n\n<!-- Step 2: confirmation dialog -->\n<dialog id=\"confirm-delete\">\n  <p>Are you sure? This action cannot be undone.</p>\n  <button type=\"button\" onclick=\"closeDialog()\">Cancel</button>\n  <button type=\"button\" onclick=\"deleteAccount()\">Confirm Delete</button>\n</dialog>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html"
   }
 ]

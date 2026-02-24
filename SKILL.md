@@ -1,11 +1,11 @@
 ---
 name: a11y
-description: "Audit and fix website accessibility (WCAG 2.2 AA) using automated scanning (axe-core + Playwright). Use when the user asks to audit a URL for accessibility, check WCAG compliance, fix a11y issues, test screen reader support, verify keyboard navigation, check color contrast, fix ARIA attributes, add alt text, fix heading hierarchy, improve focus management, check ADA/EAA/EN 301 549 compliance, or generate an accessibility report. Trigger keywords: accessibility, a11y, WCAG, ADA, screen reader, assistive technology, accessibility audit, color contrast, alt text, ARIA. Do NOT use for performance audits, SEO, Lighthouse scores, or non-web platforms."
+description: "Audits and fixes website accessibility (WCAG 2.2 AA) using automated scanning (axe-core + Playwright). Use when the user asks to audit a URL for accessibility, check WCAG compliance, fix a11y issues, test screen reader support, verify keyboard navigation, check color contrast, fix ARIA attributes, add alt text, fix heading hierarchy, improve focus management, check ADA/WCAG compliance, or generate an accessibility report. Trigger keywords: accessibility, a11y, WCAG, ADA, screen reader, assistive technology, accessibility audit, color contrast, alt text, ARIA. Do NOT use for performance audits, SEO, Lighthouse scores, or non-web platforms."
 compatibility: Requires Node.js 18+, pnpm (npm as fallback), and internet access. Playwright + Chromium are auto-installed on first run.
 license: Proprietary (All Rights Reserved)
 metadata:
   author: diegovelasquezweb
-  version: "0.8.0"
+  version: "0.9.0"
 ---
 
 # Web Accessibility Audit — Agent Playbook
@@ -99,23 +99,23 @@ Run the audit with the discovery settings from Step 1:
 
 ```bash
 # Sitemap mode
-node scripts/run-audit.mjs --base-url <URL>
+node scripts/audit.mjs --base-url <URL>
 
 # Crawler — 10 pages (option 1, omit flag to use default)
-node scripts/run-audit.mjs --base-url <URL>
+node scripts/audit.mjs --base-url <URL>
 
 # Crawler — all reachable pages (option 2)
-node scripts/run-audit.mjs --base-url <URL> --max-routes 999
+node scripts/audit.mjs --base-url <URL> --max-routes 999
 
 # Crawler — custom count (option 3)
-node scripts/run-audit.mjs --base-url <URL> --max-routes <N>
+node scripts/audit.mjs --base-url <URL> --max-routes <N>
 ```
 
 For local projects with framework auto-detection, add `--project-dir <path>`. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
 
-After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `audit/internal/remediation.md` directly. Do not share internal file paths with the user.
+After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user. Proceed to Step 3.
 
-If the script fails, consult [references/troubleshooting.md](references/troubleshooting.md) to self-correct before asking the user. If unrecoverable, offer: (1) Retry, (2) Different URL, (3) Skip and troubleshoot manually.
+If the script fails, consult [references/troubleshooting.md](references/troubleshooting.md) to self-correct before asking the user. If unrecoverable, offer: (1) Retry, (2) Different URL, (3) Skip and troubleshoot manually. After resolving, proceed to Step 3.
 
 ### Step 3 — Present findings and request permission
 
@@ -130,14 +130,14 @@ Read the remediation guide and:
 
 `[QUESTION]` **How would you like to proceed?**
 
-1. **Fix by severity** — work through Critical → High → Medium → Low, one group at a time with a checkpoint after each
-2. **Reports first, then fix by severity** — generate visual reports now, then fix severity by severity
+1. **Fix by severity** — start with the most critical issues first
+2. **Reports first, then fix** — generate visual reports now, then fix issues by severity
 3. **Other criteria** — tell me how you'd like to prioritize the fixes
 4. **Skip fixes** — don't fix anything right now
 
-Default (if user says "fix" or "go ahead") is **Fix by severity**.
+Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Reports first**: the "yes to reports" is already implied — skip the Yes/No question and ask:
+If the user chooses **Reports first, then fix**: the "yes to reports" is already implied — skip the Yes/No question and ask:
 
 `[QUESTION]` **Which format?**
 
@@ -145,11 +145,28 @@ If the user chooses **Reports first**: the "yes to reports" is already implied �
 2. **PDF Executive Summary** — formal document for stakeholders
 3. **Both**
 
-Then continue: save location → gitignore (only if path is inside the project) → generate → **open each file**. After the reports are open, return here and continue to Step 4 to begin fixes by severity.
+Then ask save location (first time only — reuse afterward):
+
+`[QUESTION]` **Where should I save the reports?**
+
+1. **Project audit folder** — `./audit/` (Recommended)
+2. **Desktop** — `~/Desktop/`
+3. **Custom path** — tell me the exact folder path
+
+If the chosen path is inside the project, ask (first time only):
+
+`[QUESTION]` **Should I add the reports folder to `.gitignore`?**
+
+1. **Yes** — ignore generated reports
+2. **No** — keep reports tracked
+
+If **Yes**: append the path to `.gitignore` (create if missing), confirm, then generate. If **No**: generate directly.
+
+Generate and **open each file**. After the reports are open, return here and continue to Step 4 to begin fixes by severity.
 
 If the user chooses **Skip fixes**: present the following message, then skip to Step 6.
 
-`[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA (US), the European Accessibility Act (EU), and EN 301 549. These findings will remain available if you decide to revisit them later.
+`[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
 **0 issues found** → skip to Step 6. Note: automated tools cannot catch every barrier; recommend manual checks.
 
@@ -163,6 +180,8 @@ Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM orde
 
 > **Scope boundary**: 4a covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in 4b — regardless of their axe severity level. If a Critical or High finding involves a color or visual property, set it aside for 4b. Do not apply it here.
 
+If there are no structural findings to fix, skip directly to 4b.
+
 Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework.
 
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
@@ -172,12 +191,16 @@ Apply one severity group at a time (Critical → High → Medium → Low). **App
 
 `[QUESTION]` **I've applied all [severity] fixes. Please verify visually — does everything look correct?**
 
-1. **Looks good** — proceed to next severity group
+1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
+
+If **Looks good**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
 > **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
+
+If there are no style findings (no color-contrast, font-size, or spacing violations), skip directly to 4c.
 
 Show: property, current value → proposed value, contrast ratio change (for color). Then ask:
 
@@ -187,37 +210,55 @@ Show: property, current value → proposed value, contrast ratio change (for col
 2. **No** — skip style fixes
 3. **Let me pick** — I'll choose which ones to apply
 
-#### 4c. Manual checks
+If **No**: proceed to 4c.
 
-Process the "WCAG 2.2 Static Code Checks" section from the remediation guide:
+If the user chooses **Yes** or **Let me pick**: apply the changes, list the files and exact values modified, then ask:
 
-1. Search the project source for each pattern. Skip non-applicable checks.
-2. Present confirmed violations as a batch, then ask:
+`[QUESTION]` **I've applied the style changes. Please verify visually — does everything look correct?**
 
-`[QUESTION]` **I found [N] code patterns that need manual fixes. Apply them?**
+1. **Looks good**
+2. **Something's wrong** — tell me what to revert or adjust
+
+If **Looks good** or after resolving **Something's wrong**: proceed to 4c.
+
+#### 4c. Source code patterns
+
+Process the "🔍 Source Code Pattern Audit" section from the remediation guide. Each entry has a `detection.search` regex and `detection.files` glob — use these to grep the project source:
+
+1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
+2. Present confirmed matches as a batch with the proposed fix from the pattern's `fix.description` and `fix.code`, then ask:
+
+`[QUESTION]` **I found [N] accessibility issues in your source code that the automated scan couldn't detect. Apply fixes?**
 
 1. **Yes, fix all** — apply all proposed changes
 2. **Let me pick** — I'll choose which ones to apply
-3. **Skip** — don't apply any manual fixes
+3. **Skip** — don't apply any of these fixes
+
+If the user chooses **Yes, fix all** or **Let me pick**: apply the fixes using the exact `fix.code` from the remediation guide, list the files and changes made, then ask:
+
+`[QUESTION]` **I've applied the fixes. Please verify visually — does everything look correct?**
+
+1. **Looks good**
+2. **Something's wrong** — tell me what to revert or adjust
+
+If **Looks good** or after resolving **Something's wrong**: proceed to Step 5.
 
 If the user chooses **Skip**, show the following message before proceeding to Step 5:
 
-`[MESSAGE]` Skipping manual fixes is fine for now, but keep in mind these patterns affect real users — missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page. These findings will remain in the remediation guide if you decide to revisit them.
+`[MESSAGE]` No problem — these issues will remain in the remediation guide if you decide to revisit them. Keep in mind they affect real users: missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page.
 
-If 0 violations were found, proceed automatically to Step 5 without showing the message.
-
-Common patterns: `<div onClick>` without keyboard support, untrapped focus in modals, missing skip links, decorative images without `aria-hidden`.
+If 0 matches were found, proceed automatically to Step 5 without showing the message.
 
 ### Step 5 — Verification re-audit (mandatory)
 
 This step is **mandatory** — always run it after fixes, no exceptions. Do not skip, do not ask the user whether to run it. If no fixes were applied in Step 4 (user skipped all sub-steps), skip this step and proceed to Step 6.
 
-Inform the user before running:
+Inform the user before running, then **immediately** execute the script without waiting for user input:
 
 `[MESSAGE]` Running a verification re-audit to make sure all fixes are clean and no new issues were introduced.
 
 ```bash
-node scripts/run-audit.mjs --base-url <URL>
+node scripts/audit.mjs --base-url <URL>
 ```
 
 After completion, parse ALL findings — new regressions and unresolved originals:
@@ -236,10 +277,10 @@ After completion, parse ALL findings — new regressions and unresolved original
 
      `[QUESTION]` **The re-audit still shows [N] issue(s) after attempting fixes. How would you like to proceed?**
 
-     1. **Keep fixing** — continue working through the remaining issues
-     2. **Move on** — proceed to delivery with known remaining issues documented
+     1. **Keep fixing**
+     2. **Move on** — accept the remaining issues and continue
 
-  6. If the user chooses **Move on**, proceed to Step 6. If they choose **Keep fixing**, repeat from step 3.
+  6. If the user chooses **Move on**, proceed to Step 6. If they choose **Keep fixing**, go back to step 2 of this sequence (present findings and fix following Step 4 procedures).
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 
@@ -255,6 +296,8 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 1. **Yes**
 2. **No thanks**
+
+If **No thanks**: skip to step 7.
 
    If **Yes**, wait for that answer, then ask which format in a new message:
 
@@ -279,33 +322,57 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 1. **Yes** — ignore generated reports
 2. **No** — keep reports tracked
 
-   If the user answers **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message before continuing.
+If **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message, then proceed to item 6 below (generate the reports). If **No**: proceed to item 6 below (generate the reports).
 
 6. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
 
    ```bash
    # HTML (run if HTML or Both was selected)
-   node scripts/build-report-html.mjs --output <path>/report.html --base-url <URL>
+   node scripts/report-html.mjs --output <path>/report.html --base-url <URL>
 
    # PDF (run if PDF or Both was selected)
-   node scripts/build-report-pdf.mjs --output <path>/report.pdf --base-url <URL>
+   node scripts/report-pdf.mjs --output <path>/report.pdf --base-url <URL>
    ```
 
    After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present.
 
 7. **MANDATORY** — output the following message verbatim before finishing:
 
-`[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following checks require human judgment and cannot be automated — please verify them manually:
+`[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
-- [ ] **Keyboard navigation** — Tab through all interactive elements; verify visible focus ring.
-- [ ] **Focus order** — logical reading sequence when tabbing.
-- [ ] **Screen reader** — test with VoiceOver (macOS) or NVDA (Windows); verify announcements make sense.
-- [ ] **Motion** — verify `prefers-reduced-motion` is respected.
-- [ ] **Zoom** — page usable at 200% browser zoom (WCAG 1.4.4).
+- [ ] **Keyboard navigation** — Tab through all interactive elements; verify visible focus ring and no keyboard traps.
+- [ ] **Screen reader** — Test with VoiceOver (macOS) or NVDA (Windows); verify headings, landmarks, forms, and modals are announced correctly.
+- [ ] **Media** — Prerecorded video has accurate captions and an audio description track; audio-only content has a text transcript.
+- [ ] **Motion & timing** — `prefers-reduced-motion` is respected; no content flashes >3×/sec; auto-playing content has a pause control.
+- [ ] **Forms & errors** — Error messages give specific correction guidance; financial/legal submissions have a confirmation step.
+
+Then ask:
+
+`[QUESTION]` **Would you like to export the manual testing checklist?**
+
+1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
+2. **No thanks**
+
+If **Yes**: use the output path already set earlier in this session (Step 3 or Step 6). If no path was set yet, ask using the same `[QUESTION]` ("Where should I save the reports?") before running. Then:
+
+```bash
+node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
+```
+
+Verify the file exists on disk, then open it.
 
 8. **MANDATORY** — output the following closing message verbatim. Do not skip it:
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
+
+9. After the closing message, ask:
+
+`[QUESTION]` **Is there anything else I can help you with?**
+
+1. **Yes** — tell me what you need
+2. **No, we're done**
+
+If **Yes**: help the user with their request, then ask this question again. If **No, we're done**: the workflow is complete.
 
 ---
 

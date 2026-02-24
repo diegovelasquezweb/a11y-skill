@@ -7,10 +7,11 @@
   "expected_behavior": [
     "Completes the audit and presents findings normally",
     "When user declines, reminds about accessibility impact (disability exclusion, legal risk)",
-    "Mentions specific legal frameworks (ADA, EAA, EN 301 549)",
+    "Mentions specific legal frameworks (ADA Title II, EAA, Section 508)",
     "Offers to revisit later",
     "Stops — does NOT proceed to Step 4",
-    "Does NOT modify any source files"
+    "Does NOT modify any source files",
+    "Proceeds to Step 6 to offer reports and deliver results"
   ],
   "model_notes": {}
 }

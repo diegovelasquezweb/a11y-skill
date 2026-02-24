@@ -1,0 +1,18 @@
+{
+  "id": "09-checklist-export",
+  "title": "Manual testing checklist export — Step 7 offer",
+  "skills": ["a11y"],
+  "query": "Audit and fix https://example.com",
+  "setup": "Audit finds and fixes issues. Agent has completed Step 6 and reached Step 7.",
+  "expected_behavior": [
+    "Outputs the mandatory manual testing reminder message verbatim before offering the checklist",
+    "Asks whether to export the checklist as a Yes/No question — does NOT skip this question",
+    "If user answers Yes and a save path was already set in Step 3 or Step 6: reuses that path without asking again",
+    "If user answers Yes and no path was set yet: asks where to save using the standard save location question",
+    "If user answers Yes: runs `node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>`",
+    "Verifies the file exists on disk before confirming generation",
+    "If user answers No: proceeds to Step 8 without generating the file",
+    "Does NOT generate the checklist without explicit user approval"
+  ],
+  "model_notes": {}
+}

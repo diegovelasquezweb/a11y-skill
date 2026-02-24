@@ -1,10 +1,10 @@
 /**
- * @file check-toolchain.mjs
+ * @file toolchain.mjs
  * @description Validates the development environment and required dependencies for the a11y skill.
  * Checks for the presence of node_modules and installed Playwright browsers.
  */
 
-import { SKILL_ROOT, log } from "./a11y-utils.mjs";
+import { SKILL_ROOT, log } from "./utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -13,7 +13,7 @@ import path from "node:path";
  */
 function printUsage() {
   log.info(`Usage:
-  node check-toolchain.mjs [options]
+  node toolchain.mjs [options]
 
 Options:
   -h, --help               Show this help

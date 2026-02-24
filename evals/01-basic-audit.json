@@ -4,8 +4,9 @@
   "skills": ["a11y"],
   "query": "Run an accessibility audit on https://example.com",
   "expected_behavior": [
-    "Checks for sitemap.xml before running the audit",
-    "Runs `node scripts/run-audit.mjs --base-url https://example.com` without modification",
+    "Asks how to discover pages (Crawler or Sitemap) before running the audit",
+    "If user picks Sitemap, fetches `<URL>/sitemap.xml` and confirms page count before proceeding",
+    "Runs `node scripts/audit.mjs --base-url https://example.com` without modification",
     "Parses `REMEDIATION_PATH` from script output and reads the remediation guide",
     "Summarizes findings grouped by severity (Critical → High → Medium → Low)",
     "Groups findings by component or page area with explanations",

@@ -1,56 +1,52 @@
 # a11y - Accessibility Audit & Remediation Skill
 
-This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints.
+This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. Built following [skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 ## Why this Skill?
 
-Traditional accessibility tools are built for humans to read reports. This skill is built for AI to take action. It bridges the gap between knowing a problem exists and fixing it by providing the exact intelligence an agent needs to resolve issues with precision.
+This skill transforms accessibility audits into actionable fix roadmaps. It runs a full WCAG 2.2 AA scan, identifies the exact code locations responsible for each violation, and guides the agent through fixes with framework-aware intelligence.
 
-| Capability          | With a11y                                                       | Without                                                     |
-| :------------------ | :-------------------------------------------------------------- | :---------------------------------------------------------- |
-| **Remediation IQ**  | ✅ Surgical fix blueprints + automated re-audit loop            | ❌ Manual source-code search & unverified fixes             |
-| **Rule Compliance** | ✅ 100% of axe-core WCAG A/AA + manual checklist + PDF exports  | ❌ Partial automated scans or generic best-practice guesses |
-| **Token Economy**   | ✅ On-device analysis; agent reads only a compact fix roadmap   | ❌ High context drain from reading raw HTML data            |
-| **Stack Awareness** | ✅ Native detection for major Frameworks, CMS, and UI libraries | ❌ Generic DOM-only feedback with no file context           |
-| **Scale & Speed**   | ✅ Sitemap crawler + 3 concurrent parallel tabs                 | ❌ Manual single-page scans & slow discovery                |
+| Capability             | With a11y                                                                          | Without                                                                        |
+| :--------------------- | :--------------------------------------------------------------------------------- | :----------------------------------------------------------------------------- |
+| **Remediation IQ**     | ✅ Surgical fix blueprints with exact selectors, ready-to-apply code fixes, and an automated re-audit loop | ❌ Manual hunting through code with no fix guidance or verification loop        |
+| **WCAG 2.2 AA Coverage** | ✅ Full 3-layer coverage: runtime DOM scan, grep-based source code audit, and manual verification checklist | ❌ Partial automated scans miss violations that only exist in source code |
+| **Stack Awareness**    | ✅ Guardrails and fix patterns tailored to major frameworks, CMSs, and UI libraries | ❌ Generic DOM feedback with no awareness of your stack or components          |
+| **Workflow**           | ✅ Guided, repeatable audit process with the same checkpoints and decisions on every run | ❌ Ad-hoc conversations with inconsistent flow and unpredictable results  |
+| **Token Economy**      | ✅ Audit runs outside the AI context so the agent reads only a structured fix roadmap | ❌ Entire page HTML fed into context on every scan                           |
+| **Scale & Speed**      | ✅ Automatic route discovery via sitemap + 3 concurrent tabs                       | ❌ Manual one-page scans with no route discovery                               |
 
 ## Installation
 
-To install this skill, provide the following prompt to your AI agent:
+Give your AI agent the following prompt:
 
-```bash
-"Install skill https://github.com/diegovelasquezweb/a11y"
+```
+Install skill https://github.com/diegovelasquezweb/a11y
 ```
 
-Restart your CLI-based agent session after installation to ensure the new skill is loaded correctly.
+The agent will clone the repository and run `install.sh`, which auto-detects your platform and copies the skill to the correct path:
+
+| Agent | Install path |
+| :---- | :----------- |
+| Claude Code | `~/.claude/skills/a11y/` |
+| Cursor | `~/.cursor/skills/a11y/` |
+| Gemini CLI | `~/.gemini/skills/a11y/` |
+| Codex | `~/.agents/skills/a11y/` |
+| Windsurf | `~/.codeium/windsurf/skills/a11y/` |
+| Antigravity | `~/.gemini/antigravity/skills/a11y/` |
+
+To uninstall, ask your agent: `"Uninstall skill a11y"`
+
+Restart your agent session after installation to ensure the skill is loaded.
 
 ## How to Use
 
-This skill is designed for human-like interaction. The agent understands your intent and orchestrates the engine automatically.
-
-### Audit
-
-To discover vulnerabilities and generate a compliance baseline:
+Start the skill with a single prompt, for example:
 
 ```bash
 "Audit accessibility localhost:3000"
 ```
 
-### Fix
-
-To trigger repairs using the remediation blueprints:
-
-```bash
-"Fix accessibility issues"
-```
-
-### Custom Configuration
-
-The agent translates your instructions into the appropriate engine settings:
-
-```bash
-"Ignore the 'color-contrast' rule."
-```
+The agent guides the rest of the session, running the audit, presenting findings, walking you through fixes, and asking whether to generate reports. Every action is confirmed before it runs.
 
 ## Audit Engine (CI/CD & Local Validation)
 
@@ -66,10 +62,11 @@ pnpm a11y --base-url https://mysite.com --only-rule color-contrast
 
 Visual reports on demand. After any audit, you can optionally generate these professional formats:
 
-| Deliverable           | Format  | Audience     | Key Value                                                                   |
-| :-------------------- | :------ | :----------- | :-------------------------------------------------------------------------- |
-| **Audit Dashboard**   | `.html` | Developers   | Interactive report with persona filtering, DOM telemetry, and verification. |
-| **Executive Summary** | `.pdf`  | Stakeholders | Formal compliance evidence and legal risk assessment for stakeholders.      |
+| Deliverable           | Format  | Audience         | Key Value                                                                                       |
+| :-------------------- | :------ | :--------------- | :---------------------------------------------------------------------------------------------- |
+| **Audit Dashboard**   | `.html` | Developers       | Interactive report with severity-grouped findings, DOM evidence, and fix blueprints.            |
+| **Manual Checklist**  | `.html` | Developers / QA  | Standalone testing companion for the ~60% of WCAG 2.2 that automated tools cannot detect.      |
+| **Executive Summary** | `.pdf`  | Stakeholders     | Formal compliance evidence and legal risk assessment for stakeholders.                          |
 
 ## Technical Reference
 

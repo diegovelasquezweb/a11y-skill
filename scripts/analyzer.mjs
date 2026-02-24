@@ -1,12 +1,12 @@
 /**
- * @file run-analyzer.mjs
+ * @file analyzer.mjs
  * @description Post-scan data processor.
  * Transforms raw axe-core results into enriched findings by applying
  * framework-specific logic, remediation intelligence, and WCAG mapping
  * to generate a structured audit overview.
  */
 
-import { log, readJson, writeJson, getInternalPath } from "./a11y-utils.mjs";
+import { log, readJson, writeJson, getInternalPath } from "./utils.mjs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
@@ -21,20 +21,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
 
 /**
- * Path to shared rule metadata including WCAG mappings and APG patterns.
+ * Path to the WCAG reference database: criterion maps, APG patterns, MDN links, personas.
  * @type {string}
  */
-const ruleMetadataPath = path.join(__dirname, "../assets/rule-metadata.json");
+const wcagReferencePath = path.join(__dirname, "../assets/wcag-reference.json");
 
-const regulatoryPath = path.join(__dirname, "../assets/regulatory.json");
-const scoringConfigPath = path.join(__dirname, "../assets/scoring-config.json");
-const frameworkConfigPath = path.join(__dirname, "../assets/framework-config.json");
+const complianceConfigPath = path.join(__dirname, "../assets/compliance-config.json");
+const stackConfigPath = path.join(__dirname, "../assets/stack-config.json");
 
 let INTELLIGENCE;
-let RULE_METADATA;
-let REGULATORY;
-let SCORING_CONFIG;
-let FRAMEWORK_CONFIG;
+let WCAG_REFERENCE;
+let COMPLIANCE_CONFIG;
+let STACK_CONFIG;
 
 // Initialize remediation and rule metadata assets.
 try {
@@ -46,34 +44,26 @@ try {
 }
 
 try {
-  RULE_METADATA = JSON.parse(fs.readFileSync(ruleMetadataPath, "utf-8"));
+  WCAG_REFERENCE = JSON.parse(fs.readFileSync(wcagReferencePath, "utf-8"));
 } catch {
   throw new Error(
-    `Missing or invalid rule-metadata.json at ${ruleMetadataPath} — run pnpm install to reinstall.`,
+    `Missing or invalid wcag-reference.json at ${wcagReferencePath} — run pnpm install to reinstall.`,
   );
 }
 
 try {
-  REGULATORY = JSON.parse(fs.readFileSync(regulatoryPath, "utf-8"));
+  COMPLIANCE_CONFIG = JSON.parse(fs.readFileSync(complianceConfigPath, "utf-8"));
 } catch {
   throw new Error(
-    `Missing or invalid regulatory.json at ${regulatoryPath} — run pnpm install to reinstall.`,
+    `Missing or invalid compliance-config.json at ${complianceConfigPath} — run pnpm install to reinstall.`,
   );
 }
 
 try {
-  SCORING_CONFIG = JSON.parse(fs.readFileSync(scoringConfigPath, "utf-8"));
+  STACK_CONFIG = JSON.parse(fs.readFileSync(stackConfigPath, "utf-8"));
 } catch {
   throw new Error(
-    `Missing or invalid scoring-config.json at ${scoringConfigPath} — run pnpm install to reinstall.`,
-  );
-}
-
-try {
-  FRAMEWORK_CONFIG = JSON.parse(fs.readFileSync(frameworkConfigPath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid framework-config.json at ${frameworkConfigPath} — run pnpm install to reinstall.`,
+    `Missing or invalid stack-config.json at ${stackConfigPath} — run pnpm install to reinstall.`,
   );
 }
 
@@ -92,12 +82,14 @@ function makeFindingId(ruleId, url, selector) {
 
 /** @type {Object} */
 const RULES = INTELLIGENCE.rules || {};
+/** @type {Object} */
+const CODE_PATTERNS = INTELLIGENCE.code_patterns || {};
 /** @type {Object<string, string>} */
-const APG_PATTERNS = RULE_METADATA.apgPatterns;
+const APG_PATTERNS = WCAG_REFERENCE.apgPatterns;
 /** @type {Object<string, string>} */
-const MDN = RULE_METADATA.mdn || {};
+const MDN = WCAG_REFERENCE.mdn || {};
 /** @type {Object<string, string>} */
-const WCAG_CRITERION_MAP = RULE_METADATA.wcagCriterionMap || {};
+const WCAG_CRITERION_MAP = WCAG_REFERENCE.wcagCriterionMap || {};
 
 /**
  * Detects the programming language of a code snippet for syntax highlighting.
@@ -117,12 +109,12 @@ function detectCodeLang(code) {
  * Regulatory links for accessibility compliance standards.
  * @type {Object<string, string>}
  */
-const US_REGULATORY = REGULATORY.usRegulatory;
+const US_REGULATORY = COMPLIANCE_CONFIG.usRegulatory;
 
 /** @type {Object<string, string>} */
-const IMPACTED_USERS = RULE_METADATA.impactedUsers || {};
+const IMPACTED_USERS = WCAG_REFERENCE.impactedUsers || {};
 /** @type {Object<string, string>} */
-const EXPECTED = RULE_METADATA.expected || {};
+const EXPECTED = WCAG_REFERENCE.expected || {};
 
 /**
  * Returns a description of the primary user groups impacted by a rule violation.
@@ -132,7 +124,7 @@ const EXPECTED = RULE_METADATA.expected || {};
  */
 function getImpactedUsers(ruleId, tags) {
   if (IMPACTED_USERS[ruleId]) return IMPACTED_USERS[ruleId];
-  const tagFallbacks = RULE_METADATA.tagImpactedUsers || {};
+  const tagFallbacks = WCAG_REFERENCE.tagImpactedUsers || {};
   for (const tag of tags) {
     if (tagFallbacks[tag]) return tagFallbacks[tag];
   }
@@ -153,7 +145,7 @@ function getExpected(ruleId) {
  * Used to help developers locate the source of an accessibility violation.
  * @type {Object<string, Object>}
  */
-const FRAMEWORK_GLOBS = FRAMEWORK_CONFIG.frameworkGlobs || {};
+const FRAMEWORK_GLOBS = STACK_CONFIG.frameworkGlobs || {};
 
 /**
  * Rules with managed_by_libraries in intelligence.json — derived at load time.
@@ -169,13 +161,13 @@ const MANAGED_RULES = new Map(
  * Maps detected framework IDs to their respective keys in intelligence.json.
  * @type {Object<string, string>}
  */
-const FRAMEWORK_TO_INTEL_KEY = FRAMEWORK_CONFIG.frameworkAliases?.intelKey || {};
+const FRAMEWORK_TO_INTEL_KEY = STACK_CONFIG.frameworkAliases?.intelKey || {};
 
 /**
  * Maps detected framework/CMS IDs to their respective keys for CMS-specific notes.
  * @type {Object<string, string>}
  */
-const FRAMEWORK_TO_CMS_KEY = FRAMEWORK_CONFIG.frameworkAliases?.cmsKey || {};
+const FRAMEWORK_TO_CMS_KEY = STACK_CONFIG.frameworkAliases?.cmsKey || {};
 
 /**
  * Filters the intelligence notes to only include those relevant to the detected framework.
@@ -240,10 +232,10 @@ function extractComponentHint(selector) {
  */
 function printUsage() {
   log.info(`Usage:
-  node run-analyzer.mjs --input <route-checks.json> [options]
+  node analyzer.mjs --input <route-checks.json> [options]
 
 Options:
-  --output <path>          Output findings JSON path (default: audit/internal/a11y-findings.json)
+  --output <path>          Output findings JSON path (default: .audit/a11y-findings.json)
   --ignore-findings <csv> Ignore specific rule IDs (overrides config)
   -h, --help               Show this help
 `);
@@ -283,7 +275,7 @@ function parseArgs(argv) {
   return args;
 }
 
-const IMPACT_MAP = SCORING_CONFIG.impactMap;
+const IMPACT_MAP = COMPLIANCE_CONFIG.impactMap;
 
 /**
  * Maps axe-core rule tags to a human-readable WCAG level string.
@@ -291,8 +283,8 @@ const IMPACT_MAP = SCORING_CONFIG.impactMap;
  * @returns {string} The WCAG level (e.g., "WCAG 2.1 AA").
  */
 function mapWcag(tags) {
-  const labels = RULE_METADATA.wcagTagLabels || {};
-  const precedence = RULE_METADATA.wcagTagPrecedence || Object.keys(labels);
+  const labels = WCAG_REFERENCE.wcagTagLabels || {};
+  const precedence = WCAG_REFERENCE.wcagTagPrecedence || Object.keys(labels);
   for (const key of precedence) {
     if (tags.includes(key) && labels[key]) return labels[key];
   }
@@ -307,7 +299,7 @@ function mapWcag(tags) {
  */
 export function detectImplicitRole(tag, html) {
   if (!tag) return null;
-  const roles = RULE_METADATA.implicitRoles || {};
+  const roles = WCAG_REFERENCE.implicitRoles || {};
   if (tag === "input") {
     const type = html?.match(/type=["']([^"']+)["']/i)?.[1]?.toLowerCase();
     return (roles.inputTypeMap || {})[type] ?? null;
@@ -339,7 +331,7 @@ export function extractSearchHint(selector) {
 /**
  * Processes scan results into a high-level auditing findings object.
  * Enriches findings with intelligence metadata, framework notes, and fix recommendations.
- * @param {Object} inputPayload - The raw JSON payload from run-scanner.mjs.
+ * @param {Object} inputPayload - The raw JSON payload from scanner.mjs.
  * @param {Object} cliArgs - Arguments passed to the analyzer.
  * @returns {Object} A structured object containing findings and metadata.
  */
@@ -377,10 +369,11 @@ function buildFindings(inputPayload, cliArgs) {
         const ruleInfo = RULES[v.id] || {};
         const fixInfo = ruleInfo.fix || {};
 
-        let recFix = v.helpUrl ? `See ${v.helpUrl}` : "Fix the violation.";
-        if (apgUrl) {
-          recFix = `Reference: ${apgUrl}`;
-        }
+        let recFix = apgUrl
+          ? `Reference: ${apgUrl}`
+          : v.helpUrl
+            ? `See ${v.helpUrl}`
+            : "Fix the violation.";
 
         const codeLang = detectCodeLang(fixInfo.code);
 
@@ -442,19 +435,34 @@ function buildFindings(inputPayload, cliArgs) {
       meta.h1Count !== 1 &&
       !axeRuleIds.includes("page-has-heading-one")
     ) {
+      const _ruleInfo = RULES["page-has-heading-one"] || {};
+      const _fixInfo = _ruleInfo.fix || {};
       findings.push({
         id: "",
+        rule_id: "page-has-heading-one",
         title: "Page must have exactly one h1",
         severity: "Medium",
         wcag: "WCAG 2.1 A",
+        wcag_criterion_id: WCAG_CRITERION_MAP["page-has-heading-one"] ?? null,
         area: route.path,
         url: route.url,
         selector: "h1",
+        impacted_users: getImpactedUsers("page-has-heading-one", []),
         impact: "Heading hierarchy is broken.",
         reproduction: ["Count h1 tags on page"],
         actual: `Found ${meta.h1Count} h1 tags.`,
         expected: "Exactly 1 h1 tag.",
+        fix_description: _fixInfo.description ?? null,
+        fix_code: _fixInfo.code ?? null,
+        fix_code_lang: detectCodeLang(_fixInfo.code),
         recommended_fix: "Ensure one unique h1 per page.",
+        mdn: MDN["page-has-heading-one"] ?? null,
+        effort: null,
+        related_rules: Array.isArray(_ruleInfo.related_rules) ? _ruleInfo.related_rules : [],
+        false_positive_risk: _ruleInfo.false_positive_risk ?? null,
+        fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
+        framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
+        cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
       });
     }
 
@@ -464,19 +472,34 @@ function buildFindings(inputPayload, cliArgs) {
       meta.mainCount !== 1 &&
       !axeRuleIds.includes("landmark-one-main")
     ) {
+      const _ruleInfo = RULES["landmark-one-main"] || {};
+      const _fixInfo = _ruleInfo.fix || {};
       findings.push({
         id: "",
+        rule_id: "landmark-one-main",
         title: "Page must have exactly one main landmark",
         severity: "Medium",
         wcag: "WCAG 2.1 A",
+        wcag_criterion_id: WCAG_CRITERION_MAP["landmark-one-main"] ?? null,
         area: route.path,
         url: route.url,
         selector: "main",
+        impacted_users: getImpactedUsers("landmark-one-main", []),
         impact: "Landmark navigation is broken.",
         reproduction: ["Count main tags on page"],
         actual: `Found ${meta.mainCount} main tags.`,
         expected: "Exactly 1 main tag.",
+        fix_description: _fixInfo.description ?? null,
+        fix_code: _fixInfo.code ?? null,
+        fix_code_lang: detectCodeLang(_fixInfo.code),
         recommended_fix: "Ensure one main landmark per page.",
+        mdn: MDN["landmark-one-main"] ?? null,
+        effort: null,
+        related_rules: Array.isArray(_ruleInfo.related_rules) ? _ruleInfo.related_rules : [],
+        false_positive_risk: _ruleInfo.false_positive_risk ?? null,
+        fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
+        framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
+        cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
       });
     }
   }
@@ -491,6 +514,7 @@ function buildFindings(inputPayload, cliArgs) {
       regulatory: US_REGULATORY,
       checklist: "https://www.a11yproject.com/checklist/",
       projectContext: ctx,
+      code_patterns: CODE_PATTERNS,
     },
   };
 }
@@ -501,11 +525,7 @@ function buildFindings(inputPayload, cliArgs) {
  */
 function main() {
   const args = parseArgs(process.argv.slice(2));
-  const ignoredRules = new Set(
-    args.ignoreFindings && args.ignoreFindings.length > 0
-      ? args.ignoreFindings
-      : [],
-  );
+  const ignoredRules = new Set(args.ignoreFindings);
 
   const payload = readJson(args.input);
   if (!payload) throw new Error(`Input not found or invalid: ${args.input}`);

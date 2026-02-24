@@ -1,26 +1,5 @@
 {
   "rules": {
-    "accessible-auth-minimum": {
-      "fix": {
-        "description": "Remove any cognitive test requirement (CAPTCHA, puzzle, memorization) from the authentication flow, or provide an accessible alternative alongside it — offer an audio CAPTCHA, email OTP, magic link, or passkey so users with cognitive disabilities can authenticate without solving a visual puzzle (WCAG 3.3.8).",
-        "code": "<!-- Option 1: Offer an audio CAPTCHA alternative -->\n<div class=\"captcha-group\">\n  <img src=\"captcha.png\" alt=\"Enter the characters shown\">\n  <a href=\"/audio-captcha\">Use audio CAPTCHA instead</a>\n</div>\n\n<!-- Option 2: Use passkeys (no cognitive test required) -->\n<button type=\"button\" onclick=\"authenticateWithPasskey()\">\n  Sign in with passkey\n</button>"
-      },
-      "false_positive_risk": "high",
-      "framework_notes": {
-        "react": "When using NextAuth.js, prefer magic link (email provider) or passkey authentication — these eliminate cognitive tests entirely. If CAPTCHA is required, use hCaptcha with accessibility mode enabled, or Google reCAPTCHA v3 (which requires no user interaction).",
-        "vue": "In Nuxt, @nuxtjs/auth-next supports email magic links and OAuth providers — both are more accessible than CAPTCHA-based flows. For CAPTCHA, hCaptcha offers an accessible challenge alternative.",
-        "angular": "In Angular apps using Auth0 or Firebase Auth, enable passwordless (magic link) or passkey authentication. If CAPTCHA is required, integrate hCaptcha with its accessibility challenge option, which provides audio and visual alternatives.",
-        "svelte": "In SvelteKit, use lucia-auth or Auth.js with magic link/passkey providers to eliminate CAPTCHA. If CAPTCHA is unavoidable, render it inside a Svelte component with an accessible alternative toggle.",
-        "astro": "In Astro, authentication flows typically run on the server (Astro middleware or API routes). Use passkey/magic link auth to avoid CAPTCHAs entirely. If using a CAPTCHA island component, ensure it includes an accessible alternative."
-      },
-      "fix_difficulty_notes": "Automated tools can detect the presence of a CAPTCHA but cannot verify whether an accessible alternative is functional. Treat findings as a prompt for manual review. The WCAG 3.3.8 exception allows cognitive tests if an accessible alternative (audio CAPTCHA, passkey, magic link, email OTP) is offered alongside.",
-      "related_rules": [
-        {
-          "id": "redundant-entry",
-          "reason": "Both are WCAG 3.3.x input assistance criteria — review all form accessibility together."
-        }
-      ]
-    },
     "accesskeys": {
       "fix": {
         "description": "Ensure every accesskey attribute value is unique across the page. Duplicate accesskey values create unpredictable keyboard shortcuts — only one element will receive activation, and which one varies by browser.",
@@ -982,32 +961,8 @@
         {
           "id": "link-in-text-block",
           "reason": "Links distinguished only by color need sufficient contrast — both rules enforce color-based visual distinction."
-        },
-        {
-          "id": "focus-appearance",
-          "reason": "Focus indicators also require minimum contrast ratios — audit contrast for both text and focus states together."
         }
       ]
-    },
-    "consistent-help": {
-      "fix": {
-        "description": "Place help mechanisms (support link, chat, contact info, self-help tool) in the same relative order on every page where they appear (WCAG 3.2.6).",
-        "code": "<!-- Place help in a consistent location across all pages (e.g., persistent header or footer): -->\n<header>\n  <nav aria-label=\"Support\">\n    <a href=\"/help\">Help centre</a>\n    <a href=\"/contact\">Contact support</a>\n  </nav>\n</header>"
-      },
-      "false_positive_risk": "high",
-      "framework_notes": {
-        "react": "Place help mechanisms in the root layout component (e.g., app/layout.tsx in Next.js App Router, or App.jsx). Never put them in individual page components — they will appear/disappear per route, breaking consistency. In Next.js Pages Router, use _app.js.",
-        "vue": "Add help mechanisms to the root layout (App.vue or layouts/default.vue in Nuxt). Avoid placing them in page-level components. In Nuxt, layouts/default.vue is the canonical location to guarantee consistent rendering across all routes.",
-        "angular": "Place help mechanisms in app.component.html or a shared layout component rendered by the root route. Avoid placing them in lazy-loaded feature modules — they will only appear when that module is active. In Angular 17+ with standalone components, ensure the help component is included in the root app component, not individual route components.",
-        "svelte": "In SvelteKit, place help mechanisms in +layout.svelte at the root level. Avoid putting them in individual +page.svelte files. SvelteKit's layout nesting ensures they persist across all child routes automatically.",
-        "astro": "Place help mechanisms in your base layout component (e.g., layouts/BaseLayout.astro). Since Astro islands hydrate independently, ensure help widgets that require JavaScript use client:load to be immediately interactive. Never place them inside island components — they will only appear where that island is used."
-      },
-      "cms_notes": {
-        "shopify": "Place help links in layout/theme.liquid or a persistent snippet included in every section. Never add them only to specific section templates — they will be absent on pages that don't render that section.",
-        "wordpress": "Add help mechanisms to header.php or footer.php in the active theme. Avoid widget areas that may not appear on all page templates (e.g., some templates skip the sidebar). In block themes (FSE), use template parts.",
-        "drupal": "Place help mechanisms in the page.html.twig template or a block assigned to a region rendered on every page (e.g., footer). Avoid placing them in node--*.html.twig templates — they only render on specific content types."
-      },
-      "fix_difficulty_notes": "Automated tools can only scan one page at a time and cannot compare help mechanism position across pages. axe findings for this rule are heuristic — they identify potential consistency issues but cannot confirm a violation without cross-page comparison. Manually verify across at least 3 page templates."
     },
     "css-orientation-lock": {
       "fix": {
@@ -1089,21 +1044,6 @@
         "drupal": "Drupal sets the page title via the title_resolver service and renders it in html.html.twig: <title>{{ head_title|safe_join(' | ') }}</title>. Custom modules can alter titles via hook_preprocess_html(). Verify that Views pages set proper titles."
       },
       "fix_difficulty_notes": "In SPAs, the <title> is often set only on initial load. After client-side route changes, the title must be updated programmatically — the browser tab title stays stale otherwise. Each page title should follow the pattern 'Page Name — Site Name' so users understand context without reading page content."
-    },
-    "dragging-movements": {
-      "fix": {
-        "description": "Provide a single-pointer alternative for every drag-and-drop interaction (e.g., click-to-select then click-to-drop, or up/down arrow buttons) so users who cannot perform drag gestures can complete the same task (WCAG 2.5.7).",
-        "code": "<!-- Provide non-drag alternative with arrow buttons: -->\n<ul role=\"listbox\" aria-label=\"Sortable items\">\n  <li role=\"option\" tabindex=\"0\">\n    Item 1\n    <button aria-label=\"Move item up\">↑</button>\n    <button aria-label=\"Move item down\">↓</button>\n  </li>\n</ul>"
-      },
-      "false_positive_risk": "high",
-      "framework_notes": {
-        "react": "Libraries like @dnd-kit/core provide keyboard-accessible drag-and-drop out of the box. react-beautiful-dnd also supports keyboard dragging. If using a custom drag implementation with mousedown/mousemove events, add keyboard event handlers (Arrow keys for movement, Space/Enter to confirm drop) as an accessible alternative.",
-        "vue": "Vue Draggable (vuedraggable) and @vueuse/gesture may not include keyboard alternatives by default. Supplement drag interactions with arrow key handlers and explicit 'move up/down' buttons visible to all users.",
-        "angular": "Angular CDK DragDrop (CdkDrag) does not provide keyboard drag-and-drop by default. Add a secondary keyboard interface (e.g., Up/Down arrow buttons) as the accessible alternative alongside the drag functionality.",
-        "svelte": "Svelte drag libraries (svelte-dnd-action, neodrag) may not include keyboard alternatives by default. Supplement drag interactions with explicit move buttons (↑/↓) or keyboard event handlers for arrow keys.",
-        "astro": "In .astro files, drag interactions require JavaScript — implement them inside framework islands. Ensure the island component provides a keyboard-accessible alternative to drag gestures."
-      },
-      "fix_difficulty_notes": "axe detects drag interactions heuristically based on event listeners — it may flag elements that listen to drag events but do not actually require dragging for their core function. Verify that the flagged element genuinely has drag-only functionality before implementing an alternative. WCAG 2.5.7 includes an exception when the dragging motion is 'essential' (e.g., a signature pad or freehand drawing tool)."
     },
     "duplicate-id": {
       "fix": {
@@ -1204,31 +1144,6 @@
         {
           "id": "scope-attr-valid",
           "reason": "Scope on an empty <th> is meaningless — ensure headers have text content before adding scope."
-        }
-      ]
-    },
-    "focus-appearance": {
-      "fix": {
-        "description": "Style :focus-visible with an outline that covers a minimum area of perimeter × 2 CSS px and maintains a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
-        "code": ":focus-visible {\n  outline: 3px solid #005FCC;\n  outline-offset: 2px;\n  /* Ensure contrast ratio ≥ 3:1 vs adjacent background */\n}\n\n/* Remove browser default only when providing a custom style */\n:focus:not(:focus-visible) {\n  outline: none;\n}"
-      },
-      "false_positive_risk": "high",
-      "framework_notes": {
-        "react": "In React, CSS-in-JS libraries (styled-components, Emotion) and Tailwind often reset outline globally. Use the focus-visible variant: className='focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'. Radix and shadcn/ui provide focus-visible styles by default — verify they are not overridden.",
-        "vue": "In Vue, scoped styles (<style scoped>) can unintentionally override focus indicators. Verify :focus-visible styles are applied globally or at the component root. Vuetify applies its own focus ring — check the rendered output matches WCAG contrast requirements.",
-        "angular": "Angular Material applies focus indicators via CDK's FocusMonitor. Verify the theme's focus overlay meets the 3:1 contrast ratio. Custom components using Angular CDK should use cdkFocusMonitor for consistent focus indicator behavior.",
-        "svelte": "Svelte's component-scoped styles can override global :focus-visible rules. Define focus indicator styles in app.css or a global stylesheet. Svelte does not provide built-in focus management — ensure every interactive element has a visible :focus-visible style.",
-        "astro": "In .astro files, focus styles are global CSS. Ensure :focus-visible rules are defined in a base layout or global stylesheet, not scoped to individual components. Framework islands inherit the page's CSS — verify the focus indicator renders correctly inside hydrated islands."
-      },
-      "fix_difficulty_notes": "outline:none does not necessarily mean no focus indicator — a visible box-shadow, background-color change, or border change can fully satisfy WCAG 2.4.11. axe may flag outline:none even when a compliant custom indicator is present. Verify visually that a focus indicator exists before applying a fix. When suppressing the outline, always provide a replacement via box-shadow or border.",
-      "related_rules": [
-        {
-          "id": "color-contrast",
-          "reason": "Focus indicators also require minimum contrast ratios — audit contrast for both text and focus states together."
-        },
-        {
-          "id": "target-size",
-          "reason": "Small targets with thin focus indicators are doubly inaccessible — fix size and focus visibility together."
         }
       ]
     },
@@ -2353,27 +2268,6 @@
         }
       ]
     },
-    "redundant-entry": {
-      "fix": {
-        "description": "Do not require users to re-enter information already provided in the same session (WCAG 3.3.7). Pre-populate fields or provide a copy option.",
-        "code": "<!-- Pre-populate from session data: -->\n<label for=\"ship-address\">Shipping address</label>\n<input id=\"ship-address\" type=\"text\" autocomplete=\"shipping street-address\"\n  value=\"{{ session.billing_address }}\">\n\n<!-- Or offer a checkbox: -->\n<label>\n  <input type=\"checkbox\" id=\"same-as-billing\">\n  Same as billing address\n</label>"
-      },
-      "false_positive_risk": "high",
-      "framework_notes": {
-        "react": "Use React Context or a form state library (React Hook Form, Formik) to preserve data across multi-step flows. In Next.js, persist form state in URL search params or session storage to survive route transitions without requiring re-entry.",
-        "vue": "Use Pinia or Vuex to share form data across route-separated steps. In Nuxt, useState() persists data between pages without a full store — useful for lightweight multi-step form state.",
-        "angular": "Use an Angular service with a shared BehaviorSubject to carry form state across route-separated steps. Angular Reactive Forms do not automatically persist across route navigations — manual persistence via a service is required.",
-        "svelte": "This WCAG 3.3.7 rule applies to forms that require users to re-enter previously submitted information. In Svelte, use stores or context to persist form values across multi-step forms, avoiding redundant data entry.",
-        "astro": "In .astro files, multi-step forms should preserve previously entered data. For dynamic forms, use a framework island to manage state across steps and avoid requiring users to re-enter information."
-      },
-      "fix_difficulty_notes": "Automated tools cannot reliably detect this violation — they scan the static DOM of a single page without session context. Treat axe findings for this rule as a prompt for manual review, not a confirmed violation. Walk through multi-step flows manually to determine if previously entered data is unnecessarily re-requested.",
-      "related_rules": [
-        {
-          "id": "accessible-auth-minimum",
-          "reason": "Both are WCAG 3.3.x input assistance criteria — review all form accessibility together."
-        }
-      ]
-    },
     "region": {
       "fix": {
         "description": "Wrap all visible content in semantic landmark elements.",
@@ -2694,12 +2588,7 @@
         "astro": "In .astro files, target sizes depend entirely on CSS. Ensure icon-only buttons and small links in the base layout meet the 24px minimum. Framework islands inherit page CSS — verify the computed size of interactive elements inside hydrated islands."
       },
       "fix_difficulty_notes": "WCAG 2.5.8 provides an exception for inline text links within a sentence (e.g., 'see our privacy policy') where sufficient spacing around the link satisfies the criterion. axe may flag these — verify whether the exception applies before adding padding that could break the text flow.",
-      "related_rules": [
-        {
-          "id": "focus-appearance",
-          "reason": "Small targets with thin focus indicators are doubly inaccessible — fix size and focus visibility together."
-        }
-      ]
+      "related_rules": []
     },
     "td-has-header": {
       "fix": {
@@ -2841,6 +2730,275 @@
           "reason": "Auto-playing video with audio needs captions — address media accessibility holistically."
         }
       ]
+    }
+  },
+  "code_patterns": {
+    "interactive-div-no-keyboard": {
+      "description": "A <div> or <span> has an onClick handler but no keyboard equivalent (onKeyDown/onKeyPress) and no semantic role. Keyboard-only users cannot activate it.",
+      "detection": {
+        "search": "<div[^\n>]*onClick=|<span[^\n>]*onClick=",
+        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte"
+      },
+      "fix": {
+        "description": "Replace with a semantic <button> element, or add role=\"button\", tabIndex={0}, and an onKeyDown handler that triggers on Enter and Space.",
+        "code": "// Option 1 — preferred: use a real button\n<button onClick={handleClick}>{children}</button>\n\n// Option 2 — if div is required for layout\n<div\n  role=\"button\"\n  tabIndex={0}\n  onClick={handleClick}\n  onKeyDown={(e) => (e.key === \"Enter\" || e.key === \" \") && handleClick(e)}\n>\n  {children}\n</div>"
+      },
+      "wcag": "2.1.1",
+      "severity": "critical",
+      "framework_notes": {
+        "react": "Replace with <button> — React onClick on a button works for both mouse and keyboard. If a div is required for layout, add role=\"button\", tabIndex={0}, and onKeyDown.",
+        "vue": "Replace with <button @click=\"handle\">. If a <div> is required, add role=\"button\", tabindex=\"0\", and @keydown.enter.space=\"handle\".",
+        "angular": "Replace with <button (click)=\"handle()\">. If a div is required, add role=\"button\" [attr.tabindex]=\"0\" (keydown.enter)=\"handle()\" (keydown.space)=\"handle()\".",
+        "svelte": "Replace with <button on:click={handle}>. If a div is required, add role=\"button\" tabindex=\"0\" on:keydown={(e) => (e.key === \"Enter\" || e.key === \" \") && handle(e)}.",
+        "astro": "In Astro islands, replace with <button>. In static .astro files, use <a> or <button> with form actions — no client-side click handlers."
+      },
+      "false_positive_risk": "medium",
+      "managed_by_libraries": [
+        "radix-ui",
+        "headless-ui",
+        "shadcn-ui"
+      ]
+    },
+    "focus-outline-suppressed": {
+      "description": "An interactive element suppresses the focus ring (outline: none or outline: 0) without providing a visible :focus-visible replacement. Keyboard users lose the visual indicator of where they are.",
+      "detection": {
+        "search": "outline:\\s*none|outline:\\s*0|focus:outline-none",
+        "files": "**/*.css, **/*.scss, **/*.sass, **/*.tsx, **/*.jsx"
+      },
+      "fix": {
+        "description": "Remove the outline suppression or replace it with a custom :focus-visible style.",
+        "code": "/* Replace with a custom focus indicator: */\nbutton:focus-visible {\n  outline: 2px solid var(--color-focus, #005fcc);\n  outline-offset: 2px;\n}\n\n/* Global reset for mouse users: */\n*:focus:not(:focus-visible) { outline: none; }\n*:focus-visible {\n  outline: 2px solid var(--color-focus, #005fcc);\n  outline-offset: 2px;\n}"
+      },
+      "wcag": "2.4.7",
+      "severity": "high",
+      "framework_notes": {
+        "react": "Tailwind focus:outline-none is common — replace with focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500.",
+        "vue": "Check scoped <style> blocks and global CSS. Tailwind/UnoCSS users replace focus:outline-none with focus-visible: variants.",
+        "angular": "Check component styles and global styles.css. Angular Material suppresses outlines by default in some themes — override in your theme.",
+        "svelte": "Check <style> blocks in .svelte files and global CSS. Tailwind users replace focus:outline-none with focus-visible: variants.",
+        "astro": "Check global CSS in /src/styles/ and component <style> blocks. Tailwind users audit all focus:outline-none instances."
+      },
+      "false_positive_risk": "low"
+    },
+    "missing-skip-link": {
+      "description": "The page has no skip navigation link. Keyboard and screen reader users must Tab through every navigation item on every page to reach main content.",
+      "detection": {
+        "search": "skip|Skip to|#main|#content",
+        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.astro, **/*.html"
+      },
+      "fix": {
+        "description": "Add a visually hidden skip link as the first focusable element on the page. It becomes visible on focus and links to the main content landmark.",
+        "code": "<!-- First element inside <body> -->\n<a href=\"#main-content\" class=\"skip-link\">Skip to main content</a>\n<main id=\"main-content\"><!-- content --></main>\n\n/* CSS */\n.skip-link { position: absolute; top: -40px; left: 0; background: #000; color: #fff; padding: 8px; z-index: 100; }\n.skip-link:focus { top: 0; }"
+      },
+      "wcag": "2.4.1",
+      "severity": "high",
+      "framework_notes": {
+        "react": "Add in root layout (app/layout.tsx in Next.js) as the first element inside <body>.",
+        "vue": "Add in App.vue or layouts/default.vue (Nuxt) before <router-view>.",
+        "angular": "Add in app.component.html as the first element. Ensure <main> id persists across routes.",
+        "svelte": "Add in +layout.svelte before the <slot>.",
+        "astro": "Add in BaseLayout.astro as the first element inside <body>."
+      },
+      "false_positive_risk": "low"
+    },
+    "positive-tabindex": {
+      "description": "An element has a tabIndex greater than 0. This overrides natural DOM tab order, causing unpredictable keyboard navigation.",
+      "detection": {
+        "search": "tabIndex=[\"']?[1-9]|tabindex=[\"']?[1-9]",
+        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.html"
+      },
+      "fix": {
+        "description": "Remove positive tabIndex values. Use tabIndex={0} to include an element in the natural tab order, or restructure the DOM to match visual order.",
+        "code": "// Remove this:\n// <div tabIndex={3}>Submit</div>\n\n// Use 0 for natural order:\n<div role=\"button\" tabIndex={0} onClick={handle}>Submit</div>"
+      },
+      "wcag": "2.4.3",
+      "severity": "medium",
+      "framework_notes": {
+        "react": "Grep for tabIndex={[1-9] or tabIndex=\"[1-9]\" in JSX.",
+        "vue": "Search for :tabindex or tabindex attributes with values > 0 in templates.",
+        "angular": "Search for [attr.tabindex] bindings and static tabindex attributes > 0.",
+        "svelte": "Search for tabindex attributes > 0 in component templates.",
+        "astro": "Search for tabindex > 0 in both static HTML and island components."
+      },
+      "false_positive_risk": "low"
+    },
+    "mouse-only-handler": {
+      "description": "An element has onMouseOver/onMouseEnter/onMouseLeave without equivalent onFocus/onBlur handlers. Touch and keyboard users cannot trigger the interaction.",
+      "detection": {
+        "search": "onMouseOver=|onMouseEnter=|onMouseLeave=",
+        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte"
+      },
+      "fix": {
+        "description": "Add corresponding onFocus/onBlur handlers alongside mouse event handlers.",
+        "code": "<div\n  onMouseEnter={showTooltip}\n  onMouseLeave={hideTooltip}\n  onFocus={showTooltip}\n  onBlur={hideTooltip}\n  tabIndex={0}\n>\n  Hover or focus me\n</div>"
+      },
+      "wcag": "2.1.1",
+      "severity": "high",
+      "framework_notes": {
+        "react": "Pair onMouseEnter with onFocus and onMouseLeave with onBlur. For tooltips, consider Radix UI Tooltip which handles this automatically.",
+        "vue": "Pair @mouseenter with @focus and @mouseleave with @blur.",
+        "angular": "Pair (mouseenter)/(mouseleave) with (focus)/(blur) bindings.",
+        "svelte": "Pair on:mouseenter/on:mouseleave with on:focus/on:blur.",
+        "astro": "Ensure island components include both mouse and focus event handlers."
+      },
+      "false_positive_risk": "medium",
+      "managed_by_libraries": [
+        "radix-ui",
+        "headless-ui",
+        "shadcn-ui"
+      ]
+    },
+    "small-touch-target": {
+      "description": "An interactive element has a rendered size smaller than 24x24px, making it difficult to activate for users with motor impairments or on touch devices.",
+      "detection": {
+        "search": "min-w-\\[?[0-9]{1,2}px\\]?|min-h-\\[?[0-9]{1,2}px\\]?|w-[1-4]\b|h-[1-4]\b",
+        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.css, **/*.scss"
+      },
+      "fix": {
+        "description": "Ensure interactive elements have a minimum touch target of 24x24px. Use padding to extend the hit area without changing visual size.",
+        "code": "/* Extend hit area with padding: */\n.icon-button {\n  padding: 8px;\n  min-width: 24px;\n  min-height: 24px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}\n\n/* Tailwind: */\n<button className=\"p-2 min-w-6 min-h-6 flex items-center justify-center\">"
+      },
+      "wcag": "2.5.8",
+      "severity": "medium",
+      "framework_notes": {
+        "react": "Search for w-2, h-2, w-3, h-3 on interactive elements. Add p-2 to extend hit area.",
+        "vue": "Audit interactive elements for small size utilities. Add padding to extend hit area.",
+        "angular": "Angular Material mat-icon-button provides 40px target by default. For custom components, add min-width/min-height.",
+        "svelte": "Search for small size utilities on <button> and <a> elements.",
+        "astro": "Audit both static HTML and island interactive elements for small touch targets."
+      },
+      "false_positive_risk": "medium"
+    },
+    "drag-no-keyboard-alt": {
+      "description": "An element is draggable without a keyboard-accessible alternative to perform the same action.",
+      "detection": {
+        "search": "draggable=[\"']true[\"']|useDraggable|react-dnd|dnd-kit|sortable",
+        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.html"
+      },
+      "fix": {
+        "description": "Provide a keyboard alternative — arrow keys to reorder items, or Move up/Move down buttons.",
+        "code": "<div\n  draggable=\"true\"\n  onDragStart={handleDragStart}\n  onKeyDown={(e) => {\n    if (e.key === \"ArrowUp\") moveItemUp(id);\n    if (e.key === \"ArrowDown\") moveItemDown(id);\n  }}\n  tabIndex={0}\n  role=\"listitem\"\n  aria-label={}\n>\n  {children}\n</div>"
+      },
+      "wcag": "2.1.1",
+      "severity": "high",
+      "framework_notes": {
+        "react": "Use @dnd-kit/core with KeyboardSensor alongside PointerSensor — built-in keyboard support. react-beautiful-dnd also has keyboard support built in.",
+        "vue": "vuedraggable (Sortable.js) lacks keyboard support — add arrow key handlers manually.",
+        "angular": "Angular CDK DragDrop lacks keyboard support — add keyboard event listeners manually.",
+        "svelte": "svelte-dnd-action has some keyboard support. For custom implementations, add arrow key handlers.",
+        "astro": "Ensure island drag components include keyboard support."
+      },
+      "false_positive_risk": "medium",
+      "managed_by_libraries": [
+        "dnd-kit",
+        "react-beautiful-dnd",
+        "vue-draggable"
+      ]
+    },
+    "missing-autocomplete": {
+      "description": "Form inputs collecting personal data (name, email, phone, address, payment) are missing the `autocomplete` attribute. Browsers and assistive technology cannot auto-fill values, increasing cognitive load for users with motor or cognitive disabilities.",
+      "detection": {
+        "search": "name=[\"'](?:first[_\\-]?name|last[_\\-]?name|full[_\\-]?name|given[_\\-]?name|family[_\\-]?name|email|phone|tel|mobile|address|street|zip|postal|city|state|country|credit|card|cvv|cvc|birth|dob)",
+        "files": "**/*.html, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.astro"
+      },
+      "fix": {
+        "description": "Add the appropriate `autocomplete` token (e.g. `given-name`, `family-name`, `email`, `tel`, `street-address`, `postal-code`, `cc-number`) to each input collecting personal data. Full token list: https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill",
+        "code": "<!-- Before -->\n<input type=\"text\" name=\"firstName\" />\n<input type=\"email\" name=\"userEmail\" />\n<input type=\"tel\" name=\"phone\" />\n\n<!-- After -->\n<input type=\"text\" name=\"firstName\" autocomplete=\"given-name\" />\n<input type=\"email\" name=\"userEmail\" autocomplete=\"email\" />\n<input type=\"tel\" name=\"phone\" autocomplete=\"tel\" />"
+      },
+      "wcag": "1.3.5",
+      "severity": "medium",
+      "framework_notes": {
+        "react": "Pass `autocomplete` as a prop — React maps it directly to the DOM attribute: `<input autocomplete=\"given-name\" />`.",
+        "vue": "Add as a static attribute: `autocomplete=\"given-name\"`. To bind dynamically: `:autocomplete=\"'given-name'\"`.",
+        "angular": "Add `autocomplete=\"given-name\"` directly in the template element — Angular does not strip it.",
+        "svelte": "Add `autocomplete=\"given-name\"` as a native HTML attribute in the template markup.",
+        "astro": "Add `autocomplete=\"given-name\"` to input elements in .astro files or component templates."
+      },
+      "false_positive_risk": "high"
+    },
+    "autoplay-media": {
+      "description": "An `<audio>` or `<video>` element has the `autoplay` attribute without being muted. Auto-playing audio interferes with screen readers and disorienting for users with cognitive disabilities.",
+      "detection": {
+        "search": "<(?:audio|video)[^>\\n]*\\bautoplay\\b(?![^>]*\\bmuted\\b)",
+        "files": "**/*.html, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.astro"
+      },
+      "fix": {
+        "description": "Remove `autoplay`, or if the video must autoplay, add `muted` and ensure `controls` is present so the user can pause and adjust volume.",
+        "code": "<!-- Before — auto-plays with audio, no controls -->\n<video autoplay src=\"intro.mp4\"></video>\n\n<!-- After option 1 — no autoplay -->\n<video controls src=\"intro.mp4\"></video>\n\n<!-- After option 2 — silent autoplay with controls -->\n<video autoplay muted controls src=\"intro.mp4\"></video>"
+      },
+      "wcag": "1.4.2",
+      "severity": "high",
+      "framework_notes": {
+        "react": "Remove the `autoPlay` prop (React uses camelCase). If required, add `muted` and `controls`: `<video autoPlay muted controls src={src} />`.",
+        "vue": "Remove `autoplay` from the element. If required, add `muted controls`: `<video autoplay muted controls :src=\"src\" />`.",
+        "angular": "Remove the `autoplay` attribute. Only use `[attr.autoplay]` together with `muted` and `controls` bindings.",
+        "svelte": "Remove `autoplay` from `<video>` or `<audio>`. If needed: `<video autoplay muted controls {src}>`.",
+        "astro": "Remove `autoplay` from media elements in .astro templates. If required, add `muted controls`."
+      },
+      "false_positive_risk": "low"
+    },
+    "orientation-lock": {
+      "description": "The page calls `screen.orientation.lock()` to restrict display to portrait or landscape mode. Users who mount their device in a fixed position (e.g., on a wheelchair) cannot physically rotate it.",
+      "detection": {
+        "search": "screen\\.orientation\\.lock\\(|lockOrientation\\(",
+        "files": "**/*.ts, **/*.js, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte"
+      },
+      "fix": {
+        "description": "Remove the orientation lock unless it is essential to the content (e.g., a piano keyboard app that genuinely requires landscape). If essential, show a non-blocking in-UI notice that the user can dismiss.",
+        "code": "// Before — locks to portrait, breaks mounted devices\nscreen.orientation.lock('portrait');\n\n// After — remove the lock entirely\n// Only if truly essential, show a dismissible notice:\nif (isEssentiallyLandscapeOnly && !userDismissedNotice) {\n  showOrientationNotice(); // non-blocking banner, not a modal\n}"
+      },
+      "wcag": "1.3.4",
+      "severity": "medium",
+      "framework_notes": {
+        "react": "Remove `screen.orientation.lock()` calls from `useEffect` hooks. If a native app wrapper (Capacitor, Expo) sets orientation, configure it only for specific screens.",
+        "vue": "Remove from `mounted()` hooks or composables. Check Capacitor/Cordova plugins that may enforce orientation globally.",
+        "angular": "Remove from `ngOnInit` or service initialization. Check Ionic platform orientation settings if applicable.",
+        "svelte": "Remove from `onMount()`. Check any Capacitor/Cordova integration for orientation lock config.",
+        "astro": "This is a client-side JS pattern. Remove from any `<script>` blocks or client-side island components."
+      },
+      "false_positive_risk": "low"
+    },
+    "character-key-shortcut": {
+      "description": "An `accesskey` attribute creates single-character keyboard shortcuts that conflict with screen reader and browser shortcuts, with no mechanism for users to remap or disable them.",
+      "detection": {
+        "search": "\\baccesskey=",
+        "files": "**/*.html, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.astro"
+      },
+      "fix": {
+        "description": "Remove `accesskey` attributes. If essential keyboard shortcuts are needed, use multi-key combinations (e.g., Alt+Shift+character) and provide a UI panel where users can view or disable them.",
+        "code": "<!-- Before — single-character shortcut, no override mechanism -->\n<button accesskey=\"s\">Save</button>\n\n<!-- After option 1 — remove accesskey -->\n<button type=\"button\">Save</button>\n\n<!-- After option 2 — multi-key shortcut with disclosure -->\n<button\n  type=\"button\"\n  aria-keyshortcuts=\"Alt+Shift+S\"\n  title=\"Save (Alt+Shift+S)\">\n  Save\n</button>"
+      },
+      "wcag": "2.1.4",
+      "severity": "medium",
+      "framework_notes": {
+        "react": "Remove the `accessKey` prop (React camelCase). For custom shortcuts, implement a `useKeyboardShortcut` hook using modifier keys (Alt+Shift+key).",
+        "vue": "Remove `accesskey` from template elements. For custom shortcuts, use `@keydown` with modifier checks (e.g., `Alt+Shift`).",
+        "angular": "Remove `accesskey` from templates. For custom shortcuts, use Angular CDK keyboard events with modifier keys.",
+        "svelte": "Remove `accesskey` from markup. For custom shortcuts, use `on:keydown` with modifier key guards.",
+        "astro": "Remove `accesskey` from .astro template elements and any component files."
+      },
+      "false_positive_risk": "low"
+    },
+    "motion-actuation-no-alt": {
+      "description": "Device motion or orientation events (`devicemotion`, `deviceorientation`) trigger actions (e.g., shake to undo) with no UI button alternative. Users who mount their device on a wheelchair or stand cannot physically perform these gestures.",
+      "detection": {
+        "search": "DeviceMotionEvent|DeviceOrientationEvent|addEventListener.*['\"]device(?:motion|orientation)['\"]",
+        "files": "**/*.ts, **/*.js, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte"
+      },
+      "fix": {
+        "description": "Add a visible UI button or keyboard-accessible control as an alternative for every motion-triggered action. The motion listener can remain, but the action must also be reachable without it.",
+        "code": "// Before — shake-only, no alternative\nwindow.addEventListener('devicemotion', (e) => {\n  if (isShake(e)) undoLastAction();\n});\n\n// After — motion + visible button alternative\nwindow.addEventListener('devicemotion', (e) => {\n  if (isShake(e)) undoLastAction();\n});\n\n{/* Add a visible UI alternative */}\n<button type=\"button\" onClick={undoLastAction}>\n  Undo\n</button>"
+      },
+      "wcag": "2.5.4",
+      "severity": "medium",
+      "framework_notes": {
+        "react": "Keep the DeviceMotion listener but add an `<button onClick={action}>` control. Expose the same handler to both triggers.",
+        "vue": "Add a `@click` button alongside the `devicemotion` listener. Share the same handler method.",
+        "angular": "Add a `(click)` button alongside the device motion subscription. Extract the action to a shared method.",
+        "svelte": "Add an `on:click` button alongside the `devicemotion` event listener. Both call the same function.",
+        "astro": "In client-side island components, ensure every device motion handler has a paired clickable button."
+      },
+      "false_positive_risk": "medium"
     }
   }
 }

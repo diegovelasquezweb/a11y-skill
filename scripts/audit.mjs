@@ -1,5 +1,5 @@
 /**
- * @file run-audit.mjs
+ * @file audit.mjs
  * @description Orchestrator for the accessibility audit pipeline.
  * Coordinates the multi-stage process including dependency verification,
  * site discovery/crawling, automated analysis, and final report generation.
@@ -9,7 +9,7 @@ import { spawn, execSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
-import { log, DEFAULTS, SKILL_ROOT, getInternalPath } from "./a11y-utils.mjs";
+import { log, DEFAULTS, SKILL_ROOT, getInternalPath } from "./utils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -19,7 +19,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  */
 function printUsage() {
   log.info(`Usage:
-  node scripts/run-audit.mjs --base-url <url> [options]
+  node scripts/audit.mjs --base-url <url> [options]
 
 Targeting & Scope:
   --base-url <url>        (Required) The target website to audit.
@@ -137,14 +137,10 @@ async function main() {
 
   const colorScheme = getArgValue("color-scheme");
   const target = getArgValue("target");
-  const headless = argv.includes("--headless")
-    ? getArgValue("headless") === "true"
-    : argv.includes("--headed")
-      ? false
-      : DEFAULTS.headless;
+  const headless = !argv.includes("--headed");
 
   const onlyRule = getArgValue("only-rule");
-  const skipReports = !argv.includes("--with-reports");
+  const skipReports = argv.includes("--skip-reports") || !argv.includes("--with-reports");
   const ignoreFindings = getArgValue("ignore-findings");
   const excludeSelectors = getArgValue("exclude-selectors");
 
@@ -159,7 +155,7 @@ async function main() {
 
   if (!baseUrl) {
     log.error("Missing required argument: --base-url");
-    log.info("Usage: node scripts/run-audit.mjs --base-url <url> [options]");
+    log.info("Usage: node scripts/audit.mjs --base-url <url> [options]");
     process.exit(1);
   }
 
@@ -183,11 +179,15 @@ async function main() {
       log.info(
         "First run detected — installing skill dependencies (one-time setup)...",
       );
-      execSync("pnpm install", { cwd: SKILL_ROOT, stdio: "ignore" });
+      try {
+        execSync("pnpm install", { cwd: SKILL_ROOT, stdio: "ignore" });
+      } catch {
+        execSync("npm install", { cwd: SKILL_ROOT, stdio: "ignore" });
+      }
       log.success("Dependencies ready.");
     }
 
-    await runScript("check-toolchain.mjs");
+    await runScript("toolchain.mjs");
 
     const screenshotsDir = getInternalPath("screenshots");
 
@@ -207,7 +207,6 @@ async function main() {
       "--crawl-depth",
       crawlDepth.toString(),
     ];
-    if (!headless) scanArgs.push("--headed");
     if (onlyRule) scanArgs.push("--only-rule", onlyRule);
     if (excludeSelectors)
       scanArgs.push("--exclude-selectors", excludeSelectors);
@@ -218,19 +217,19 @@ async function main() {
       scanArgs.push("--viewport", `${viewport.width}x${viewport.height}`);
     }
 
-    await runScript("run-scanner.mjs", scanArgs, childEnv);
+    await runScript("scanner.mjs", scanArgs, childEnv);
 
     const analyzerArgs = [];
     if (ignoreFindings) analyzerArgs.push("--ignore-findings", ignoreFindings);
     if (framework) analyzerArgs.push("--framework", framework);
-    await runScript("run-analyzer.mjs", analyzerArgs);
+    await runScript("analyzer.mjs", analyzerArgs);
 
     const mdOutput = getInternalPath("remediation.md");
     const mdArgs = ["--output", mdOutput, "--base-url", baseUrl];
     if (target) mdArgs.push("--target", target);
 
     if (skipReports) {
-      await runScript("build-report-md.mjs", mdArgs);
+      await runScript("report-md.mjs", mdArgs);
     } else {
       const output = getArgValue("output");
       if (!output) {
@@ -246,14 +245,18 @@ async function main() {
       const buildArgs = ["--output", absoluteOutputPath, "--base-url", baseUrl];
       if (target) buildArgs.push("--target", target);
 
-      const pdfOutput = absoluteOutputPath.replace(".html", ".pdf");
+      const pdfOutput = absoluteOutputPath.replace(/\.html$/, ".pdf");
       const pdfArgs = ["--output", pdfOutput, "--base-url", baseUrl];
       if (target) pdfArgs.push("--target", target);
 
+      const checklistOutput = path.join(path.dirname(absoluteOutputPath), "checklist.html");
+      const checklistArgs = ["--output", checklistOutput, "--base-url", baseUrl];
+
       await Promise.all([
-        runScript("build-report-html.mjs", buildArgs),
-        runScript("build-report-md.mjs", mdArgs),
-        runScript("build-report-pdf.mjs", pdfArgs),
+        runScript("report-html.mjs", buildArgs),
+        runScript("report-checklist.mjs", checklistArgs),
+        runScript("report-md.mjs", mdArgs),
+        runScript("report-pdf.mjs", pdfArgs),
       ]);
 
       console.log(`REPORT_PATH=${absoluteOutputPath}`);

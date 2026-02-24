@@ -1,5 +1,5 @@
 /**
- * @file core-findings.mjs
+ * @file findings.mjs
  * @description Core data normalization and scoring logic for accessibility findings.
  * Provides functions to process raw scanner results into a structured format used
  * across all report types (HTML, Markdown, PDF).
@@ -12,10 +12,10 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const SCORING_CONFIG = JSON.parse(
-  readFileSync(join(__dirname, "../../assets/scoring-config.json"), "utf-8"),
+  readFileSync(join(__dirname, "../../assets/compliance-config.json"), "utf-8"),
 );
 const RULE_METADATA = JSON.parse(
-  readFileSync(join(__dirname, "../../assets/rule-metadata.json"), "utf-8"),
+  readFileSync(join(__dirname, "../../assets/wcag-reference.json"), "utf-8"),
 );
 
 /**

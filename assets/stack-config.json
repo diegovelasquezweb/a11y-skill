@@ -9,7 +9,9 @@
       { "framework": "react", "signals": { "selector": "[data-reactroot]" } },
       { "framework": "vue", "signals": { "selector": "[data-v-]", "selectorAlt": "[data-server-rendered]" } },
       { "framework": "shopify", "signals": { "window": "Shopify", "selector": "[data-shopify]" } },
-      { "framework": "wordpress", "signals": { "hrefContains": "wp-content", "metaGenerator": "WordPress" } }
+      { "framework": "wordpress", "signals": { "hrefContains": "wp-content", "metaGenerator": "WordPress" } },
+      { "framework": "svelte", "signals": { "selector": "[data-svelte-h]", "window": "__sveltekit_dev" } },
+      { "framework": "drupal", "signals": { "window": "Drupal", "selector": "[data-drupal-messages-unseen]" } }
     ],
     "uiLibrarySignals": [
       ["@radix-ui", "radix"],
@@ -42,7 +44,8 @@
     "astro": { "components": "src/**/*.astro, src/components/**/*.tsx", "styles": "src/**/*.css" },
     "svelte": { "components": "src/**/*.svelte", "styles": "src/**/*.css" },
     "shopify": { "components": "sections/**/*.liquid, snippets/**/*.liquid", "styles": "assets/**/*.css" },
-    "wordpress": { "components": "wp-content/themes/**/*.php", "styles": "wp-content/themes/**/*.css" }
+    "wordpress": { "components": "wp-content/themes/**/*.php", "styles": "wp-content/themes/**/*.css" },
+    "drupal": { "components": "web/themes/**/*.html.twig, themes/**/*.html.twig", "styles": "web/themes/**/*.css, themes/**/*.css" }
   },
   "frameworkAliases": {
     "intelKey": {
@@ -71,7 +74,8 @@
     "framework": {
       "shopify": "1.  **Shopify Project**: Edit `.liquid` files in `sections/`, `snippets/`, or `layout/`. **NEVER** edit compiled assets in `assets/*.min.js`. Source of Truth: fix at the template, not the rendered DOM.",
       "wordpress": "1.  **WordPress Project**: Work only in `wp-content/themes/` or `plugins/`. **NEVER** edit `wp-admin/` or `wp-includes/` or any cached file. Source of Truth: fix at the theme template.",
-      "drupal": "1.  **Drupal Project**: Search for `.html.twig` in `themes/`. Clear cache with `drush cr` after changes. **NEVER** edit compiled or cached files.",
+      "svelte": "1.  **Svelte/SvelteKit Project**: Edit `.svelte` files in `src/`. **NEVER** edit `.svelte-kit/`, `build/`, or `dist/`. Source of Truth: fix at the component, not the compiled output.",
+      "drupal": "1.  **Drupal Project**: Search for `.html.twig` in `web/themes/` or `themes/`. Clear cache with `drush cr` after changes. **NEVER** edit compiled or cached files.",
       "generic": "1.  **Framework & CMS Awareness**: This project may use React, Vue, Next.js, Astro, **Shopify** (.liquid), **WordPress** (.php), or **Drupal** (.twig).\n    - **NEVER** edit compiled, minified, or cached files (e.g., `dist/`, `.next/`, `build/`, `wp-content/cache/`, `assets/*.min.js`).\n    - **Source of Truth**: Traced DOM violations must be fixed at the **Source Component** or **Server-side Template**. Edit the origin, not the output."
     }
   }

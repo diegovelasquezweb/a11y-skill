@@ -5,7 +5,7 @@ import path from "node:path";
 import {
   detectImplicitRole,
   extractSearchHint,
-} from "../scripts/run-analyzer.mjs";
+} from "../scripts/analyzer.mjs";
 
 describe("assets/intelligence.json schema", () => {
   let intelligence;
@@ -21,7 +21,7 @@ describe("assets/intelligence.json schema", () => {
     );
     ruleMetadata = JSON.parse(
       fs.readFileSync(
-        path.join(__dirname, "../assets/rule-metadata.json"),
+        path.join(__dirname, "../assets/wcag-reference.json"),
         "utf-8",
       ),
     );
@@ -31,7 +31,7 @@ describe("assets/intelligence.json schema", () => {
     expect(intelligence).toHaveProperty("rules");
   });
 
-  it("rule-metadata.json has required top-level keys", () => {
+  it("wcag-reference.json has required top-level keys", () => {
     expect(ruleMetadata).toHaveProperty("wcagCriterionMap");
     expect(ruleMetadata).toHaveProperty("apgPatterns");
     expect(ruleMetadata).toHaveProperty("mdn");

@@ -12,24 +12,25 @@ The core engine is a three-stage pipeline designed for **Autonomous Remediation*
 
 ### The Orchestrator
 
-- **`scripts/run-audit.mjs`**: The master controller. Manages CLI arguments, dependency health, and coordinates the scanner → analyzer → builder flow.
+- **`scripts/audit.mjs`**: The master controller. Manages CLI arguments, dependency health, and coordinates the scanner → analyzer → builder flow.
 
 ### Core Engine
 
-- **`scripts/run-scanner.mjs`**: The "Eyes". Powered by Playwright and Axe-core. Handles browser emulation, route discovery (Crawling/Sitemap), and parallel DOM analysis.
-- **`scripts/run-analyzer.mjs`**: The "Brain". Consumes raw results and enriches them with intelligence data to generate surgical fix roadmaps.
+- **`scripts/scanner.mjs`**: The "Eyes". Powered by Playwright and Axe-core. Handles browser emulation, route discovery (Crawling/Sitemap), and parallel DOM analysis.
+- **`scripts/analyzer.mjs`**: The "Brain". Consumes raw results and enriches them with intelligence data to generate surgical fix roadmaps.
 
 ### Rendering Engine
 
-- **`scripts/build-report-html.mjs`**: Generates the interactive dashboard.
-- **`scripts/build-report-md.mjs`**: Creates the `remediation.md` logic used by AI agents.
-- **`scripts/build-report-pdf.mjs`**: Produces formal executive summaries.
-- **`scripts/report/`**: Modular rendering logic (`format-html.mjs`, `format-md.mjs`, `format-pdf.mjs`) and core data normalization (`core-findings.mjs`).
+- **`scripts/report-html.mjs`**: Generates the interactive audit dashboard.
+- **`scripts/report-checklist.mjs`**: Generates the standalone manual testing checklist (`checklist.html`). Reads `manual-checks.json` directly — no scan input required.
+- **`scripts/report-md.mjs`**: Creates the `remediation.md` guide used by AI agents.
+- **`scripts/report-pdf.mjs`**: Produces formal executive summaries.
+- **`scripts/renderers/`**: Modular rendering logic (`html.mjs`, `md.mjs`, `pdf.mjs`), core data normalization (`findings.mjs`), and shared rendering utilities (`utils.mjs`).
 
 ### Infrastructure
 
-- **`scripts/a11y-utils.mjs`**: Shared utilities for path resolution, logging, and JSON I/O.
-- **`scripts/check-toolchain.mjs`**: Environment diagnostic utility.
+- **`scripts/utils.mjs`**: Shared utilities for path resolution, logging, and JSON I/O.
+- **`scripts/toolchain.mjs`**: Environment diagnostic utility.
 
 ---
 
@@ -40,12 +41,11 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 | Asset                       | Role          | Key Data                                                                             |
 | :-------------------------- | :------------ | :----------------------------------------------------------------------------------- |
 | **`intelligence.json`**     | Fix Database  | Resolution code patterns, framework-specific fix notes, and related rules.           |
-| **`rule-metadata.json`**    | Rule Mapping  | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags.      |
-| **`manual-checks.json`**    | Verification  | 24+ manual audit criteria for WCAG 2.2 areas that automation cannot detect.          |
-| **`scoring-config.json`**   | Risk Engine   | Severity order, penalty weights, grade thresholds, and effort multipliers.           |
-| **`framework-config.json`** | Environment   | Dom signals for auto-detection (React, Shopify, etc.) and file-search glob patterns. |
+| **`wcag-reference.json`**   | Rule Mapping  | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags.      |
+| **`manual-checks.json`**    | Verification  | 41 manual audit criteria for WCAG 2.2 areas that automation cannot detect.           |
+| **`compliance-config.json`**| Risk Engine   | Severity scoring, grade thresholds, effort multipliers, and jurisdictional data.     |
+| **`stack-config.json`**     | Environment   | DOM signals, file-search globs, framework aliases, and agent fix guardrails.         |
 | **`scanner-config.json`**   | Filter Engine | Blocked file extensions, excluded external domains, and robots.txt settings.         |
-| **`regulatory.json`**       | Compliance    | Jurisdictional data for ADA (US), EAA (EU), and Section 508.                         |
 
 ---
 
@@ -75,24 +75,26 @@ These Markdown guides define the **Operational Standards** that the AI Agent fol
 ```mermaid
 %%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0' } } }%%
 flowchart LR
-    A[SKILL.md] -- "1. Orchestrates" --> B[run-audit.mjs]
+    A[SKILL.md] -- "1. Orchestrates" --> B[audit.mjs]
 
     subgraph Engine ["Logic Core"]
-        B --> C[run-scanner.mjs]
-        C --> D[run-analyzer.mjs]
+        B --> C[scanner.mjs]
+        C --> D[analyzer.mjs]
         D --> E[Builders]
     end
 
     subgraph Data ["Intelligence Assets"]
         AS1[scanner-config.json] -.-> C
         AS2[intelligence.json] -.-> D
-        AS3[framework-config.json] -.-> D
-        AS4[scoring-config.json] -.-> E
+        AS3[stack-config.json] -.-> D
+        AS4[compliance-config.json] -.-> E
     end
 
     subgraph Knowledge ["Operational References"]
         R1[troubleshooting.md] -.-> A
         R2[source-patterns.md] -.-> A
+        R3[cli-reference.md] -.-> A
+        R4[report-standards.md] -.-> A
     end
 
     classDef default font-family:Inter,sans-serif,font-size:12px;

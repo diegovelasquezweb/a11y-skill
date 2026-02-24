@@ -8,23 +8,20 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { computeComplianceScore, scoreLabel } from "./core-findings.mjs";
-import { escapeHtml } from "./core-utils.mjs";
+import { computeComplianceScore, scoreLabel } from "./findings.mjs";
+import { escapeHtml } from "./utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const SCORING_CONFIG = JSON.parse(
-  readFileSync(join(__dirname, "../../assets/scoring-config.json"), "utf-8"),
-);
-const REGULATORY = JSON.parse(
-  readFileSync(join(__dirname, "../../assets/regulatory.json"), "utf-8"),
+const COMPLIANCE_CONFIG = JSON.parse(
+  readFileSync(join(__dirname, "../../assets/compliance-config.json"), "utf-8"),
 );
 
 /**
  * Maps compliance performance labels to risk assessments for the executive summary.
  * @type {Object<string, string>}
  */
-const RISK_LABELS = SCORING_CONFIG.riskLabels;
+const RISK_LABELS = COMPLIANCE_CONFIG.riskLabels;
 
 /**
  * Returns the risk metrics (label and risk assessment) for a given compliance score.
@@ -34,6 +31,40 @@ const RISK_LABELS = SCORING_CONFIG.riskLabels;
 export function scoreMetrics(score) {
   const label = scoreLabel(score);
   return { label, risk: RISK_LABELS[label] };
+}
+
+/**
+ * Builds the Table of Contents page for the PDF report.
+ * @returns {string} The HTML string for the ToC page.
+ */
+export function buildPdfTableOfContents() {
+  const sections = [
+    ["1.", "Executive Summary"],
+    ["2.", "Compliance & Legal Risk"],
+    ["3.", "Remediation Roadmap"],
+    ["4.", "Methodology & Scope"],
+    ["5.", "Issue Summary"],
+    ["6.", "Recommended Next Steps"],
+    ["7.", "Audit Scope & Limitations"],
+  ];
+
+  const rows = sections
+    .map(
+      ([num, title]) => `
+      <tr>
+        <td style="width: 2.5cm; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 10pt; padding: 8pt 10pt; border: none; border-bottom: 1pt solid #f3f4f6; color: #6b7280;">${num}</td>
+        <td style="font-family: 'Inter', sans-serif; font-size: 10pt; padding: 8pt 10pt; border: none; border-bottom: 1pt solid #f3f4f6;">${title}</td>
+      </tr>`,
+    )
+    .join("");
+
+  return `
+<div style="page-break-before: always;">
+  <p style="font-family: 'Inter', sans-serif; font-size: 7pt; font-weight: 700; letter-spacing: 3.5pt; text-transform: uppercase; color: #9ca3af; margin: 0 0 1.5rem 0;">Contents</p>
+  <table style="width: 100%; border-collapse: collapse;">
+    <tbody>${rows}</tbody>
+  </table>
+</div>`;
 }
 
 /**
@@ -109,7 +140,7 @@ export function buildPdfExecutiveSummary(args, findings, totals) {
       <tr><th>Severity</th><th>Count</th><th>Impact</th><th>Action Required</th></tr>
     </thead>
     <tbody>
-      ${SCORING_CONFIG.severityDefinitions.map((d) => `<tr><td><strong>${escapeHtml(d.level)}</strong></td><td>${totals[d.level]}</td><td>${escapeHtml(d.impact)}</td><td>${escapeHtml(d.action)}</td></tr>`).join("\n      ")}
+      ${COMPLIANCE_CONFIG.severityDefinitions.map((d) => `<tr><td><strong>${escapeHtml(d.level)}</strong></td><td>${totals[d.level]}</td><td>${escapeHtml(d.impact)}</td><td>${escapeHtml(d.action)}</td></tr>`).join("\n      ")}
     </tbody>
   </table>
 </div>`;
@@ -123,12 +154,12 @@ export function buildPdfExecutiveSummary(args, findings, totals) {
 export function buildPdfRiskSection(totals) {
   const score = computeComplianceScore(totals);
   const level =
-    SCORING_CONFIG.riskLevels.find((l) => score >= l.minScore) ||
-    SCORING_CONFIG.riskLevels[SCORING_CONFIG.riskLevels.length - 1];
+    COMPLIANCE_CONFIG.riskLevels.find((l) => score >= l.minScore) ||
+    COMPLIANCE_CONFIG.riskLevels[COMPLIANCE_CONFIG.riskLevels.length - 1];
   const riskLevel = level.label;
   const riskColor = level.color;
 
-  const regulationRows = REGULATORY.regulations
+  const regulationRows = COMPLIANCE_CONFIG.regulations
     .map(
       (reg) =>
         `<tr>
@@ -157,19 +188,29 @@ export function buildPdfRiskSection(totals) {
     </tbody>
   </table>
 
-  <div style="margin-top: 1.5rem; padding: 1rem 1.2rem; border: 1.5pt solid ${riskColor}; border-left: 5pt solid ${riskColor}; background: #f9fafb;">
+  ${(() => {
+    const inForce = COMPLIANCE_CONFIG.regulations
+      .filter((r) => r.deadline.toLowerCase().includes("in force"))
+      .map((r) => r.name)
+      .slice(0, 3)
+      .join(", ");
+    const upcoming = COMPLIANCE_CONFIG.regulations
+      .filter((r) => !r.deadline.toLowerCase().includes("in force"))
+      .map((r) => `${r.name} (${r.deadline})`)
+      .slice(0, 2)
+      .join(", ");
+    const riskText =
+      score >= 75
+        ? `The site demonstrates strong accessibility fundamentals. Remaining issues should be addressed to achieve full compliance before applicable regulatory deadlines. In-force regulations include: ${inForce}.`
+        : score >= 55
+          ? `The site has meaningful accessibility gaps that create legal exposure. A remediation plan should be established and executed promptly. Applicable regulations include ${inForce}${upcoming ? `, with upcoming deadlines under ${upcoming}` : ""}.`
+          : `The site has significant accessibility barriers that create substantial legal exposure. Immediate remediation of Critical and High issues is strongly recommended. Applicable in-force regulations: ${inForce}${upcoming ? `. Upcoming deadlines: ${upcoming}` : ""}.`;
+    return `<div style="margin-top: 1.5rem; padding: 1rem 1.2rem; border: 1.5pt solid ${riskColor}; border-left: 5pt solid ${riskColor}; background: #f9fafb;">
     <p style="font-family: sans-serif; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1pt; margin: 0 0 4pt 0; color: #6b7280;">Current Risk Assessment</p>
     <p style="font-family: sans-serif; font-size: 16pt; font-weight: 900; margin: 0; color: ${riskColor};">${riskLevel} Risk</p>
-    <p style="font-size: 9pt; margin: 6pt 0 0 0; color: #374151; line-height: 1.6;">
-      ${
-        score >= 75
-          ? "The site demonstrates strong accessibility fundamentals. Remaining issues should be addressed to achieve full compliance before regulatory deadlines."
-          : score >= 55
-            ? "The site has meaningful accessibility gaps that create legal exposure under EAA and ADA Title II. A remediation plan should be established and executed before the applicable compliance deadlines."
-            : "The site has significant accessibility barriers that create substantial legal exposure. Immediate remediation of Critical and High issues is strongly recommended to mitigate compliance risk under EAA (in force) and ADA Title II (April 2026)."
-      }
-    </p>
-  </div>
+    <p style="font-size: 9pt; margin: 6pt 0 0 0; color: #374151; line-height: 1.6;">${riskText}</p>
+  </div>`;
+  })()}
 </div>`;
 }
 
@@ -184,7 +225,7 @@ export function buildPdfRemediationRoadmap(findings) {
   const medium = findings.filter((f) => f.severity === "Medium");
   const low = findings.filter((f) => f.severity === "Low");
 
-  const mult = SCORING_CONFIG.effortMultipliers;
+  const mult = COMPLIANCE_CONFIG.effortMultipliers;
   const effortHours = (c, h, m, l) =>
     Math.round(c * mult.Critical + h * mult.High + m * mult.Medium + l * mult.Low);
 
@@ -195,13 +236,13 @@ export function buildPdfRemediationRoadmap(findings) {
     low.length,
   );
 
-  function sprintBlock(label, items, hours) {
+  function sprintBlock(label, items, hours, startIndex = 1) {
     if (items.length === 0) return "";
     const rows = items
       .slice(0, 8)
       .map(
-        (f) =>
-          `<tr><td>${escapeHtml(f.id)}</td><td>${escapeHtml(f.title)}</td><td>${escapeHtml(f.area)}</td></tr>`,
+        (f, i) =>
+          `<tr><td style="width: 2cm; color: #6b7280;">#${startIndex + i}</td><td>${escapeHtml(f.title)}</td><td>${escapeHtml(f.area)}</td></tr>`,
       )
       .join("");
     const more =
@@ -216,7 +257,7 @@ export function buildPdfRemediationRoadmap(findings) {
     <span style="font-weight: 400; color: #9ca3af;"> — ${items.length} issue${items.length !== 1 ? "s" : ""} · ~${hours}h estimated</span>
   </p>
   <table class="stats-table" style="margin: 0;">
-    <thead><tr><th>ID</th><th>Issue</th><th>Page</th></tr></thead>
+    <thead><tr><th style="width: 2cm;">#</th><th>Issue</th><th>Page</th></tr></thead>
     <tbody>${rows}${more}</tbody>
   </table>
 </div>`;
@@ -231,9 +272,9 @@ export function buildPdfRemediationRoadmap(findings) {
     Total estimated remediation effort: <strong>~${totalHours} hours</strong>.
   </p>
 
-  ${sprintBlock("Sprint 1 — Fix Immediately (Critical)", critical, effortHours(critical.length, 0, 0, 0))}
-  ${sprintBlock("Sprint 2 — Fix This Cycle (High)", high, effortHours(0, high.length, 0, 0))}
-  ${sprintBlock("Sprint 3 — Fix Next Cycle (Medium + Low)", [...medium, ...low], effortHours(0, 0, medium.length, low.length))}
+  ${sprintBlock("Sprint 1 — Fix Immediately (Critical)", critical, effortHours(critical.length, 0, 0, 0), 1)}
+  ${sprintBlock("Sprint 2 — Fix This Cycle (High)", high, effortHours(0, high.length, 0, 0), critical.length + 1)}
+  ${sprintBlock("Sprint 3 — Fix Next Cycle (Medium + Low)", [...medium, ...low], effortHours(0, 0, medium.length, low.length), critical.length + high.length + 1)}
 
   ${findings.length === 0 ? `<p style="font-style: italic; color: #6b7280;">No automated issues found. Complete the manual verification checklist in Section 5 to finalize the assessment.</p>` : ""}
 </div>`;
@@ -262,7 +303,7 @@ export function buildPdfMethodologySection(args, findings) {
   <table class="stats-table" style="margin-bottom: 1.2rem;">
     <tbody>
       <tr><td style="width: 35%; font-weight: 700;">Method</td><td>Automated scanning via axe-core engine injected into a live Chromium browser</td></tr>
-      <tr><td style="font-weight: 700;">Engine</td><td>axe-core 4.10+ (Deque Systems) — industry-standard accessibility rules library</td></tr>
+      <tr><td style="font-weight: 700;">Engine</td><td>axe-core 4.11.1 (Deque Systems) — industry-standard accessibility rules library</td></tr>
       <tr><td style="font-weight: 700;">Browser</td><td>Chromium (headless) via Playwright</td></tr>
       <tr><td style="font-weight: 700;">Standard</td><td>${escapeHtml(args.target)}</td></tr>
       <tr><td style="font-weight: 700;">Audit date</td><td>${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</td></tr>
@@ -283,9 +324,55 @@ export function buildPdfMethodologySection(args, findings) {
   <table class="stats-table">
     <thead><tr><th>Level</th><th>Definition</th><th>Recommended action</th></tr></thead>
     <tbody>
-      ${SCORING_CONFIG.severityDefinitions.map((d) => `<tr><td><strong>${escapeHtml(d.level)}</strong></td><td>${escapeHtml(d.definition)}</td><td>${escapeHtml(d.action)}</td></tr>`).join("\n      ")}
+      ${COMPLIANCE_CONFIG.severityDefinitions.map((d) => `<tr><td><strong>${escapeHtml(d.level)}</strong></td><td>${escapeHtml(d.definition)}</td><td>${escapeHtml(d.action)}</td></tr>`).join("\n      ")}
     </tbody>
   </table>
+</div>`;
+}
+
+/**
+ * Builds the Recommended Next Steps section for the PDF report.
+ * @param {Object[]} findings - The normalized findings for effort calculation.
+ * @param {Object<string, number>} totals - Summary counts per severity.
+ * @returns {string} The HTML string for the next steps section.
+ */
+export function buildPdfNextSteps(findings, totals) {
+  const critical = findings.filter((f) => f.severity === "Critical");
+  const high = findings.filter((f) => f.severity === "High");
+  const medium = findings.filter((f) => f.severity === "Medium");
+  const low = findings.filter((f) => f.severity === "Low");
+  const mult = COMPLIANCE_CONFIG.effortMultipliers;
+
+  const steps = [];
+
+  if (critical.length > 0) {
+    const hrs = Math.round(critical.length * mult.Critical);
+    steps.push(`<li style="margin-bottom: 10pt;"><strong>Address Critical issues immediately</strong> — ${critical.length} issue${critical.length !== 1 ? "s" : ""}, ~${hrs}h estimated. These are complete barriers for assistive technology users and represent the highest legal exposure.</li>`);
+  }
+  if (high.length > 0) {
+    const hrs = Math.round(high.length * mult.High);
+    steps.push(`<li style="margin-bottom: 10pt;"><strong>Resolve High severity issues before the next release</strong> — ${high.length} issue${high.length !== 1 ? "s" : ""}, ~${hrs}h estimated. These create significant friction that forces affected users to abandon flows.</li>`);
+  }
+  if (medium.length + low.length > 0) {
+    const hrs = Math.round(medium.length * mult.Medium + low.length * mult.Low);
+    steps.push(`<li style="margin-bottom: 10pt;"><strong>Plan Medium and Low fixes for the next development cycle</strong> — ${medium.length + low.length} issue${medium.length + low.length !== 1 ? "s" : ""}, ~${hrs}h estimated. These affect specific user groups but are not immediate blockers.</li>`);
+  }
+  if (findings.length === 0) {
+    steps.push(`<li style="margin-bottom: 10pt;"><strong>No automated violations were detected.</strong> Complete the manual verification checklist to confirm full WCAG 2.2 AA conformance before certifying compliance.</li>`);
+  }
+
+  steps.push(`<li style="margin-bottom: 10pt;"><strong>Complete manual verification</strong> — The accompanying testing checklist covers the 41 WCAG 2.2 criteria that automated tools cannot detect, including keyboard navigation, screen reader compatibility, and media accessibility. This step is required before full conformance can be certified.</li>`);
+  steps.push(`<li style="margin-bottom: 10pt;"><strong>Schedule a follow-up audit</strong> — Accessibility requires ongoing maintenance. Re-audit after each major release, or at minimum quarterly, to catch regressions before they compound.</li>`);
+
+  return `
+<div style="page-break-before: always;">
+  <h2 style="margin-top: 0;">6. Recommended Next Steps</h2>
+  <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 1rem;">
+    Based on the findings in this audit, the following actions are recommended in priority order:
+  </p>
+  <ol style="font-size: 10pt; line-height: 1.8; padding-left: 1.5rem; margin: 0;">
+    ${steps.join("\n    ")}
+  </ol>
 </div>`;
 }
 
@@ -296,7 +383,7 @@ export function buildPdfMethodologySection(args, findings) {
 export function buildPdfAuditLimitations() {
   return `
 <div style="page-break-before: always;">
-  <h2 style="margin-top: 0;">6. Audit Scope &amp; Limitations</h2>
+  <h2 style="margin-top: 0;">7. Audit Scope &amp; Limitations</h2>
   <p style="font-size: 10pt; line-height: 1.7; margin-bottom: 1rem;">
     Automated accessibility tools, including axe-core, reliably detect approximately 30–40% of
     WCAG violations. The remaining 60–70% require human judgement, assistive technology testing,
@@ -346,13 +433,13 @@ export function buildPdfAuditLimitations() {
     </tbody>
   </table>
 
-  <div style="padding: 1rem 1.2rem; border: 1.5pt solid #d97706; border-left: 5pt solid #d97706; background: #fffbeb;">
+  <div style="padding: 1rem 1.2rem; border: 1.5pt solid #d97706; border-left: 5pt solid #d97706; background: #fffbeb; page-break-inside: avoid;">
     <p style="font-family: sans-serif; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1pt; margin: 0 0 4pt 0; color: #92400e;">Recommendation</p>
     <p style="font-size: 9pt; line-height: 1.7; margin: 0; color: #374151;">
       To achieve verified WCAG 2.2 AA conformance, this automated audit should be complemented
       with manual testing by an accessibility specialist, including screen reader testing,
       keyboard-only navigation, and review of the 6 manual-only WCAG 2.2 criteria.
-      The accompanying HTML report provides step-by-step verification guidance for your development team.
+      The accompanying manual testing checklist provides step-by-step verification guidance for your development team.
     </p>
   </div>
 </div>`;
@@ -402,9 +489,12 @@ export function buildPdfCoverPage({ siteHostname, target, score, coverDate }) {
       </div>
 
       <!-- Footer -->
-      <div style="border-top: 1pt solid #e5e7eb; padding-top: 0.6cm; display: flex; justify-content: space-between; align-items: center;">
-        <p style="font-family: 'Inter', sans-serif; font-size: 8pt; color: #9ca3af; margin: 0;">Generated by <strong style="color: #6b7280;">a11y</strong></p>
-        <p style="font-family: 'Inter', sans-serif; font-size: 8pt; color: #9ca3af; margin: 0;">github.com/diegovelasquezweb/a11y</p>
+      <div style="border-top: 1pt solid #e5e7eb; padding-top: 0.6cm;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4pt;">
+          <p style="font-family: 'Inter', sans-serif; font-size: 8pt; color: #9ca3af; margin: 0;">Generated by <strong style="color: #6b7280;">a11y</strong></p>
+          <p style="font-family: 'Inter', sans-serif; font-size: 8pt; color: #9ca3af; margin: 0;">github.com/diegovelasquezweb/a11y</p>
+        </div>
+        <p style="font-family: 'Inter', sans-serif; font-size: 7.5pt; color: #9ca3af; margin: 0; font-style: italic;">Confidential — This report is intended solely for the organization that commissioned this audit. Do not distribute without authorization.</p>
       </div>
     </div>`;
 }
@@ -430,13 +520,13 @@ export function buildPdfIssueSummaryTable(findings) {
 
   const rows = findings
     .map(
-      (f) => `
+      (f, i) => `
               <tr>
-                <td style="font-family: monospace; font-size: 8pt; white-space: nowrap;">${escapeHtml(f.id)}</td>
-                <td style="font-size: 9pt;">${escapeHtml(f.title)}</td>
-                <td style="font-family: monospace; font-size: 8pt; white-space: nowrap;">${escapeHtml(f.area)}</td>
-                <td style="font-weight: 700; font-size: 9pt; white-space: nowrap;">${escapeHtml(f.severity)}</td>
-                <td style="font-size: 9pt;">${escapeHtml(f.impactedUsers)}</td>
+                <td style="color: #6b7280; white-space: nowrap;">#${i + 1}</td>
+                <td>${escapeHtml(f.title)}</td>
+                <td style="white-space: nowrap;">${escapeHtml(f.area)}</td>
+                <td style="font-weight: 700; white-space: nowrap;">${escapeHtml(f.severity)}</td>
+                <td>${escapeHtml(f.impactedUsers)}</td>
               </tr>`,
     )
     .join("");
@@ -451,7 +541,7 @@ export function buildPdfIssueSummaryTable(findings) {
       </p>
       <table class="stats-table">
         <thead>
-          <tr><th>ID</th><th>Issue</th><th>Page</th><th>Severity</th><th>Users Affected</th></tr>
+          <tr><th style="width: 1.5cm;">#</th><th>Issue</th><th>Page</th><th>Severity</th><th>Users Affected</th></tr>
         </thead>
         <tbody>
           ${rows}

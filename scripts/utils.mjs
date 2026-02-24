@@ -1,5 +1,5 @@
 /**
- * @file a11y-utils.mjs
+ * @file utils.mjs
  * @description Core utility functions and shared configuration for the a11y skill.
  * Provides logging, file I/O operations, and path management used throughout the audit pipeline.
  */
@@ -101,5 +101,5 @@ export function readJson(filePath) {
  * @returns {string} The resolved absolute path.
  */
 export function getInternalPath(filename) {
-  return path.join(SKILL_ROOT, "audit", "internal", filename);
+  return path.join(SKILL_ROOT, ".audit", filename);
 }

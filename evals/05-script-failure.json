@@ -5,9 +5,8 @@
   "query": "Run an accessibility audit on https://unreachable-site.invalid",
   "expected_behavior": [
     "Runs the audit command",
-    "When the script fails (network error / timeout), reports the error clearly to the user",
-    "Does NOT retry automatically without asking",
-    "Asks whether to retry or adjust the target URL",
+    "When the script fails (network error / timeout), consults `references/troubleshooting.md` and attempts to self-correct before asking the user",
+    "If unrecoverable, offers exactly 3 options: (1) Retry, (2) Different URL, (3) Skip and troubleshoot manually",
     "Does NOT fabricate audit results or proceed to Step 3"
   ],
   "model_notes": {}

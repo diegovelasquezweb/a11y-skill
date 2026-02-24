@@ -8,7 +8,7 @@
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { buildSummary } from "./core-findings.mjs";
+import { buildSummary } from "./findings.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -16,14 +16,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * Path to the manual check database asset.
  * @type {string}
  */
-const frameworkConfigPath = join(__dirname, "../../assets/framework-config.json");
+const stackConfigPath = join(__dirname, "../../assets/stack-config.json");
 
-let FRAMEWORK_CONFIG;
+let STACK_CONFIG;
 try {
-  FRAMEWORK_CONFIG = JSON.parse(readFileSync(frameworkConfigPath, "utf-8"));
+  STACK_CONFIG = JSON.parse(readFileSync(stackConfigPath, "utf-8"));
 } catch {
   throw new Error(
-    "Missing or invalid assets/framework-config.json — reinstall the skill.",
+    "Missing or invalid assets/stack-config.json — reinstall the skill.",
   );
 }
 
@@ -40,6 +40,71 @@ try {
   throw new Error(
     "Missing or invalid assets/manual-checks.json — reinstall the skill.",
   );
+}
+
+/**
+ * Renders the source code pattern audit section from intelligence.json code_patterns.
+ * Each pattern includes a detection regex, file globs, and a concrete code fix.
+ * @param {Object} patterns - The code_patterns object from intelligence.json (via metadata).
+ * @param {string} [framework] - Detected framework ID for filtering framework-specific notes.
+ * @returns {string} The source code pattern audit section, or empty string if no patterns.
+ */
+function buildCodePatternsMd(patterns, framework) {
+  if (!patterns || Object.keys(patterns).length === 0) return "";
+
+  const entries = Object.entries(patterns)
+    .map(([id, pattern]) => {
+      const frameworkNote =
+        framework && pattern.framework_notes?.[framework]
+          ? `\n**${framework.charAt(0).toUpperCase() + framework.slice(1)} Note:** ${pattern.framework_notes[framework]}`
+          : "";
+
+      const fixBlock = [
+        pattern.fix?.description
+          ? `**Fix:** ${pattern.fix.description}`
+          : null,
+        pattern.fix?.code ? `\`\`\`jsx\n${pattern.fix.code}\n\`\`\`` : null,
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      const fpRisk =
+        pattern.false_positive_risk && pattern.false_positive_risk !== "low"
+          ? `> ⚠️ **False Positive Risk (${pattern.false_positive_risk}):** Verify the match is a real violation before applying the fix — the search regex may match code that already handles this correctly at a higher level.`
+          : null;
+
+      const managedBlock =
+        Array.isArray(pattern.managed_by_libraries) &&
+        pattern.managed_by_libraries.length > 0
+          ? `> ⚠️ **Managed Component Warning:** This pattern may match components managed by **${pattern.managed_by_libraries.join(", ")}** — verify the library does not already handle this before applying a fix.`
+          : null;
+
+      return [
+        `---`,
+        `### \`${id}\` — ${pattern.severity.charAt(0).toUpperCase() + pattern.severity.slice(1)} (WCAG ${pattern.wcag})`,
+        ``,
+        `${pattern.description}`,
+        ``,
+        `**Search for:** \`${pattern.detection.search}\``,
+        `**In files:** \`${pattern.detection.files}\``,
+        ``,
+        managedBlock,
+        fpRisk,
+        ``,
+        fixBlock,
+        frameworkNote || null,
+      ]
+        .filter((line) => line !== null)
+        .join("\n");
+    })
+    .join("\n\n");
+
+  return `## 🔍 Source Code Pattern Audit
+
+> These patterns are not detectable by axe-core at runtime. Use the search regex to grep source files and apply the fixes wherever the pattern is found.
+
+${entries}
+`;
 }
 
 /**
@@ -105,7 +170,7 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
   const detected = metadata.projectContext?.framework;
   if (detected) return detected;
   const url = baseUrl.toLowerCase();
-  const urlSignals = FRAMEWORK_CONFIG.frameworkDetection?.urlSignals || [];
+  const urlSignals = STACK_CONFIG.frameworkDetection?.urlSignals || [];
   for (const signal of urlSignals) {
     if (url.includes(signal.pattern)) return signal.framework;
   }
@@ -118,7 +183,7 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
  * @returns {string} A bulleted list of framework-specific operating procedures.
  */
 function buildGuardrails(framework) {
-  const guardrails = FRAMEWORK_CONFIG.guardrails || {};
+  const guardrails = STACK_CONFIG.guardrails || {};
   const shared = guardrails.shared || [];
   const frameworkRules = guardrails.framework || {};
   const frameworkRule = frameworkRules[framework] ?? frameworkRules.generic;
@@ -134,6 +199,11 @@ function buildGuardrails(framework) {
  * @returns {string} The complete Markdown document.
  */
 export function buildMarkdownSummary(args, findings, metadata = {}) {
+  const framework = resolveFramework(
+    metadata,
+    args.baseUrl,
+    args.framework ?? null,
+  );
   const totals = buildSummary(findings);
   const status = findings.length === 0 ? "PASS" : "ISSUES FOUND";
 
@@ -196,7 +266,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         : null;
 
     const ruleRef = f.ruleId
-      ? `**Rule Logic:** https://dequeuniversity.com/rules/axe/4.10/${f.ruleId}`
+      ? `**Rule Logic:** https://dequeuniversity.com/rules/axe/4.11/${f.ruleId}`
       : null;
 
     const searchPatternBlock = f.fileSearchPattern
@@ -338,7 +408,7 @@ Total findings: **${findings.length} issues**
 
 **FOLLOW THESE RULES TO PREVENT REGRESSIONS AND HALLUCINATIONS:**
 
-${buildGuardrails(resolveFramework(metadata, args.baseUrl, args.framework ?? null))}
+${buildGuardrails(framework)}
 
 ---
 
@@ -346,6 +416,7 @@ ${buildComponentMap()}${blockers ? `## 🔴 Priority Fixes (Critical & High)\n\n
 
 ${deferred ? `## 🔵 Deferred Issues (Medium & Low)\n\n${deferred}` : "## Deferred Issues\n\nNo medium or low severity issues found."}
 
+${buildCodePatternsMd(metadata.code_patterns, framework)}
 ${buildManualChecksMd()}
 ${referencesSection}`.trimEnd() + "\n"
   );

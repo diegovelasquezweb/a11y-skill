@@ -77,5 +77,66 @@
     "serious": "High",
     "moderate": "Medium",
     "minor": "Low"
-  }
+  },
+  "usRegulatory": {
+    "default": "https://accessibility.18f.gov/checklist/",
+    "section508": "https://www.section508.gov/create/software-websites/",
+    "18f": "https://accessibility.18f.gov/tools/"
+  },
+  "regulations": [
+    {
+      "name": "European Accessibility Act (EAA)",
+      "jurisdiction": "European Union",
+      "standard": "EN 301 549 / WCAG 2.2 AA",
+      "deadline": "June 28, 2025 (in force)"
+    },
+    {
+      "name": "ADA Title II — DOJ Final Rule",
+      "jurisdiction": "United States",
+      "standard": "WCAG 2.1 AA",
+      "deadline": "April 24, 2026"
+    },
+    {
+      "name": "EU Web Accessibility Directive",
+      "jurisdiction": "European Union (Public Sector)",
+      "standard": "EN 301 549 / WCAG 2.1 AA",
+      "deadline": "In force since 2018"
+    },
+    {
+      "name": "Section 508",
+      "jurisdiction": "United States (Federal)",
+      "standard": "WCAG 2.0 AA",
+      "deadline": "In force since 2018"
+    },
+    {
+      "name": "Equality Act 2010",
+      "jurisdiction": "United Kingdom",
+      "standard": "WCAG 2.1 AA (de facto)",
+      "deadline": "In force since 2010"
+    },
+    {
+      "name": "Public Sector Bodies Accessibility Regulations",
+      "jurisdiction": "United Kingdom (Public Sector)",
+      "standard": "WCAG 2.1 AA",
+      "deadline": "In force since 2020"
+    },
+    {
+      "name": "Accessible Canada Act (ACA)",
+      "jurisdiction": "Canada (Federal)",
+      "standard": "WCAG 2.1 AA",
+      "deadline": "In force since 2019"
+    },
+    {
+      "name": "AODA — Information & Communications Standard",
+      "jurisdiction": "Ontario, Canada",
+      "standard": "WCAG 2.0 AA",
+      "deadline": "In force since 2021"
+    },
+    {
+      "name": "Disability Discrimination Act 1992 (DDA)",
+      "jurisdiction": "Australia",
+      "standard": "WCAG 2.1 AA (de facto)",
+      "deadline": "In force since 1992"
+    }
+  ]
 }
