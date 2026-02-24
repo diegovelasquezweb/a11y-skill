@@ -32,7 +32,7 @@ const manualChecksPath = path.join(__dirname, "../assets/manual-checks.json");
 const MANUAL_CHECKS = JSON.parse(fs.readFileSync(manualChecksPath, "utf-8"));
 
 const RULE_METADATA = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../assets/rule-metadata.json"), "utf-8"),
+  fs.readFileSync(path.join(__dirname, "../assets/wcag-reference.json"), "utf-8"),
 );
 
 import {

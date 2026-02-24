@@ -21,18 +21,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
 
 /**
- * Path to shared rule metadata including WCAG mappings and APG patterns.
+ * Path to the WCAG reference database: criterion maps, APG patterns, MDN links, personas.
  * @type {string}
  */
-const ruleMetadataPath = path.join(__dirname, "../assets/rule-metadata.json");
+const wcagReferencePath = path.join(__dirname, "../assets/wcag-reference.json");
 
 const complianceConfigPath = path.join(__dirname, "../assets/compliance-config.json");
-const frameworkConfigPath = path.join(__dirname, "../assets/framework-config.json");
+const stackConfigPath = path.join(__dirname, "../assets/stack-config.json");
 
 let INTELLIGENCE;
-let RULE_METADATA;
+let WCAG_REFERENCE;
 let COMPLIANCE_CONFIG;
-let FRAMEWORK_CONFIG;
+let STACK_CONFIG;
 
 // Initialize remediation and rule metadata assets.
 try {
@@ -44,10 +44,10 @@ try {
 }
 
 try {
-  RULE_METADATA = JSON.parse(fs.readFileSync(ruleMetadataPath, "utf-8"));
+  WCAG_REFERENCE = JSON.parse(fs.readFileSync(wcagReferencePath, "utf-8"));
 } catch {
   throw new Error(
-    `Missing or invalid rule-metadata.json at ${ruleMetadataPath} — run pnpm install to reinstall.`,
+    `Missing or invalid wcag-reference.json at ${wcagReferencePath} — run pnpm install to reinstall.`,
   );
 }
 
@@ -60,10 +60,10 @@ try {
 }
 
 try {
-  FRAMEWORK_CONFIG = JSON.parse(fs.readFileSync(frameworkConfigPath, "utf-8"));
+  STACK_CONFIG = JSON.parse(fs.readFileSync(stackConfigPath, "utf-8"));
 } catch {
   throw new Error(
-    `Missing or invalid framework-config.json at ${frameworkConfigPath} — run pnpm install to reinstall.`,
+    `Missing or invalid stack-config.json at ${stackConfigPath} — run pnpm install to reinstall.`,
   );
 }
 
@@ -85,11 +85,11 @@ const RULES = INTELLIGENCE.rules || {};
 /** @type {Object} */
 const CODE_PATTERNS = INTELLIGENCE.code_patterns || {};
 /** @type {Object<string, string>} */
-const APG_PATTERNS = RULE_METADATA.apgPatterns;
+const APG_PATTERNS = WCAG_REFERENCE.apgPatterns;
 /** @type {Object<string, string>} */
-const MDN = RULE_METADATA.mdn || {};
+const MDN = WCAG_REFERENCE.mdn || {};
 /** @type {Object<string, string>} */
-const WCAG_CRITERION_MAP = RULE_METADATA.wcagCriterionMap || {};
+const WCAG_CRITERION_MAP = WCAG_REFERENCE.wcagCriterionMap || {};
 
 /**
  * Detects the programming language of a code snippet for syntax highlighting.
@@ -112,9 +112,9 @@ function detectCodeLang(code) {
 const US_REGULATORY = COMPLIANCE_CONFIG.usRegulatory;
 
 /** @type {Object<string, string>} */
-const IMPACTED_USERS = RULE_METADATA.impactedUsers || {};
+const IMPACTED_USERS = WCAG_REFERENCE.impactedUsers || {};
 /** @type {Object<string, string>} */
-const EXPECTED = RULE_METADATA.expected || {};
+const EXPECTED = WCAG_REFERENCE.expected || {};
 
 /**
  * Returns a description of the primary user groups impacted by a rule violation.
@@ -124,7 +124,7 @@ const EXPECTED = RULE_METADATA.expected || {};
  */
 function getImpactedUsers(ruleId, tags) {
   if (IMPACTED_USERS[ruleId]) return IMPACTED_USERS[ruleId];
-  const tagFallbacks = RULE_METADATA.tagImpactedUsers || {};
+  const tagFallbacks = WCAG_REFERENCE.tagImpactedUsers || {};
   for (const tag of tags) {
     if (tagFallbacks[tag]) return tagFallbacks[tag];
   }
@@ -145,7 +145,7 @@ function getExpected(ruleId) {
  * Used to help developers locate the source of an accessibility violation.
  * @type {Object<string, Object>}
  */
-const FRAMEWORK_GLOBS = FRAMEWORK_CONFIG.frameworkGlobs || {};
+const FRAMEWORK_GLOBS = STACK_CONFIG.frameworkGlobs || {};
 
 /**
  * Rules with managed_by_libraries in intelligence.json — derived at load time.
@@ -161,13 +161,13 @@ const MANAGED_RULES = new Map(
  * Maps detected framework IDs to their respective keys in intelligence.json.
  * @type {Object<string, string>}
  */
-const FRAMEWORK_TO_INTEL_KEY = FRAMEWORK_CONFIG.frameworkAliases?.intelKey || {};
+const FRAMEWORK_TO_INTEL_KEY = STACK_CONFIG.frameworkAliases?.intelKey || {};
 
 /**
  * Maps detected framework/CMS IDs to their respective keys for CMS-specific notes.
  * @type {Object<string, string>}
  */
-const FRAMEWORK_TO_CMS_KEY = FRAMEWORK_CONFIG.frameworkAliases?.cmsKey || {};
+const FRAMEWORK_TO_CMS_KEY = STACK_CONFIG.frameworkAliases?.cmsKey || {};
 
 /**
  * Filters the intelligence notes to only include those relevant to the detected framework.
@@ -283,8 +283,8 @@ const IMPACT_MAP = COMPLIANCE_CONFIG.impactMap;
  * @returns {string} The WCAG level (e.g., "WCAG 2.1 AA").
  */
 function mapWcag(tags) {
-  const labels = RULE_METADATA.wcagTagLabels || {};
-  const precedence = RULE_METADATA.wcagTagPrecedence || Object.keys(labels);
+  const labels = WCAG_REFERENCE.wcagTagLabels || {};
+  const precedence = WCAG_REFERENCE.wcagTagPrecedence || Object.keys(labels);
   for (const key of precedence) {
     if (tags.includes(key) && labels[key]) return labels[key];
   }
@@ -299,7 +299,7 @@ function mapWcag(tags) {
  */
 export function detectImplicitRole(tag, html) {
   if (!tag) return null;
-  const roles = RULE_METADATA.implicitRoles || {};
+  const roles = WCAG_REFERENCE.implicitRoles || {};
   if (tag === "input") {
     const type = html?.match(/type=["']([^"']+)["']/i)?.[1]?.toLowerCase();
     return (roles.inputTypeMap || {})[type] ?? null;

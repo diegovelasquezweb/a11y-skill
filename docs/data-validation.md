@@ -56,7 +56,7 @@ flowchart TD
 
 | File                        | Technical Scope                                                              |
 | :-------------------------- | :--------------------------------------------------------------------------- |
-| `assets/rule-metadata.json` | `wcagCriterionMap`, URLs (`mdn`, `apgPatterns`), `impactedUsers`, `expected` |
+| `assets/wcag-reference.json` | `wcagCriterionMap`, URLs (`mdn`, `apgPatterns`), `impactedUsers`, `expected` |
 | `assets/intelligence.json`  | `fix`, `framework_notes`, `cms_notes`, `false_positive_risk`                 |
 | `assets/manual-checks.json` | `criterion` mapping, `steps`, `remediation`, `code_example`                  |
 

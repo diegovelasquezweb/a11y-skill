@@ -9,7 +9,7 @@ const intel = JSON.parse(
 );
 const ruleMetadata = JSON.parse(
   fs.readFileSync(
-    path.join(__dirname, "../assets/rule-metadata.json"),
+    path.join(__dirname, "../assets/wcag-reference.json"),
     "utf-8",
   ),
 );
@@ -108,8 +108,8 @@ describe("intelligence.json — schema", () => {
   }
 });
 
-// ── 2. rule-metadata.json schema ──────────────────────────────────────────────
-describe("rule-metadata.json — schema", () => {
+// ── 2. wcag-reference.json schema ──────────────────────────────────────────────
+describe("wcag-reference.json — schema", () => {
   it("every rule has impactedUsers", () => {
     const missing = [...ruleIds].filter(
       (id) => !ruleMetadata.impactedUsers?.[id]?.trim(),
@@ -182,7 +182,7 @@ describe("intelligence.json — content quality", () => {
 });
 
 // ── 6. WCAG criterion mapping accuracy ────────────────────────────────────
-describe("rule-metadata.json — WCAG criterion mapping", () => {
+describe("wcag-reference.json — WCAG criterion mapping", () => {
   // Rules axe-core tags as best-practice (no WCAG tag) but we intentionally map
   const BEST_PRACTICE_MAPPED = new Set([
     "accesskeys",

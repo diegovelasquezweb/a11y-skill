@@ -40,12 +40,11 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 | Asset                       | Role          | Key Data                                                                             |
 | :-------------------------- | :------------ | :----------------------------------------------------------------------------------- |
 | **`intelligence.json`**     | Fix Database  | Resolution code patterns, framework-specific fix notes, and related rules.           |
-| **`rule-metadata.json`**    | Rule Mapping  | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags.      |
+| **`wcag-reference.json`**   | Rule Mapping  | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags.      |
 | **`manual-checks.json`**    | Verification  | 42 manual audit criteria for WCAG 2.2 areas that automation cannot detect.           |
-| **`scoring-config.json`**   | Risk Engine   | Severity order, penalty weights, grade thresholds, and effort multipliers.           |
-| **`framework-config.json`** | Environment   | Dom signals for auto-detection (React, Shopify, etc.) and file-search glob patterns. |
+| **`compliance-config.json`**| Risk Engine   | Severity scoring, grade thresholds, effort multipliers, and jurisdictional data.     |
+| **`stack-config.json`**     | Environment   | DOM signals, file-search globs, framework aliases, and agent fix guardrails.         |
 | **`scanner-config.json`**   | Filter Engine | Blocked file extensions, excluded external domains, and robots.txt settings.         |
-| **`regulatory.json`**       | Compliance    | Jurisdictional data for ADA (US), EAA (EU), and Section 508.                         |
 
 ---
 
@@ -86,8 +85,8 @@ flowchart LR
     subgraph Data ["Intelligence Assets"]
         AS1[scanner-config.json] -.-> C
         AS2[intelligence.json] -.-> D
-        AS3[framework-config.json] -.-> D
-        AS4[scoring-config.json] -.-> E
+        AS3[stack-config.json] -.-> D
+        AS4[compliance-config.json] -.-> E
     end
 
     subgraph Knowledge ["Operational References"]

@@ -16,14 +16,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * Path to the manual check database asset.
  * @type {string}
  */
-const frameworkConfigPath = join(__dirname, "../../assets/framework-config.json");
+const stackConfigPath = join(__dirname, "../../assets/stack-config.json");
 
-let FRAMEWORK_CONFIG;
+let STACK_CONFIG;
 try {
-  FRAMEWORK_CONFIG = JSON.parse(readFileSync(frameworkConfigPath, "utf-8"));
+  STACK_CONFIG = JSON.parse(readFileSync(stackConfigPath, "utf-8"));
 } catch {
   throw new Error(
-    "Missing or invalid assets/framework-config.json — reinstall the skill.",
+    "Missing or invalid assets/stack-config.json — reinstall the skill.",
   );
 }
 
@@ -170,7 +170,7 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
   const detected = metadata.projectContext?.framework;
   if (detected) return detected;
   const url = baseUrl.toLowerCase();
-  const urlSignals = FRAMEWORK_CONFIG.frameworkDetection?.urlSignals || [];
+  const urlSignals = STACK_CONFIG.frameworkDetection?.urlSignals || [];
   for (const signal of urlSignals) {
     if (url.includes(signal.pattern)) return signal.framework;
   }
@@ -183,7 +183,7 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
  * @returns {string} A bulleted list of framework-specific operating procedures.
  */
 function buildGuardrails(framework) {
-  const guardrails = FRAMEWORK_CONFIG.guardrails || {};
+  const guardrails = STACK_CONFIG.guardrails || {};
   const shared = guardrails.shared || [];
   const frameworkRules = guardrails.framework || {};
   const frameworkRule = frameworkRules[framework] ?? frameworkRules.generic;

@@ -1,26 +1,5 @@
 {
   "rules": {
-    "accessible-auth-minimum": {
-      "fix": {
-        "description": "Remove any cognitive test requirement (CAPTCHA, puzzle, memorization) from the authentication flow, or provide an accessible alternative alongside it — offer an audio CAPTCHA, email OTP, magic link, or passkey so users with cognitive disabilities can authenticate without solving a visual puzzle (WCAG 3.3.8).",
-        "code": "<!-- Option 1: Offer an audio CAPTCHA alternative -->\n<div class=\"captcha-group\">\n  <img src=\"captcha.png\" alt=\"Enter the characters shown\">\n  <a href=\"/audio-captcha\">Use audio CAPTCHA instead</a>\n</div>\n\n<!-- Option 2: Use passkeys (no cognitive test required) -->\n<button type=\"button\" onclick=\"authenticateWithPasskey()\">\n  Sign in with passkey\n</button>"
-      },
-      "false_positive_risk": "high",
-      "framework_notes": {
-        "react": "When using NextAuth.js, prefer magic link (email provider) or passkey authentication — these eliminate cognitive tests entirely. If CAPTCHA is required, use hCaptcha with accessibility mode enabled, or Google reCAPTCHA v3 (which requires no user interaction).",
-        "vue": "In Nuxt, @nuxtjs/auth-next supports email magic links and OAuth providers — both are more accessible than CAPTCHA-based flows. For CAPTCHA, hCaptcha offers an accessible challenge alternative.",
-        "angular": "In Angular apps using Auth0 or Firebase Auth, enable passwordless (magic link) or passkey authentication. If CAPTCHA is required, integrate hCaptcha with its accessibility challenge option, which provides audio and visual alternatives.",
-        "svelte": "In SvelteKit, use lucia-auth or Auth.js with magic link/passkey providers to eliminate CAPTCHA. If CAPTCHA is unavoidable, render it inside a Svelte component with an accessible alternative toggle.",
-        "astro": "In Astro, authentication flows typically run on the server (Astro middleware or API routes). Use passkey/magic link auth to avoid CAPTCHAs entirely. If using a CAPTCHA island component, ensure it includes an accessible alternative."
-      },
-      "fix_difficulty_notes": "Automated tools can detect the presence of a CAPTCHA but cannot verify whether an accessible alternative is functional. Treat findings as a prompt for manual review. The WCAG 3.3.8 exception allows cognitive tests if an accessible alternative (audio CAPTCHA, passkey, magic link, email OTP) is offered alongside.",
-      "related_rules": [
-        {
-          "id": "redundant-entry",
-          "reason": "Both are WCAG 3.3.x input assistance criteria — review all form accessibility together."
-        }
-      ]
-    },
     "accesskeys": {
       "fix": {
         "description": "Ensure every accesskey attribute value is unique across the page. Duplicate accesskey values create unpredictable keyboard shortcuts — only one element will receive activation, and which one varies by browser.",
@@ -982,32 +961,8 @@
         {
           "id": "link-in-text-block",
           "reason": "Links distinguished only by color need sufficient contrast — both rules enforce color-based visual distinction."
-        },
-        {
-          "id": "focus-appearance",
-          "reason": "Focus indicators also require minimum contrast ratios — audit contrast for both text and focus states together."
         }
       ]
-    },
-    "consistent-help": {
-      "fix": {
-        "description": "Place help mechanisms (support link, chat, contact info, self-help tool) in the same relative order on every page where they appear (WCAG 3.2.6).",
-        "code": "<!-- Place help in a consistent location across all pages (e.g., persistent header or footer): -->\n<header>\n  <nav aria-label=\"Support\">\n    <a href=\"/help\">Help centre</a>\n    <a href=\"/contact\">Contact support</a>\n  </nav>\n</header>"
-      },
-      "false_positive_risk": "high",
-      "framework_notes": {
-        "react": "Place help mechanisms in the root layout component (e.g., app/layout.tsx in Next.js App Router, or App.jsx). Never put them in individual page components — they will appear/disappear per route, breaking consistency. In Next.js Pages Router, use _app.js.",
-        "vue": "Add help mechanisms to the root layout (App.vue or layouts/default.vue in Nuxt). Avoid placing them in page-level components. In Nuxt, layouts/default.vue is the canonical location to guarantee consistent rendering across all routes.",
-        "angular": "Place help mechanisms in app.component.html or a shared layout component rendered by the root route. Avoid placing them in lazy-loaded feature modules — they will only appear when that module is active. In Angular 17+ with standalone components, ensure the help component is included in the root app component, not individual route components.",
-        "svelte": "In SvelteKit, place help mechanisms in +layout.svelte at the root level. Avoid putting them in individual +page.svelte files. SvelteKit's layout nesting ensures they persist across all child routes automatically.",
-        "astro": "Place help mechanisms in your base layout component (e.g., layouts/BaseLayout.astro). Since Astro islands hydrate independently, ensure help widgets that require JavaScript use client:load to be immediately interactive. Never place them inside island components — they will only appear where that island is used."
-      },
-      "cms_notes": {
-        "shopify": "Place help links in layout/theme.liquid or a persistent snippet included in every section. Never add them only to specific section templates — they will be absent on pages that don't render that section.",
-        "wordpress": "Add help mechanisms to header.php or footer.php in the active theme. Avoid widget areas that may not appear on all page templates (e.g., some templates skip the sidebar). In block themes (FSE), use template parts.",
-        "drupal": "Place help mechanisms in the page.html.twig template or a block assigned to a region rendered on every page (e.g., footer). Avoid placing them in node--*.html.twig templates — they only render on specific content types."
-      },
-      "fix_difficulty_notes": "Automated tools can only scan one page at a time and cannot compare help mechanism position across pages. axe findings for this rule are heuristic — they identify potential consistency issues but cannot confirm a violation without cross-page comparison. Manually verify across at least 3 page templates."
     },
     "css-orientation-lock": {
       "fix": {
@@ -1089,21 +1044,6 @@
         "drupal": "Drupal sets the page title via the title_resolver service and renders it in html.html.twig: <title>{{ head_title|safe_join(' | ') }}</title>. Custom modules can alter titles via hook_preprocess_html(). Verify that Views pages set proper titles."
       },
       "fix_difficulty_notes": "In SPAs, the <title> is often set only on initial load. After client-side route changes, the title must be updated programmatically — the browser tab title stays stale otherwise. Each page title should follow the pattern 'Page Name — Site Name' so users understand context without reading page content."
-    },
-    "dragging-movements": {
-      "fix": {
-        "description": "Provide a single-pointer alternative for every drag-and-drop interaction (e.g., click-to-select then click-to-drop, or up/down arrow buttons) so users who cannot perform drag gestures can complete the same task (WCAG 2.5.7).",
-        "code": "<!-- Provide non-drag alternative with arrow buttons: -->\n<ul role=\"listbox\" aria-label=\"Sortable items\">\n  <li role=\"option\" tabindex=\"0\">\n    Item 1\n    <button aria-label=\"Move item up\">↑</button>\n    <button aria-label=\"Move item down\">↓</button>\n  </li>\n</ul>"
-      },
-      "false_positive_risk": "high",
-      "framework_notes": {
-        "react": "Libraries like @dnd-kit/core provide keyboard-accessible drag-and-drop out of the box. react-beautiful-dnd also supports keyboard dragging. If using a custom drag implementation with mousedown/mousemove events, add keyboard event handlers (Arrow keys for movement, Space/Enter to confirm drop) as an accessible alternative.",
-        "vue": "Vue Draggable (vuedraggable) and @vueuse/gesture may not include keyboard alternatives by default. Supplement drag interactions with arrow key handlers and explicit 'move up/down' buttons visible to all users.",
-        "angular": "Angular CDK DragDrop (CdkDrag) does not provide keyboard drag-and-drop by default. Add a secondary keyboard interface (e.g., Up/Down arrow buttons) as the accessible alternative alongside the drag functionality.",
-        "svelte": "Svelte drag libraries (svelte-dnd-action, neodrag) may not include keyboard alternatives by default. Supplement drag interactions with explicit move buttons (↑/↓) or keyboard event handlers for arrow keys.",
-        "astro": "In .astro files, drag interactions require JavaScript — implement them inside framework islands. Ensure the island component provides a keyboard-accessible alternative to drag gestures."
-      },
-      "fix_difficulty_notes": "axe detects drag interactions heuristically based on event listeners — it may flag elements that listen to drag events but do not actually require dragging for their core function. Verify that the flagged element genuinely has drag-only functionality before implementing an alternative. WCAG 2.5.7 includes an exception when the dragging motion is 'essential' (e.g., a signature pad or freehand drawing tool)."
     },
     "duplicate-id": {
       "fix": {
@@ -1204,31 +1144,6 @@
         {
           "id": "scope-attr-valid",
           "reason": "Scope on an empty <th> is meaningless — ensure headers have text content before adding scope."
-        }
-      ]
-    },
-    "focus-appearance": {
-      "fix": {
-        "description": "Style :focus-visible with an outline that covers a minimum area of perimeter × 2 CSS px and maintains a 3:1 contrast ratio between focused and unfocused states (WCAG 2.4.11).",
-        "code": ":focus-visible {\n  outline: 3px solid #005FCC;\n  outline-offset: 2px;\n  /* Ensure contrast ratio ≥ 3:1 vs adjacent background */\n}\n\n/* Remove browser default only when providing a custom style */\n:focus:not(:focus-visible) {\n  outline: none;\n}"
-      },
-      "false_positive_risk": "high",
-      "framework_notes": {
-        "react": "In React, CSS-in-JS libraries (styled-components, Emotion) and Tailwind often reset outline globally. Use the focus-visible variant: className='focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'. Radix and shadcn/ui provide focus-visible styles by default — verify they are not overridden.",
-        "vue": "In Vue, scoped styles (<style scoped>) can unintentionally override focus indicators. Verify :focus-visible styles are applied globally or at the component root. Vuetify applies its own focus ring — check the rendered output matches WCAG contrast requirements.",
-        "angular": "Angular Material applies focus indicators via CDK's FocusMonitor. Verify the theme's focus overlay meets the 3:1 contrast ratio. Custom components using Angular CDK should use cdkFocusMonitor for consistent focus indicator behavior.",
-        "svelte": "Svelte's component-scoped styles can override global :focus-visible rules. Define focus indicator styles in app.css or a global stylesheet. Svelte does not provide built-in focus management — ensure every interactive element has a visible :focus-visible style.",
-        "astro": "In .astro files, focus styles are global CSS. Ensure :focus-visible rules are defined in a base layout or global stylesheet, not scoped to individual components. Framework islands inherit the page's CSS — verify the focus indicator renders correctly inside hydrated islands."
-      },
-      "fix_difficulty_notes": "outline:none does not necessarily mean no focus indicator — a visible box-shadow, background-color change, or border change can fully satisfy WCAG 2.4.11. axe may flag outline:none even when a compliant custom indicator is present. Verify visually that a focus indicator exists before applying a fix. When suppressing the outline, always provide a replacement via box-shadow or border.",
-      "related_rules": [
-        {
-          "id": "color-contrast",
-          "reason": "Focus indicators also require minimum contrast ratios — audit contrast for both text and focus states together."
-        },
-        {
-          "id": "target-size",
-          "reason": "Small targets with thin focus indicators are doubly inaccessible — fix size and focus visibility together."
         }
       ]
     },
@@ -2353,27 +2268,6 @@
         }
       ]
     },
-    "redundant-entry": {
-      "fix": {
-        "description": "Do not require users to re-enter information already provided in the same session (WCAG 3.3.7). Pre-populate fields or provide a copy option.",
-        "code": "<!-- Pre-populate from session data: -->\n<label for=\"ship-address\">Shipping address</label>\n<input id=\"ship-address\" type=\"text\" autocomplete=\"shipping street-address\"\n  value=\"{{ session.billing_address }}\">\n\n<!-- Or offer a checkbox: -->\n<label>\n  <input type=\"checkbox\" id=\"same-as-billing\">\n  Same as billing address\n</label>"
-      },
-      "false_positive_risk": "high",
-      "framework_notes": {
-        "react": "Use React Context or a form state library (React Hook Form, Formik) to preserve data across multi-step flows. In Next.js, persist form state in URL search params or session storage to survive route transitions without requiring re-entry.",
-        "vue": "Use Pinia or Vuex to share form data across route-separated steps. In Nuxt, useState() persists data between pages without a full store — useful for lightweight multi-step form state.",
-        "angular": "Use an Angular service with a shared BehaviorSubject to carry form state across route-separated steps. Angular Reactive Forms do not automatically persist across route navigations — manual persistence via a service is required.",
-        "svelte": "This WCAG 3.3.7 rule applies to forms that require users to re-enter previously submitted information. In Svelte, use stores or context to persist form values across multi-step forms, avoiding redundant data entry.",
-        "astro": "In .astro files, multi-step forms should preserve previously entered data. For dynamic forms, use a framework island to manage state across steps and avoid requiring users to re-enter information."
-      },
-      "fix_difficulty_notes": "Automated tools cannot reliably detect this violation — they scan the static DOM of a single page without session context. Treat axe findings for this rule as a prompt for manual review, not a confirmed violation. Walk through multi-step flows manually to determine if previously entered data is unnecessarily re-requested.",
-      "related_rules": [
-        {
-          "id": "accessible-auth-minimum",
-          "reason": "Both are WCAG 3.3.x input assistance criteria — review all form accessibility together."
-        }
-      ]
-    },
     "region": {
       "fix": {
         "description": "Wrap all visible content in semantic landmark elements.",
@@ -2694,12 +2588,7 @@
         "astro": "In .astro files, target sizes depend entirely on CSS. Ensure icon-only buttons and small links in the base layout meet the 24px minimum. Framework islands inherit page CSS — verify the computed size of interactive elements inside hydrated islands."
       },
       "fix_difficulty_notes": "WCAG 2.5.8 provides an exception for inline text links within a sentence (e.g., 'see our privacy policy') where sufficient spacing around the link satisfies the criterion. axe may flag these — verify whether the exception applies before adding padding that could break the text flow.",
-      "related_rules": [
-        {
-          "id": "focus-appearance",
-          "reason": "Small targets with thin focus indicators are doubly inaccessible — fix size and focus visibility together."
-        }
-      ]
+      "related_rules": []
     },
     "td-has-header": {
       "fix": {
