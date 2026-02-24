@@ -13,18 +13,15 @@ import { escapeHtml } from "./utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const SCORING_CONFIG = JSON.parse(
-  readFileSync(join(__dirname, "../../assets/scoring-config.json"), "utf-8"),
-);
-const REGULATORY = JSON.parse(
-  readFileSync(join(__dirname, "../../assets/regulatory.json"), "utf-8"),
+const COMPLIANCE_CONFIG = JSON.parse(
+  readFileSync(join(__dirname, "../../assets/compliance-config.json"), "utf-8"),
 );
 
 /**
  * Maps compliance performance labels to risk assessments for the executive summary.
  * @type {Object<string, string>}
  */
-const RISK_LABELS = SCORING_CONFIG.riskLabels;
+const RISK_LABELS = COMPLIANCE_CONFIG.riskLabels;
 
 /**
  * Returns the risk metrics (label and risk assessment) for a given compliance score.
@@ -109,7 +106,7 @@ export function buildPdfExecutiveSummary(args, findings, totals) {
       <tr><th>Severity</th><th>Count</th><th>Impact</th><th>Action Required</th></tr>
     </thead>
     <tbody>
-      ${SCORING_CONFIG.severityDefinitions.map((d) => `<tr><td><strong>${escapeHtml(d.level)}</strong></td><td>${totals[d.level]}</td><td>${escapeHtml(d.impact)}</td><td>${escapeHtml(d.action)}</td></tr>`).join("\n      ")}
+      ${COMPLIANCE_CONFIG.severityDefinitions.map((d) => `<tr><td><strong>${escapeHtml(d.level)}</strong></td><td>${totals[d.level]}</td><td>${escapeHtml(d.impact)}</td><td>${escapeHtml(d.action)}</td></tr>`).join("\n      ")}
     </tbody>
   </table>
 </div>`;
@@ -123,12 +120,12 @@ export function buildPdfExecutiveSummary(args, findings, totals) {
 export function buildPdfRiskSection(totals) {
   const score = computeComplianceScore(totals);
   const level =
-    SCORING_CONFIG.riskLevels.find((l) => score >= l.minScore) ||
-    SCORING_CONFIG.riskLevels[SCORING_CONFIG.riskLevels.length - 1];
+    COMPLIANCE_CONFIG.riskLevels.find((l) => score >= l.minScore) ||
+    COMPLIANCE_CONFIG.riskLevels[COMPLIANCE_CONFIG.riskLevels.length - 1];
   const riskLevel = level.label;
   const riskColor = level.color;
 
-  const regulationRows = REGULATORY.regulations
+  const regulationRows = COMPLIANCE_CONFIG.regulations
     .map(
       (reg) =>
         `<tr>
@@ -184,7 +181,7 @@ export function buildPdfRemediationRoadmap(findings) {
   const medium = findings.filter((f) => f.severity === "Medium");
   const low = findings.filter((f) => f.severity === "Low");
 
-  const mult = SCORING_CONFIG.effortMultipliers;
+  const mult = COMPLIANCE_CONFIG.effortMultipliers;
   const effortHours = (c, h, m, l) =>
     Math.round(c * mult.Critical + h * mult.High + m * mult.Medium + l * mult.Low);
 
@@ -283,7 +280,7 @@ export function buildPdfMethodologySection(args, findings) {
   <table class="stats-table">
     <thead><tr><th>Level</th><th>Definition</th><th>Recommended action</th></tr></thead>
     <tbody>
-      ${SCORING_CONFIG.severityDefinitions.map((d) => `<tr><td><strong>${escapeHtml(d.level)}</strong></td><td>${escapeHtml(d.definition)}</td><td>${escapeHtml(d.action)}</td></tr>`).join("\n      ")}
+      ${COMPLIANCE_CONFIG.severityDefinitions.map((d) => `<tr><td><strong>${escapeHtml(d.level)}</strong></td><td>${escapeHtml(d.definition)}</td><td>${escapeHtml(d.action)}</td></tr>`).join("\n      ")}
     </tbody>
   </table>
 </div>`;

@@ -26,14 +26,12 @@ const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
  */
 const ruleMetadataPath = path.join(__dirname, "../assets/rule-metadata.json");
 
-const regulatoryPath = path.join(__dirname, "../assets/regulatory.json");
-const scoringConfigPath = path.join(__dirname, "../assets/scoring-config.json");
+const complianceConfigPath = path.join(__dirname, "../assets/compliance-config.json");
 const frameworkConfigPath = path.join(__dirname, "../assets/framework-config.json");
 
 let INTELLIGENCE;
 let RULE_METADATA;
-let REGULATORY;
-let SCORING_CONFIG;
+let COMPLIANCE_CONFIG;
 let FRAMEWORK_CONFIG;
 
 // Initialize remediation and rule metadata assets.
@@ -54,18 +52,10 @@ try {
 }
 
 try {
-  REGULATORY = JSON.parse(fs.readFileSync(regulatoryPath, "utf-8"));
+  COMPLIANCE_CONFIG = JSON.parse(fs.readFileSync(complianceConfigPath, "utf-8"));
 } catch {
   throw new Error(
-    `Missing or invalid regulatory.json at ${regulatoryPath} — run pnpm install to reinstall.`,
-  );
-}
-
-try {
-  SCORING_CONFIG = JSON.parse(fs.readFileSync(scoringConfigPath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid scoring-config.json at ${scoringConfigPath} — run pnpm install to reinstall.`,
+    `Missing or invalid compliance-config.json at ${complianceConfigPath} — run pnpm install to reinstall.`,
   );
 }
 
@@ -119,7 +109,7 @@ function detectCodeLang(code) {
  * Regulatory links for accessibility compliance standards.
  * @type {Object<string, string>}
  */
-const US_REGULATORY = REGULATORY.usRegulatory;
+const US_REGULATORY = COMPLIANCE_CONFIG.usRegulatory;
 
 /** @type {Object<string, string>} */
 const IMPACTED_USERS = RULE_METADATA.impactedUsers || {};
@@ -285,7 +275,7 @@ function parseArgs(argv) {
   return args;
 }
 
-const IMPACT_MAP = SCORING_CONFIG.impactMap;
+const IMPACT_MAP = COMPLIANCE_CONFIG.impactMap;
 
 /**
  * Maps axe-core rule tags to a human-readable WCAG level string.
