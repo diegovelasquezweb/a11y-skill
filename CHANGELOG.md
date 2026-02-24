@@ -9,6 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.0] — 2026-02-24
+
+### Added
+
+- `scripts/report-checklist.mjs` — standalone manual testing checklist (`checklist.html`) as a 4th deliverable, independent of the audit HTML report; reads `assets/manual-checks.json` directly with no scan input required
+- Step 7 in SKILL.md workflow: mandatory offer to export `checklist.html` after the manual testing reminder; reuses output path from Step 3 or Step 6, asks if not yet set
+- `buildPdfTableOfContents` — Table of Contents page rendered after the cover in all PDF reports
+- `buildPdfNextSteps` — new Section 6 "Recommended Next Steps" in PDF; dynamically generated from findings (critical/high/medium/low counts with effort estimates)
+- PDF cover: confidentiality notice in footer
+- 5 new legal regulations in `compliance-config.json`: UK Equality Act 2010, UK Public Sector Bodies Accessibility Regulations 2018, Accessible Canada Act (ACA), AODA — Information & Communications Standard, Disability Discrimination Act 1992 (Australia)
+- `evals/09-checklist-export.json` — eval covering Step 7 checklist offer and path reuse logic
+
+### Changed
+
+- `scripts/report-manual.mjs` renamed to `scripts/report-checklist.mjs`
+- Manual checks reduced from 42 → 41: removed 2.3.3 Animation from Interactions (AAA, out of scope)
+- PDF section order corrected: Methodology was rendering before Legal Risk despite being numbered Section 4; now renders 1 → 2 → 3 → 4 → 5 → 6 → 7
+- PDF "Audit Scope & Limitations" renumbered Section 6 → Section 7
+- PDF risk assessment text is now dynamic — reads from `compliance-config.json` and lists regulations based on score tier
+- PDF Issue Summary and Remediation Roadmap: axe rule IDs replaced with sequential `#1, #2…` numbering
+- PDF `stats-table` cells unified to `9pt Inter sans-serif` via CSS (was inheriting `11pt Libre Baskerville` from body)
+- SKILL.md `[MESSAGE]` legal frameworks: EN 301 549 (technical standard) replaced with Section 508 (US federal law); added UK Equality Act and Accessible Canada Act
+- SKILL.md `description` frontmatter: removed redundant law/standard list from routing triggers
+- `evals/02`, `03`, `05` corrected: Step 6/7/8 separation, troubleshooting.md self-correction, Step 6 proceeds after user declines
+- README Deliverables table: added Manual Checklist row
+- `docs/engine-manifest.md`: added `report-checklist.mjs`, updated count 42 → 41
+- `docs/engine-intelligence.md`: updated check count, removed 2.3.3, updated `level` field to `A`, `AA`, or `AT`
+
+### Fixed
+
+- Template literal regex in `scripts/report-html.mjs`: `/\./g` → `/\\./g` — Verified/N/A buttons in manual cards were silently broken (`criterion.replace(/./g, '-')` on `'2.4.11'` produced `'------'`, `getElementById` returned null)
+- Custom findings `page-has-heading-one` and `landmark-one-main` in `scripts/analyzer.mjs` now pull all intelligence fields from `intelligence.json` (previously hardcoded, leaving "The Fix" column empty)
+- localStorage persistence removed from manual checks
+- PDF recommendation box: `page-break-inside: avoid` prevents callout from splitting across pages
+
+---
+
 ## [0.8.0] — 2026-02-22
 
 ### Changed
