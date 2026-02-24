@@ -13,7 +13,10 @@
     "Does NOT apply style changes without explicit approval",
     "Processes source code patterns (4c) — greps project source for regex matches and presents confirmed findings with proposed fixes",
     "Runs verification re-audit (Step 5) after all fixes",
-    "Delivers results (Step 6) with summary, manual checklist, and closing message"
+    "Delivers results summary in Step 6 (total found, resolved, files modified, remaining if any)",
+    "Outputs the mandatory manual testing reminder in Step 7 verbatim",
+    "Asks whether to export the manual testing checklist (Yes / No thanks)",
+    "Outputs the mandatory closing message in Step 8 verbatim"
   ],
   "model_notes": {}
 }

@@ -10,7 +10,8 @@
     "Mentions specific legal frameworks (ADA Title II, EAA, Section 508)",
     "Offers to revisit later",
     "Stops — does NOT proceed to Step 4",
-    "Does NOT modify any source files"
+    "Does NOT modify any source files",
+    "Proceeds to Step 6 to offer reports and deliver results"
   ],
   "model_notes": {}
 }
