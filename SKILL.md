@@ -338,13 +338,28 @@ If **Yes**: immediately append the reports folder path to `.gitignore` (create t
 
 7. **MANDATORY** — output the following message verbatim before finishing:
 
-`[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually. The **HTML report** includes the complete checklist (30+ criteria) with step-by-step verification instructions for each.
+`[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
 - [ ] **Keyboard navigation** — Tab through all interactive elements; verify visible focus ring and no keyboard traps.
 - [ ] **Screen reader** — Test with VoiceOver (macOS) or NVDA (Windows); verify headings, landmarks, forms, and modals are announced correctly.
 - [ ] **Media** — Prerecorded video has accurate captions and an audio description track; audio-only content has a text transcript.
 - [ ] **Motion & timing** — `prefers-reduced-motion` is respected; no content flashes >3×/sec; auto-playing content has a pause control.
 - [ ] **Forms & errors** — Error messages give specific correction guidance; financial/legal submissions have a confirmation step.
+
+Then ask:
+
+`[QUESTION]` **Would you like to export the manual testing checklist?**
+
+1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
+2. **No thanks**
+
+If **Yes**: use the output path already set earlier in this session (Step 3 or Step 6). If no path was set yet, ask using the same `[QUESTION]` ("Where should I save the reports?") before running. Then:
+
+```bash
+node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
+```
+
+Verify the file exists on disk, then open it.
 
 8. **MANDATORY** — output the following closing message verbatim. Do not skip it:
 
