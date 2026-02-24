@@ -107,6 +107,36 @@
       "jurisdiction": "United States (Federal)",
       "standard": "WCAG 2.0 AA",
       "deadline": "In force since 2018"
+    },
+    {
+      "name": "Equality Act 2010",
+      "jurisdiction": "United Kingdom",
+      "standard": "WCAG 2.1 AA (de facto)",
+      "deadline": "In force since 2010"
+    },
+    {
+      "name": "Public Sector Bodies Accessibility Regulations",
+      "jurisdiction": "United Kingdom (Public Sector)",
+      "standard": "WCAG 2.1 AA",
+      "deadline": "In force since 2020"
+    },
+    {
+      "name": "Accessible Canada Act (ACA)",
+      "jurisdiction": "Canada (Federal)",
+      "standard": "WCAG 2.1 AA",
+      "deadline": "In force since 2019"
+    },
+    {
+      "name": "AODA — Information & Communications Standard",
+      "jurisdiction": "Ontario, Canada",
+      "standard": "WCAG 2.0 AA",
+      "deadline": "In force since 2021"
+    },
+    {
+      "name": "Disability Discrimination Act 1992 (DDA)",
+      "jurisdiction": "Australia",
+      "standard": "WCAG 2.1 AA (de facto)",
+      "deadline": "In force since 1992"
     }
   ]
 }
