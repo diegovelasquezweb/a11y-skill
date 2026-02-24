@@ -249,8 +249,12 @@ async function main() {
       const pdfArgs = ["--output", pdfOutput, "--base-url", baseUrl];
       if (target) pdfArgs.push("--target", target);
 
+      const checklistOutput = path.join(path.dirname(absoluteOutputPath), "checklist.html");
+      const checklistArgs = ["--output", checklistOutput, "--base-url", baseUrl];
+
       await Promise.all([
         runScript("report-html.mjs", buildArgs),
+        runScript("report-manual.mjs", checklistArgs),
         runScript("report-md.mjs", mdArgs),
         runScript("report-pdf.mjs", pdfArgs),
       ]);

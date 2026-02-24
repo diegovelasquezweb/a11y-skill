@@ -312,27 +312,6 @@
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html"
   },
   {
-    "criterion": "2.3.3",
-    "title": "Animation from Interactions",
-    "level": "AAA",
-    "description": "Motion animations triggered by interaction must be disableable unless the animation is essential to the functionality.",
-    "steps": [
-      "Enable 'Reduce Motion' in your OS (macOS: System Settings → Accessibility → Display → Reduce Motion).",
-      "Interact with the page — confirm transitions, parallax effects, and non-essential animations are suppressed.",
-      "Check that page content is still fully functional with motion disabled."
-    ],
-    "remediation": [
-      "Wrap non-essential CSS animations in a @media (prefers-reduced-motion: reduce) query and set them to a simple opacity or instant transition.",
-      "Never use animation as the only way to convey state change."
-    ],
-    "code_example": {
-      "lang": "css",
-      "before": "/* BEFORE — animation plays regardless of user's motion preference */\n.card {\n  transition: transform 0.5s ease;\n}\n.card:hover {\n  transform: translateY(-8px);\n}",
-      "after": "/* AFTER — motion only when user has not requested reduced motion */\n.card { transition: opacity 0.2s ease; }\n@media (prefers-reduced-motion: no-preference) {\n  .card {\n    transition: transform 0.5s ease, opacity 0.2s ease;\n  }\n  .card:hover {\n    transform: translateY(-8px);\n  }\n}"
-    },
-    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html"
-  },
-  {
     "criterion": "AT-1",
     "title": "Screen Reader: Heading Navigation",
     "level": "AT",

@@ -276,7 +276,7 @@ export function buildIssueCard(finding) {
  * @param {Object} check - The manual check definition object.
  * @returns {string} The complete HTML string for the manual check card.
  */
-function buildManualCheckCard(check) {
+export function buildManualCheckCard(check) {
   const id = `manual-${check.criterion.replace(/\./g, "-")}`;
   const steps = check.steps
     .map((s, i) => `<li class="text-[13px] text-slate-600 leading-relaxed"><span class="font-bold text-slate-400 mr-1.5">${i + 1}.</span>${escapeHtml(s)}</li>`)
@@ -307,7 +307,7 @@ function buildManualCheckCard(check) {
     : "";
 
   return `
-<article class="manual-card bg-white/90 backdrop-blur-xl rounded-2xl border border-amber-200 hover:border-amber-300 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 mb-4 overflow-hidden group" id="${id}" data-criterion="${escapeHtml(check.criterion)}" data-state="" data-collapsed="true">
+<article class="manual-card bg-white/90 backdrop-blur-xl rounded-2xl border border-amber-200 hover:border-amber-300 shadow-sm transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 mb-4 overflow-hidden group" id="${id}" data-criterion="${escapeHtml(check.criterion)}" data-level="${escapeHtml(check.level)}" data-state="" data-collapsed="true">
   <div class="manual-header flex items-stretch bg-gradient-to-r from-amber-50/60 to-white">
     <button
       class="card-header flex-1 text-left p-5 md:p-6 cursor-pointer select-none relative focus:outline-none focus:ring-4 focus:ring-amber-500/20"
@@ -403,36 +403,3 @@ export function buildPageGroupedSection(findings) {
     .join("");
 }
 
-/**
- * Builds the entire manual checks section including progress bar and category descriptions.
- * @returns {string} Reusable HTML block for manual verification.
- */
-export function buildManualChecksSection() {
-  const total = MANUAL_CHECKS.length;
-  const cards = MANUAL_CHECKS.map((c) => buildManualCheckCard(c)).join("\n");
-  return `
-<div id="manual-checks-section">
-<div class="mt-16 mb-4">
-  <div class="flex items-center gap-3 mb-2">
-    <h3 class="text-lg font-bold text-slate-900">Manual Verification Required</h3>
-    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">${total} checks</span>
-  </div>
-  <p class="text-sm text-slate-500">Axe-core covers ~40% of WCAG issues automatically. The remaining checks below require human verification and are split into three categories: <strong class="text-slate-700">WCAG A</strong> and <strong class="text-slate-700">WCAG AA</strong> criteria verifiable with a browser and DevTools, and <strong class="text-violet-700">Assistive Technology</strong> checks that require VoiceOver (macOS) or NVDA (Windows). Check each off as you verify it — progress is saved per site.</p>
-</div>
-
-<div id="manual-progress-sticky" class="sticky top-14 z-30 bg-white rounded-xl border border-slate-200 p-4 mb-6 flex items-center gap-4 shadow-sm">
-  <div class="flex-1">
-    <div class="flex justify-between text-xs font-medium text-slate-500 mb-1.5">
-      <span>Verification progress</span>
-      <span id="manual-progress-label">0 / ${total} verified</span>
-    </div>
-    <div class="w-full bg-slate-100 rounded-full h-2">
-      <div id="manual-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
-    </div>
-  </div>
-  <button onclick="resetManualChecks()" class="text-xs text-slate-400 hover:text-rose-500 transition-colors font-medium whitespace-nowrap">Reset all</button>
-</div>
-
-${cards}
-</div>`;
-}
