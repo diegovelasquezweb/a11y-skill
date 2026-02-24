@@ -254,7 +254,7 @@ async function main() {
 
       await Promise.all([
         runScript("report-html.mjs", buildArgs),
-        runScript("report-manual.mjs", checklistArgs),
+        runScript("report-checklist.mjs", checklistArgs),
         runScript("report-md.mjs", mdArgs),
         runScript("report-pdf.mjs", pdfArgs),
       ]);

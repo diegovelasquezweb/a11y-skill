@@ -21,8 +21,9 @@ The core engine is a three-stage pipeline designed for **Autonomous Remediation*
 
 ### Rendering Engine
 
-- **`scripts/report-html.mjs`**: Generates the interactive dashboard.
-- **`scripts/report-md.mjs`**: Creates the `remediation.md` logic used by AI agents.
+- **`scripts/report-html.mjs`**: Generates the interactive audit dashboard.
+- **`scripts/report-checklist.mjs`**: Generates the standalone manual testing checklist (`checklist.html`). Reads `manual-checks.json` directly — no scan input required.
+- **`scripts/report-md.mjs`**: Creates the `remediation.md` guide used by AI agents.
 - **`scripts/report-pdf.mjs`**: Produces formal executive summaries.
 - **`scripts/renderers/`**: Modular rendering logic (`html.mjs`, `md.mjs`, `pdf.mjs`), core data normalization (`findings.mjs`), and shared rendering utilities (`utils.mjs`).
 
@@ -41,7 +42,7 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 | :-------------------------- | :------------ | :----------------------------------------------------------------------------------- |
 | **`intelligence.json`**     | Fix Database  | Resolution code patterns, framework-specific fix notes, and related rules.           |
 | **`wcag-reference.json`**   | Rule Mapping  | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags.      |
-| **`manual-checks.json`**    | Verification  | 42 manual audit criteria for WCAG 2.2 areas that automation cannot detect.           |
+| **`manual-checks.json`**    | Verification  | 41 manual audit criteria for WCAG 2.2 areas that automation cannot detect.           |
 | **`compliance-config.json`**| Risk Engine   | Severity scoring, grade thresholds, effort multipliers, and jurisdictional data.     |
 | **`stack-config.json`**     | Environment   | DOM signals, file-search globs, framework aliases, and agent fix guardrails.         |
 | **`scanner-config.json`**   | Filter Engine | Blocked file extensions, excluded external domains, and robots.txt settings.         |

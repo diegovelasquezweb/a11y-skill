@@ -62,10 +62,11 @@ pnpm a11y --base-url https://mysite.com --only-rule color-contrast
 
 Visual reports on demand. After any audit, you can optionally generate these professional formats:
 
-| Deliverable           | Format  | Audience     | Key Value                                                                   |
-| :-------------------- | :------ | :----------- | :-------------------------------------------------------------------------- |
-| **Audit Dashboard**   | `.html` | Developers   | Interactive report with persona filtering, DOM telemetry, and verification. |
-| **Executive Summary** | `.pdf`  | Stakeholders | Formal compliance evidence and legal risk assessment for stakeholders.      |
+| Deliverable           | Format  | Audience         | Key Value                                                                                       |
+| :-------------------- | :------ | :--------------- | :---------------------------------------------------------------------------------------------- |
+| **Audit Dashboard**   | `.html` | Developers       | Interactive report with severity-grouped findings, DOM evidence, and fix blueprints.            |
+| **Manual Checklist**  | `.html` | Developers / QA  | Standalone testing companion for the ~60% of WCAG 2.2 that automated tools cannot detect.      |
+| **Executive Summary** | `.pdf`  | Stakeholders     | Formal compliance evidence and legal risk assessment for stakeholders.                          |
 
 ## Technical Reference
 

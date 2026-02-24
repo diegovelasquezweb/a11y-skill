@@ -88,9 +88,9 @@ If an image is found missing alt text, the Agent does not just "add an alt". It 
 
 ## Manual Checks (`assets/manual-checks.json`)
 
-axe-core is an automated tool — it cannot verify criteria that require human judgment or live assistive technology interaction. The skill ships a second knowledge base, `assets/manual-checks.json`, with **42 checks** covering WCAG 2.2 AA criteria and screen reader behavior that automation cannot assess.
+axe-core is an automated tool — it cannot verify criteria that require human judgment or live assistive technology interaction. The skill ships a second knowledge base, `assets/manual-checks.json`, with **41 checks** covering WCAG 2.2 A/AA criteria and screen reader behavior that automation cannot assess.
 
-These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Checks"** — at the end of every `remediation.md` report.
+These checks are delivered as a standalone **`checklist.html`** file — a testing companion generated alongside every audit report.
 
 ### What each check contains
 
@@ -98,7 +98,7 @@ These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Che
 | :------------- | :------------------------------------------------------------------------------------- |
 | `criterion`    | WCAG 2.2 criterion number (e.g., `"2.4.11"`) or screen reader test ID (e.g., `"AT-1"`) |
 | `title`        | Human-readable criterion name                                                          |
-| `level`        | WCAG conformance level (`A` or `AA`)                                                   |
+| `level`        | WCAG conformance level: `A`, `AA`, or `AT` (assistive technology)                      |
 | `description`  | What the criterion requires and why it matters                                         |
 | `steps`        | Step-by-step verification instructions for a human or agent                            |
 | `remediation`  | Recommended fix patterns if a violation is found                                       |
@@ -109,7 +109,7 @@ These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Che
 
 **WCAG 2.2 New Criteria (AA):** Focus Appearance (2.4.11), Dragging Movements (2.5.7), Target Size Minimum (2.5.8), Consistent Help (3.2.6), Redundant Entry (3.3.7), Accessible Authentication (3.3.8)
 
-**Interactive Behavior (axe blind spots):** Keyboard Access (2.1.1), No Keyboard Trap (2.1.2), Focus Order (2.4.3), Content on Hover or Focus (1.4.13), Animation from Interactions (2.3.3)
+**Interactive Behavior (axe blind spots):** Keyboard Access (2.1.1), No Keyboard Trap (2.1.2), Focus Order (2.4.3), Content on Hover or Focus (1.4.13)
 
 **Perception:** Use of Color (1.4.1), Reflow (1.4.10), Non-text Contrast (1.4.11), Text Spacing (1.4.12), Error Identification (3.3.1)
 
@@ -129,7 +129,7 @@ These checks are appended as a dedicated section — **"WCAG 2.2 Static Code Che
 
 ### How to add a new manual check
 
-Add an entry to `assets/manual-checks.json`. No code changes required — `report-md.mjs` reads the file at build time and injects all checks automatically.
+Add an entry to `assets/manual-checks.json`. No code changes required — `report-checklist.mjs` reads the file at build time and injects all checks into `checklist.html` automatically.
 
 ## Reference Links
 

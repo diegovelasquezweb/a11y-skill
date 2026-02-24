@@ -1,5 +1,5 @@
 /**
- * @file report-manual.mjs
+ * @file report-checklist.mjs
  * @description Generates a standalone manual accessibility testing checklist.
  * Does not depend on scan results — reads directly from assets/manual-checks.json.
  */
@@ -81,7 +81,7 @@ function buildHtml(args) {
     <!-- Why section -->
     <div class="mb-12">
       <h2 class="text-3xl font-extrabold mb-3">Why manual testing?</h2>
-      <p class="text-slate-500 text-base leading-relaxed mb-8 max-w-2xl">For people who rely on screen readers, keyboard navigation, or assistive technology, an inaccessible website is <strong class="text-slate-700">a locked door</strong>. Automated scanners catch roughly 40% of WCAG violations. The remaining 60% are invisible to scripts and require human judgment. This checklist covers them.</p>
+      <p class="text-slate-500 text-base leading-relaxed mb-8 max-w-2xl">For people who rely on screen readers or keyboard navigation, an inaccessible website is a locked door. Automated scanners catch roughly 40% of WCAG violations. This checklist covers the rest.</p>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div class="bg-white rounded-2xl border border-indigo-100 p-5 shadow-sm">
