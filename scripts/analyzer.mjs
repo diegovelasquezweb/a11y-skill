@@ -435,19 +435,34 @@ function buildFindings(inputPayload, cliArgs) {
       meta.h1Count !== 1 &&
       !axeRuleIds.includes("page-has-heading-one")
     ) {
+      const _ruleInfo = RULES["page-has-heading-one"] || {};
+      const _fixInfo = _ruleInfo.fix || {};
       findings.push({
         id: "",
+        rule_id: "page-has-heading-one",
         title: "Page must have exactly one h1",
         severity: "Medium",
         wcag: "WCAG 2.1 A",
+        wcag_criterion_id: WCAG_CRITERION_MAP["page-has-heading-one"] ?? null,
         area: route.path,
         url: route.url,
         selector: "h1",
+        impacted_users: getImpactedUsers("page-has-heading-one", []),
         impact: "Heading hierarchy is broken.",
         reproduction: ["Count h1 tags on page"],
         actual: `Found ${meta.h1Count} h1 tags.`,
         expected: "Exactly 1 h1 tag.",
+        fix_description: _fixInfo.description ?? null,
+        fix_code: _fixInfo.code ?? null,
+        fix_code_lang: detectCodeLang(_fixInfo.code),
         recommended_fix: "Ensure one unique h1 per page.",
+        mdn: MDN["page-has-heading-one"] ?? null,
+        effort: null,
+        related_rules: Array.isArray(_ruleInfo.related_rules) ? _ruleInfo.related_rules : [],
+        false_positive_risk: _ruleInfo.false_positive_risk ?? null,
+        fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
+        framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
+        cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
       });
     }
 
@@ -457,19 +472,34 @@ function buildFindings(inputPayload, cliArgs) {
       meta.mainCount !== 1 &&
       !axeRuleIds.includes("landmark-one-main")
     ) {
+      const _ruleInfo = RULES["landmark-one-main"] || {};
+      const _fixInfo = _ruleInfo.fix || {};
       findings.push({
         id: "",
+        rule_id: "landmark-one-main",
         title: "Page must have exactly one main landmark",
         severity: "Medium",
         wcag: "WCAG 2.1 A",
+        wcag_criterion_id: WCAG_CRITERION_MAP["landmark-one-main"] ?? null,
         area: route.path,
         url: route.url,
         selector: "main",
+        impacted_users: getImpactedUsers("landmark-one-main", []),
         impact: "Landmark navigation is broken.",
         reproduction: ["Count main tags on page"],
         actual: `Found ${meta.mainCount} main tags.`,
         expected: "Exactly 1 main tag.",
+        fix_description: _fixInfo.description ?? null,
+        fix_code: _fixInfo.code ?? null,
+        fix_code_lang: detectCodeLang(_fixInfo.code),
         recommended_fix: "Ensure one main landmark per page.",
+        mdn: MDN["landmark-one-main"] ?? null,
+        effort: null,
+        related_rules: Array.isArray(_ruleInfo.related_rules) ? _ruleInfo.related_rules : [],
+        false_positive_risk: _ruleInfo.false_positive_risk ?? null,
+        fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
+        framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
+        cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
       });
     }
   }

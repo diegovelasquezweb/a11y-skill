@@ -40,7 +40,7 @@ describe("HTML Report Builder Components", () => {
 
   it("buildIssueCard handles MDN links correctly", () => {
     const html = buildIssueCard(mockFinding);
-    expect(html).toContain("Technical Docs (MDN)");
+    expect(html).toContain("MDN Docs");
     expect(html).toContain("https://developer.mozilla.org/test");
   });
 

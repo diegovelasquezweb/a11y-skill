@@ -525,7 +525,7 @@ function buildHtml(args, findings, metadata = {}) {
     }
 
     function setManualState(criterion, newState) {
-      const card = document.getElementById('manual-' + criterion.replace('.', '-'));
+      const card = document.getElementById('manual-' + criterion.replace(/\\./g, '-'));
       const current = card ? card.dataset.state : '';
       const next = current === newState ? '' : newState;
       const s = getState();
@@ -621,7 +621,7 @@ function buildHtml(args, findings, metadata = {}) {
 
 
     function toggleCard(header) {
-      const card = header.closest('.issue-card');
+      const card = header.closest('.issue-card, .manual-card');
       const body = card.querySelector('.card-body');
       const chevron = header.querySelector('.card-chevron');
       const isCollapsed = card.dataset.collapsed === 'true';
