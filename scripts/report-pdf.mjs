@@ -16,13 +16,15 @@ import {
 } from "./renderers/findings.mjs";
 import {
   scoreMetrics,
+  buildPdfTableOfContents,
   buildPdfExecutiveSummary,
   buildPdfRiskSection,
   buildPdfRemediationRoadmap,
   buildPdfMethodologySection,
+  buildPdfIssueSummaryTable,
+  buildPdfNextSteps,
   buildPdfAuditLimitations,
   buildPdfCoverPage,
-  buildPdfIssueSummaryTable,
 } from "./renderers/pdf.mjs";
 
 /**
@@ -176,16 +178,20 @@ function buildPdfHtml(args, findings) {
       border: 1pt solid black;
       padding: 10pt;
       text-align: left;
+      font-size: 9pt;
+      font-family: 'Inter', sans-serif;
     }
   </style>
 </head>
 <body>
   ${buildPdfCoverPage({ siteHostname, target: args.target, score, coverDate })}
+  ${buildPdfTableOfContents()}
   ${buildPdfExecutiveSummary(args, findings, totals)}
-  ${buildPdfMethodologySection(args, findings)}
   ${buildPdfRiskSection(totals)}
   ${buildPdfRemediationRoadmap(findings)}
+  ${buildPdfMethodologySection(args, findings)}
   ${buildPdfIssueSummaryTable(findings)}
+  ${buildPdfNextSteps(findings, totals)}
   ${buildPdfAuditLimitations()}
 </body>
 </html>`;
