@@ -90,6 +90,7 @@ If the user chooses **Crawler**: wait for that answer, then ask the scan scope i
 1. **10 pages (Recommended)** — covers main page types, fast
 2. **All reachable pages** — comprehensive, may take several minutes on large sites
 3. **Custom** — tell me the exact number
+4. **Back** — choose a different discovery method
 
 Store the user's choice. Proceed to Step 2.
 
@@ -144,6 +145,7 @@ If the user chooses **Reports first, then fix**: the "yes to reports" is already
 1. **HTML Dashboard** — interactive web report with compliance score
 2. **PDF Executive Summary** — formal document for stakeholders
 3. **Both**
+4. **Back** — change how to proceed
 
 Then ask save location (first time only — reuse afterward):
 
@@ -152,6 +154,7 @@ Then ask save location (first time only — reuse afterward):
 1. **Project audit folder** — `./audit/` (Recommended)
 2. **Desktop** — `~/Desktop/`
 3. **Custom path** — tell me the exact folder path
+4. **Back** — change the report format
 
 If the chosen path is inside the project, ask (first time only):
 
@@ -159,6 +162,7 @@ If the chosen path is inside the project, ask (first time only):
 
 1. **Yes** — ignore generated reports
 2. **No** — keep reports tracked
+3. **Back** — change the save location
 
 If **Yes**: append the path to `.gitignore` (create if missing), confirm, then generate. If **No**: generate directly.
 
@@ -308,6 +312,7 @@ If **No thanks**: skip to step 7.
    1. **HTML Dashboard** — interactive web report with compliance score
    2. **PDF Executive Summary** — formal document for stakeholders
    3. **Both**
+   4. **Back** — change your report preference
 
 4. If reports requested, wait for the format answer above, then ask save location. Skip this question if a path was already set earlier in this session (Step 3) — reuse that path silently:
 
@@ -316,6 +321,7 @@ If **No thanks**: skip to step 7.
 1. **Project audit folder** — `./audit/` (Recommended)
 2. **Desktop** — `~/Desktop/`
 3. **Custom path** — tell me the exact folder path
+4. **Back** — change the report format
 
 5. After the save location is confirmed, ask about `.gitignore` **only if the chosen path is inside the project** (e.g., `./audit/` or any relative path) **and this question was not already asked in Step 3**. If the user chose Desktop or any path outside the project root, skip this question entirely. Ask once per session — skip if already asked:
 
@@ -323,6 +329,7 @@ If **No thanks**: skip to step 7.
 
 1. **Yes** — ignore generated reports
 2. **No** — keep reports tracked
+3. **Back** — change the save location
 
 If **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message, then proceed to item 6 below (generate the reports). If **No**: proceed to item 6 below (generate the reports).
 
@@ -355,7 +362,16 @@ Then ask:
 1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
 2. **No thanks**
 
-If **Yes**: use the output path already set earlier in this session (Step 3 or Step 6). If no path was set yet, ask using the same `[QUESTION]` ("Where should I save the reports?") before running. Then:
+If **Yes**: use the output path already set earlier in this session (Step 3 or Step 6). If no path was set yet, ask:
+
+`[QUESTION]` **Where should I save the checklist?**
+
+1. **Project audit folder** — `./audit/` (Recommended)
+2. **Desktop** — `~/Desktop/`
+3. **Custom path** — tell me the exact folder path
+4. **Back** — go back to the checklist export question
+
+Then:
 
 ```bash
 node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
