@@ -309,7 +309,7 @@ If **No thanks**: skip to step 7.
    2. **PDF Executive Summary** — formal document for stakeholders
    3. **Both**
 
-4. If reports requested, wait for the format answer above, then ask save location (first time only — reuse afterward):
+4. If reports requested, wait for the format answer above, then ask save location. Skip this question if a path was already set earlier in this session (Step 3) — reuse that path silently:
 
 `[QUESTION]` **Where should I save the reports?**
 
@@ -317,7 +317,7 @@ If **No thanks**: skip to step 7.
 2. **Desktop** — `~/Desktop/`
 3. **Custom path** — tell me the exact folder path
 
-5. After the user answers the save location, ask about `.gitignore` **only if the chosen path is inside the project** (e.g., `./audit/` or any relative path). If the user chose Desktop or any path outside the project root, skip this question entirely. Ask once per session — skip if already asked:
+5. After the save location is confirmed, ask about `.gitignore` **only if the chosen path is inside the project** (e.g., `./audit/` or any relative path) **and this question was not already asked in Step 3**. If the user chose Desktop or any path outside the project root, skip this question entirely. Ask once per session — skip if already asked:
 
 `[QUESTION]` **Should I add the reports folder to `.gitignore`?**
 
