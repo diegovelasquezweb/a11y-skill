@@ -205,7 +205,7 @@ export function buildPdfRiskSection(totals) {
         : score >= 55
           ? `The site has meaningful accessibility gaps that create legal exposure. A remediation plan should be established and executed promptly. Applicable regulations include ${inForce}${upcoming ? `, with upcoming deadlines under ${upcoming}` : ""}.`
           : `The site has significant accessibility barriers that create substantial legal exposure. Immediate remediation of Critical and High issues is strongly recommended. Applicable in-force regulations: ${inForce}${upcoming ? `. Upcoming deadlines: ${upcoming}` : ""}.`;
-    return `<div style="margin-top: 1.5rem; padding: 1rem 1.2rem; border: 1.5pt solid ${riskColor}; border-left: 5pt solid ${riskColor}; background: #f9fafb;">
+    return `<div style="margin-top: 1.5rem; padding: 1rem 1.2rem; border: 1.5pt solid ${riskColor}; border-left: 5pt solid ${riskColor}; background: #f9fafb; page-break-inside: avoid; page-break-before: avoid;">
     <p style="font-family: sans-serif; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1pt; margin: 0 0 4pt 0; color: #6b7280;">Current Risk Assessment</p>
     <p style="font-family: sans-serif; font-size: 16pt; font-weight: 900; margin: 0; color: ${riskColor};">${riskLevel} Risk</p>
     <p style="font-size: 9pt; margin: 6pt 0 0 0; color: #374151; line-height: 1.6;">${riskText}</p>

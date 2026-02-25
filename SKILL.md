@@ -257,8 +257,10 @@ Inform the user before running, then **immediately** execute the script without 
 
 `[MESSAGE]` Running a verification re-audit to make sure all fixes are clean and no new issues were introduced.
 
+Use the exact same command as Step 2 — same `--base-url`, same `--max-routes` (or omit if the default of 10 was used), and any other flags that were passed originally:
+
 ```bash
-node scripts/audit.mjs --base-url <URL>
+node scripts/audit.mjs --base-url <URL> [--max-routes <N>]
 ```
 
 After completion, parse ALL findings — new regressions and unresolved originals:
