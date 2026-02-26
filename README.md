@@ -38,19 +38,17 @@ Restart your agent session after installation to ensure the skill is loaded.
 
 ## How to Use
 
-Start the skill with a single prompt, for example:
+Invoke it directly with `/a11y <URL>` or start the skill with a natural language prompt like:
 
 ```bash
 "Audit accessibility localhost:3000"
 ```
 
-The agent guides the rest of the session as a conversation — running the audit, presenting findings, walking you through fixes, and asking for your input at every decision point. Every action is confirmed before it runs.
-
-If the agent gets stuck or you lose track of where you are, type `continue` to trigger the navigation recovery and pick up from where you left off.
+The agent guides the rest of the session as a conversation, running the audit, presenting findings, walking you through fixes, and asking for your input at every decision point. Every action is confirmed before it runs.
 
 ## Headless Audit
 
-Run the audit engine directly without an AI agent. Ideal for CI/CD pipelines, pre-commit hooks, and rapid local validation without consuming AI tokens.
+Run the audit engine directly without an AI agent. Useful for local validation and scripted workflows without consuming AI tokens.
 
 Execute the audit script directly from the skill directory. For the full technical reference of supported options, see the [CLI Handbook](docs/cli-handbook.md).
 
