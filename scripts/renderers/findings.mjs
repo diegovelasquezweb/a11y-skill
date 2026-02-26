@@ -68,6 +68,7 @@ export function normalizeFindings(payload) {
       severity: String(item.severity ?? "Unknown"),
       wcag: String(item.wcag ?? item.wcag_criterion_id ?? ""),
       wcagCriterionId: item.wcag_criterion_id ?? null,
+      wcagClassification: item.wcag_classification ?? null,
       area: String(item.area ?? ""),
       url: String(item.url ?? ""),
       selector: String(item.selector ?? ""),

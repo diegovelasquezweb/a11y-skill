@@ -2,6 +2,34 @@
 
 Remediation patterns organized by WCAG criterion. Each entry maps to one or more `rule_id` values the scanner produces. Use this file when proposing fixes in Step 4 — prefer the most specific pattern that matches the element's context.
 
+## Contents
+
+- [1.1.1 Non-text Content](#111-non-text-content)
+- [1.2.1 / 1.2.2 Time-based Media](#121--122-time-based-media)
+- [1.3.1 Info and Relationships](#131-info-and-relationships)
+- [1.3.4 Orientation](#134-orientation)
+- [1.3.5 Identify Input Purpose](#135-identify-input-purpose)
+- [1.3.6 Identify Purpose](#136-identify-purpose)
+- [1.4.1 Use of Color](#141-use-of-color)
+- [1.4.2 Audio Control](#142-audio-control)
+- [1.4.3 Contrast](#143-contrast)
+- [1.4.4 Resize Text](#144-resize-text)
+- [1.4.12 Text Spacing](#1412-text-spacing)
+- [2.1.1 Keyboard](#211-keyboard)
+- [2.2.1 Timing Adjustable](#221-timing-adjustable)
+- [2.2.2 Pause, Stop, Hide](#222-pause-stop-hide)
+- [2.4.1 Bypass Blocks](#241-bypass-blocks)
+- [2.4.2 Page Titled](#242-page-titled)
+- [2.4.3 Focus Order](#243-focus-order)
+- [2.4.4 Link Purpose](#244-link-purpose)
+- [2.4.6 Headings and Labels](#246-headings-and-labels)
+- [2.5.3 Label in Name](#253-label-in-name)
+- [2.5.8 Target Size](#258-target-size)
+- [3.1.1 Language of Page](#311-language-of-page)
+- [3.1.2 Language of Parts](#312-language-of-parts)
+- [3.3.2 Labels or Instructions](#332-labels-or-instructions)
+- [4.1.2 Name, Role, Value](#412-name-role-value)
+
 ---
 
 ## 1.1.1 Non-text Content
