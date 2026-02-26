@@ -81,43 +81,36 @@ Normalize input before passing to `--base-url`:
 - `mysite.com` → `https://mysite.com`
 - Full URLs → use as-is.
 
-Once the URL is confirmed, ask the discovery method:
+Once the URL is confirmed, silently fetch `<URL>/sitemap.xml`:
 
-`[QUESTION]` **How should I discover the pages to audit?**
+- **Found** — inform the user ("Found a sitemap with N pages — using it for the audit") and proceed to Step 2. No question needed.
+- **Not found** — proceed silently to the scope question below. Do not mention the sitemap attempt.
 
-1. **Crawler** — let the scanner discover pages automatically from the homepage
-2. **Sitemap** — read your `sitemap.xml` and scan every listed page
-
-If the user chooses **Sitemap**: fetch `<URL>/sitemap.xml`. If found, confirm page count and proceed to Step 2. If not found, inform the user and fall back to the Crawler question below.
-
-If the user chooses **Crawler**: wait for that answer, then ask the scan scope in a new message:
+If the user mentions "sitemap" at any point, use it directly (Data-first rule) — skip the scope question.
 
 `[QUESTION]` **How many pages should I crawl?**
 
 1. **10 pages** — covers main page types, fast
 2. **All reachable pages** — comprehensive, may take several minutes on large sites
 3. **Custom** — tell me the exact number
-4. **Back** — choose a different discovery method
 
-If **Custom**: ask in plain text — "How many pages?" — and wait for a number. Do not show a new `[QUESTION]` with options. Store the number and proceed to Step 2.
-
-Store the user's choice. Proceed to Step 2.
+If **Custom**: ask in plain text — "How many pages?" — and wait for a number. Store the number and proceed to Step 2.
 
 ### Step 2 — Run the audit
 
 Run the audit with the discovery settings from Step 1:
 
 ```bash
-# Sitemap mode
+# Sitemap detected or user mentioned sitemap
 node scripts/audit.mjs --base-url <URL>
 
-# Crawler — 10 pages (option 1, omit flag to use default)
+# Crawler — 10 pages (default, omit flag)
 node scripts/audit.mjs --base-url <URL>
 
-# Crawler — all reachable pages (option 2)
+# Crawler — all reachable pages
 node scripts/audit.mjs --base-url <URL> --max-routes 999
 
-# Crawler — custom count (option 3)
+# Crawler — custom count
 node scripts/audit.mjs --base-url <URL> --max-routes <N>
 ```
 
@@ -242,19 +235,49 @@ If **Looks good** or **Back**: proceed to 4c. If **Something's wrong**: apply co
 Process the "🔍 Source Code Pattern Audit" section from the remediation guide. Each entry has a `detection.search` regex and `detection.files` glob — use these to grep the project source:
 
 1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
-2. Present confirmed matches as a batch. For each pattern group, include: pattern name, WCAG criterion, level (A/AA), severity, affected files, and the proposed fix from `fix.description`. Format each group consistently with Step 3 findings (same tag/badge style). Then ask:
+2. Classify confirmed matches into two groups:
+   - **Structural** — fixes to HTML attributes, ARIA, JS APIs, or non-visual DOM changes
+   - **Style** — fixes that modify a CSS property value (`outline`, `color`, `background`, `font-size`, `pointer-events`, `visibility`, `opacity`, `display`, `border`, `box-shadow`, or any other visual property)
 
-`[QUESTION]` **I found [N] accessibility issues in your source code that axe-core cannot detect at runtime — these are CSS patterns, JS APIs, and HTML attributes that are invisible to the browser scanner but violate WCAG. Apply fixes?**
+If 0 matches were found in both groups, proceed automatically to Step 5 without showing any message.
+
+**Structural patterns** — present as a batch, include: pattern name, WCAG criterion, level (A/AA), severity, affected files, proposed fix from `fix.description`. Then ask:
+
+`[QUESTION]` **I found [N] structural issue(s) in your source code that axe-core cannot detect at runtime — HTML attributes, ARIA, and JS APIs invisible to the browser scanner. Apply fixes?**
 
 1. **Yes, fix all** — apply all proposed changes
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **Skip** — don't apply any of these fixes
 
-If **Let me pick**: present all pattern matches as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply fixes?** prompt. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
+If **Let me pick**: present all matches as a numbered list. Ask the user to type the numbers (e.g. `1, 3` or `all`), or `back` to return. Apply selected fixes, list changes made, then ask the verification question below.
 
 If **Yes, fix all** or after **Let me pick** completes: list the files and changes made, then ask:
 
-`[QUESTION]` **I've applied the fixes. Please verify visually — does everything look correct?**
+`[QUESTION]` **Please verify visually — does everything look correct?**
+
+1. **Looks good**
+2. **Something's wrong** — tell me what to revert or adjust
+3. **Back** — everything is fine, I clicked by mistake
+
+If **Looks good** or **Back**: proceed to style patterns below (or Step 5 if none). If **Something's wrong**: apply corrections, then proceed.
+
+If **Skip**: proceed to style patterns (or Step 5 if none) — do not show the `[MESSAGE]` yet.
+
+**Style patterns** — these change visual appearance. Apply the same hard stop as 4b: **never apply before showing the exact proposed diff and receiving an explicit "yes".**
+
+> **Style-dependent protection — hard stop**: show each match with: property, current value → proposed value, and affected file + line. Then ask:
+
+`[QUESTION]` **I found [N] CSS pattern(s) in your source code that suppress or break accessible visual states — these are invisible to the browser scanner but affect real users. Apply fixes?**
+
+1. **Yes** — apply all proposed changes
+2. **Let me pick** — show me the full list, I'll choose by number
+3. **Skip** — don't apply any of these fixes
+
+If **Let me pick**: present all style pattern matches as a numbered list with their diffs. Apply selected, list changes, then ask the verification question below.
+
+If **Yes** or after **Let me pick** completes: list the files and exact values modified, then ask:
+
+`[QUESTION]` **Please verify visually — does everything look correct?**
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
@@ -262,11 +285,9 @@ If **Yes, fix all** or after **Let me pick** completes: list the files and chang
 
 If **Looks good** or **Back**: proceed to Step 5. If **Something's wrong**: apply corrections, then proceed to Step 5.
 
-If the user chooses **Skip**, show the following message before proceeding to Step 5:
+If the user chose **Skip** on both structural and style patterns, show before proceeding to Step 5:
 
 `[MESSAGE]` No problem — these issues will remain in the remediation guide if you decide to revisit them. Keep in mind they affect real users: missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page.
-
-If 0 matches were found, proceed automatically to Step 5 without showing the message.
 
 ### Step 5 — Verification re-audit (mandatory)
 
