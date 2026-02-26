@@ -196,25 +196,14 @@ Present one severity group at a time (Critical → High → Medium → Low) — 
 `[QUESTION]` **Apply these [severity] fixes?**
 
 1. **Yes** — apply all proposed changes
-2. **One at a time** — review and approve each fix before it's applied
-3. **Let me pick** — show me the full list, I'll choose by number
-4. **No** — skip this severity group
+2. **Let me pick** — show me the full list, I'll choose by number
+3. **No** — skip this severity group
 
 If **No**: skip to the next severity group (or 4b if this was the last).
 
-If **One at a time**: for each fix in the group, ask:
-
-`[QUESTION]` **Fix [X] of [N] — [description] ([file:line])**
-
-1. **Apply**
-2. **Skip**
-3. **Back** — return to the fix options for this group
-
-Apply immediately on **Apply**, skip on **Skip**, then advance to the next fix. After all fixes in the group are processed, list the applied changes and ask the verification question below.
-
 If **Let me pick**: present all fixes as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`). Apply the selected fixes, list changes made, then ask the verification question below.
 
-If **Yes** or after **One at a time** / **Let me pick** completes: list the files and changes made, then ask:
+If **Yes** or after **Let me pick** completes: list the files and changes made, then ask:
 
 `[QUESTION]` **Please verify visually — does everything look correct?**
 
@@ -234,25 +223,14 @@ Show all style changes upfront: property, current value → proposed value, cont
 `[QUESTION]` **Apply these style changes?**
 
 1. **Yes** — apply all proposed changes
-2. **One at a time** — review and approve each change before it's applied
-3. **Let me pick** — show me the full list, I'll choose by number
-4. **No** — skip style fixes
+2. **Let me pick** — show me the full list, I'll choose by number
+3. **No** — skip style fixes
 
 If **No**: proceed to 4c.
 
-If **One at a time**: for each style change, show its diff (property, current → proposed), then ask:
-
-`[QUESTION]` **Style fix [X] of [N] — [property]: [current] → [proposed] ([file:line])**
-
-1. **Apply**
-2. **Skip**
-3. **Back** — return to the fix options
-
-Apply immediately on **Apply**, skip on **Skip**, then advance to the next change. After all changes are processed, list the applied changes and ask the verification question below.
-
 If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`). Apply the selected changes, list files and exact values modified, then ask the verification question below.
 
-If **Yes** or after **One at a time** / **Let me pick** completes: list the files and exact values modified, then ask:
+If **Yes** or after **Let me pick** completes: list the files and exact values modified, then ask:
 
 `[QUESTION]` **I've applied the style changes. Please verify visually — does everything look correct?**
 
@@ -271,23 +249,12 @@ Process the "🔍 Source Code Pattern Audit" section from the remediation guide.
 `[QUESTION]` **I found [N] accessibility issues in your source code that axe-core cannot detect at runtime — these are CSS patterns, JS APIs, and HTML attributes that are invisible to the browser scanner but violate WCAG. Apply fixes?**
 
 1. **Yes, fix all** — apply all proposed changes
-2. **One at a time** — review and approve each fix before it's applied
-3. **Let me pick** — show me the full list, I'll choose by number
-4. **Skip** — don't apply any of these fixes
-
-If **One at a time**: for each pattern match, ask:
-
-`[QUESTION]` **Fix [X] of [N] — [pattern name] ([file:line])**
-
-1. **Apply**
-2. **Skip**
-3. **Back** — return to the fix options
-
-Apply immediately on **Apply**, skip on **Skip**, then advance to the next match. After all matches are processed, list the applied changes and ask the verification question below.
+2. **Let me pick** — show me the full list, I'll choose by number
+3. **Skip** — don't apply any of these fixes
 
 If **Let me pick**: present all pattern matches as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`). Apply the selected fixes, list changes made, then ask the verification question below.
 
-If **Yes, fix all** or after **One at a time** / **Let me pick** completes: list the files and changes made, then ask:
+If **Yes, fix all** or after **Let me pick** completes: list the files and changes made, then ask:
 
 `[QUESTION]` **I've applied the fixes. Please verify visually — does everything look correct?**
 
