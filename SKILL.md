@@ -27,7 +27,7 @@ These rules apply at all times, independent of any workflow step.
 
 - Never install, remove, or initialize packages in the user's project. Only run `pnpm install` inside the skill directory.
 - All pipeline files (scan results, findings, remediation guide, screenshots) stay inside the skill directory — never in the user's project.
-- Visual reports (HTML/PDF) are only created when explicitly requested, at the user's chosen location.
+- Visual reports (HTML/PDF) are only created in Step 6, after the user explicitly requests them. Never generate reports in any other step.
 - Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
 - Never declare "100% accessible" based on a targeted audit. Only a comprehensive full-site verification can confirm that.
 - Never modify the user's `.gitignore` without asking first.
@@ -43,7 +43,7 @@ These rules apply at all times, independent of any workflow step.
      How many pages should I crawl?
 
      1. 5 pages
-     2. 10 pages (Recommended)
+     2. 10 pages
      3. 15 pages
      ```
    - `[MESSAGE]` — a mandatory pre-written message. **You MUST output the exact text — never skip, rephrase, summarize, or adapt it.** Skipping a `[MESSAGE]` block is not allowed under any circumstance. **A `[MESSAGE]` does not require a user response — never pause or show an input after it. Continue executing the next instruction in the same turn immediately after displaying it.**
@@ -52,13 +52,11 @@ These rules apply at all times, independent of any workflow step.
 
 ## Brújula — Navigation Recovery
 
-If the user types `continue`, `resume`, `where are we`, or any input that does not match an expected response for the current step, trigger the navigation checkpoint immediately:
+If the user types `continue`, `resume`, or `where are we`, trigger the navigation checkpoint immediately. Display a status block showing:
 
-`[MESSAGE]` Here's where we are:
-
-**Current step**: [step name and sub-step, e.g. "Step 4a — High severity fixes"]
-**Last completed action**: [brief description, e.g. "Applied Critical fixes to SearchBar.tsx"]
-**Next action**: [what comes next, e.g. "Present High severity findings and ask for approval"]
+- **Current step**: [step name and sub-step, e.g. "Step 4a — High severity fixes"]
+- **Last completed action**: [brief description, e.g. "Applied Critical fixes to SearchBar.tsx"]
+- **Next action**: [what comes next, e.g. "Present High severity findings and ask for approval"]
 
 Then ask:
 
@@ -299,6 +297,8 @@ If 0 matches were found, proceed automatically to Step 5 without showing the mes
 ### Step 5 — Verification re-audit (mandatory)
 
 This step is **mandatory** — always run it after fixes, no exceptions. Do not skip, do not ask the user whether to run it. If no fixes were applied in Step 4 (user skipped all sub-steps), skip this step and proceed to Step 6.
+
+**Never generate reports in this step.** Reports are exclusively handled in Step 6. Do not offer to generate reports here, even if issues are resolved.
 
 Output the following message, then **in the same turn without pausing** run the script:
 

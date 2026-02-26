@@ -44,7 +44,9 @@ Start the skill with a single prompt, for example:
 "Audit accessibility localhost:3000"
 ```
 
-The agent guides the rest of the session, running the audit, presenting findings, walking you through fixes, and asking whether to generate reports. Every action is confirmed before it runs.
+The agent guides the rest of the session as a conversation — running the audit, presenting findings, walking you through fixes, and asking for your input at every decision point. Every action is confirmed before it runs.
+
+If the agent gets stuck or you lose track of where you are, type `continue`, `resume`, or `where are we` to trigger the navigation recovery and pick up from where you left off.
 
 ## Headless Audit
 
