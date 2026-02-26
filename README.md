@@ -62,24 +62,24 @@ pnpm a11y --base-url https://mysite.com
 
 Visual reports on demand. After any audit, you can optionally generate these professional formats:
 
-| Deliverable           | Format  | Audience         | Key Value                                                                                       |
-| :-------------------- | :------ | :--------------- | :---------------------------------------------------------------------------------------------- |
-| **Audit Dashboard**   | `.html` | Developers       | Interactive report with severity-grouped findings, DOM evidence, and fix blueprints.            |
-| **Manual Checklist**  | `.html` | Developers / QA  | Standalone testing companion for the ~60% of WCAG 2.2 that automated tools cannot detect.      |
-| **Executive Summary** | `.pdf`  | Stakeholders     | Formal compliance evidence and legal risk assessment for stakeholders.                          |
+| Deliverable           | Format  | Audience         | Key Value                                                                                                        |
+| :-------------------- | :------ | :--------------- | :--------------------------------------------------------------------------------------------------------------- |
+| **Audit Dashboard**   | `.html` | Developers       | Shareable report with severity-grouped findings, DOM evidence, and ready-to-apply fix blueprints per component.  |
+| **Manual Checklist**  | `.html` | Developers / QA  | Step-by-step guide for the WCAG criteria that automated tools cannot detect, covering all 41 manual checkpoints. |
+| **Executive Summary** | `.pdf`  | Stakeholders     | Formal document with compliance score, legal risk summary, and remediation roadmap for non-technical audiences.  |
 
 ## Technical Reference
 
 For a comprehensive understanding of the a11y engine, explore the following technical manuals:
 
-| Resource                                           | Description                                                                  |
-| :------------------------------------------------- | :--------------------------------------------------------------------------- |
-| [Architecture](docs/architecture.md)               | Pipeline breakdown (Scanner → Analyzer → Builder) & Mermaid diagrams.        |
-| [CLI Handbook](docs/cli-handbook.md)               | Advanced guide to every CLI flag, interactions, and edge cases.              |
-| [Engine Intelligence](docs/engine-intelligence.md) | Rule processing, fix patterns, WCAG criterion map, and manual checks system. |
-| [Scoring System](docs/scoring-system.md)           | Weighted penalty math, severity sorting, and score calculation logic.        |
-| [Engine Manifest](docs/engine-manifest.md)         | Technical inventory of all engine scripts, JSON assets, and references.      |
-| [Testing Strategy](docs/testing.md)                | Unit test coverage documentation for the audit pipeline.                     |
+| Resource                                           | Description                                                                                         |
+| :------------------------------------------------- | :-------------------------------------------------------------------------------------------------- |
+| [Architecture](docs/architecture.md)               | How the three-stage pipeline transforms a URL into a surgical code fix roadmap.                     |
+| [CLI Handbook](docs/cli-handbook.md)               | Every flag, execution path, and agent integration option for running the audit directly.            |
+| [Engine Intelligence](docs/engine-intelligence.md) | How violations become actionable patches using the curated framework-aware knowledge base.          |
+| [Scoring System](docs/scoring-system.md)           | The Weighted Debt Model that calculates compliance scores based on severity and frequency.          |
+| [Engine Manifest](docs/engine-manifest.md)         | Complete inventory of every script, asset, and configuration file in the engine.                   |
+| [Testing Strategy](docs/testing.md)                | Test suite structure and coverage across the scanner, analyzer, and intelligence mapping layers.    |
 
 ## External Resources
 
