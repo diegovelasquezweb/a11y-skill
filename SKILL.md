@@ -16,7 +16,7 @@ Load these files on demand — never preload all at once.
 
 | Resource                          | Load when                                     | Path                                                             |
 | --------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
-| Report & evidence standards       | Step 3 — presenting findings                  | [references/report-standards.md](references/report-standards.md) |
+| Report & evidence standards       | Step 3 — presenting findings · Step 6 item 1 — console summary | [references/report-standards.md](references/report-standards.md) |
 | Fix patterns by WCAG criterion    | Step 4 — proposing and applying fixes         | [references/fix-patterns.md](references/fix-patterns.md)         |
 | Source file patterns by framework | Step 4a — locating files to fix               | [references/source-patterns.md](references/source-patterns.md)   |
 | CLI flags reference               | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md)       |
@@ -311,7 +311,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 **All items in this step are mandatory and must execute in order (1 → 10). Never stop after the summary — complete the full step.**
 
-1. **Summarize**: state the **Overall Assessment** first — `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), or `Fail` (any Critical or Serious remain unresolved). Follow with: total found, resolved, files modified, remaining (if any).
+1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**, filling in values from the remediation guide. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`.
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
 3. **Passed Criteria**: present the "Passed Criteria" section from the remediation guide as-is. Note it reflects automated coverage only.
 4. **Out of Scope**: present the "Out of Scope" section from the remediation guide as-is.

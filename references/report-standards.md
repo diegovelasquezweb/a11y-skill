@@ -65,6 +65,30 @@ Present each finding using this exact field order. Do not omit or reorder fields
 - **Proof**: `<img src="/hero.jpg" class="hero-image">` — alt attribute absent.
 ```
 
+## Console Summary Template
+
+Present this block verbatim in Step 6 item 1. Fill in values from the remediation guide and session data.
+
+```
+## Accessibility Audit — Final Summary
+
+**Overall Assessment**: Pass | Conditional Pass | Fail
+**URL**: https://...
+**Pages scanned**: N
+
+| Metric         | Count |
+|----------------|-------|
+| Total findings |     N |
+| Resolved       |     N |
+| Remaining      |     N |
+| Files modified |     N |
+```
+
+Append a context note only when `remaining > 0`:
+
+- **Conditional Pass**: `> N remaining finding(s) are Minor — no Critical or Serious issues unresolved.`
+- **Fail**: `> N finding(s) remain unresolved — includes Critical or Serious issues requiring attention.`
+
 ## Deliverable Order
 
 Always return results in this exact order:
