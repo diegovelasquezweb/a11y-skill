@@ -82,8 +82,6 @@ Do not modify `config/settings_schema.json` or theme settings during fixes.
 | Template parts | `wp-content/themes/<active-theme>/template-parts/**/*.php` |
 | Styles | `wp-content/themes/<active-theme>/**/*.css` |
 
-Do not edit core WordPress files (`wp-includes/`, `wp-admin/`).
-
 ## Design Tokens (Tailwind CSS)
 
 When fixing `color-contrast` or visual issues, check `package.json` for the Tailwind version:
