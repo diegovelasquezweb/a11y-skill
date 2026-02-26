@@ -2,7 +2,7 @@
 name: a11y
 description: "Audits and fixes website accessibility (WCAG 2.2 AA) using automated scanning (axe-core + Playwright). Use when the user asks to audit a URL for accessibility, check WCAG compliance, fix a11y issues, test screen reader support, verify keyboard navigation, check color contrast, fix ARIA attributes, add alt text, fix heading hierarchy, improve focus management, check ADA/WCAG compliance, or generate an accessibility report. Trigger keywords: accessibility, a11y, WCAG, ADA, screen reader, assistive technology, accessibility audit, color contrast, alt text, ARIA. Do NOT use for performance audits, SEO, Lighthouse scores, or non-web platforms."
 compatibility: Requires Node.js 18+, pnpm (npm as fallback), and internet access. Playwright + Chromium are auto-installed on first run.
-license: Proprietary (All Rights Reserved)
+license: MIT
 metadata:
   author: diegovelasquezweb
   version: "0.9.0"
@@ -87,10 +87,12 @@ If the user chooses **Crawler**: wait for that answer, then ask the scan scope i
 
 `[QUESTION]` **How many pages should I crawl?**
 
-1. **10 pages (Recommended)** — covers main page types, fast
+1. **10 pages** — covers main page types, fast
 2. **All reachable pages** — comprehensive, may take several minutes on large sites
 3. **Custom** — tell me the exact number
 4. **Back** — choose a different discovery method
+
+If **Custom**: ask in plain text — "How many pages?" — and wait for a number. Do not show a new `[QUESTION]` with options. Store the number and proceed to Step 2.
 
 Store the user's choice. Proceed to Step 2.
 
@@ -151,7 +153,7 @@ Then ask save location (first time only — reuse afterward):
 
 `[QUESTION]` **Where should I save the reports?**
 
-1. **Project audit folder** — `./audit/` (Recommended)
+1. **Project audit folder** — `./audit/`
 2. **Desktop** — `~/Desktop/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
@@ -176,7 +178,7 @@ If the user chooses **Skip fixes**: present the following message, then skip to 
 
 ### Step 4 — Fix
 
-Work through each phase in order. If the user chose **Other criteria** in Step 3, follow their specified prioritization instead of the default severity order throughout this step.
+Work through each phase in order: **4a → 4b → 4c**. All three phases must run — never skip a phase because the user declined fixes in a previous one. If the user chose **Other criteria** in Step 3, follow their specified prioritization instead of the default severity order throughout this step.
 
 #### 4a. Structural fixes (Critical → High → Medium → Low)
 
@@ -201,7 +203,7 @@ Present one severity group at a time (Critical → High → Medium → Low) — 
 
 If **No**: skip to the next severity group (or 4b if this was the last).
 
-If **Let me pick**: present all fixes as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`). Apply the selected fixes, list changes made, then ask the verification question below.
+If **Let me pick**: present all fixes as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these [severity] fixes?** prompt. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
 
 If **Yes** or after **Let me pick** completes: list the files and changes made, then ask:
 
@@ -209,8 +211,9 @@ If **Yes** or after **Let me pick** completes: list the files and changes made, 
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
+3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
+If **Looks good** or **Back**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
@@ -226,9 +229,9 @@ Show all style changes upfront: property, current value → proposed value, cont
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip style fixes
 
-If **No**: proceed to 4c.
+If **No**: proceed to 4c immediately. Never skip to Step 5 — 4c always runs regardless of what happened in 4b.
 
-If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`). Apply the selected changes, list files and exact values modified, then ask the verification question below.
+If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these style changes?** prompt. Otherwise apply the selected changes, list files and exact values modified, then ask the verification question below.
 
 If **Yes** or after **Let me pick** completes: list the files and exact values modified, then ask:
 
@@ -236,8 +239,9 @@ If **Yes** or after **Let me pick** completes: list the files and exact values m
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
+3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or after resolving **Something's wrong**: proceed to 4c.
+If **Looks good** or **Back**: proceed to 4c. If **Something's wrong**: apply corrections, then proceed to 4c.
 
 #### 4c. Source code patterns
 
@@ -252,7 +256,7 @@ Process the "🔍 Source Code Pattern Audit" section from the remediation guide.
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **Skip** — don't apply any of these fixes
 
-If **Let me pick**: present all pattern matches as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`). Apply the selected fixes, list changes made, then ask the verification question below.
+If **Let me pick**: present all pattern matches as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply fixes?** prompt. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
 
 If **Yes, fix all** or after **Let me pick** completes: list the files and changes made, then ask:
 
@@ -260,8 +264,9 @@ If **Yes, fix all** or after **Let me pick** completes: list the files and chang
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
+3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or after resolving **Something's wrong**: proceed to Step 5.
+If **Looks good** or **Back**: proceed to Step 5. If **Something's wrong**: apply corrections, then proceed to Step 5.
 
 If the user chooses **Skip**, show the following message before proceeding to Step 5:
 
@@ -333,7 +338,7 @@ If **No thanks**: skip to step 7.
 
 `[QUESTION]` **Where should I save the reports?**
 
-1. **Project audit folder** — `./audit/` (Recommended)
+1. **Project audit folder** — `./audit/`
 2. **Desktop** — `~/Desktop/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
@@ -381,7 +386,7 @@ If **Yes**: use the output path already set earlier in this session (Step 3 or S
 
 `[QUESTION]` **Where should I save the checklist?**
 
-1. **Project audit folder** — `./audit/` (Recommended)
+1. **Project audit folder** — `./audit/`
 2. **Desktop** — `~/Desktop/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — go back to the checklist export question
