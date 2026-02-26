@@ -332,7 +332,12 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**, filling in values from the remediation guide. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`.
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
-3. **Passed Criteria**: present the "Passed Criteria" section from the remediation guide as-is. Note it reflects automated coverage only.
+3. **Passed Criteria**: present the criteria from the "Passed Criteria" section of the remediation guide as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification. Omit any "Requires manual testing" subsection and any "AAA criteria: Not in scope" line — both are redundant given the manual checklist delivered later.
+
+   | Criterion | Name | Level |
+   |-----------|------|-------|
+   | 1.1.1     | Non-text Content | A |
+   | …         | …    | …     |
 4. **Out of Scope**: present the "Out of Scope" section from the remediation guide as-is.
 5. Ask about reports. Wait for the answer before continuing:
 
