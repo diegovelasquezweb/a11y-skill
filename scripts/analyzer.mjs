@@ -377,9 +377,14 @@ function deduplicateFindings(findings) {
       .trim();
   }
 
+  const UNGROUPABLE = new Set(["N/A", "", "html", "body", ":root", "document"]);
+
   const groups = new Map();
   for (const finding of findings) {
-    const key = `${finding.rule_id}||${normalizeSelector(finding.primary_selector)}`;
+    const normalized = normalizeSelector(finding.primary_selector);
+    const key = UNGROUPABLE.has(normalized)
+      ? `__ungroupable__${finding.id}`
+      : `${finding.rule_id}||${normalized}`;
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(finding);
   }

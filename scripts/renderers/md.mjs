@@ -191,14 +191,6 @@ function buildGuardrails(framework) {
 }
 
 /**
- * Builds the full AI-optimized remediation guide in Markdown format.
- * Includes a summary table, guardrails, component map, and detailed issue lists.
- * @param {Object} args - The parsed CLI arguments.
- * @param {Object[]} findings - The normalized findings to include.
- * @param {Object} [metadata={}] - Optional scan metadata.
- * @returns {string} The complete Markdown document.
- */
-/**
  * Builds the Passed Criteria section listing WCAG criteria with no violations.
  * @param {string[]} passedCriteria
  * @returns {string}
@@ -241,6 +233,14 @@ ${parts.join("\n\n")}
 `;
 }
 
+/**
+ * Builds the full AI-optimized remediation guide in Markdown format.
+ * Includes a summary table, guardrails, component map, and detailed issue lists.
+ * @param {Object} args - The parsed CLI arguments.
+ * @param {Object[]} findings - The normalized findings to include.
+ * @param {Object} [metadata={}] - Optional scan metadata.
+ * @returns {string} The complete Markdown document.
+ */
 export function buildMarkdownSummary(args, findings, metadata = {}) {
   const framework = resolveFramework(
     metadata,
