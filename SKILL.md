@@ -191,9 +191,17 @@ Load [references/source-patterns.md](references/source-patterns.md) to locate so
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
-Apply one severity group at a time (Critical → High → Medium → Low). **Apply all fixes in the group first — do not ask for permission before applying.** After applying, list the files and changes made, then ask:
+Present one severity group at a time (Critical → High → Medium → Low) — list the findings and proposed changes, then ask:
 
-`[QUESTION]` **I've applied all [severity] fixes. Please verify visually — does everything look correct?**
+`[QUESTION]` **Apply these [severity] fixes?**
+
+1. **Yes** — apply all proposed changes
+2. **No** — skip this severity group
+3. **Let me pick** — I'll choose which ones to apply
+
+After applying, list the files and changes made, then ask:
+
+`[QUESTION]` **Please verify visually — does everything look correct?**
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
