@@ -32,8 +32,6 @@ The agent will clone the repository and run `node install.mjs`, which auto-detec
 | Windsurf | `~/.codeium/windsurf/skills/a11y/` |
 | Antigravity | `~/.gemini/antigravity/skills/a11y/` |
 
-To uninstall, ask your agent: `"Uninstall skill a11y"`
-
 Restart your agent session after installation to ensure the skill is loaded.
 
 ## How to Use
