@@ -17,6 +17,16 @@ Each finding must include:
 7. QA retest notes.
 8. Concrete proof (DOM snippet, log, or tool output). Screenshot only if it clearly demonstrates the exact issue.
 
+## Cross-Page Finding Fields
+
+When a finding is deduplicated across multiple routes, two additional fields are included:
+
+- `pages_affected` — number of distinct routes where the same pattern was detected.
+- `affected_urls` — array of route URLs where the finding appears.
+
+These fields are set automatically by the analyzer pipeline. Present them in the finding detail when `pages_affected > 1`:
+> ℹ️ Found on `{pages_affected}` pages — same pattern detected across: `{affected_urls}`
+
 ## Deliverable Order
 
 Always return results in this exact order:
