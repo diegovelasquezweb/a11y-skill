@@ -21,7 +21,7 @@ Give your AI agent the following prompt:
 "Install skill https://github.com/diegovelasquezweb/a11y"
 ```
 
-The agent will clone the repository and run `node install.mjs`, which auto-detects installed agents and copies the skill to the correct path on any platform (macOS, Linux, Windows):
+The agent will clone the repository to its skills directory automatically:
 
 | Agent | Install path |
 | :---- | :----------- |
