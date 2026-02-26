@@ -41,7 +41,7 @@ These rules apply at all times, independent of any workflow step.
 
 1. **Language** — always communicate in English, regardless of the language the user writes in.
 2. **Tone** — concise and technical. State findings, propose action, ask for a decision.
-3. **Internal steps** — never expose internal step labels, phase codes, or workflow reasoning to the user. This includes codes like "4b", phase names like "Step 4c" or "Source Code Pattern Audit", and internal logic like "not re-offering" or "user declined in 4b". Always describe outcomes in plain language only.
+3. **Internal steps** — never expose internal step labels, phase codes, or workflow reasoning to the user. This includes codes like "4b", phase names like "Step 4c" or "Source Code Pattern Audit", and internal logic like "not re-offering" or "user declined in 4b". Always describe outcomes in plain language only. **Never pre-announce a sequence of steps** ("first I'll do X, then Y, then Z") — execute immediately and let the output speak for itself.
 4. **Recovery** — if the user types `continue`, `resume`, or `where are we`, read the conversation history to determine the current state and resume from the next pending action. If the state cannot be determined, briefly summarize what was completed and ask where to continue from.
 5. **Message tags** — this playbook uses two tags to mark formatted messages. When you reach a tagged block, present it as a **standalone message** — never merge with informational lists, findings, summaries, or other content.
 6. **Data-first** — if the user's message already contains the answer to a pending question (URL scheme, discovery method, page count, save path, etc.), skip that question and proceed directly. Never ask for information already provided in the current turn.
@@ -354,7 +354,7 @@ If **No thanks**: skip to item 8.
 
    After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
 
-8. **MANDATORY** — output the following message verbatim before finishing:
+8. Output the manual testing reminder and checklist offer — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 9.
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
@@ -388,12 +388,12 @@ node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL
 
 Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
 
-9. **MANDATORY** — output the following closing message verbatim. Do not skip it:
+9. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 
-10. After the closing message:
-    - If the user declined **both** reports (item 5) and checklist (item 8): the workflow is complete — do not ask a follow-up question.
+10. After the closing message (or after item 7 if items 8 and 9 were skipped):
+    - If no deliverable was generated this session — user declined reports (item 5) and either declined or was never offered the checklist (item 8 skipped): the workflow is complete — do not ask a follow-up question.
     - Otherwise, ask:
 
 `[QUESTION]` **Is there anything else I can help you with?**
