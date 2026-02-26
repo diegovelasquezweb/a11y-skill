@@ -38,7 +38,7 @@ Restart your agent session after installation to ensure the skill is loaded.
 
 ## How to Use
 
-Invoke it directly with `/a11y <URL>` or start the skill with a natural language prompt like:
+Invoke it directly with `/a11y <URL>` or `$a11y <URL>` or start the skill with a natural language prompt like:
 
 ```bash
 "Audit accessibility localhost:3000"

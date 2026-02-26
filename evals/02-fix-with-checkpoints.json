@@ -7,16 +7,16 @@
     "Completes page discovery (Step 1), runs the audit (Step 2), and presents findings (Step 3)",
     "After user approves, applies Critical fixes first (4a) — structural/semantic only",
     "Stops at checkpoint after Critical fixes — lists files modified and asks user to verify",
-    "Does NOT proceed to High fixes until user confirms",
-    "Repeats apply-checkpoint cycle for High, Medium, Low",
+    "Does NOT proceed to Serious fixes until user confirms",
+    "Repeats apply-checkpoint cycle for Serious, Moderate, Minor",
     "Presents style-dependent fixes (4b) as a separate batch with exact proposed changes",
     "Does NOT apply style changes without explicit approval",
     "Processes source code patterns (4c) — greps project source for regex matches and presents confirmed findings with proposed fixes",
     "Runs verification re-audit (Step 5) after all fixes",
     "Delivers results summary in Step 6 (total found, resolved, files modified, remaining if any)",
-    "Outputs the mandatory manual testing reminder in Step 7 verbatim",
+    "Outputs the mandatory manual testing reminder verbatim as part of Step 6",
     "Asks whether to export the manual testing checklist (Yes / No thanks)",
-    "Outputs the mandatory closing message in Step 8 verbatim"
+    "Outputs the mandatory closing message verbatim as part of Step 6"
   ],
   "model_notes": {}
 }

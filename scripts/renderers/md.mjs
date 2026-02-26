@@ -191,6 +191,102 @@ function buildGuardrails(framework) {
 }
 
 /**
+ * Builds the Passed Criteria section listing WCAG criteria with no violations.
+ * @param {string[]} passedCriteria
+ * @returns {string}
+ */
+function buildPassedCriteriaSection(passedCriteria) {
+  if (!Array.isArray(passedCriteria) || passedCriteria.length === 0) return "";
+  return `## ✅ Passed Criteria
+
+The following WCAG 2.2 AA criteria were verified by automated scanning and returned no violations. This list reflects automated coverage only — manual testing may reveal additional issues.
+
+${passedCriteria.map((c) => `- ${c}`).join("\n")}
+`;
+}
+
+/**
+ * Builds the Out of Scope section documenting what was not tested.
+ * @param {Object} outOfScope
+ * @returns {string}
+ */
+function buildOutOfScopeSection(outOfScope) {
+  if (!outOfScope) return "";
+  const parts = [];
+  if (outOfScope.auth_blocked_routes?.length > 0) {
+    parts.push(
+      `**Routes not tested (access error):**\n${outOfScope.auth_blocked_routes.map((r) => `- \`${r}\``).join("\n")}`,
+    );
+  }
+  if (outOfScope.manual_testing_required?.length > 0) {
+    parts.push(
+      `**Requires manual testing (not detectable by axe-core):**\n${outOfScope.manual_testing_required.map((c) => `- ${c}`).join("\n")}`,
+    );
+  }
+  if (outOfScope.aaa_excluded) {
+    parts.push(`**AAA criteria:** Not in scope for this audit.`);
+  }
+  if (parts.length === 0) return "";
+  return `## 📋 Out of Scope
+
+${parts.join("\n\n")}
+`;
+}
+
+/**
+ * Builds the Recommendations section with single-point-fix opportunities and systemic patterns.
+ * @param {Object} recommendations
+ * @returns {string}
+ */
+function buildRecommendationsSection(recommendations) {
+  if (!recommendations) return "";
+  const { single_point_fixes = [], systemic_patterns = [] } = recommendations;
+  if (single_point_fixes.length === 0 && systemic_patterns.length === 0) return "";
+
+  const parts = [];
+
+  if (single_point_fixes.length > 0) {
+    const rows = single_point_fixes.map(
+      (r) => `| \`${r.component}\` | ${r.total_issues} | ${r.total_pages} | ${r.rules.map((x) => `\`${x}\``).join(", ")} |`,
+    );
+    parts.push(
+      `### Fix once, resolve everywhere\n\nThese issues trace back to shared components — a single fix eliminates all instances.\n\n| Component | Issues | Pages | Rules |\n|---|---|---|---|\n${rows.join("\n")}`,
+    );
+  }
+
+  if (systemic_patterns.length > 0) {
+    const rows = systemic_patterns.map(
+      (r) => `| ${r.wcag_criterion} | ${r.total_issues} | ${r.affected_components.map((c) => `\`${c}\``).join(", ")} |`,
+    );
+    parts.push(
+      `### Systemic patterns\n\nThe same WCAG criterion recurs across multiple components — consider a design system-level fix.\n\n| Criterion | Issues | Affected Components |\n|---|---|---|\n${rows.join("\n")}`,
+    );
+  }
+
+  return `## 💡 Recommendations\n\n${parts.join("\n\n")}\n`;
+}
+
+/**
+ * Builds the Testing Methodology section from auto-generated scan metadata.
+ * @param {Object} tm
+ * @returns {string}
+ */
+function buildTestingMethodologySection(tm) {
+  if (!tm) return "";
+  return `## 🔬 Testing Methodology
+
+| | |
+|---|---|
+| **Automated Tools** | ${(tm.automated_tools || []).join(", ")} |
+| **Compliance Target** | ${tm.compliance_target} |
+| **Pages Scanned** | ${tm.pages_scanned}${tm.pages_errored > 0 ? ` (${tm.pages_errored} failed to load)` : ""} |
+| **Framework Detected** | ${tm.framework_detected} |
+| **Manual Testing** | ${tm.manual_testing} |
+| **Assistive Technology Tested** | ${tm.assistive_tech_tested} |
+`;
+}
+
+/**
  * Builds the full AI-optimized remediation guide in Markdown format.
  * Includes a summary table, guardrails, component map, and detailed issue lists.
  * @param {Object} args - The parsed CLI arguments.
@@ -204,8 +300,19 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     args.baseUrl,
     args.framework ?? null,
   );
-  const totals = buildSummary(findings);
-  const status = findings.length === 0 ? "PASS" : "ISSUES FOUND";
+  const wcagFindings = findings.filter(
+    (f) => f.wcagClassification !== "Best Practice" && f.wcagClassification !== "AAA",
+  );
+  const bpCount = findings.length - wcagFindings.length;
+  const totals = buildSummary(wcagFindings);
+  const status = wcagFindings.length === 0 ? "PASS" : "ISSUES FOUND";
+
+  const assessmentEmoji =
+    metadata.overallAssessment === "Pass" ? "✅" :
+    metadata.overallAssessment === "Conditional Pass" ? "⚠️" : "❌";
+  const assessmentLine = metadata.overallAssessment
+    ? `> **Overall Assessment:** ${assessmentEmoji} ${metadata.overallAssessment}\n`
+    : "";
 
   function findingToMd(f) {
     let evidenceHtml = null;
@@ -230,6 +337,11 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       f.fixDescription || f.fixCode
         ? `#### Recommended Technical Solution\n${f.fixDescription ? `**Implementation:** ${f.fixDescription}\n` : ""}${f.fixCode ? `\`\`\`${codeLang}\n${f.fixCode}\n\`\`\`` : ""}`.trimEnd()
         : `#### Recommended Remediation\n${f.recommendedFix}`;
+
+    const crossPageBlock =
+      f.pagesAffected && f.pagesAffected > 1
+        ? `> ℹ️ **Found on ${f.pagesAffected} pages** — same pattern detected across: ${(f.affectedUrls || []).join(", ")}`
+        : null;
 
     const fpRisk =
       f.falsePositiveRisk && f.falsePositiveRisk !== "low"
@@ -287,12 +399,17 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       ``,
       `- **Target Area:** \`${f.area}\``,
       `- **Surgical Selector:** \`${f.primarySelector || f.selector}\``,
-      `- **WCAG Criterion:** ${f.wcag}`,
+      f.wcagClassification === "Best Practice"
+        ? `- **WCAG Criterion:** ${f.wcag} _(Best Practice — not a WCAG AA requirement)_`
+        : f.wcagClassification === "AAA"
+          ? `- **WCAG Criterion:** ${f.wcag} _(Level AAA — informational only)_`
+          : `- **WCAG Criterion:** ${f.wcag}`,
       `- **Persona Impact:** ${f.impactedUsers}`,
       f.priorityScore != null
         ? `- **Priority Score:** ${f.priorityScore}/100`
         : null,
       ``,
+      crossPageBlock ? `${crossPageBlock}\n` : null,
       managedBlock ? `${managedBlock}\n` : null,
       `**Why it matters:** ${f.impact || "This violation creates barriers for users with disabilities."}`,
       ``,
@@ -340,8 +457,8 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       .join("\n\n");
   }
 
-  const blockers = findingsByPage(["Critical", "High"]);
-  const deferred = findingsByPage(["Medium", "Low"]);
+  const blockers = findingsByPage(["Critical", "Serious"]);
+  const deferred = findingsByPage(["Moderate", "Minor"]);
 
   function buildComponentMap() {
     const groups = {};
@@ -384,23 +501,29 @@ ${rows.join("\n")}
 `
     : "";
 
+  const pipelineNotes = [
+    metadata.fpFiltered > 0 ? `${metadata.fpFiltered} false positive(s) removed` : null,
+    metadata.deduplicatedCount > 0 ? `${metadata.deduplicatedCount} cross-page finding(s) deduplicated` : null,
+    bpCount > 0 ? `${bpCount} Best Practice / AAA finding(s) excluded from WCAG assessment` : null,
+  ].filter(Boolean).join(" · ");
+
   return (
     `# 🛡️ Accessibility Remediation Guide — AI MODE
 > **Scan Date:** ${metadata.scanDate || new Date().toISOString()}
 > **Base URL:** ${args.baseUrl || "N/A"}
 > **Target:** ${args.target}
 > **Status:** ${status}
-
+${assessmentLine}
 ## 📊 Findings Overview
 
 | Severity | Count | Priority |
 |---|---|---|
 | 🔴 **Critical** | ${totals.Critical} | **Blocker** |
-| 🟠 **High** | ${totals.High} | **Immediate** |
-| 🟡 **Medium** | ${totals.Medium} | **Standard** |
-| 🔵 **Low** | ${totals.Low} | **Backlog** |
+| 🟠 **Serious** | ${totals.Serious} | **Immediate** |
+| 🟡 **Moderate** | ${totals.Moderate} | **Standard** |
+| 🔵 **Minor** | ${totals.Minor} | **Backlog** |
 
-Total findings: **${findings.length} issues**
+Total findings: **${wcagFindings.length} WCAG AA violations**${bpCount > 0 ? ` + ${bpCount} informational (Best Practice / AAA)` : ""}${pipelineNotes ? `\n\n> ℹ️ Audit pipeline: ${pipelineNotes}` : ""}
 
 ---
 
@@ -412,11 +535,12 @@ ${buildGuardrails(framework)}
 
 ---
 
-${buildComponentMap()}${blockers ? `## 🔴 Priority Fixes (Critical & High)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or high severity issues found."}
+${buildComponentMap()}${buildRecommendationsSection(metadata.recommendations)}
+${blockers ? `## 🔴 Priority Fixes (Critical & Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
 
-${deferred ? `## 🔵 Deferred Issues (Medium & Low)\n\n${deferred}` : "## Deferred Issues\n\nNo medium or low severity issues found."}
+${deferred ? `## 🔵 Deferred Issues (Moderate & Minor)\n\n${deferred}` : "## Deferred Issues\n\nNo moderate or minor severity issues found."}
 
-${buildCodePatternsMd(metadata.code_patterns, framework)}
+${buildPassedCriteriaSection(metadata.passedCriteria)}${buildOutOfScopeSection(metadata.outOfScope)}${buildTestingMethodologySection(metadata.testingMethodology)}${buildCodePatternsMd(metadata.code_patterns, framework)}
 ${buildManualChecksMd()}
 ${referencesSection}`.trimEnd() + "\n"
   );

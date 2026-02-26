@@ -329,6 +329,239 @@ export function extractSearchHint(selector) {
 }
 
 /**
+ * Checks whether a single finding is a confirmed false positive based on evidence HTML patterns.
+ * Only covers cases where the violation is provably impossible given the axe evidence.
+ * @param {Object} finding - An enriched finding object.
+ * @returns {boolean}
+ */
+function isFalsePositive(finding) {
+  const htmls = finding.evidence.map((e) => e.html || "").join(" ");
+  if (finding.rule_id === "color-contrast") {
+    if (/background(?:-image)?\s*:\s*(?:linear|radial|conic)-gradient/i.test(htmls)) return true;
+    if (/visibility\s*:\s*hidden|display\s*:\s*none/i.test(htmls)) return true;
+  }
+  return false;
+}
+
+/**
+ * Removes confirmed false positives from findings.
+ * @param {Object[]} findings
+ * @returns {{ filtered: Object[], removedCount: number }}
+ */
+function filterFalsePositives(findings) {
+  const filtered = [];
+  let removedCount = 0;
+  for (const finding of findings) {
+    if (isFalsePositive(finding)) {
+      removedCount++;
+    } else {
+      filtered.push(finding);
+    }
+  }
+  return { filtered, removedCount };
+}
+
+/**
+ * Deduplicates findings that fire on the same rule and element pattern across multiple pages.
+ * Groups them into one representative finding with pages_affected and affected_urls.
+ * @param {Object[]} findings
+ * @returns {{ findings: Object[], deduplicatedCount: number }}
+ */
+function deduplicateFindings(findings) {
+  function normalizeSelector(selector) {
+    if (!selector) return "";
+    return selector
+      .replace(/:nth-child\(\d+\)/g, "")
+      .replace(/:nth-of-type\(\d+\)/g, "")
+      .replace(/\[\d+\]/g, "")
+      .trim();
+  }
+
+  const UNGROUPABLE = new Set(["N/A", "", "html", "body", ":root", "document"]);
+
+  const groups = new Map();
+  for (const finding of findings) {
+    const normalized = normalizeSelector(finding.primary_selector);
+    const key = UNGROUPABLE.has(normalized)
+      ? `__ungroupable__${finding.id}`
+      : `${finding.rule_id}||${normalized}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(finding);
+  }
+
+  const result = [];
+  let deduplicatedCount = 0;
+  for (const [, group] of groups) {
+    if (group.length === 1) {
+      result.push(group[0]);
+    } else {
+      const representative = group.reduce((best, f) =>
+        (f.total_instances || 1) >= (best.total_instances || 1) ? f : best,
+      );
+      const affectedUrls = [...new Set(group.map((f) => f.url))];
+      const totalInstances = group.reduce((sum, f) => sum + (f.total_instances || 1), 0);
+      result.push({
+        ...representative,
+        total_instances: totalInstances,
+        pages_affected: affectedUrls.length,
+        affected_urls: affectedUrls,
+      });
+      deduplicatedCount++;
+    }
+  }
+  return { findings: result, deduplicatedCount };
+}
+
+/**
+ * Computes the overall WCAG compliance assessment.
+ * @param {Object[]} findings
+ * @returns {'Fail' | 'Conditional Pass' | 'Pass'}
+ */
+function computeOverallAssessment(findings) {
+  const wcagFindings = findings.filter(
+    (f) => f.wcag_classification !== "Best Practice" && f.wcag_classification !== "AAA",
+  );
+  if (wcagFindings.some((f) => f.severity === "Critical" || f.severity === "Serious")) return "Fail";
+  if (wcagFindings.length > 0) return "Conditional Pass";
+  return "Pass";
+}
+
+/**
+ * Aggregates WCAG 2.2 AA criteria that passed across all scanned routes.
+ * @param {Object[]} routes - Raw scan routes with a passes array of rule IDs.
+ * @param {Object<string, string>} wcagCriterionMap - Map from rule_id to WCAG criterion ID.
+ * @returns {string[]} Sorted unique WCAG criterion IDs that passed.
+ */
+function computePassedCriteria(routes, wcagCriterionMap) {
+  const passed = new Set();
+  for (const route of routes) {
+    for (const ruleId of route.passes || []) {
+      const criterion = wcagCriterionMap[ruleId];
+      if (criterion) passed.add(criterion);
+    }
+  }
+  return [...passed].sort();
+}
+
+/**
+ * Computes out-of-scope information: errored routes and static manual/AAA criteria.
+ * @param {Object[]} routes - Raw scan routes.
+ * @returns {Object}
+ */
+function computeOutOfScope(routes) {
+  const authBlockedRoutes = routes
+    .filter((r) => r.error)
+    .map((r) => r.url || r.path)
+    .filter(Boolean);
+  return {
+    auth_blocked_routes: authBlockedRoutes,
+    manual_testing_required: [
+      "1.2.2 Captions (Prerecorded)",
+      "1.2.3 Audio Description or Media Alternative",
+      "1.2.4 Captions (Live)",
+      "1.2.5 Audio Description (Prerecorded)",
+      "1.3.3 Sensory Characteristics",
+      "1.4.1 Use of Color",
+      "2.1.1 Keyboard",
+      "2.1.2 No Keyboard Trap",
+      "2.3.1 Three Flashes or Below Threshold",
+      "2.4.3 Focus Order",
+      "2.4.7 Focus Visible",
+      "2.5.3 Label in Name",
+      "3.2.1 On Focus",
+      "3.2.2 On Input",
+      "3.3.3 Error Suggestion",
+      "3.3.4 Error Prevention",
+    ],
+    aaa_excluded: true,
+  };
+}
+
+/**
+ * Classifies a finding's WCAG status based on axe rule tags.
+ * @param {string[]} tags - The violation's axe tags.
+ * @param {string|null} wcagCriterionId - The mapped WCAG criterion ID.
+ * @returns {'Best Practice' | 'AAA' | null} null = standard AA/A finding.
+ */
+function classifyWcag(tags, wcagCriterionId) {
+  if (tags.includes("best-practice")) return "Best Practice";
+  if (tags.some((t) => /aaa/i.test(t))) return "AAA";
+  if (!wcagCriterionId) return "Best Practice";
+  return null;
+}
+
+/**
+ * Identifies single-point-fix opportunities and systemic WCAG patterns from findings.
+ * @param {Object[]} findings - Deduplicated enriched findings.
+ * @returns {{ single_point_fixes: Object[], systemic_patterns: Object[] }}
+ */
+function computeRecommendations(findings) {
+  const componentGroups = new Map();
+  for (const f of findings) {
+    if (!f.component_hint) continue;
+    if (!componentGroups.has(f.component_hint)) componentGroups.set(f.component_hint, []);
+    componentGroups.get(f.component_hint).push(f);
+  }
+
+  const singlePointFixes = [];
+  for (const [component, group] of componentGroups) {
+    const maxPages = Math.max(...group.map((f) => f.pages_affected || 1));
+    if (group.length < 2 && maxPages < 3) continue;
+    singlePointFixes.push({
+      component,
+      total_issues: group.length,
+      total_pages: maxPages,
+      rules: [...new Set(group.map((f) => f.rule_id))],
+      severities: [...new Set(group.map((f) => f.severity))],
+    });
+  }
+  singlePointFixes.sort((a, b) => (b.total_issues * b.total_pages) - (a.total_issues * a.total_pages));
+
+  const criterionGroups = new Map();
+  for (const f of findings) {
+    if (!f.wcag_criterion_id) continue;
+    if (!criterionGroups.has(f.wcag_criterion_id)) criterionGroups.set(f.wcag_criterion_id, []);
+    criterionGroups.get(f.wcag_criterion_id).push(f);
+  }
+
+  const systemicPatterns = [];
+  for (const [criterion, group] of criterionGroups) {
+    if (group.length < 3) continue;
+    const components = [...new Set(group.map((f) => f.component_hint).filter(Boolean))];
+    if (components.length < 2) continue;
+    systemicPatterns.push({
+      wcag_criterion: criterion,
+      total_issues: group.length,
+      affected_components: components,
+      rules: [...new Set(group.map((f) => f.rule_id))],
+    });
+  }
+  systemicPatterns.sort((a, b) => b.total_issues - a.total_issues);
+
+  return { single_point_fixes: singlePointFixes, systemic_patterns: systemicPatterns };
+}
+
+/**
+ * Auto-generates testing methodology metadata from the raw scan payload.
+ * @param {Object} payload - Raw scan payload from scanner.mjs.
+ * @returns {Object}
+ */
+function computeTestingMethodology(payload) {
+  const routes = payload.routes || [];
+  const scanned = routes.filter((r) => !r.error).length;
+  const errored = routes.filter((r) => r.error).length;
+  return {
+    automated_tools: ["axe-core (via @axe-core/playwright)", "Playwright + Chromium"],
+    compliance_target: "WCAG 2.2 AA",
+    pages_scanned: scanned,
+    pages_errored: errored,
+    framework_detected: payload.projectContext?.framework || "Not detected",
+    manual_testing: "Not performed — see Out of Scope section",
+    assistive_tech_tested: "None (automated scan only)",
+  };
+}
+
+/**
  * Processes scan results into a high-level auditing findings object.
  * Enriches findings with intelligence metadata, framework notes, and fix recommendations.
  * @param {Object} inputPayload - The raw JSON payload from scanner.mjs.
@@ -384,6 +617,7 @@ function buildFindings(inputPayload, cliArgs) {
           severity: IMPACT_MAP[v.impact] || "Medium",
           wcag: mapWcag(v.tags),
           wcag_criterion_id: WCAG_CRITERION_MAP[v.id] ?? null,
+          wcag_classification: classifyWcag(v.tags, WCAG_CRITERION_MAP[v.id] ?? null),
           area: `${route.path}`,
           url: route.url,
           selector: selectors.join(", "),
@@ -441,7 +675,7 @@ function buildFindings(inputPayload, cliArgs) {
         id: "",
         rule_id: "page-has-heading-one",
         title: "Page must have exactly one h1",
-        severity: "Medium",
+        severity: "Moderate",
         wcag: "WCAG 2.1 A",
         wcag_criterion_id: WCAG_CRITERION_MAP["page-has-heading-one"] ?? null,
         area: route.path,
@@ -463,6 +697,7 @@ function buildFindings(inputPayload, cliArgs) {
         fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
         framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
         cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
+        wcag_classification: "Best Practice",
       });
     }
 
@@ -478,7 +713,7 @@ function buildFindings(inputPayload, cliArgs) {
         id: "",
         rule_id: "landmark-one-main",
         title: "Page must have exactly one main landmark",
-        severity: "Medium",
+        severity: "Moderate",
         wcag: "WCAG 2.1 A",
         wcag_criterion_id: WCAG_CRITERION_MAP["landmark-one-main"] ?? null,
         area: route.path,
@@ -500,6 +735,7 @@ function buildFindings(inputPayload, cliArgs) {
         fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
         framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
         cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
+        wcag_classification: "Best Practice",
       });
     }
   }
@@ -542,7 +778,7 @@ function main() {
     }
   }
 
-  const findings =
+  let findings =
     ignoredRules.size > 0
       ? result.findings.filter((f) => !ignoredRules.has(f.rule_id))
       : result.findings;
@@ -553,9 +789,34 @@ function main() {
     );
   }
 
-  writeJson(args.output, { ...result, findings });
+  const { filtered: fpFiltered, removedCount: fpRemovedCount } = filterFalsePositives(findings);
+  if (fpRemovedCount > 0) log.info(`Removed ${fpRemovedCount} confirmed false positive(s).`);
 
-  if (findings.length === 0) {
+  const { findings: dedupedFindings, deduplicatedCount } = deduplicateFindings(fpFiltered);
+  if (deduplicatedCount > 0) log.info(`Deduplicated ${deduplicatedCount} cross-page finding group(s).`);
+
+  const overallAssessment = computeOverallAssessment(dedupedFindings);
+  const passedCriteria = computePassedCriteria(payload.routes || [], WCAG_CRITERION_MAP);
+  const outOfScope = computeOutOfScope(payload.routes || []);
+  const recommendations = computeRecommendations(dedupedFindings);
+  const testingMethodology = computeTestingMethodology(payload);
+
+  writeJson(args.output, {
+    ...result,
+    findings: dedupedFindings,
+    metadata: {
+      ...result.metadata,
+      overallAssessment,
+      passedCriteria,
+      outOfScope,
+      recommendations,
+      testingMethodology,
+      fpFiltered: fpRemovedCount,
+      deduplicatedCount,
+    },
+  });
+
+  if (dedupedFindings.length === 0) {
     log.info("Congratulations, no issues found.");
   }
   log.success(`Findings processed and saved to ${args.output}`);

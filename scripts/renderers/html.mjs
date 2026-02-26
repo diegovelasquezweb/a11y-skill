@@ -101,15 +101,15 @@ export function buildIssueCard(finding) {
       severityBadge = "bg-rose-100 text-rose-800 border-rose-200";
       borderClass = "border-rose-200 hover:border-rose-300";
       break;
-    case "High":
+    case "Serious":
       severityBadge = "bg-orange-100 text-orange-800 border-orange-200";
       borderClass = "border-orange-200 hover:border-orange-300";
       break;
-    case "Medium":
+    case "Moderate":
       severityBadge = "bg-amber-100 text-amber-800 border-amber-200";
       borderClass = "border-amber-200 hover:border-amber-300";
       break;
-    case "Low":
+    case "Minor":
       severityBadge = "bg-emerald-100 text-emerald-700 border-emerald-200";
       borderClass = "border-emerald-200 hover:border-emerald-300";
       break;

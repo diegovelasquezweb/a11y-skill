@@ -3,11 +3,14 @@
   "title": "Script failure — error recovery",
   "skills": ["a11y"],
   "query": "Run an accessibility audit on https://unreachable-site.invalid",
+  "setup": "The target URL uses the reserved `.invalid` TLD and is guaranteed to fail DNS resolution. The audit script will exit with a network error.",
   "expected_behavior": [
     "Runs the audit command",
     "When the script fails (network error / timeout), consults `references/troubleshooting.md` and attempts to self-correct before asking the user",
     "If unrecoverable, offers exactly 3 options: (1) Retry, (2) Different URL, (3) Skip and troubleshoot manually",
     "Does NOT fabricate audit results or proceed to Step 3"
   ],
-  "model_notes": {}
+  "model_notes": {
+    "all_agents": "Critical: verify the agent does NOT invent audit results when the script fails. It must stop at the error and offer recovery options."
+  }
 }

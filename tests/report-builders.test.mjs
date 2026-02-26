@@ -69,7 +69,7 @@ describe("PDF Report Builder Components", () => {
 
   it("buildPdfRiskSection generates risk assessment HTML", () => {
     // 5 Critical issues = 75 penalty -> 25 score (< 35 is Severe)
-    const totals = { Critical: 5, High: 0, Medium: 0, Low: 0 };
+    const totals = { Critical: 5, Serious: 0, Moderate: 0, Minor: 0 };
     const html = buildPdfRiskSection(totals);
     expect(html).toContain("Severe Risk");
     expect(html).toContain("25");
@@ -78,13 +78,13 @@ describe("PDF Report Builder Components", () => {
   it("buildPdfRemediationRoadmap calculates effort hours", () => {
     const rawFindings = [
       { severity: "Critical" },
-      { severity: "High" },
-      { severity: "Medium" },
-      { severity: "Low" },
+      { severity: "Serious" },
+      { severity: "Moderate" },
+      { severity: "Minor" },
     ];
     const findings = normalizeFindings({ findings: rawFindings });
     const html = buildPdfRemediationRoadmap(findings);
-    // Weights: C:4, H:2, M:1, L:0.5 -> Total 7.5 hours -> Rounded to ~8 hours
+    // Weights: C:4, S:2, Mo:1, Mi:0.5 -> Total 7.5 hours -> Rounded to ~8 hours
     expect(html).toContain("~8 hours");
   });
 
@@ -106,7 +106,7 @@ describe("PDF Report Builder Components", () => {
     const findings = normalizeFindings({
       findings: [
         { id: "A11Y-001", title: "Missing alt", severity: "Critical", area: "/home" },
-        { id: "A11Y-002", title: "Low contrast", severity: "Medium", area: "/about" },
+        { id: "A11Y-002", title: "Low contrast", severity: "Moderate", area: "/about" },
       ],
     });
     const html = buildPdfIssueSummaryTable(findings);
@@ -114,7 +114,7 @@ describe("PDF Report Builder Components", () => {
     expect(html).toContain("Missing alt");
     expect(html).toContain("Low contrast");
     expect(html).toContain("Critical");
-    expect(html).toContain("Medium");
+    expect(html).toContain("Moderate");
   });
 
   it("buildPdfIssueSummaryTable handles empty findings", () => {

@@ -22,12 +22,21 @@ Each `.json` file is a self-contained test case. There is no built-in runner —
 
 ## Scenarios
 
+**Core workflow:**
 1.  **[01-basic-audit.json](01-basic-audit.json)**: Core audit and presentation.
 2.  **[02-fix-with-checkpoints.json](02-fix-with-checkpoints.json)**: Structured fix workflow.
 3.  **[03-user-declines-fixes.json](03-user-declines-fixes.json)**: Graceful stop & education.
-4.  **[04-auth-blocked-routes.json](04-auth-blocked-routes.json)**: Security & auth boundaries.
-5.  **[05-script-failure.json](05-script-failure.json)**: Error recovery.
-6.  **[06-style-fixes-separation.json](06-style-fixes-separation.json)**: Safe visual changes.
-7.  **[07-framework-detection.json](07-framework-detection.json)**: Platform-aware file search.
-8.  **[08-managed-components.json](08-managed-components.json)**: UI library protection.
-9.  **[10-gitignore-proactive.json](10-gitignore-proactive.json)**: Procedural hygiene.
+4.  **[06-style-fixes-separation.json](06-style-fixes-separation.json)**: Safe visual changes.
+5.  **[09-checklist-export.json](09-checklist-export.json)**: Manual testing checklist export.
+6.  **[10-save-path-options.json](10-save-path-options.json)**: Save path options and path reuse.
+
+**Edge cases & recovery:**
+7.  **[04-auth-blocked-routes.json](04-auth-blocked-routes.json)**: Security & auth boundaries.
+8.  **[05-script-failure.json](05-script-failure.json)**: Error recovery.
+
+**Framework & platform coverage:**
+9.  **[07-framework-detection.json](07-framework-detection.json)**: Platform-aware file search (Shopify).
+10. **[08-managed-components.json](08-managed-components.json)**: UI library protection (Radix UI).
+11. **[11-spa-dynamic-routes.json](11-spa-dynamic-routes.json)**: SPA with client-side routing (Next.js).
+12. **[12-i18n-multilingual.json](12-i18n-multilingual.json)**: Multilingual site with locale-prefixed routes.
+13. **[13-static-site.json](13-static-site.json)**: Plain HTML site — no framework, no JS.

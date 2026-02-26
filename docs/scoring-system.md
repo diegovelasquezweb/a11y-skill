@@ -21,9 +21,9 @@ flowchart LR
     Penalty{{" - penalties "}}
 
     C["Critical (-15)"]
-    H["High (-5)"]
-    M["Medium (-2)"]
-    L["Low (-0.5)"]
+    H["Serious (-5)"]
+    M["Moderate (-2)"]
+    L["Minor (-0.5)"]
 
     Base --> Penalty
     C & H & M & L -.-> Penalty
@@ -46,9 +46,9 @@ Each accessibility finding subtracts points from a perfect starting score of **1
 | Severity     | Penalty    | Description                                         |
 | :----------- | :--------- | :-------------------------------------------------- |
 | **Critical** | `-15 pts`  | Blockers that prevent users from completing a task. |
-| **High**     | `-5 pts`   | Significant barriers that impair the experience.    |
-| **Medium**   | `-2 pts`   | Noticeable barriers with available workarounds.     |
-| **Low**      | `-0.5 pts` | Best practices or minor inconsistencies.            |
+| **Serious**  | `-5 pts`   | Significant barriers that impair the experience.    |
+| **Moderate** | `-2 pts`   | Noticeable barriers with available workarounds.     |
+| **Minor**    | `-0.5 pts` | Best practices or minor inconsistencies.            |
 
 ## The Formula
 
@@ -59,7 +59,7 @@ Final Score = Max(0, 100 - Total_Penalties)
 ```
 
 > [!NOTE]
-> Low severity findings do reduce the score (-0.5 pts each). A site with 20 Low findings loses 10 points. Prioritize Critical and High issues first, but Low findings still accumulate debt.
+> Minor severity findings do reduce the score (-0.5 pts each). A site with 20 Minor findings loses 10 points. Prioritize Critical and Serious issues first, but Minor findings still accumulate debt.
 
 ## Grade Thresholds
 

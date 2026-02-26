@@ -68,6 +68,7 @@ export function normalizeFindings(payload) {
       severity: String(item.severity ?? "Unknown"),
       wcag: String(item.wcag ?? item.wcag_criterion_id ?? ""),
       wcagCriterionId: item.wcag_criterion_id ?? null,
+      wcagClassification: item.wcag_classification ?? null,
       area: String(item.area ?? ""),
       url: String(item.url ?? ""),
       selector: String(item.selector ?? ""),
@@ -101,6 +102,8 @@ export function normalizeFindings(payload) {
       managedByLibrary: item.managed_by_library ?? null,
       componentHint: item.component_hint ?? null,
       verificationCommand: item.verification_command ?? null,
+      pagesAffected: typeof item.pages_affected === "number" ? item.pages_affected : null,
+      affectedUrls: Array.isArray(item.affected_urls) ? item.affected_urls : null,
     }))
     .sort((a, b) => {
       const sa = SEVERITY_ORDER[a.severity] ?? 99;
@@ -116,7 +119,7 @@ export function normalizeFindings(payload) {
  * @returns {Object<string, number>} An object mapping severity labels to counts.
  */
 export function buildSummary(findings) {
-  const totals = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+  const totals = { Critical: 0, Serious: 0, Moderate: 0, Minor: 0 };
   for (const finding of findings) {
     if (finding.severity in totals) totals[finding.severity] += 1;
   }
@@ -133,9 +136,9 @@ export function computeComplianceScore(totals) {
   const raw =
     baseScore -
     totals.Critical * penalties.Critical -
-    totals.High * penalties.High -
-    totals.Medium * penalties.Medium -
-    totals.Low * penalties.Low;
+    totals.Serious * penalties.Serious -
+    totals.Moderate * penalties.Moderate -
+    totals.Minor * penalties.Minor;
   return Math.max(0, Math.min(100, Math.round(raw)));
 }
 

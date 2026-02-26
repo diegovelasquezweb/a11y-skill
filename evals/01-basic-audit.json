@@ -8,7 +8,7 @@
     "If user picks Sitemap, fetches `<URL>/sitemap.xml` and confirms page count before proceeding",
     "Runs `node scripts/audit.mjs --base-url https://example.com` without modification",
     "Parses `REMEDIATION_PATH` from script output and reads the remediation guide",
-    "Summarizes findings grouped by severity (Critical → High → Medium → Low)",
+    "Summarizes findings grouped by severity (Critical → Serious → Moderate → Minor)",
     "Groups findings by component or page area with explanations",
     "Presents findings inline in the conversation (not as file paths)",
     "Asks for permission before applying any fixes",

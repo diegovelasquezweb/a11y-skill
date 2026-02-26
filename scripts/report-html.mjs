@@ -167,7 +167,7 @@ function buildHtml(args, findings, metadata = {}) {
 
   const quickWins = findings
     .filter(
-      (f) => (f.severity === "Critical" || f.severity === "High") && f.fixCode,
+      (f) => (f.severity === "Critical" || f.severity === "Serious") && f.fixCode,
     )
     .slice(0, 3);
 
@@ -208,9 +208,9 @@ function buildHtml(args, findings, metadata = {}) {
       .issue-card { position: relative; transition: all 0.3s ease; }
       .issue-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 4px 0 0 4px; opacity: 0.8; }
       .issue-card[data-severity="Critical"]::before { background: #e11d48; }
-      .issue-card[data-severity="High"]::before { background: #f97316; }
-      .issue-card[data-severity="Medium"]::before { background: #f59e0b; }
-      .issue-card[data-severity="Low"]::before { background: #10b981; }
+      .issue-card[data-severity="Serious"]::before { background: #f97316; }
+      .issue-card[data-severity="Moderate"]::before { background: #f59e0b; }
+      .issue-card[data-severity="Minor"]::before { background: #10b981; }
 
       .score-gauge { transform: rotate(-90deg); }
       .score-gauge-bg { fill: none; stroke: var(--slate-100); stroke-width: 3; }

@@ -16,9 +16,11 @@ Load these files on demand — never preload all at once.
 
 | Resource                          | Load when                                     | Path                                                             |
 | --------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
-| Report & evidence standards       | Step 3 — presenting findings                  | [references/report-standards.md](references/report-standards.md) |
+| Report & evidence standards       | Step 3 — presenting findings · Step 6 item 1 — console summary | [references/report-standards.md](references/report-standards.md) |
+| Fix patterns by WCAG criterion    | Step 4 — proposing and applying fixes         | [references/fix-patterns.md](references/fix-patterns.md)         |
 | Source file patterns by framework | Step 4a — locating files to fix               | [references/source-patterns.md](references/source-patterns.md)   |
 | CLI flags reference               | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md)       |
+| Quality gates                     | Any phase boundary — verifying gate pass/fail | [references/quality-gates.md](references/quality-gates.md)       |
 | Troubleshooting                   | Any script failure                            | [references/troubleshooting.md](references/troubleshooting.md)   |
 
 ## Constraints
@@ -30,10 +32,10 @@ These rules apply at all times, independent of any workflow step.
 - Visual reports (HTML/PDF) are only created in Step 6, after the user explicitly requests them. Never generate reports in any other step.
 - Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
 - Never declare "100% accessible" based on a targeted audit. Only a comprehensive full-site verification can confirm that.
-- Never modify the user's `.gitignore` without asking first.
 - Treat scripts as black boxes: run with `--help` to discover flags. Do not read script source — it consumes context budget for no benefit.
 - If `pnpm` is not available, use `npm` as fallback.
 - Never add, remove, or modify CLI flags (`--exclude-selectors`, `--timeout-ms`, `--wait-ms`, etc.) without the user explicitly requesting it.
+- Only modify frontend files (components, templates, stylesheets). Never propose fixes to server configuration, infrastructure, or backend files (e.g., `wp-config.php`, `.env`, `nginx.conf`). If the root cause of a finding lies outside the frontend, report it to the user without proposing a fix.
 
 ## Communication Rules
 
@@ -42,6 +44,7 @@ These rules apply at all times, independent of any workflow step.
 3. **Internal steps** — never expose internal step labels, phase codes, or workflow reasoning to the user. This includes codes like "4b", phase names like "Step 4c" or "Source Code Pattern Audit", and internal logic like "not re-offering" or "user declined in 4b". Always describe outcomes in plain language only.
 4. **Recovery** — if the user types `continue`, `resume`, or `where are we`, read the conversation history to determine the current state and resume from the next pending action. If the state cannot be determined, briefly summarize what was completed and ask where to continue from.
 5. **Message tags** — this playbook uses two tags to mark formatted messages. When you reach a tagged block, present it as a **standalone message** — never merge with informational lists, findings, summaries, or other content.
+6. **Data-first** — if the user's message already contains the answer to a pending question (URL scheme, discovery method, page count, save path, etc.), skip that question and proceed directly. Never ask for information already provided in the current turn.
    - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options. **Send one `[QUESTION]` per message. Never present two questions at once. Always wait for the user's answer before showing the next question.** Format: always output the question text on its own line, followed by each option as a numbered item on its own line — never inline, never collapsed to "Yes/No". Example output:
      ```
      How many pages should I crawl?
@@ -120,7 +123,9 @@ node scripts/audit.mjs --base-url <URL> --max-routes <N>
 
 For local projects with framework auto-detection, add `--project-dir <path>`. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
 
-After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user. Proceed to Step 3.
+After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user.
+
+Proceed to Step 3.
 
 If the script fails, consult [references/troubleshooting.md](references/troubleshooting.md) to self-correct before asking the user. If unrecoverable, offer: (1) Retry, (2) Different URL, (3) Skip and troubleshoot manually. After resolving, proceed to Step 3.
 
@@ -128,9 +133,25 @@ If the script fails, consult [references/troubleshooting.md](references/troubles
 
 Load [references/report-standards.md](references/report-standards.md) for finding field requirements and deliverable format.
 
-Read the remediation guide and:
+Read the remediation guide. The audit pipeline has already handled deduplication, false positive filtering, and computed the Overall Assessment — read these directly from the report.
 
-1. Summarize by severity (Critical → High → Medium → Low).
+Apply your own judgment using this decision tree to override severity when the automated classification is inaccurate:
+
+```
+Can the user complete the task?
+├── No → Is there a workaround?
+│        ├── No → CRITICAL
+│        └── Yes, but difficult → SERIOUS
+└── Yes → Is the experience degraded?
+          ├── Significantly → MODERATE
+          └── Slightly → MINOR
+```
+
+Apply consistently — same issue type = same severity across all findings.
+
+Then summarize and present:
+
+1. State the **Overall Assessment** from the report header. Follow with a count by severity (Critical → Serious → Moderate → Minor).
 2. Propose specific fixes from the remediation guide.
 3. Group by component or page area, explaining why each fix matters.
 4. Ask how to proceed:
@@ -143,30 +164,30 @@ Read the remediation guide and:
 
 Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes**: present the following message, then skip to Step 6.
+If the user chooses **Skip fixes**: present the following message, then proceed to Step 6 immediately — execute all Step 6 items in order (summary → passed criteria → out of scope → reports question → manual checklist message → closing message → final question).
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
-**0 issues found** → skip to Step 6. Note: automated tools cannot catch every barrier; recommend manual checks.
+**0 issues found** → proceed to Step 6 immediately — execute all Step 6 items in order (summary → passed criteria → out of scope → reports question → manual checklist message → closing message → final question). Note: automated tools cannot catch every barrier; recommend manual checks.
 
 ### Step 4 — Fix
 
 Work through each phase in order: **4a → 4b → 4c**. All three phases must run — never skip a phase because the user declined fixes in a previous one. If the user chose **Other criteria** in Step 3, follow their specified prioritization instead of the default severity order throughout this step.
 
-#### 4a. Structural fixes (Critical → High → Medium → Low)
+#### 4a. Structural fixes (Critical → Serious → Moderate → Minor)
 
 Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM order, lang, heading hierarchy).
 
-> **Scope boundary**: 4a covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in 4b — regardless of their axe severity level. If a Critical or High finding involves a color or visual property, set it aside for 4b. Do not apply it here.
+> **Scope boundary**: 4a covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in 4b — regardless of their axe severity level. If a Critical or Serious finding involves a color or visual property, set it aside for 4b. Do not apply it here.
 
 If there are no structural findings to fix, skip directly to 4b.
 
-Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework.
+Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework. Load [references/fix-patterns.md](references/fix-patterns.md) to look up the correct fix pattern for each `rule_id`.
 
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
-Present one severity group at a time (Critical → High → Medium → Low) — list the findings and proposed changes, then ask:
+Present one severity group at a time (Critical → Serious → Moderate → Minor) — list the findings and proposed changes, then ask:
 
 `[QUESTION]` **Apply these [severity] fixes?**
 
@@ -192,7 +213,7 @@ If **Looks good** or **Back**: proceed to the next severity group, or to 4b if t
 
 > **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
-If there are no style findings (no color-contrast, font-size, or spacing violations), skip directly to 4c.
+If there are no style-dependent findings (color-contrast, font-size, or spacing), skip directly to 4c.
 
 Show all style changes upfront: property, current value → proposed value, contrast ratio change (for color). Then ask:
 
@@ -271,16 +292,16 @@ After the script completes, immediately parse ALL findings in the same turn — 
 
      `[MESSAGE]` The verification re-audit found new issues that were not present in the initial scan. This is expected and not a regression — axe-core stops evaluating child elements when a parent has a critical violation. Once that parent is fixed, the children get evaluated for the first time and may surface their own issues. Here are the new findings:
 
-  2. Present all findings using the same format as Step 3 (grouped by severity).
+  2. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. Then present all findings grouped by severity (same format as Step 3).
   3. **Always ask immediately after presenting findings** — never stop or pause here, even if all remaining issues were previously declined:
 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
 
      1. **Keep fixing** — address the remaining issues
-     2. **Move on** — accept the remaining issues and continue to Step 6
+     2. **Move on** — accept the remaining issues and proceed to the final summary
 
   4. If **Keep fixing**: fix following Step 4 procedures (4a for structural, 4b approval gate for style), then run the re-audit again. Go back to step 1 of this sequence.
-  5. If **Move on**: proceed to Step 6 immediately. Do not stop — execute all Step 6 items in order (summary → reports question → manual checklist message → closing message → final question).
+  5. If **Move on**: proceed to Step 6 immediately. Do not stop — execute all Step 6 items in order (summary → passed criteria → out of scope → reports question → manual checklist message → closing message → final question).
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 
@@ -288,18 +309,20 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 ### Step 6 — Deliver results
 
-**All items in this step are mandatory and must execute in order (1 → 9). Never stop after the summary — complete the full step.**
+**All items in this step are mandatory and must execute in order (1 → 10). Never stop after the summary — complete the full step.**
 
-1. **Summarize**: total found, resolved, files modified, remaining (if any).
+1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**, filling in values from the remediation guide. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`.
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
-3. Ask about reports. Wait for the answer before continuing:
+3. **Passed Criteria**: present the "Passed Criteria" section from the remediation guide as-is. Note it reflects automated coverage only.
+4. **Out of Scope**: present the "Out of Scope" section from the remediation guide as-is.
+5. Ask about reports. Wait for the answer before continuing:
 
 `[QUESTION]` **Would you like a visual report?**
 
 1. **Yes**
 2. **No thanks**
 
-If **No thanks**: skip to step 7.
+If **No thanks**: skip to item 8.
 
    If **Yes**, wait for that answer, then ask which format in a new message:
 
@@ -310,26 +333,16 @@ If **No thanks**: skip to step 7.
    3. **Both**
    4. **Back** — change your report preference
 
-4. If reports requested, wait for the format answer above, then ask save location. Skip this question if a path was already set earlier in this session (Step 3) — reuse that path silently:
+6. If reports requested, wait for the format answer above, then ask save location. Skip this question if a path was already set earlier in this session (Step 3) — reuse that path silently:
 
 `[QUESTION]` **Where should I save the reports?**
 
 1. **Desktop** — `~/Desktop/`
-2. **Project audit folder** — `./audit/`
+2. **Documents** — `~/Documents/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
 
-5. After the save location is confirmed, ask about `.gitignore` **only if the chosen path is inside the project** (e.g., `./audit/` or any relative path) **and this question was not already asked in Step 3**. If the user chose Desktop or any path outside the project root, skip this question entirely. Ask once per session — skip if already asked:
-
-`[QUESTION]` **Should I add the reports folder to `.gitignore`?**
-
-1. **Yes** — ignore generated reports
-2. **No** — keep reports tracked
-3. **Back** — change the save location
-
-If **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message, then proceed to item 6 below (generate the reports). If **No**: proceed to item 6 below (generate the reports).
-
-6. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
+7. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
 
    ```bash
    # HTML (run if HTML or Both was selected)
@@ -341,7 +354,7 @@ If **Yes**: immediately append the reports folder path to `.gitignore` (create t
 
    After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
 
-7. **MANDATORY** — output the following message verbatim before finishing:
+8. **MANDATORY** — output the following message verbatim before finishing:
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
@@ -358,12 +371,12 @@ Then ask:
 1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
 2. **No thanks**
 
-If **Yes**: use the output path already set earlier in this session (Step 3 or Step 6). If no path was set yet, ask:
+If **Yes**: if a save path was already established in item 6 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 5), ask:
 
 `[QUESTION]` **Where should I save the checklist?**
 
 1. **Desktop** — `~/Desktop/`
-2. **Project audit folder** — `./audit/`
+2. **Documents** — `~/Documents/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — go back to the checklist export question
 
@@ -375,11 +388,13 @@ node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL
 
 Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
 
-8. **MANDATORY** — output the following closing message verbatim. Do not skip it:
+9. **MANDATORY** — output the following closing message verbatim. Do not skip it:
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 
-9. After the closing message, ask:
+10. After the closing message:
+    - If the user declined **both** reports (item 5) and checklist (item 8): the workflow is complete — do not ask a follow-up question.
+    - Otherwise, ask:
 
 `[QUESTION]` **Is there anything else I can help you with?**
 
