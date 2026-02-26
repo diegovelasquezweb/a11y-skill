@@ -9,11 +9,11 @@ This skill transforms accessibility audits into actionable fix roadmaps. It runs
 | Capability             | With a11y                                                                          | Without                                                                        |
 | :--------------------- | :--------------------------------------------------------------------------------- | :----------------------------------------------------------------------------- |
 | **Remediation IQ**     | ✅ Surgical fix blueprints with exact selectors, ready-to-apply code fixes, and an automated re-audit loop | ❌ Manual hunting through code with no fix guidance or verification loop        |
-| **WCAG 2.2 AA Coverage** | ✅ Full 3-layer coverage: runtime DOM scan, grep-based source code audit, and manual verification checklist | ❌ Partial automated scans miss violations that only exist in source code |
+| **WCAG 2.2 AA Coverage** | ✅ Full multi-layer coverage: runtime DOM scan, grep-based source code audit, and manual verification checklist | ❌ Partial automated scans miss violations that only exist in source code |
 | **Stack Awareness**    | ✅ Guardrails and fix patterns tailored to major frameworks, CMSs, and UI libraries | ❌ Generic DOM feedback with no awareness of your stack or components          |
 | **Workflow**           | ✅ Guided, repeatable audit process with the same checkpoints and decisions on every run | ❌ Ad-hoc conversations with inconsistent flow and unpredictable results  |
 | **Token Economy**      | ✅ Audit runs outside the AI context so the agent reads only a structured fix roadmap | ❌ Entire page HTML fed into context on every scan                           |
-| **Scale & Speed**      | ✅ Automatic route discovery via sitemap + 3 concurrent tabs                       | ❌ Manual one-page scans with no route discovery                               |
+| **Scale & Speed**      | ✅ Automatic route discovery via sitemap and concurrent parallel tabs              | ❌ Manual one-page scans with no route discovery                               |
 
 ## Installation
 
@@ -50,12 +50,12 @@ The agent guides the rest of the session, running the audit, presenting findings
 
 ## Headless Audit
 
-Run the audit engine directly — no AI agent required. Ideal for CI/CD pipelines, pre-commit hooks, and rapid local validation without consuming AI tokens.
+Run the audit engine directly without an AI agent. Ideal for CI/CD pipelines, pre-commit hooks, and rapid local validation without consuming AI tokens.
 
 Execute the audit script directly from the skill directory. For the full technical reference of supported options, see the [CLI Handbook](docs/cli-handbook.md).
 
 ```bash
-pnpm a11y --base-url https://mysite.com --only-rule color-contrast
+pnpm a11y --base-url https://mysite.com
 ```
 
 ## Deliverables
