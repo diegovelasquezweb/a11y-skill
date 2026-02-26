@@ -253,12 +253,10 @@ This step is **mandatory** — always run it after fixes, no exceptions. Do not 
 
 **Never generate reports in this step.** Reports are exclusively handled in Step 6. Do not offer to generate reports here, even if issues are resolved.
 
-Output the following message, then **in the same turn without pausing** run the script:
-
-`[MESSAGE]` Running a verification re-audit to make sure all fixes are clean and no new issues were introduced.
+Inform the user that a verification re-audit is running, then immediately run the script without waiting for a response:
 
 ```bash
-# Run immediately after the message above — same flags as Step 2
+# Same flags as Step 2
 node scripts/audit.mjs --base-url <URL> [--max-routes <N>]
 ```
 
@@ -316,8 +314,8 @@ If **No thanks**: skip to step 7.
 
 `[QUESTION]` **Where should I save the reports?**
 
-1. **Project audit folder** — `./audit/`
-2. **Desktop** — `~/Desktop/`
+1. **Desktop** — `~/Desktop/`
+2. **Project audit folder** — `./audit/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
 
@@ -341,7 +339,7 @@ If **Yes**: immediately append the reports folder path to `.gitignore` (create t
    node scripts/report-pdf.mjs --output <path>/report.pdf --base-url <URL>
    ```
 
-   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present.
+   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
 
 7. **MANDATORY** — output the following message verbatim before finishing:
 
@@ -364,8 +362,8 @@ If **Yes**: use the output path already set earlier in this session (Step 3 or S
 
 `[QUESTION]` **Where should I save the checklist?**
 
-1. **Project audit folder** — `./audit/`
-2. **Desktop** — `~/Desktop/`
+1. **Desktop** — `~/Desktop/`
+2. **Project audit folder** — `./audit/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — go back to the checklist export question
 
