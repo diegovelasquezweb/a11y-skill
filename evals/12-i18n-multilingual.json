@@ -1,0 +1,19 @@
+{
+  "id": "12-i18n-multilingual",
+  "title": "Multilingual site — i18n route handling",
+  "skills": ["a11y"],
+  "query": "Audit https://example.com for accessibility — the site has English and Spanish versions",
+  "setup": "Site has locale-prefixed routes: /en/, /es/. The <html> element correctly uses lang='en' on English pages and lang='es' on Spanish pages. One page at /es/contacto is missing the lang attribute entirely.",
+  "expected_behavior": [
+    "Discovers and scans both /en/ and /es/ route trees",
+    "Does NOT skip locale-prefixed routes",
+    "Correctly identifies the missing lang attribute on /es/contacto as a finding (3.1.1 Language of Page)",
+    "Does NOT flag correct lang='en' / lang='es' attributes as violations",
+    "Groups findings by route, not by language",
+    "If the same component issue appears in both /en/ and /es/ variants, deduplicates to one finding with pages_affected: 2",
+    "Reports Overall Assessment based on findings across all locale variants combined"
+  ],
+  "model_notes": {
+    "all_agents": "Watch for false positives on lang attributes: only flag pages where lang is absent or wrong, not pages with valid locale codes."
+  }
+}

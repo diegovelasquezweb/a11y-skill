@@ -1,0 +1,19 @@
+{
+  "id": "13-static-site",
+  "title": "Static HTML site — no JS framework",
+  "skills": ["a11y"],
+  "query": "Audit https://example.com — it's a plain HTML site with no JavaScript framework",
+  "setup": "Site is plain HTML + CSS. No React, Vue, or any JS framework. Files are .html with inline styles. Audit finds: 3 images missing alt text, 1 form with no labels, color contrast failure on the footer. No package.json exists.",
+  "expected_behavior": [
+    "Completes the audit without requiring framework detection or package.json",
+    "Does NOT assume a JS framework is present — framework_detected should be null or 'unknown'",
+    "Uses generic HTML fix patterns from references/fix-patterns.md, not React or framework-specific patterns",
+    "Correctly proposes inline HTML fixes (adding alt attributes, label elements) not JSX or component syntax",
+    "Loads references/source-patterns.md and correctly identifies .html files as the target for fixes",
+    "Does NOT search for .tsx, .vue, or .liquid files when framework is undetected",
+    "Reports all 3 findings (missing alt, missing labels, color contrast) correctly"
+  ],
+  "model_notes": {
+    "all_agents": "Verify the agent falls back gracefully to generic HTML patterns when no framework is detected. It must not hallucinate a framework or apply JSX syntax to plain HTML files."
+  }
+}

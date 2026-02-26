@@ -1,0 +1,19 @@
+{
+  "id": "11-spa-dynamic-routes",
+  "title": "SPA with client-side routing — dynamic route discovery",
+  "skills": ["a11y"],
+  "query": "Audit my React app at http://localhost:3000 for accessibility",
+  "setup": "Target is a Next.js SPA. Pages are rendered client-side via React Router. The sitemap.xml does not exist. The homepage links to /products, /about, /contact, and /checkout via client-side <Link> components.",
+  "expected_behavior": [
+    "When sitemap is not found, falls back to Crawler automatically and informs the user",
+    "Uses Playwright to crawl client-side navigations — does NOT only scan static HTML links",
+    "Detects Next.js framework via DOM signals or package.json and loads framework-specific guidance",
+    "Discovers at least /products, /about, /contact pages via client-side navigation",
+    "Does NOT treat all SPA routes as a single page audit",
+    "Reports findings per route, not aggregated across the full SPA as one finding",
+    "Deduplicates cross-page findings (same component appearing on multiple routes counted once)"
+  ],
+  "model_notes": {
+    "all_agents": "Critical: SPA discovery requires Playwright JS execution — verify the agent does not fall back to static HTML parsing for link discovery."
+  }
+}

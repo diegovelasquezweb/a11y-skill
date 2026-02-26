@@ -20,6 +20,7 @@ Load these files on demand — never preload all at once.
 | Fix patterns by WCAG criterion    | Step 4 — proposing and applying fixes         | [references/fix-patterns.md](references/fix-patterns.md)         |
 | Source file patterns by framework | Step 4a — locating files to fix               | [references/source-patterns.md](references/source-patterns.md)   |
 | CLI flags reference               | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md)       |
+| Quality gates                     | Any phase boundary — verifying gate pass/fail | [references/quality-gates.md](references/quality-gates.md)       |
 | Troubleshooting                   | Any script failure                            | [references/troubleshooting.md](references/troubleshooting.md)   |
 
 ## Constraints
@@ -35,7 +36,7 @@ These rules apply at all times, independent of any workflow step.
 - Treat scripts as black boxes: run with `--help` to discover flags. Do not read script source — it consumes context budget for no benefit.
 - If `pnpm` is not available, use `npm` as fallback.
 - Never add, remove, or modify CLI flags (`--exclude-selectors`, `--timeout-ms`, `--wait-ms`, etc.) without the user explicitly requesting it.
-- Only modify frontend files (components, templates, stylesheets). Never propose fixes to server configuration, infrastructure, or backend files (e.g., `wp-config.php`, `.env`, `nginx.conf`). If the root cause of a violation lies outside the frontend, report it to the user without proposing a fix.
+- Only modify frontend files (components, templates, stylesheets). Never propose fixes to server configuration, infrastructure, or backend files (e.g., `wp-config.php`, `.env`, `nginx.conf`). If the root cause of a finding lies outside the frontend, report it to the user without proposing a fix.
 
 ## Communication Rules
 
@@ -212,7 +213,7 @@ If **Looks good** or **Back**: proceed to the next severity group, or to 4b if t
 
 > **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
-If there are no style findings (no color-contrast, font-size, or spacing violations), skip directly to 4c.
+If there are no style-dependent findings (color-contrast, font-size, or spacing), skip directly to 4c.
 
 Show all style changes upfront: property, current value → proposed value, contrast ratio change (for color). Then ask:
 
