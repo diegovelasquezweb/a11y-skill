@@ -188,7 +188,7 @@ If the chosen path is inside the project, ask (first time only):
 
 If **Yes**: append the path to `.gitignore` (create if missing), confirm, then generate. If **No**: generate directly.
 
-Generate and **open each file**. After the reports are open, proceed directly to Step 4 — do not ask for confirmation again. The user already committed to fixing when they chose this option.
+Generate each file. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If the command fails or the file does not open, share the absolute path so the user can open it manually. After attempting to open all files, proceed directly to Step 4 — do not ask for confirmation again. The user already committed to fixing when they chose this option.
 
 If the user chooses **Skip fixes**: present the following message, then skip to Step 6.
 
@@ -420,7 +420,7 @@ Then:
 node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
 ```
 
-Verify the file exists on disk, then open it.
+Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
 
 8. **MANDATORY** — output the following closing message verbatim. Do not skip it:
 
