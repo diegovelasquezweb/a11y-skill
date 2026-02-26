@@ -22,9 +22,9 @@ Mandatory pass/fail checks at each phase boundary. If a gate fails, stop and res
 
 - [ ] Every finding has: `rule_id`, `severity`, and either a `wcag_criterion_id` or a `wcag_classification` label (Best Practice / AAA)
 - [ ] Overall Assessment (`Pass` / `Conditional Pass` / `Fail`) is present in the report header
-- [ ] Finding count matches severity breakdown (Critical + Serious + Moderate + Minor = total WCAG findings)
+- [ ] Severity counts sum to total: `critical + serious + moderate + minor == total_wcag_findings` (WCAG AA-level only — excludes Best Practice and AAA findings) — if the sum does not match, flag the discrepancy explicitly before presenting
 
-**Fail action**: present findings as-is, note any missing fields explicitly. Never fabricate `rule_id`, WCAG criterion, or severity.
+**Fail action**: present findings as-is, note any missing fields or count mismatches explicitly. Never fabricate `rule_id`, WCAG criterion, or severity.
 
 ## Gate 4 — Fix integrity (after each 4a / 4b / 4c batch)
 
@@ -38,7 +38,11 @@ Mandatory pass/fail checks at each phase boundary. If a gate fails, stop and res
 
 - [ ] Count total findings before fixes (`N_before`) from the Step 3 report
 - [ ] Count total findings after re-audit (`N_after`) from the Step 5 report
-- [ ] Present delta explicitly: **"X of Y findings resolved. Z remaining."**
-- [ ] If `N_after > N_before`: new regressions detected → output the `[MESSAGE]` about child element evaluation before listing new findings
+- [ ] Compute the three delta values:
+  - `resolved` = findings present in N_before but gone in N_after
+  - `remaining` = findings present in both N_before and N_after
+  - `new` = findings in N_after not seen in N_before (regressions)
+- [ ] Present delta using this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero
+- [ ] If `new > 0`: output the `[MESSAGE]` about child element evaluation before listing new findings
 
-**Fail action**: never present re-audit results without the resolved/remaining delta. If the delta cannot be computed, state the counts separately.
+**Fail action**: never present re-audit results without the full three-part delta. If delta cannot be computed, state N_before and N_after counts separately and explain why comparison failed.

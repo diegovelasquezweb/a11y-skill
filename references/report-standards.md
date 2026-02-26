@@ -27,6 +27,44 @@ When a finding is deduplicated across multiple routes, two additional fields are
 These fields are set automatically by the analyzer pipeline. Present them in the finding detail when `pages_affected > 1`:
 > ℹ️ Found on `{pages_affected}` pages — same pattern detected across: `{affected_urls}`
 
+## Finding Template
+
+Present each finding using this exact field order. Do not omit or reorder fields.
+
+```
+### [A11Y-xxxxxx] <short title>
+
+- **Severity**: Critical | Serious | Moderate | Minor
+- **WCAG**: <criterion ID> — <criterion name> (Level A | AA)
+- **Route**: <path>
+- **Selector**: <CSS selector or component name>
+- **Impact**: <one sentence — which users are affected and how>
+- **Reproduction**: <numbered steps>
+- **Actual**: <what happens>
+- **Expected**: <what should happen>
+- **Fix**: <specific code change or action required>
+- **Retest**: <pass condition — what to verify after the fix>
+- **Proof**: <DOM snippet, tool output, or screenshot reference>
+```
+
+**Example:**
+
+```
+### [A11Y-4f2a1b] Image missing alternative text
+
+- **Severity**: Serious
+- **WCAG**: 1.1.1 — Non-text Content (Level A)
+- **Route**: /products
+- **Selector**: img.hero-image
+- **Impact**: Screen reader users receive no information about the image content.
+- **Reproduction**: 1. Navigate to /products. 2. Inspect the hero image with a screen reader.
+- **Actual**: Image announced as "image" with no description.
+- **Expected**: Image announced with a meaningful description of its content.
+- **Fix**: Add `alt="<descriptive text>"` to `<img class="hero-image">`.
+- **Retest**: Screen reader announces the alt text; axe-core `image-alt` rule passes.
+- **Proof**: `<img src="/hero.jpg" class="hero-image">` — alt attribute absent.
+```
+
 ## Deliverable Order
 
 Always return results in this exact order:
