@@ -290,6 +290,13 @@ export function buildManualCheckCard(check) {
     ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-violet-50 text-violet-700 border border-violet-200">Assistive Technology</span>`
     : `<span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">WCAG ${escapeHtml(check.level)}</span>`;
 
+  const conditionalNote = check.conditional
+    ? `<div class="mb-5 flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+        <svg class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <p class="text-[12px] text-amber-800 font-medium leading-relaxed">${escapeHtml(check.conditional)}</p>
+      </div>`
+    : "";
+
   const codeExampleHtml = check.code_example
     ? `<div class="border-t border-slate-100 mt-2 pt-6">
         <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Before / After</h4>
@@ -338,6 +345,8 @@ export function buildManualCheckCard(check) {
   <div class="card-body grid transition-all duration-300 ease-in-out" style="grid-template-rows: 0fr;" id="${id}-body">
   <div class="overflow-hidden">
   <div class="p-6 md:p-8 bg-slate-50/30 border-t border-amber-100/60">
+
+    ${conditionalNote}
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <div class="bg-white rounded-xl border border-slate-200/60 shadow-sm p-5">

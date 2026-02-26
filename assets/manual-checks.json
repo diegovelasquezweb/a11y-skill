@@ -872,5 +872,63 @@
       "after": "<!-- Step 1: trigger -->\n<button type=\"button\" onclick=\"showConfirmDialog()\">Delete Account</button>\n\n<!-- Step 2: confirmation dialog -->\n<dialog id=\"confirm-delete\">\n  <p>Are you sure? This action cannot be undone.</p>\n  <button type=\"button\" onclick=\"closeDialog()\">Cancel</button>\n  <button type=\"button\" onclick=\"deleteAccount()\">Confirm Delete</button>\n</dialog>"
     },
     "ref": "https://www.w3.org/WAI/WCAG22/Understanding/error-prevention-legal-financial-data.html"
+  },
+  {
+    "criterion": "1.2.4",
+    "title": "Captions (Live)",
+    "level": "AA",
+    "conditional": "Only applies if the site streams live audio or video content (e.g., webinars, live events, broadcasts). Mark as N/A if no live media is present.",
+    "description": "Live audio in synchronized media must have real-time captions that are accurate and synchronized with the audio.",
+    "steps": [
+      "Identify any live video or audio streams on the site.",
+      "Play the live stream and verify that real-time captions are visible or easily activatable.",
+      "Verify captions are reasonably accurate and stay synchronized with the speaker."
+    ],
+    "remediation": [
+      "Use a live captioning service (e.g., Google Live Captions, StreamText, or a professional CART provider) integrated with the streaming platform.",
+      "If using an embedded player (YouTube Live, Vimeo, etc.), enable the platform's built-in live caption feature."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/captions-live.html"
+  },
+  {
+    "criterion": "1.4.2",
+    "title": "Audio Control",
+    "level": "A",
+    "conditional": "Only applies if the site plays audio automatically for more than 3 seconds. Mark as N/A if no auto-playing audio is present.",
+    "description": "If audio plays automatically for more than 3 seconds, the user must be able to pause or stop it, or control its volume independently from the system volume.",
+    "steps": [
+      "Load each page and note any audio that plays automatically.",
+      "If audio auto-plays for more than 3 seconds, verify a pause/stop control is visible at the top of the page or immediately reachable via keyboard.",
+      "Verify a volume control (if present) operates independently from the system volume."
+    ],
+    "remediation": [
+      "Set `autoplay` to false by default on all `<audio>` and `<video>` elements.",
+      "If auto-play is required, add `muted` and provide a visible unmute control.",
+      "Add a prominent pause/stop button visible in the page header or near the audio source."
+    ],
+    "code_example": {
+      "lang": "html",
+      "before": "<!-- BEFORE — audio auto-plays with no user control -->\n<audio autoplay src=\"background.mp3\"></audio>",
+      "after": "<!-- AFTER — muted by default with native controls -->\n<audio autoplay muted controls src=\"background.mp3\">\n  Your browser does not support the audio element.\n</audio>"
+    },
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/audio-control.html"
+  },
+  {
+    "criterion": "2.5.4",
+    "title": "Motion Actuation",
+    "level": "A",
+    "conditional": "Only applies if the site uses device motion (shake, tilt, gyroscope) to trigger actions. Mark as N/A if no motion-based interactions are present.",
+    "description": "Functionality triggered by device motion must have a UI control alternative, and motion actuation must be disableable to prevent accidental triggering.",
+    "steps": [
+      "Identify any features that respond to device motion (shake, tilt, gyroscope gestures).",
+      "Test on a physical device: verify the same action can be performed via a visible UI control.",
+      "Verify there is a setting or toggle to disable motion-activated functions."
+    ],
+    "remediation": [
+      "Add a UI button or toggle that replicates any motion-triggered action.",
+      "Provide a setting to disable motion actuation entirely.",
+      "Check the `prefers-reduced-motion` media query and disable motion features when it is set."
+    ],
+    "ref": "https://www.w3.org/WAI/WCAG22/Understanding/motion-actuation.html"
   }
 ]
