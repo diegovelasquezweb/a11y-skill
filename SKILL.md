@@ -81,43 +81,36 @@ Normalize input before passing to `--base-url`:
 - `mysite.com` → `https://mysite.com`
 - Full URLs → use as-is.
 
-Once the URL is confirmed, ask the discovery method:
+Once the URL is confirmed, silently fetch `<URL>/sitemap.xml`:
 
-`[QUESTION]` **How should I discover the pages to audit?**
+- **Found** — inform the user ("Found a sitemap with N pages — using it for the audit") and proceed to Step 2. No question needed.
+- **Not found** — proceed silently to the scope question below. Do not mention the sitemap attempt.
 
-1. **Crawler** — let the scanner discover pages automatically from the homepage
-2. **Sitemap** — read your `sitemap.xml` and scan every listed page
-
-If the user chooses **Sitemap**: fetch `<URL>/sitemap.xml`. If found, confirm page count and proceed to Step 2. If not found, inform the user and fall back to the Crawler question below.
-
-If the user chooses **Crawler**: wait for that answer, then ask the scan scope in a new message:
+If the user mentions "sitemap" at any point, use it directly (Data-first rule) — skip the scope question.
 
 `[QUESTION]` **How many pages should I crawl?**
 
 1. **10 pages** — covers main page types, fast
 2. **All reachable pages** — comprehensive, may take several minutes on large sites
 3. **Custom** — tell me the exact number
-4. **Back** — choose a different discovery method
 
-If **Custom**: ask in plain text — "How many pages?" — and wait for a number. Do not show a new `[QUESTION]` with options. Store the number and proceed to Step 2.
-
-Store the user's choice. Proceed to Step 2.
+If **Custom**: ask in plain text — "How many pages?" — and wait for a number. Store the number and proceed to Step 2.
 
 ### Step 2 — Run the audit
 
 Run the audit with the discovery settings from Step 1:
 
 ```bash
-# Sitemap mode
+# Sitemap detected or user mentioned sitemap
 node scripts/audit.mjs --base-url <URL>
 
-# Crawler — 10 pages (option 1, omit flag to use default)
+# Crawler — 10 pages (default, omit flag)
 node scripts/audit.mjs --base-url <URL>
 
-# Crawler — all reachable pages (option 2)
+# Crawler — all reachable pages
 node scripts/audit.mjs --base-url <URL> --max-routes 999
 
-# Crawler — custom count (option 3)
+# Crawler — custom count
 node scripts/audit.mjs --base-url <URL> --max-routes <N>
 ```
 
@@ -205,9 +198,8 @@ If **Yes** or after **Let me pick** completes: list the files and changes made, 
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
-3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or **Back**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
+If **Looks good**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
@@ -223,7 +215,7 @@ Show all style changes upfront: property, current value → proposed value, cont
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip style fixes
 
-If **No**: proceed to 4c immediately. Never skip to Step 5 — 4c always runs regardless of what happened in 4b.
+If **No**: proceed to 4c immediately — do not output any message here. 4c always runs regardless of what happened in 4b. Never skip to Step 5 from 4b.
 
 If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these style changes?** prompt. Otherwise apply the selected changes, list files and exact values modified, then ask the verification question below.
 
@@ -233,40 +225,67 @@ If **Yes** or after **Let me pick** completes: list the files and exact values m
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
-3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or **Back**: proceed to 4c. If **Something's wrong**: apply corrections, then proceed to 4c.
+If **Looks good**: proceed to 4c. If **Something's wrong**: apply corrections, then proceed to 4c.
 
 #### 4c. Source code patterns
 
 Process the "🔍 Source Code Pattern Audit" section from the remediation guide. Each entry has a `detection.search` regex and `detection.files` glob — use these to grep the project source:
 
 1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
-2. Present confirmed matches as a batch. For each pattern group, include: pattern name, WCAG criterion, level (A/AA), severity, affected files, and the proposed fix from `fix.description`. Format each group consistently with Step 3 findings (same tag/badge style). Then ask:
+2. Classify confirmed matches into two groups:
+   - **Structural** — fixes to HTML attributes, ARIA, JS APIs, or non-visual DOM changes
+   - **Style** — fixes that modify a CSS property value (`outline`, `color`, `background`, `font-size`, `pointer-events`, `visibility`, `opacity`, `display`, `border`, `box-shadow`, or any other visual property)
 
-`[QUESTION]` **I found [N] accessibility issues in your source code that axe-core cannot detect at runtime — these are CSS patterns, JS APIs, and HTML attributes that are invisible to the browser scanner but violate WCAG. Apply fixes?**
+If 0 matches were found in both groups, proceed automatically to Step 5 without showing any message.
+
+**Structural patterns** — present as a batch, include: pattern name, WCAG criterion, level (A/AA), severity, affected files, proposed fix from `fix.description`. Then ask:
+
+`[QUESTION]` **I found [N] structural issue(s) in your source code that axe-core cannot detect at runtime — HTML attributes, ARIA, and JS APIs invisible to the browser scanner. Apply fixes?**
 
 1. **Yes, fix all** — apply all proposed changes
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **Skip** — don't apply any of these fixes
 
-If **Let me pick**: present all pattern matches as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply fixes?** prompt. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
+If **Let me pick**: present all matches as a numbered list. Ask the user to type the numbers (e.g. `1, 3` or `all`), or `back` to return. Apply selected fixes, list changes made, then ask the verification question below.
 
 If **Yes, fix all** or after **Let me pick** completes: list the files and changes made, then ask:
 
-`[QUESTION]` **I've applied the fixes. Please verify visually — does everything look correct?**
+`[QUESTION]` **Please verify visually — does everything look correct?**
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
-3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or **Back**: proceed to Step 5. If **Something's wrong**: apply corrections, then proceed to Step 5.
+If **Looks good**: proceed to style patterns below (or Step 5 if none). If **Something's wrong**: apply corrections, then proceed.
 
-If the user chooses **Skip**, show the following message before proceeding to Step 5:
+If **Skip**: proceed to style patterns (or Step 5 if none) — do not show the `[MESSAGE]` yet.
+
+**Style patterns** — these change visual appearance. Apply the same hard stop as 4b: **never apply before showing the exact proposed diff and receiving an explicit "yes".**
+
+> **Style-dependent protection — hard stop**: show each match with: property, current value → proposed value, and affected file + line. Then ask:
+
+`[QUESTION]` **I found [N] CSS pattern(s) in your source code that suppress or break accessible visual states — these are invisible to the browser scanner but affect real users. Apply fixes?**
+
+1. **Yes** — apply all proposed changes
+2. **Let me pick** — show me the full list, I'll choose by number
+3. **Skip** — don't apply any of these fixes
+
+If **Let me pick**: present all style pattern matches as a numbered list with their diffs. Apply selected, list changes, then ask the verification question below.
+
+If **Yes** or after **Let me pick** completes: list the files and exact values modified, then ask:
+
+`[QUESTION]` **Please verify visually — does everything look correct?**
+
+1. **Looks good**
+2. **Something's wrong** — tell me what to revert or adjust
+
+If **Looks good**: proceed to Step 5. If **Something's wrong**: apply corrections, then proceed to Step 5.
+
+If the user chose **Skip** on both structural and style patterns, show before proceeding to Step 5:
 
 `[MESSAGE]` No problem — these issues will remain in the remediation guide if you decide to revisit them. Keep in mind they affect real users: missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page.
 
-If 0 matches were found, proceed automatically to Step 5 without showing the message.
+After the message, **immediately proceed to Step 5 in the same response** — do not wait for user input.
 
 ### Step 5 — Verification re-audit (mandatory)
 
@@ -313,7 +332,12 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**, filling in values from the remediation guide. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`.
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
-3. **Passed Criteria**: present the "Passed Criteria" section from the remediation guide as-is. Note it reflects automated coverage only.
+3. **Passed Criteria**: present the criteria from the "Passed Criteria" section of the remediation guide as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification. Omit any "Requires manual testing" subsection and any "AAA criteria: Not in scope" line — both are redundant given the manual checklist delivered later.
+
+   | Criterion | Name | Level |
+   |-----------|------|-------|
+   | 1.1.1     | Non-text Content | A |
+   | …         | …    | …     |
 4. **Out of Scope**: present the "Out of Scope" section from the remediation guide as-is.
 5. Ask about reports. Wait for the answer before continuing:
 
@@ -352,7 +376,7 @@ If **No thanks**: skip to item 8.
    node scripts/report-pdf.mjs --output <path>/report.pdf --base-url <URL>
    ```
 
-   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
+   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually. **Then immediately continue to item 8 in the same response — do not wait for user input.**
 
 8. Output the manual testing reminder and checklist offer — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 9.
 
@@ -386,7 +410,7 @@ Then:
 node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
 ```
 
-Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
+Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually. **Then immediately continue to item 9 in the same response — do not wait for user input.**
 
 9. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
 
