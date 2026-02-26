@@ -2,7 +2,7 @@
 name: a11y
 description: "Audits and fixes website accessibility (WCAG 2.2 AA) using automated scanning (axe-core + Playwright). Use when the user asks to audit a URL for accessibility, check WCAG compliance, fix a11y issues, test screen reader support, verify keyboard navigation, check color contrast, fix ARIA attributes, add alt text, fix heading hierarchy, improve focus management, check ADA/WCAG compliance, or generate an accessibility report. Trigger keywords: accessibility, a11y, WCAG, ADA, screen reader, assistive technology, accessibility audit, color contrast, alt text, ARIA. Do NOT use for performance audits, SEO, Lighthouse scores, or non-web platforms."
 compatibility: Requires Node.js 18+, pnpm (npm as fallback), and internet access. Playwright + Chromium are auto-installed on first run.
-license: Proprietary (All Rights Reserved)
+license: MIT
 metadata:
   author: diegovelasquezweb
   version: "0.9.0"
@@ -27,7 +27,7 @@ These rules apply at all times, independent of any workflow step.
 
 - Never install, remove, or initialize packages in the user's project. Only run `pnpm install` inside the skill directory.
 - All pipeline files (scan results, findings, remediation guide, screenshots) stay inside the skill directory — never in the user's project.
-- Visual reports (HTML/PDF) are only created when explicitly requested, at the user's chosen location.
+- Visual reports (HTML/PDF) are only created in Step 6, after the user explicitly requests them. Never generate reports in any other step.
 - Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
 - Never declare "100% accessible" based on a targeted audit. Only a comprehensive full-site verification can confirm that.
 - Never modify the user's `.gitignore` without asking first.
@@ -43,10 +43,30 @@ These rules apply at all times, independent of any workflow step.
      How many pages should I crawl?
 
      1. 5 pages
-     2. 10 pages (Recommended)
+     2. 10 pages
      3. 15 pages
      ```
    - `[MESSAGE]` — a mandatory pre-written message. **You MUST output the exact text — never skip, rephrase, summarize, or adapt it.** Skipping a `[MESSAGE]` block is not allowed under any circumstance. **A `[MESSAGE]` does not require a user response — never pause or show an input after it. Continue executing the next instruction in the same turn immediately after displaying it.**
+
+---
+
+## Brújula — Navigation Recovery
+
+If the user types `continue`, `resume`, or `where are we`, trigger the navigation checkpoint immediately. Display a status block showing:
+
+- **Current step**: [step name and sub-step, e.g. "Step 4a — High severity fixes"]
+- **Last completed action**: [brief description, e.g. "Applied Critical fixes to SearchBar.tsx"]
+- **Next action**: [what comes next, e.g. "Present High severity findings and ask for approval"]
+
+Then ask:
+
+`[QUESTION]` **Continue from here?**
+
+1. **Yes** — pick up from next action
+2. **Go back** — return to the previous decision point
+3. **Restart** — start over from Step 1
+
+If **Yes**: resume immediately from the next action without repeating completed steps. If **Go back**: return to the last `[QUESTION]` the user answered and re-present it. If **Restart**: begin at Step 1.
 
 ---
 
@@ -87,10 +107,12 @@ If the user chooses **Crawler**: wait for that answer, then ask the scan scope i
 
 `[QUESTION]` **How many pages should I crawl?**
 
-1. **10 pages (Recommended)** — covers main page types, fast
+1. **10 pages** — covers main page types, fast
 2. **All reachable pages** — comprehensive, may take several minutes on large sites
 3. **Custom** — tell me the exact number
 4. **Back** — choose a different discovery method
+
+If **Custom**: ask in plain text — "How many pages?" — and wait for a number. Do not show a new `[QUESTION]` with options. Store the number and proceed to Step 2.
 
 Store the user's choice. Proceed to Step 2.
 
@@ -151,7 +173,7 @@ Then ask save location (first time only — reuse afterward):
 
 `[QUESTION]` **Where should I save the reports?**
 
-1. **Project audit folder** — `./audit/` (Recommended)
+1. **Project audit folder** — `./audit/`
 2. **Desktop** — `~/Desktop/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
@@ -166,7 +188,7 @@ If the chosen path is inside the project, ask (first time only):
 
 If **Yes**: append the path to `.gitignore` (create if missing), confirm, then generate. If **No**: generate directly.
 
-Generate and **open each file**. After the reports are open, return here and continue to Step 4 to begin fixes by severity.
+Generate and **open each file**. After the reports are open, proceed directly to Step 4 — do not ask for confirmation again. The user already committed to fixing when they chose this option.
 
 If the user chooses **Skip fixes**: present the following message, then skip to Step 6.
 
@@ -176,7 +198,7 @@ If the user chooses **Skip fixes**: present the following message, then skip to 
 
 ### Step 4 — Fix
 
-Work through each phase in order. If the user chose **Other criteria** in Step 3, follow their specified prioritization instead of the default severity order throughout this step.
+Work through each phase in order: **4a → 4b → 4c**. All three phases must run — never skip a phase because the user declined fixes in a previous one. If the user chose **Other criteria** in Step 3, follow their specified prioritization instead of the default severity order throughout this step.
 
 #### 4a. Structural fixes (Critical → High → Medium → Low)
 
@@ -201,7 +223,7 @@ Present one severity group at a time (Critical → High → Medium → Low) — 
 
 If **No**: skip to the next severity group (or 4b if this was the last).
 
-If **Let me pick**: present all fixes as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`). Apply the selected fixes, list changes made, then ask the verification question below.
+If **Let me pick**: present all fixes as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these [severity] fixes?** prompt. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
 
 If **Yes** or after **Let me pick** completes: list the files and changes made, then ask:
 
@@ -209,8 +231,9 @@ If **Yes** or after **Let me pick** completes: list the files and changes made, 
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
+3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
+If **Looks good** or **Back**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
@@ -226,9 +249,9 @@ Show all style changes upfront: property, current value → proposed value, cont
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip style fixes
 
-If **No**: proceed to 4c.
+If **No**: proceed to 4c immediately. Never skip to Step 5 — 4c always runs regardless of what happened in 4b.
 
-If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`). Apply the selected changes, list files and exact values modified, then ask the verification question below.
+If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these style changes?** prompt. Otherwise apply the selected changes, list files and exact values modified, then ask the verification question below.
 
 If **Yes** or after **Let me pick** completes: list the files and exact values modified, then ask:
 
@@ -236,8 +259,9 @@ If **Yes** or after **Let me pick** completes: list the files and exact values m
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
+3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or after resolving **Something's wrong**: proceed to 4c.
+If **Looks good** or **Back**: proceed to 4c. If **Something's wrong**: apply corrections, then proceed to 4c.
 
 #### 4c. Source code patterns
 
@@ -252,7 +276,7 @@ Process the "🔍 Source Code Pattern Audit" section from the remediation guide.
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **Skip** — don't apply any of these fixes
 
-If **Let me pick**: present all pattern matches as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`). Apply the selected fixes, list changes made, then ask the verification question below.
+If **Let me pick**: present all pattern matches as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply fixes?** prompt. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
 
 If **Yes, fix all** or after **Let me pick** completes: list the files and changes made, then ask:
 
@@ -260,8 +284,9 @@ If **Yes, fix all** or after **Let me pick** completes: list the files and chang
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
+3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or after resolving **Something's wrong**: proceed to Step 5.
+If **Looks good** or **Back**: proceed to Step 5. If **Something's wrong**: apply corrections, then proceed to Step 5.
 
 If the user chooses **Skip**, show the following message before proceeding to Step 5:
 
@@ -273,6 +298,8 @@ If 0 matches were found, proceed automatically to Step 5 without showing the mes
 
 This step is **mandatory** — always run it after fixes, no exceptions. Do not skip, do not ask the user whether to run it. If no fixes were applied in Step 4 (user skipped all sub-steps), skip this step and proceed to Step 6.
 
+**Never generate reports in this step.** Reports are exclusively handled in Step 6. Do not offer to generate reports here, even if issues are resolved.
+
 Output the following message, then **in the same turn without pausing** run the script:
 
 `[MESSAGE]` Running a verification re-audit to make sure all fixes are clean and no new issues were introduced.
@@ -282,32 +309,33 @@ Output the following message, then **in the same turn without pausing** run the 
 node scripts/audit.mjs --base-url <URL> [--max-routes <N>]
 ```
 
-After completion, parse ALL findings — new regressions and unresolved originals:
+After the script completes, immediately parse ALL findings in the same turn — do not pause or wait for user input before presenting results:
 
 - **All clear (0 issues)** → proceed to Step 6.
 - **Issues found (any kind)** → follow this sequence:
 
-  1. If the issues are new regressions (not seen before the fixes), inform the user first:
+  1. If the issues include new regressions (not seen before the fixes), inform the user first:
 
-     `[MESSAGE]` The verification re-audit found new issues that were not present in the initial scan. This is expected — some issues only surface after earlier fixes change the DOM structure. Here are the new findings:
+     `[MESSAGE]` The verification re-audit found new issues that were not present in the initial scan. This is expected and not a regression — axe-core stops evaluating child elements when a parent has a critical violation. Once that parent is fixed, the children get evaluated for the first time and may surface their own issues. Here are the new findings:
 
   2. Present all findings using the same format as Step 3 (grouped by severity).
-  3. Fix them following Step 4 procedures (4a for structural, 4b approval gate for style). Do not skip to Step 6.
-  4. Run the re-audit again.
-  5. If issues **still persist after fixing**, ask:
+  3. **Always ask immediately after presenting findings** — never stop or pause here, even if all remaining issues were previously declined:
 
-     `[QUESTION]` **The re-audit still shows [N] issue(s) after attempting fixes. How would you like to proceed?**
+     `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
 
-     1. **Keep fixing**
-     2. **Move on** — accept the remaining issues and continue
+     1. **Keep fixing** — address the remaining issues
+     2. **Move on** — accept the remaining issues and continue to Step 6
 
-  6. If the user chooses **Move on**, proceed to Step 6. If they choose **Keep fixing**, go back to step 2 of this sequence (present findings and fix following Step 4 procedures).
+  4. If **Keep fixing**: fix following Step 4 procedures (4a for structural, 4b approval gate for style), then run the re-audit again. Go back to step 1 of this sequence.
+  5. If **Move on**: proceed to Step 6 immediately. Do not stop — execute all Step 6 items in order (summary → reports question → manual checklist message → closing message → final question).
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 
 **Do not proceed to Step 6 until either: the re-audit is clean, the user explicitly chooses to move on, or 3 cycles are exhausted.**
 
 ### Step 6 — Deliver results
+
+**All items in this step are mandatory and must execute in order (1 → 9). Never stop after the summary — complete the full step.**
 
 1. **Summarize**: total found, resolved, files modified, remaining (if any).
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
@@ -333,7 +361,7 @@ If **No thanks**: skip to step 7.
 
 `[QUESTION]` **Where should I save the reports?**
 
-1. **Project audit folder** — `./audit/` (Recommended)
+1. **Project audit folder** — `./audit/`
 2. **Desktop** — `~/Desktop/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
@@ -381,7 +409,7 @@ If **Yes**: use the output path already set earlier in this session (Step 3 or S
 
 `[QUESTION]` **Where should I save the checklist?**
 
-1. **Project audit folder** — `./audit/` (Recommended)
+1. **Project audit folder** — `./audit/`
 2. **Desktop** — `~/Desktop/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — go back to the checklist export question
@@ -416,5 +444,5 @@ If **Yes**: help the user with their request, then ask this question again. If *
 1. Do not guess credentials or attempt brute-force access.
 2. Report blocked routes (401/403 or login redirect).
 3. Ask the user: provide session cookies, test credentials, or skip those routes.
-4. Use credentials for the audit session only — do not persist to disk.
+4. Use credentials for the audit session only. Do not persist to disk.
 5. Note skipped routes as "Not Tested — Auth Required."
