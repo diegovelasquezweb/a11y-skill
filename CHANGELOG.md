@@ -9,6 +9,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.10.0] — 2026-02-26
+
+### Added
+
+- Communication Rule 6 (Data-first): skip questions when the answer is already in the user's message
+- `references/quality-gates.md` — 5 mandatory pass/fail gates at each phase boundary (URL normalization, post-audit report, findings integrity, fix integrity, re-audit delta)
+- Console Summary Template in `references/report-standards.md` — fixed markdown block for Step 6 item 1 with Overall Assessment, URL, pages scanned, 4-metric table, and conditional context note
+- Finding Template section in `references/report-standards.md` — 11-field strict template with concrete example (hero image missing alt text)
+- Cross-Page Finding Fields section in `references/report-standards.md` — `pages_affected` and `affected_urls` documentation with display format
+- Default Values Reference table in `references/cli-reference.md` — rationale for `--max-routes`, `--crawl-depth`, `--viewport`, `--color-scheme`, and concurrency defaults
+- TOC in `references/fix-patterns.md` listing all 25 WCAG criteria covered
+- `evals/11-spa-dynamic-routes.json` — SPA with client-side routing (Next.js)
+- `evals/12-i18n-multilingual.json` — multilingual site with locale-prefixed routes
+- `evals/13-static-site.json` — plain HTML site with no framework or JS
+
+### Changed
+
+- Save path options simplified: `./audit/` replaced with `~/Documents/` in both reports and checklist save location questions — no default path is ever inside the user's project
+- `.gitignore` question removed from Step 6 (was item 7) — no longer relevant since no save path default is inside the project
+- Step 6 items renumbered 8→7, 9→8, 10→9, 11→10 (10 items total, down from 11)
+- Step 3 "Skip fixes" and "0 issues found" transitions made explicit: enumerate all Step 6 items in order instead of vague "skip to Step 6"
+- Step 5 option 2 label: "continue to Step 6" → "proceed to the final summary" (eliminates internal step label exposed to user, violating Communication Rule 3)
+- Step 6 item 1: explicitly loads `report-standards.md` and presents the Console Summary Template
+- Resource Map: `report-standards.md` load condition expanded to include Step 6 item 1
+- `analyzer.mjs`: synthetic findings `page-has-heading-one` and `landmark-one-main` now include `wcag_classification: "Best Practice"`
+- `computeOverallAssessment`: excludes both "Best Practice" and "AAA" findings from WCAG assessment (was: excluded Best Practice only)
+- `renderers/md.mjs`: `wcagFindings` filter excludes both "Best Practice" and "AAA"; pipeline note label updated to "Best Practice / AAA finding(s) excluded from WCAG assessment"
+- `evals/10-gitignore-proactive.json` replaced with `evals/10-save-path-options.json` — tests simplified Desktop/Documents/Custom options and path reuse; verifies .gitignore question never appears
+- `evals/05-script-failure.json`: added missing `setup` field and `model_notes`
+- `evals/README.md`: scenarios grouped into Core workflow, Edge cases, Framework & platform coverage
+
+### Fixed
+
+- Terminology: "violation" → "finding" throughout SKILL.md, CLAUDE.md, and `references/cli-reference.md`
+- Step 5 re-audit delta format `{resolved} resolved / {remaining} remaining / {new} new` now required in both Step 5 instructions and Gate 5 in `quality-gates.md`
+- Step 6 item 10 cross-reference corrected from "checklist (item 9)" → "checklist (item 8)" after renumbering
+- `evals/02-fix-with-checkpoints.json` and `evals/09-checklist-export.json`: removed stale "Step 7" and "Step 8" references (these items are within Step 6, not separate steps)
+- Constraints section: removed "Never modify the user's `.gitignore` without asking first" — no longer applicable
+
+---
+
 ## [0.9.0] — 2026-02-24
 
 ### Added
