@@ -10,24 +10,24 @@ import {
 describe("findings logic", () => {
   describe("computeComplianceScore", () => {
     it("returns 100 when there are no findings", () => {
-      const totals = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+      const totals = { Critical: 0, Serious: 0, Moderate: 0, Minor: 0 };
       expect(computeComplianceScore(totals)).toBe(100);
     });
 
     it("penalizes heavily for Critical issues", () => {
-      const totals = { Critical: 1, High: 0, Medium: 0, Low: 0 };
+      const totals = { Critical: 1, Serious: 0, Moderate: 0, Minor: 0 };
       const score = computeComplianceScore(totals);
       expect(score).toBe(85); // 100 - (1 * 15)
     });
 
     it("calculates complex weighted scores correctly", () => {
-      const totals = { Critical: 2, High: 3, Medium: 10, Low: 0 };
+      const totals = { Critical: 2, Serious: 3, Moderate: 10, Minor: 0 };
       // (2*15) + (3*5) + (10*2) = 30 + 15 + 20 = 65 penalty
       expect(computeComplianceScore(totals)).toBe(35);
     });
 
     it("does not return negative scores", () => {
-      const totals = { Critical: 50, High: 0, Medium: 0, Low: 0 };
+      const totals = { Critical: 50, Serious: 0, Moderate: 0, Minor: 0 };
       expect(computeComplianceScore(totals)).toBe(0);
     });
   });
@@ -59,15 +59,15 @@ describe("findings logic", () => {
     it("sorts findings by severity (Critical first)", () => {
       const raw = {
         findings: [
-          { id: "1", severity: "Low", title: "A" },
+          { id: "1", severity: "Minor", title: "A" },
           { id: "2", severity: "Critical", title: "B" },
-          { id: "3", severity: "High", title: "C" },
+          { id: "3", severity: "Serious", title: "C" },
         ],
       };
       const normalized = normalizeFindings(raw);
       expect(normalized[0].severity).toBe("Critical");
-      expect(normalized[1].severity).toBe("High");
-      expect(normalized[2].severity).toBe("Low");
+      expect(normalized[1].severity).toBe("Serious");
+      expect(normalized[2].severity).toBe("Minor");
     });
 
     it("passes through wcagCriterionId, falsePositiveRisk, fixDifficultyNotes, frameworkNotes", () => {
@@ -75,7 +75,7 @@ describe("findings logic", () => {
         findings: [
           {
             id: "A11Y-abc123",
-            severity: "High",
+            severity: "Serious",
             title: "Test",
             wcag_criterion_id: "4.1.2",
             false_positive_risk: "medium",
@@ -93,7 +93,7 @@ describe("findings logic", () => {
 
     it("defaults new fields to null when absent", () => {
       const raw = {
-        findings: [{ id: "A11Y-xyz", severity: "Low", title: "Test" }],
+        findings: [{ id: "A11Y-xyz", severity: "Minor", title: "Test" }],
       };
       const [f] = normalizeFindings(raw);
       expect(f.wcagCriterionId).toBeNull();
@@ -104,7 +104,7 @@ describe("findings logic", () => {
 
     it("defaults relatedRules to [] when absent", () => {
       const raw = {
-        findings: [{ id: "A11Y-xyz", severity: "Low", title: "Test" }],
+        findings: [{ id: "A11Y-xyz", severity: "Minor", title: "Test" }],
       };
       const [f] = normalizeFindings(raw);
       expect(f.relatedRules).toEqual([]);

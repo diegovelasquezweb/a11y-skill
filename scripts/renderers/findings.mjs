@@ -116,7 +116,7 @@ export function normalizeFindings(payload) {
  * @returns {Object<string, number>} An object mapping severity labels to counts.
  */
 export function buildSummary(findings) {
-  const totals = { Critical: 0, High: 0, Medium: 0, Low: 0 };
+  const totals = { Critical: 0, Serious: 0, Moderate: 0, Minor: 0 };
   for (const finding of findings) {
     if (finding.severity in totals) totals[finding.severity] += 1;
   }
@@ -133,9 +133,9 @@ export function computeComplianceScore(totals) {
   const raw =
     baseScore -
     totals.Critical * penalties.Critical -
-    totals.High * penalties.High -
-    totals.Medium * penalties.Medium -
-    totals.Low * penalties.Low;
+    totals.Serious * penalties.Serious -
+    totals.Moderate * penalties.Moderate -
+    totals.Minor * penalties.Minor;
   return Math.max(0, Math.min(100, Math.round(raw)));
 }
 

@@ -1,9 +1,9 @@
 {
   "severityOrder": {
     "Critical": 0,
-    "High": 1,
-    "Medium": 2,
-    "Low": 3
+    "Serious": 1,
+    "Moderate": 2,
+    "Minor": 3
   },
   "priorityScoring": {
     "severityPoints": { "0": 50, "1": 30, "2": 10, "3": 0 },
@@ -15,9 +15,9 @@
     "baseScore": 100,
     "penalties": {
       "Critical": 15,
-      "High": 5,
-      "Medium": 2,
-      "Low": 0.5
+      "Serious": 5,
+      "Moderate": 2,
+      "Minor": 0.5
     }
   },
   "gradeThresholds": [
@@ -42,9 +42,9 @@
   ],
   "effortMultipliers": {
     "Critical": 4,
-    "High": 2,
-    "Medium": 1,
-    "Low": 0.5
+    "Serious": 2,
+    "Moderate": 1,
+    "Minor": 0.5
   },
   "severityDefinitions": [
     {
@@ -54,19 +54,19 @@
       "action": "Fix immediately"
     },
     {
-      "level": "High",
+      "level": "Serious",
       "definition": "Significant impediment — core tasks are seriously impaired but may still be possible",
       "impact": "Serious friction — core tasks impaired",
       "action": "Fix within current sprint"
     },
     {
-      "level": "Medium",
+      "level": "Moderate",
       "definition": "Partial violation — functionality works but creates friction or excludes some users",
       "impact": "Partial violation — usability degraded",
       "action": "Fix next sprint"
     },
     {
-      "level": "Low",
+      "level": "Minor",
       "definition": "Best practice gap — minor deviation with limited real-world impact",
       "impact": "Best practice gap — minor impact",
       "action": "Fix when convenient"
@@ -74,9 +74,9 @@
   ],
   "impactMap": {
     "critical": "Critical",
-    "serious": "High",
-    "moderate": "Medium",
-    "minor": "Low"
+    "serious": "Serious",
+    "moderate": "Moderate",
+    "minor": "Minor"
   },
   "usRegulatory": {
     "default": "https://accessibility.18f.gov/checklist/",

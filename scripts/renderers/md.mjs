@@ -340,8 +340,8 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       .join("\n\n");
   }
 
-  const blockers = findingsByPage(["Critical", "High"]);
-  const deferred = findingsByPage(["Medium", "Low"]);
+  const blockers = findingsByPage(["Critical", "Serious"]);
+  const deferred = findingsByPage(["Moderate", "Minor"]);
 
   function buildComponentMap() {
     const groups = {};
@@ -396,9 +396,9 @@ ${rows.join("\n")}
 | Severity | Count | Priority |
 |---|---|---|
 | 🔴 **Critical** | ${totals.Critical} | **Blocker** |
-| 🟠 **High** | ${totals.High} | **Immediate** |
-| 🟡 **Medium** | ${totals.Medium} | **Standard** |
-| 🔵 **Low** | ${totals.Low} | **Backlog** |
+| 🟠 **Serious** | ${totals.Serious} | **Immediate** |
+| 🟡 **Moderate** | ${totals.Moderate} | **Standard** |
+| 🔵 **Minor** | ${totals.Minor} | **Backlog** |
 
 Total findings: **${findings.length} issues**
 
@@ -412,9 +412,9 @@ ${buildGuardrails(framework)}
 
 ---
 
-${buildComponentMap()}${blockers ? `## 🔴 Priority Fixes (Critical & High)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or high severity issues found."}
+${buildComponentMap()}${blockers ? `## 🔴 Priority Fixes (Critical & Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
 
-${deferred ? `## 🔵 Deferred Issues (Medium & Low)\n\n${deferred}` : "## Deferred Issues\n\nNo medium or low severity issues found."}
+${deferred ? `## 🔵 Deferred Issues (Moderate & Minor)\n\n${deferred}` : "## Deferred Issues\n\nNo moderate or minor severity issues found."}
 
 ${buildCodePatternsMd(metadata.code_patterns, framework)}
 ${buildManualChecksMd()}

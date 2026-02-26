@@ -76,7 +76,7 @@ export function buildPdfTableOfContents() {
  */
 export function buildPdfExecutiveSummary(args, findings, totals) {
   const blockers = findings.filter(
-    (f) => f.severity === "Critical" || f.severity === "High",
+    (f) => f.severity === "Critical" || f.severity === "Serious",
   );
   const totalIssues = findings.length;
   const pagesAffected = new Set(findings.map((f) => f.area)).size;
@@ -99,13 +99,13 @@ export function buildPdfExecutiveSummary(args, findings, totals) {
       : `<p style="line-height: 1.8; font-size: 10pt; margin-bottom: 8pt;">
         The automated scan of <strong>${escapeHtml(args.baseUrl)}</strong> identified <strong>${totalIssues} accessibility
         violation${totalIssues !== 1 ? "s" : ""}</strong> across <strong>${pagesAffected} page${pagesAffected !== 1 ? "s" : ""}</strong>,
-        including <strong>${totals.Critical} Critical</strong> and <strong>${totals.High} High</strong> severity issues
+        including <strong>${totals.Critical} Critical</strong> and <strong>${totals.Serious} Serious</strong> severity issues
         that constitute immediate barriers for users relying on assistive technology.
       </p>
       <p style="line-height: 1.8; font-size: 10pt; margin-bottom: 8pt;">
         Critical issues prevent disabled users from completing core tasks entirely.
-        High issues create significant friction that forces users to abandon flows.
-        Together, these ${totals.Critical + totals.High} blockers represent the primary compliance and
+        Serious issues create significant friction that forces users to abandon flows.
+        Together, these ${totals.Critical + totals.Serious} blockers represent the primary compliance and
         user experience risk for the organization.
       </p>`;
 
@@ -204,7 +204,7 @@ export function buildPdfRiskSection(totals) {
         ? `The site demonstrates strong accessibility fundamentals. Remaining issues should be addressed to achieve full compliance before applicable regulatory deadlines. In-force regulations include: ${inForce}.`
         : score >= 55
           ? `The site has meaningful accessibility gaps that create legal exposure. A remediation plan should be established and executed promptly. Applicable regulations include ${inForce}${upcoming ? `, with upcoming deadlines under ${upcoming}` : ""}.`
-          : `The site has significant accessibility barriers that create substantial legal exposure. Immediate remediation of Critical and High issues is strongly recommended. Applicable in-force regulations: ${inForce}${upcoming ? `. Upcoming deadlines: ${upcoming}` : ""}.`;
+          : `The site has significant accessibility barriers that create substantial legal exposure. Immediate remediation of Critical and Serious issues is strongly recommended. Applicable in-force regulations: ${inForce}${upcoming ? `. Upcoming deadlines: ${upcoming}` : ""}.`;
     return `<div style="margin-top: 1.5rem; padding: 1rem 1.2rem; border: 1.5pt solid ${riskColor}; border-left: 5pt solid ${riskColor}; background: #f9fafb; page-break-inside: avoid; page-break-before: avoid;">
     <p style="font-family: sans-serif; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1pt; margin: 0 0 4pt 0; color: #6b7280;">Current Risk Assessment</p>
     <p style="font-family: sans-serif; font-size: 16pt; font-weight: 900; margin: 0; color: ${riskColor};">${riskLevel} Risk</p>
@@ -221,19 +221,19 @@ export function buildPdfRiskSection(totals) {
  */
 export function buildPdfRemediationRoadmap(findings) {
   const critical = findings.filter((f) => f.severity === "Critical");
-  const high = findings.filter((f) => f.severity === "High");
-  const medium = findings.filter((f) => f.severity === "Medium");
-  const low = findings.filter((f) => f.severity === "Low");
+  const serious = findings.filter((f) => f.severity === "Serious");
+  const moderate = findings.filter((f) => f.severity === "Moderate");
+  const minor = findings.filter((f) => f.severity === "Minor");
 
   const mult = COMPLIANCE_CONFIG.effortMultipliers;
-  const effortHours = (c, h, m, l) =>
-    Math.round(c * mult.Critical + h * mult.High + m * mult.Medium + l * mult.Low);
+  const effortHours = (c, s, mo, mi) =>
+    Math.round(c * mult.Critical + s * mult.Serious + mo * mult.Moderate + mi * mult.Minor);
 
   const totalHours = effortHours(
     critical.length,
-    high.length,
-    medium.length,
-    low.length,
+    serious.length,
+    moderate.length,
+    minor.length,
   );
 
   function sprintBlock(label, items, hours, startIndex = 1) {
@@ -273,8 +273,8 @@ export function buildPdfRemediationRoadmap(findings) {
   </p>
 
   ${sprintBlock("Sprint 1 — Fix Immediately (Critical)", critical, effortHours(critical.length, 0, 0, 0), 1)}
-  ${sprintBlock("Sprint 2 — Fix This Cycle (High)", high, effortHours(0, high.length, 0, 0), critical.length + 1)}
-  ${sprintBlock("Sprint 3 — Fix Next Cycle (Medium + Low)", [...medium, ...low], effortHours(0, 0, medium.length, low.length), critical.length + high.length + 1)}
+  ${sprintBlock("Sprint 2 — Fix This Cycle (Serious)", serious, effortHours(0, serious.length, 0, 0), critical.length + 1)}
+  ${sprintBlock("Sprint 3 — Fix Next Cycle (Moderate + Minor)", [...moderate, ...minor], effortHours(0, 0, moderate.length, minor.length), critical.length + serious.length + 1)}
 
   ${findings.length === 0 ? `<p style="font-style: italic; color: #6b7280;">No automated issues found. Complete the manual verification checklist in Section 5 to finalize the assessment.</p>` : ""}
 </div>`;
@@ -338,9 +338,9 @@ export function buildPdfMethodologySection(args, findings) {
  */
 export function buildPdfNextSteps(findings, totals) {
   const critical = findings.filter((f) => f.severity === "Critical");
-  const high = findings.filter((f) => f.severity === "High");
-  const medium = findings.filter((f) => f.severity === "Medium");
-  const low = findings.filter((f) => f.severity === "Low");
+  const serious = findings.filter((f) => f.severity === "Serious");
+  const moderate = findings.filter((f) => f.severity === "Moderate");
+  const minor = findings.filter((f) => f.severity === "Minor");
   const mult = COMPLIANCE_CONFIG.effortMultipliers;
 
   const steps = [];
@@ -349,13 +349,13 @@ export function buildPdfNextSteps(findings, totals) {
     const hrs = Math.round(critical.length * mult.Critical);
     steps.push(`<li style="margin-bottom: 10pt;"><strong>Address Critical issues immediately</strong> — ${critical.length} issue${critical.length !== 1 ? "s" : ""}, ~${hrs}h estimated. These are complete barriers for assistive technology users and represent the highest legal exposure.</li>`);
   }
-  if (high.length > 0) {
-    const hrs = Math.round(high.length * mult.High);
-    steps.push(`<li style="margin-bottom: 10pt;"><strong>Resolve High severity issues before the next release</strong> — ${high.length} issue${high.length !== 1 ? "s" : ""}, ~${hrs}h estimated. These create significant friction that forces affected users to abandon flows.</li>`);
+  if (serious.length > 0) {
+    const hrs = Math.round(serious.length * mult.Serious);
+    steps.push(`<li style="margin-bottom: 10pt;"><strong>Resolve Serious severity issues before the next release</strong> — ${serious.length} issue${serious.length !== 1 ? "s" : ""}, ~${hrs}h estimated. These create significant friction that forces affected users to abandon flows.</li>`);
   }
-  if (medium.length + low.length > 0) {
-    const hrs = Math.round(medium.length * mult.Medium + low.length * mult.Low);
-    steps.push(`<li style="margin-bottom: 10pt;"><strong>Plan Medium and Low fixes for the next development cycle</strong> — ${medium.length + low.length} issue${medium.length + low.length !== 1 ? "s" : ""}, ~${hrs}h estimated. These affect specific user groups but are not immediate blockers.</li>`);
+  if (moderate.length + minor.length > 0) {
+    const hrs = Math.round(moderate.length * mult.Moderate + minor.length * mult.Minor);
+    steps.push(`<li style="margin-bottom: 10pt;"><strong>Plan Moderate and Minor fixes for the next development cycle</strong> — ${moderate.length + minor.length} issue${moderate.length + minor.length !== 1 ? "s" : ""}, ~${hrs}h estimated. These affect specific user groups but are not immediate blockers.</li>`);
   }
   if (findings.length === 0) {
     steps.push(`<li style="margin-bottom: 10pt;"><strong>No automated violations were detected.</strong> Complete the manual verification checklist to confirm full WCAG 2.2 AA conformance before certifying compliance.</li>`);

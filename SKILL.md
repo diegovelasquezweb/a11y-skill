@@ -131,7 +131,7 @@ Load [references/report-standards.md](references/report-standards.md) for findin
 
 Read the remediation guide and:
 
-1. Summarize by severity (Critical → High → Medium → Low).
+1. Summarize by severity (Critical → Serious → Moderate → Minor).
 2. Propose specific fixes from the remediation guide.
 3. Group by component or page area, explaining why each fix matters.
 4. Ask how to proceed:
@@ -154,11 +154,11 @@ If the user chooses **Skip fixes**: present the following message, then skip to 
 
 Work through each phase in order: **4a → 4b → 4c**. All three phases must run — never skip a phase because the user declined fixes in a previous one. If the user chose **Other criteria** in Step 3, follow their specified prioritization instead of the default severity order throughout this step.
 
-#### 4a. Structural fixes (Critical → High → Medium → Low)
+#### 4a. Structural fixes (Critical → Serious → Moderate → Minor)
 
 Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM order, lang, heading hierarchy).
 
-> **Scope boundary**: 4a covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in 4b — regardless of their axe severity level. If a Critical or High finding involves a color or visual property, set it aside for 4b. Do not apply it here.
+> **Scope boundary**: 4a covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in 4b — regardless of their axe severity level. If a Critical or Serious finding involves a color or visual property, set it aside for 4b. Do not apply it here.
 
 If there are no structural findings to fix, skip directly to 4b.
 
@@ -167,7 +167,7 @@ Load [references/source-patterns.md](references/source-patterns.md) to locate so
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
-Present one severity group at a time (Critical → High → Medium → Low) — list the findings and proposed changes, then ask:
+Present one severity group at a time (Critical → Serious → Moderate → Minor) — list the findings and proposed changes, then ask:
 
 `[QUESTION]` **Apply these [severity] fixes?**
 

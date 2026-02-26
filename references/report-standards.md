@@ -12,7 +12,7 @@ Each finding must include:
 2. Affected route path and component/selector.
 3. Reproduction steps and actual vs expected behavior.
 4. Impacted users.
-5. Severity (Critical, High, Medium, Low).
+5. Severity (Critical, Serious, Moderate, Minor).
 6. Recommended fix.
 7. QA retest notes.
 8. Concrete proof (DOM snippet, log, or tool output). Screenshot only if it clearly demonstrates the exact issue.
