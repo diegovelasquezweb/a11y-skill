@@ -33,6 +33,7 @@ These rules apply at all times, independent of any workflow step.
 - Never modify the user's `.gitignore` without asking first.
 - Treat scripts as black boxes: run with `--help` to discover flags. Do not read script source — it consumes context budget for no benefit.
 - If `pnpm` is not available, use `npm` as fallback.
+- Never add, remove, or modify CLI flags (`--exclude-selectors`, `--timeout-ms`, `--wait-ms`, etc.) without the user explicitly requesting it.
 
 ## Communication Rules
 
@@ -155,41 +156,10 @@ Read the remediation guide and:
 `[QUESTION]` **How would you like to proceed?**
 
 1. **Fix by severity** — start with the most critical issues first
-2. **Reports first, then fix** — generate visual reports now, then fix issues by severity
-3. **Other criteria** — tell me how you'd like to prioritize the fixes
-4. **Skip fixes** — don't fix anything right now
+2. **Other criteria** — tell me how you'd like to prioritize the fixes
+3. **Skip fixes** — don't fix anything right now
 
 Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
-
-If the user chooses **Reports first, then fix**: the "yes to reports" is already implied — skip the Yes/No question and ask:
-
-`[QUESTION]` **Which format?**
-
-1. **HTML Dashboard** — interactive web report with compliance score
-2. **PDF Executive Summary** — formal document for stakeholders
-3. **Both**
-4. **Back** — change how to proceed
-
-Then ask save location (first time only — reuse afterward):
-
-`[QUESTION]` **Where should I save the reports?**
-
-1. **Project audit folder** — `./audit/`
-2. **Desktop** — `~/Desktop/`
-3. **Custom path** — tell me the exact folder path
-4. **Back** — change the report format
-
-If the chosen path is inside the project, ask (first time only):
-
-`[QUESTION]` **Should I add the reports folder to `.gitignore`?**
-
-1. **Yes** — ignore generated reports
-2. **No** — keep reports tracked
-3. **Back** — change the save location
-
-If **Yes**: append the path to `.gitignore` (create if missing), confirm, then generate. If **No**: generate directly.
-
-Generate each file. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If the command fails or the file does not open, share the absolute path so the user can open it manually. After attempting to open all files, proceed directly to Step 4 — do not ask for confirmation again. The user already committed to fixing when they chose this option.
 
 If the user chooses **Skip fixes**: present the following message, then skip to Step 6.
 
@@ -309,6 +279,8 @@ Output the following message, then **in the same turn without pausing** run the 
 # Run immediately after the message above — same flags as Step 2
 node scripts/audit.mjs --base-url <URL> [--max-routes <N>]
 ```
+
+If the script fails: verify the site is reachable (`curl -s -o /dev/null -w "%{http_code}" <URL>`) before retrying. If it returns a non-200 status, stop and report the error to the user — do not retry with modified flags. If the site is reachable and the script fails a second time, stop and report the error.
 
 After the script completes, immediately parse ALL findings in the same turn — do not pause or wait for user input before presenting results:
 
