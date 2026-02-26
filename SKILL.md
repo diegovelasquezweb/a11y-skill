@@ -50,6 +50,28 @@ These rules apply at all times, independent of any workflow step.
 
 ---
 
+## Brújula — Navigation Recovery
+
+If the user types `continue`, `resume`, `where are we`, or any input that does not match an expected response for the current step, trigger the navigation checkpoint immediately:
+
+`[MESSAGE]` Here's where we are:
+
+**Current step**: [step name and sub-step, e.g. "Step 4a — High severity fixes"]
+**Last completed action**: [brief description, e.g. "Applied Critical fixes to SearchBar.tsx"]
+**Next action**: [what comes next, e.g. "Present High severity findings and ask for approval"]
+
+Then ask:
+
+`[QUESTION]` **Continue from here?**
+
+1. **Yes** — pick up from next action
+2. **Go back** — return to the previous decision point
+3. **Restart** — start over from Step 1
+
+If **Yes**: resume immediately from the next action without repeating completed steps. If **Go back**: return to the last `[QUESTION]` the user answered and re-present it. If **Restart**: begin at Step 1.
+
+---
+
 ## Workflow
 
 Follow these steps sequentially — **never skip a step**, even if the user provides information ahead of time. Every step must execute in order. Copy this checklist and track progress:
