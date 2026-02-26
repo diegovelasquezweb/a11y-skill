@@ -46,7 +46,7 @@ These rules apply at all times, independent of any workflow step.
      2. 10 pages (Recommended)
      3. 15 pages
      ```
-   - `[MESSAGE]` — a mandatory pre-written message. **You MUST output the exact text — never skip, rephrase, summarize, or adapt it.** Skipping a `[MESSAGE]` block is not allowed under any circumstance.
+   - `[MESSAGE]` — a mandatory pre-written message. **You MUST output the exact text — never skip, rephrase, summarize, or adapt it.** Skipping a `[MESSAGE]` block is not allowed under any circumstance. **A `[MESSAGE]` does not require a user response — never pause or show an input after it. Continue executing the next instruction in the same turn immediately after displaying it.**
 
 ---
 
@@ -230,9 +230,9 @@ If **Looks good** or after resolving **Something's wrong**: proceed to 4c.
 Process the "🔍 Source Code Pattern Audit" section from the remediation guide. Each entry has a `detection.search` regex and `detection.files` glob — use these to grep the project source:
 
 1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
-2. Present confirmed matches as a batch with the proposed fix from the pattern's `fix.description` and `fix.code`, then ask:
+2. Present confirmed matches as a batch. For each pattern group, include: pattern name, WCAG criterion, level (A/AA), severity, affected files, and the proposed fix from `fix.description`. Format each group consistently with Step 3 findings (same tag/badge style). Then ask:
 
-`[QUESTION]` **I found [N] accessibility issues in your source code that the automated scan couldn't detect. Apply fixes?**
+`[QUESTION]` **I found [N] accessibility issues in your source code that axe-core cannot detect at runtime — these are CSS patterns, JS APIs, and HTML attributes that are invisible to the browser scanner but violate WCAG. Apply fixes?**
 
 1. **Yes, fix all** — apply all proposed changes
 2. **Let me pick** — I'll choose which ones to apply
@@ -257,13 +257,12 @@ If 0 matches were found, proceed automatically to Step 5 without showing the mes
 
 This step is **mandatory** — always run it after fixes, no exceptions. Do not skip, do not ask the user whether to run it. If no fixes were applied in Step 4 (user skipped all sub-steps), skip this step and proceed to Step 6.
 
-Inform the user before running, then **immediately** execute the script without waiting for user input:
+Output the following message, then **in the same turn without pausing** run the script:
 
 `[MESSAGE]` Running a verification re-audit to make sure all fixes are clean and no new issues were introduced.
 
-Use the exact same command as Step 2 — same `--base-url`, same `--max-routes` (or omit if the default of 10 was used), and any other flags that were passed originally:
-
 ```bash
+# Run immediately after the message above — same flags as Step 2
 node scripts/audit.mjs --base-url <URL> [--max-routes <N>]
 ```
 
