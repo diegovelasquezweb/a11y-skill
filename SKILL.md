@@ -90,11 +90,13 @@ If the user mentions "sitemap" at any point, use it directly (Data-first rule) �
 
 `[QUESTION]` **How many pages should I crawl?**
 
-1. **10 pages** — covers main page types, fast
-2. **All reachable pages** — comprehensive, may take several minutes on large sites
-3. **Custom** — tell me the exact number
+A. **10 pages** — covers main page types, fast
+B. **All reachable pages** — comprehensive, may take several minutes on large sites
+C. **Custom** — tell me the exact number
 
-If **Custom**: ask in plain text — "How many pages?" — and wait for a number. Store the number and proceed to Step 2.
+If Custom: ask in plain text — "How many pages?" — and wait for a number. Do not show a new [QUESTION] with options. Store the number and proceed to Step 2.
+
+Store the user's choice. Proceed to Step 2.
 
 ### Step 2 — Run the audit
 
