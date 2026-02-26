@@ -198,9 +198,8 @@ If **Yes** or after **Let me pick** completes: list the files and changes made, 
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
-3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or **Back**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
+If **Looks good**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
@@ -216,7 +215,7 @@ Show all style changes upfront: property, current value → proposed value, cont
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip style fixes
 
-If **No**: proceed to 4c immediately. Never skip to Step 5 — 4c always runs regardless of what happened in 4b.
+If **No**: proceed to 4c immediately — do not output any message here. 4c always runs regardless of what happened in 4b. Never skip to Step 5 from 4b.
 
 If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these style changes?** prompt. Otherwise apply the selected changes, list files and exact values modified, then ask the verification question below.
 
@@ -226,9 +225,8 @@ If **Yes** or after **Let me pick** completes: list the files and exact values m
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
-3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or **Back**: proceed to 4c. If **Something's wrong**: apply corrections, then proceed to 4c.
+If **Looks good**: proceed to 4c. If **Something's wrong**: apply corrections, then proceed to 4c.
 
 #### 4c. Source code patterns
 
@@ -257,9 +255,8 @@ If **Yes, fix all** or after **Let me pick** completes: list the files and chang
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
-3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or **Back**: proceed to style patterns below (or Step 5 if none). If **Something's wrong**: apply corrections, then proceed.
+If **Looks good**: proceed to style patterns below (or Step 5 if none). If **Something's wrong**: apply corrections, then proceed.
 
 If **Skip**: proceed to style patterns (or Step 5 if none) — do not show the `[MESSAGE]` yet.
 
@@ -281,13 +278,14 @@ If **Yes** or after **Let me pick** completes: list the files and exact values m
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
-3. **Back** — everything is fine, I clicked by mistake
 
-If **Looks good** or **Back**: proceed to Step 5. If **Something's wrong**: apply corrections, then proceed to Step 5.
+If **Looks good**: proceed to Step 5. If **Something's wrong**: apply corrections, then proceed to Step 5.
 
 If the user chose **Skip** on both structural and style patterns, show before proceeding to Step 5:
 
 `[MESSAGE]` No problem — these issues will remain in the remediation guide if you decide to revisit them. Keep in mind they affect real users: missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page.
+
+After the message, **immediately proceed to Step 5 in the same response** — do not wait for user input.
 
 ### Step 5 — Verification re-audit (mandatory)
 
@@ -373,7 +371,7 @@ If **No thanks**: skip to item 8.
    node scripts/report-pdf.mjs --output <path>/report.pdf --base-url <URL>
    ```
 
-   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
+   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually. **Then immediately continue to item 8 in the same response — do not wait for user input.**
 
 8. Output the manual testing reminder and checklist offer — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 9.
 
@@ -407,7 +405,7 @@ Then:
 node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
 ```
 
-Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
+Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually. **Then immediately continue to item 9 in the same response — do not wait for user input.**
 
 9. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
 
