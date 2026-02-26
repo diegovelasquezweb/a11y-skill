@@ -8,6 +8,7 @@
 
 - [The Intelligence Database](#the-intelligence-database-assetsintelligencejson)
 - [Surgical Patch Generation](#surgical-patch-generation)
+- [Static Source Scan](#static-source-scan-code_patterns)
 - [Manual Checks](#manual-checks-assetsmanual-checksjson)
 
 The "Intelligence" of the a11y skill revolves around **Autonomous Remediation**. It transforms a diagnostic finding into an actionable code patch.
@@ -85,6 +86,33 @@ If an image is found missing alt text, the Agent does not just "add an alt". It 
     - **Difficulty Audit**: Agent reads `fix_difficulty_notes` and realizes it must check if the image is decorative. It sees the image is used as a background texture and decides to use `alt=""` instead of a description.
     - **Related Checks**: Agent notices `related_rules` includes `image-redundant-alt`. It verifies that there is no "Product Image" text immediately below the image to avoid duplicate announcements.
 4.  **Remediation**: The Agent proposes a patch that uses the correct Liquid filter for Shopify while adhering to React's JSX syntax, ensuring the fix is both accessible and platform-compatible.
+
+## Static Source Scan (`code_patterns`)
+
+axe-core scans the rendered DOM — it cannot see CSS properties, source attributes, or JS patterns that exist in code but produce no observable DOM violation. `code_patterns` fills that gap with **6 curated regex patterns** that are run against the project's source files in Step 4c.
+
+### Selection criteria
+
+A pattern is included only if it meets **all three**:
+
+1. **axe cannot detect it** — invisible at runtime (CSS) or produces no DOM violation on its own
+2. **`false_positive_risk: "low"`** — the regex is specific enough that a match almost always means a real issue
+3. **Rare enough not to be axe's job** — if axe already catches it reliably, the source pattern adds no value
+
+### Current patterns
+
+| Pattern | WCAG | Level | Detects |
+| :--- | :--- | :--- | :--- |
+| `focus-outline-suppressed` | 2.4.7 | AA | `outline: none` / `focus:outline-none` without a `:focus-visible` replacement |
+| `autoplay-media` | 1.4.2 | A | `<audio>`/`<video autoplay>` without `muted` |
+| `orientation-lock` | 1.3.4 | AA | `screen.orientation.lock()` calls |
+| `character-key-shortcut` | 2.1.4 | A | `accesskey` attributes |
+
+### How to add a new pattern
+
+Add an entry to the `code_patterns` object in `assets/intelligence.json`. Required fields: `description`, `detection.search` (regex), `detection.files` (glob), `fix.description`, `fix.code`, `wcag`, `level`, `severity`, `false_positive_risk`. Only add patterns with `false_positive_risk: "low"` — medium and high confidence patterns generate noise that erodes trust in the scan results.
+
+---
 
 ## Manual Checks (`assets/manual-checks.json`)
 

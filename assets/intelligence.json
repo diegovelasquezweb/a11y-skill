@@ -2733,32 +2733,6 @@
     }
   },
   "code_patterns": {
-    "interactive-div-no-keyboard": {
-      "description": "A <div> or <span> has an onClick handler but no keyboard equivalent (onKeyDown/onKeyPress) and no semantic role. Keyboard-only users cannot activate it.",
-      "detection": {
-        "search": "<div[^\n>]*onClick=|<span[^\n>]*onClick=",
-        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte"
-      },
-      "fix": {
-        "description": "Replace with a semantic <button> element, or add role=\"button\", tabIndex={0}, and an onKeyDown handler that triggers on Enter and Space.",
-        "code": "// Option 1 — preferred: use a real button\n<button onClick={handleClick}>{children}</button>\n\n// Option 2 — if div is required for layout\n<div\n  role=\"button\"\n  tabIndex={0}\n  onClick={handleClick}\n  onKeyDown={(e) => (e.key === \"Enter\" || e.key === \" \") && handleClick(e)}\n>\n  {children}\n</div>"
-      },
-      "wcag": "2.1.1",
-      "severity": "critical",
-      "framework_notes": {
-        "react": "Replace with <button> — React onClick on a button works for both mouse and keyboard. If a div is required for layout, add role=\"button\", tabIndex={0}, and onKeyDown.",
-        "vue": "Replace with <button @click=\"handle\">. If a <div> is required, add role=\"button\", tabindex=\"0\", and @keydown.enter.space=\"handle\".",
-        "angular": "Replace with <button (click)=\"handle()\">. If a div is required, add role=\"button\" [attr.tabindex]=\"0\" (keydown.enter)=\"handle()\" (keydown.space)=\"handle()\".",
-        "svelte": "Replace with <button on:click={handle}>. If a div is required, add role=\"button\" tabindex=\"0\" on:keydown={(e) => (e.key === \"Enter\" || e.key === \" \") && handle(e)}.",
-        "astro": "In Astro islands, replace with <button>. In static .astro files, use <a> or <button> with form actions — no client-side click handlers."
-      },
-      "false_positive_risk": "medium",
-      "managed_by_libraries": [
-        "radix-ui",
-        "headless-ui",
-        "shadcn-ui"
-      ]
-    },
     "focus-outline-suppressed": {
       "description": "An interactive element suppresses the focus ring (outline: none or outline: 0) without providing a visible :focus-visible replacement. Keyboard users lose the visual indicator of where they are.",
       "detection": {
@@ -2770,6 +2744,7 @@
         "code": "/* Replace with a custom focus indicator: */\nbutton:focus-visible {\n  outline: 2px solid var(--color-focus, #005fcc);\n  outline-offset: 2px;\n}\n\n/* Global reset for mouse users: */\n*:focus:not(:focus-visible) { outline: none; }\n*:focus-visible {\n  outline: 2px solid var(--color-focus, #005fcc);\n  outline-offset: 2px;\n}"
       },
       "wcag": "2.4.7",
+      "level": "AA",
       "severity": "high",
       "framework_notes": {
         "react": "Tailwind focus:outline-none is common — replace with focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500.",
@@ -2779,142 +2754,6 @@
         "astro": "Check global CSS in /src/styles/ and component <style> blocks. Tailwind users audit all focus:outline-none instances."
       },
       "false_positive_risk": "low"
-    },
-    "missing-skip-link": {
-      "description": "The page has no skip navigation link. Keyboard and screen reader users must Tab through every navigation item on every page to reach main content.",
-      "detection": {
-        "search": "skip|Skip to|#main|#content",
-        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.astro, **/*.html"
-      },
-      "fix": {
-        "description": "Add a visually hidden skip link as the first focusable element on the page. It becomes visible on focus and links to the main content landmark.",
-        "code": "<!-- First element inside <body> -->\n<a href=\"#main-content\" class=\"skip-link\">Skip to main content</a>\n<main id=\"main-content\"><!-- content --></main>\n\n/* CSS */\n.skip-link { position: absolute; top: -40px; left: 0; background: #000; color: #fff; padding: 8px; z-index: 100; }\n.skip-link:focus { top: 0; }"
-      },
-      "wcag": "2.4.1",
-      "severity": "high",
-      "framework_notes": {
-        "react": "Add in root layout (app/layout.tsx in Next.js) as the first element inside <body>.",
-        "vue": "Add in App.vue or layouts/default.vue (Nuxt) before <router-view>.",
-        "angular": "Add in app.component.html as the first element. Ensure <main> id persists across routes.",
-        "svelte": "Add in +layout.svelte before the <slot>.",
-        "astro": "Add in BaseLayout.astro as the first element inside <body>."
-      },
-      "false_positive_risk": "low"
-    },
-    "positive-tabindex": {
-      "description": "An element has a tabIndex greater than 0. This overrides natural DOM tab order, causing unpredictable keyboard navigation.",
-      "detection": {
-        "search": "tabIndex=[\"']?[1-9]|tabindex=[\"']?[1-9]",
-        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.html"
-      },
-      "fix": {
-        "description": "Remove positive tabIndex values. Use tabIndex={0} to include an element in the natural tab order, or restructure the DOM to match visual order.",
-        "code": "// Remove this:\n// <div tabIndex={3}>Submit</div>\n\n// Use 0 for natural order:\n<div role=\"button\" tabIndex={0} onClick={handle}>Submit</div>"
-      },
-      "wcag": "2.4.3",
-      "severity": "medium",
-      "framework_notes": {
-        "react": "Grep for tabIndex={[1-9] or tabIndex=\"[1-9]\" in JSX.",
-        "vue": "Search for :tabindex or tabindex attributes with values > 0 in templates.",
-        "angular": "Search for [attr.tabindex] bindings and static tabindex attributes > 0.",
-        "svelte": "Search for tabindex attributes > 0 in component templates.",
-        "astro": "Search for tabindex > 0 in both static HTML and island components."
-      },
-      "false_positive_risk": "low"
-    },
-    "mouse-only-handler": {
-      "description": "An element has onMouseOver/onMouseEnter/onMouseLeave without equivalent onFocus/onBlur handlers. Touch and keyboard users cannot trigger the interaction.",
-      "detection": {
-        "search": "onMouseOver=|onMouseEnter=|onMouseLeave=",
-        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte"
-      },
-      "fix": {
-        "description": "Add corresponding onFocus/onBlur handlers alongside mouse event handlers.",
-        "code": "<div\n  onMouseEnter={showTooltip}\n  onMouseLeave={hideTooltip}\n  onFocus={showTooltip}\n  onBlur={hideTooltip}\n  tabIndex={0}\n>\n  Hover or focus me\n</div>"
-      },
-      "wcag": "2.1.1",
-      "severity": "high",
-      "framework_notes": {
-        "react": "Pair onMouseEnter with onFocus and onMouseLeave with onBlur. For tooltips, consider Radix UI Tooltip which handles this automatically.",
-        "vue": "Pair @mouseenter with @focus and @mouseleave with @blur.",
-        "angular": "Pair (mouseenter)/(mouseleave) with (focus)/(blur) bindings.",
-        "svelte": "Pair on:mouseenter/on:mouseleave with on:focus/on:blur.",
-        "astro": "Ensure island components include both mouse and focus event handlers."
-      },
-      "false_positive_risk": "medium",
-      "managed_by_libraries": [
-        "radix-ui",
-        "headless-ui",
-        "shadcn-ui"
-      ]
-    },
-    "small-touch-target": {
-      "description": "An interactive element has a rendered size smaller than 24x24px, making it difficult to activate for users with motor impairments or on touch devices.",
-      "detection": {
-        "search": "min-w-\\[?[0-9]{1,2}px\\]?|min-h-\\[?[0-9]{1,2}px\\]?|w-[1-4]\b|h-[1-4]\b",
-        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.css, **/*.scss"
-      },
-      "fix": {
-        "description": "Ensure interactive elements have a minimum touch target of 24x24px. Use padding to extend the hit area without changing visual size.",
-        "code": "/* Extend hit area with padding: */\n.icon-button {\n  padding: 8px;\n  min-width: 24px;\n  min-height: 24px;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n}\n\n/* Tailwind: */\n<button className=\"p-2 min-w-6 min-h-6 flex items-center justify-center\">"
-      },
-      "wcag": "2.5.8",
-      "severity": "medium",
-      "framework_notes": {
-        "react": "Search for w-2, h-2, w-3, h-3 on interactive elements. Add p-2 to extend hit area.",
-        "vue": "Audit interactive elements for small size utilities. Add padding to extend hit area.",
-        "angular": "Angular Material mat-icon-button provides 40px target by default. For custom components, add min-width/min-height.",
-        "svelte": "Search for small size utilities on <button> and <a> elements.",
-        "astro": "Audit both static HTML and island interactive elements for small touch targets."
-      },
-      "false_positive_risk": "medium"
-    },
-    "drag-no-keyboard-alt": {
-      "description": "An element is draggable without a keyboard-accessible alternative to perform the same action.",
-      "detection": {
-        "search": "draggable=[\"']true[\"']|useDraggable|react-dnd|dnd-kit|sortable",
-        "files": "**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.html"
-      },
-      "fix": {
-        "description": "Provide a keyboard alternative — arrow keys to reorder items, or Move up/Move down buttons.",
-        "code": "<div\n  draggable=\"true\"\n  onDragStart={handleDragStart}\n  onKeyDown={(e) => {\n    if (e.key === \"ArrowUp\") moveItemUp(id);\n    if (e.key === \"ArrowDown\") moveItemDown(id);\n  }}\n  tabIndex={0}\n  role=\"listitem\"\n  aria-label={}\n>\n  {children}\n</div>"
-      },
-      "wcag": "2.1.1",
-      "severity": "high",
-      "framework_notes": {
-        "react": "Use @dnd-kit/core with KeyboardSensor alongside PointerSensor — built-in keyboard support. react-beautiful-dnd also has keyboard support built in.",
-        "vue": "vuedraggable (Sortable.js) lacks keyboard support — add arrow key handlers manually.",
-        "angular": "Angular CDK DragDrop lacks keyboard support — add keyboard event listeners manually.",
-        "svelte": "svelte-dnd-action has some keyboard support. For custom implementations, add arrow key handlers.",
-        "astro": "Ensure island drag components include keyboard support."
-      },
-      "false_positive_risk": "medium",
-      "managed_by_libraries": [
-        "dnd-kit",
-        "react-beautiful-dnd",
-        "vue-draggable"
-      ]
-    },
-    "missing-autocomplete": {
-      "description": "Form inputs collecting personal data (name, email, phone, address, payment) are missing the `autocomplete` attribute. Browsers and assistive technology cannot auto-fill values, increasing cognitive load for users with motor or cognitive disabilities.",
-      "detection": {
-        "search": "name=[\"'](?:first[_\\-]?name|last[_\\-]?name|full[_\\-]?name|given[_\\-]?name|family[_\\-]?name|email|phone|tel|mobile|address|street|zip|postal|city|state|country|credit|card|cvv|cvc|birth|dob)",
-        "files": "**/*.html, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.astro"
-      },
-      "fix": {
-        "description": "Add the appropriate `autocomplete` token (e.g. `given-name`, `family-name`, `email`, `tel`, `street-address`, `postal-code`, `cc-number`) to each input collecting personal data. Full token list: https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill",
-        "code": "<!-- Before -->\n<input type=\"text\" name=\"firstName\" />\n<input type=\"email\" name=\"userEmail\" />\n<input type=\"tel\" name=\"phone\" />\n\n<!-- After -->\n<input type=\"text\" name=\"firstName\" autocomplete=\"given-name\" />\n<input type=\"email\" name=\"userEmail\" autocomplete=\"email\" />\n<input type=\"tel\" name=\"phone\" autocomplete=\"tel\" />"
-      },
-      "wcag": "1.3.5",
-      "severity": "medium",
-      "framework_notes": {
-        "react": "Pass `autocomplete` as a prop — React maps it directly to the DOM attribute: `<input autocomplete=\"given-name\" />`.",
-        "vue": "Add as a static attribute: `autocomplete=\"given-name\"`. To bind dynamically: `:autocomplete=\"'given-name'\"`.",
-        "angular": "Add `autocomplete=\"given-name\"` directly in the template element — Angular does not strip it.",
-        "svelte": "Add `autocomplete=\"given-name\"` as a native HTML attribute in the template markup.",
-        "astro": "Add `autocomplete=\"given-name\"` to input elements in .astro files or component templates."
-      },
-      "false_positive_risk": "high"
     },
     "autoplay-media": {
       "description": "An `<audio>` or `<video>` element has the `autoplay` attribute without being muted. Auto-playing audio interferes with screen readers and disorienting for users with cognitive disabilities.",
@@ -2927,6 +2766,7 @@
         "code": "<!-- Before — auto-plays with audio, no controls -->\n<video autoplay src=\"intro.mp4\"></video>\n\n<!-- After option 1 — no autoplay -->\n<video controls src=\"intro.mp4\"></video>\n\n<!-- After option 2 — silent autoplay with controls -->\n<video autoplay muted controls src=\"intro.mp4\"></video>"
       },
       "wcag": "1.4.2",
+      "level": "A",
       "severity": "high",
       "framework_notes": {
         "react": "Remove the `autoPlay` prop (React uses camelCase). If required, add `muted` and `controls`: `<video autoPlay muted controls src={src} />`.",
@@ -2948,6 +2788,7 @@
         "code": "// Before — locks to portrait, breaks mounted devices\nscreen.orientation.lock('portrait');\n\n// After — remove the lock entirely\n// Only if truly essential, show a dismissible notice:\nif (isEssentiallyLandscapeOnly && !userDismissedNotice) {\n  showOrientationNotice(); // non-blocking banner, not a modal\n}"
       },
       "wcag": "1.3.4",
+      "level": "AA",
       "severity": "medium",
       "framework_notes": {
         "react": "Remove `screen.orientation.lock()` calls from `useEffect` hooks. If a native app wrapper (Capacitor, Expo) sets orientation, configure it only for specific screens.",
@@ -2969,6 +2810,7 @@
         "code": "<!-- Before — single-character shortcut, no override mechanism -->\n<button accesskey=\"s\">Save</button>\n\n<!-- After option 1 — remove accesskey -->\n<button type=\"button\">Save</button>\n\n<!-- After option 2 — multi-key shortcut with disclosure -->\n<button\n  type=\"button\"\n  aria-keyshortcuts=\"Alt+Shift+S\"\n  title=\"Save (Alt+Shift+S)\">\n  Save\n</button>"
       },
       "wcag": "2.1.4",
+      "level": "A",
       "severity": "medium",
       "framework_notes": {
         "react": "Remove the `accessKey` prop (React camelCase). For custom shortcuts, implement a `useKeyboardShortcut` hook using modifier keys (Alt+Shift+key).",
@@ -2978,27 +2820,6 @@
         "astro": "Remove `accesskey` from .astro template elements and any component files."
       },
       "false_positive_risk": "low"
-    },
-    "motion-actuation-no-alt": {
-      "description": "Device motion or orientation events (`devicemotion`, `deviceorientation`) trigger actions (e.g., shake to undo) with no UI button alternative. Users who mount their device on a wheelchair or stand cannot physically perform these gestures.",
-      "detection": {
-        "search": "DeviceMotionEvent|DeviceOrientationEvent|addEventListener.*['\"]device(?:motion|orientation)['\"]",
-        "files": "**/*.ts, **/*.js, **/*.tsx, **/*.jsx, **/*.vue, **/*.svelte"
-      },
-      "fix": {
-        "description": "Add a visible UI button or keyboard-accessible control as an alternative for every motion-triggered action. The motion listener can remain, but the action must also be reachable without it.",
-        "code": "// Before — shake-only, no alternative\nwindow.addEventListener('devicemotion', (e) => {\n  if (isShake(e)) undoLastAction();\n});\n\n// After — motion + visible button alternative\nwindow.addEventListener('devicemotion', (e) => {\n  if (isShake(e)) undoLastAction();\n});\n\n{/* Add a visible UI alternative */}\n<button type=\"button\" onClick={undoLastAction}>\n  Undo\n</button>"
-      },
-      "wcag": "2.5.4",
-      "severity": "medium",
-      "framework_notes": {
-        "react": "Keep the DeviceMotion listener but add an `<button onClick={action}>` control. Expose the same handler to both triggers.",
-        "vue": "Add a `@click` button alongside the `devicemotion` listener. Share the same handler method.",
-        "angular": "Add a `(click)` button alongside the device motion subscription. Extract the action to a shared method.",
-        "svelte": "Add an `on:click` button alongside the `devicemotion` event listener. Both call the same function.",
-        "astro": "In client-side island components, ensure every device motion handler has a paired clickable button."
-      },
-      "false_positive_risk": "medium"
     }
   }
 }
