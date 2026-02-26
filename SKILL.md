@@ -319,7 +319,7 @@ After the script completes, immediately parse ALL findings in the same turn — 
      `[MESSAGE]` The verification re-audit found new issues that were not present in the initial scan. This is expected and not a regression — axe-core stops evaluating child elements when a parent has a critical violation. Once that parent is fixed, the children get evaluated for the first time and may surface their own issues. Here are the new findings:
 
   2. Present all findings using the same format as Step 3 (grouped by severity).
-  3. **Always ask** — even if all remaining issues were previously declined:
+  3. **Always ask immediately after presenting findings** — never stop or pause here, even if all remaining issues were previously declined:
 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
 
@@ -327,13 +327,15 @@ After the script completes, immediately parse ALL findings in the same turn — 
      2. **Move on** — accept the remaining issues and continue to Step 6
 
   4. If **Keep fixing**: fix following Step 4 procedures (4a for structural, 4b approval gate for style), then run the re-audit again. Go back to step 1 of this sequence.
-  5. If **Move on**: proceed to Step 6.
+  5. If **Move on**: proceed to Step 6 immediately. Do not stop — execute all Step 6 items in order (summary → reports question → manual checklist message → closing message → final question).
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 
 **Do not proceed to Step 6 until either: the re-audit is clean, the user explicitly chooses to move on, or 3 cycles are exhausted.**
 
 ### Step 6 — Deliver results
+
+**All items in this step are mandatory and must execute in order (1 → 9). Never stop after the summary — complete the full step.**
 
 1. **Summarize**: total found, resolved, files modified, remaining (if any).
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
