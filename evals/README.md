@@ -28,7 +28,7 @@ Each `.json` file is a self-contained test case. There is no built-in runner —
 3.  **[03-user-declines-fixes.json](03-user-declines-fixes.json)**: Graceful stop & education.
 4.  **[06-style-fixes-separation.json](06-style-fixes-separation.json)**: Safe visual changes.
 5.  **[09-checklist-export.json](09-checklist-export.json)**: Manual testing checklist export.
-6.  **[10-gitignore-proactive.json](10-gitignore-proactive.json)**: Procedural hygiene.
+6.  **[10-save-path-options.json](10-save-path-options.json)**: Save path options and path reuse.
 
 **Edge cases & recovery:**
 7.  **[04-auth-blocked-routes.json](04-auth-blocked-routes.json)**: Security & auth boundaries.

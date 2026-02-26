@@ -32,7 +32,6 @@ These rules apply at all times, independent of any workflow step.
 - Visual reports (HTML/PDF) are only created in Step 6, after the user explicitly requests them. Never generate reports in any other step.
 - Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
 - Never declare "100% accessible" based on a targeted audit. Only a comprehensive full-site verification can confirm that.
-- Never modify the user's `.gitignore` without asking first.
 - Treat scripts as black boxes: run with `--help` to discover flags. Do not read script source — it consumes context budget for no benefit.
 - If `pnpm` is not available, use `npm` as fallback.
 - Never add, remove, or modify CLI flags (`--exclude-selectors`, `--timeout-ms`, `--wait-ms`, etc.) without the user explicitly requesting it.
@@ -165,11 +164,11 @@ Then summarize and present:
 
 Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes**: present the following message, then skip to Step 6.
+If the user chooses **Skip fixes**: present the following message, then proceed to Step 6 immediately — execute all Step 6 items in order (summary → passed criteria → out of scope → reports question → manual checklist message → closing message → final question).
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
-**0 issues found** → skip to Step 6. Note: automated tools cannot catch every barrier; recommend manual checks.
+**0 issues found** → proceed to Step 6 immediately — execute all Step 6 items in order (summary → passed criteria → out of scope → reports question → manual checklist message → closing message → final question). Note: automated tools cannot catch every barrier; recommend manual checks.
 
 ### Step 4 — Fix
 
@@ -299,7 +298,7 @@ After the script completes, immediately parse ALL findings in the same turn — 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
 
      1. **Keep fixing** — address the remaining issues
-     2. **Move on** — accept the remaining issues and continue to Step 6
+     2. **Move on** — accept the remaining issues and proceed to the final summary
 
   4. If **Keep fixing**: fix following Step 4 procedures (4a for structural, 4b approval gate for style), then run the re-audit again. Go back to step 1 of this sequence.
   5. If **Move on**: proceed to Step 6 immediately. Do not stop — execute all Step 6 items in order (summary → passed criteria → out of scope → reports question → manual checklist message → closing message → final question).
@@ -310,7 +309,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 ### Step 6 — Deliver results
 
-**All items in this step are mandatory and must execute in order (1 → 11). Never stop after the summary — complete the full step.**
+**All items in this step are mandatory and must execute in order (1 → 10). Never stop after the summary — complete the full step.**
 
 1. **Summarize**: state the **Overall Assessment** first — `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), or `Fail` (any Critical or Serious remain unresolved). Follow with: total found, resolved, files modified, remaining (if any).
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
@@ -323,7 +322,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 1. **Yes**
 2. **No thanks**
 
-If **No thanks**: skip to step 9.
+If **No thanks**: skip to item 8.
 
    If **Yes**, wait for that answer, then ask which format in a new message:
 
@@ -339,21 +338,11 @@ If **No thanks**: skip to step 9.
 `[QUESTION]` **Where should I save the reports?**
 
 1. **Desktop** — `~/Desktop/`
-2. **Project audit folder** — `./audit/`
+2. **Documents** — `~/Documents/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
 
-7. After the save location is confirmed, ask about `.gitignore` **only if the chosen path is inside the project** (e.g., `./audit/` or any relative path) **and this question was not already asked in Step 3**. If the user chose Desktop or any path outside the project root, skip this question entirely. Ask once per session — skip if already asked:
-
-`[QUESTION]` **Should I add the reports folder to `.gitignore`?**
-
-1. **Yes** — ignore generated reports
-2. **No** — keep reports tracked
-3. **Back** — change the save location
-
-If **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message, then proceed to item 8 below (generate the reports). If **No**: proceed to item 8 below (generate the reports).
-
-8. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
+7. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
 
    ```bash
    # HTML (run if HTML or Both was selected)
@@ -365,7 +354,7 @@ If **Yes**: immediately append the reports folder path to `.gitignore` (create t
 
    After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
 
-9. **MANDATORY** — output the following message verbatim before finishing:
+8. **MANDATORY** — output the following message verbatim before finishing:
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
@@ -382,12 +371,12 @@ Then ask:
 1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
 2. **No thanks**
 
-If **Yes**: use the output path already set earlier in this session (Step 3 or Step 6 item 6). If no path was set yet, ask:
+If **Yes**: if a save path was already established in item 6 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 5), ask:
 
 `[QUESTION]` **Where should I save the checklist?**
 
 1. **Desktop** — `~/Desktop/`
-2. **Project audit folder** — `./audit/`
+2. **Documents** — `~/Documents/`
 3. **Custom path** — tell me the exact folder path
 4. **Back** — go back to the checklist export question
 
@@ -399,12 +388,12 @@ node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL
 
 Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
 
-10. **MANDATORY** — output the following closing message verbatim. Do not skip it:
+9. **MANDATORY** — output the following closing message verbatim. Do not skip it:
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 
-11. After the closing message:
-    - If the user declined **both** reports (item 5) and checklist (item 9): the workflow is complete — do not ask a follow-up question.
+10. After the closing message:
+    - If the user declined **both** reports (item 5) and checklist (item 8): the workflow is complete — do not ask a follow-up question.
     - Otherwise, ask:
 
 `[QUESTION]` **Is there anything else I can help you with?**
