@@ -39,7 +39,8 @@ These rules apply at all times, independent of any workflow step.
 
 1. **Language** — always communicate in English, regardless of the language the user writes in.
 2. **Tone** — concise and technical. State findings, propose action, ask for a decision.
-2. **Message tags** — this playbook uses two tags to mark formatted messages. When you reach a tagged block, present it as a **standalone message** — never merge with informational lists, findings, summaries, or other content.
+3. **Internal steps** — never expose internal step labels or phase names to the user (e.g., do not say "Step 4c" or "Source Code Pattern Audit"). Describe actions in plain language instead.
+4. **Message tags** — this playbook uses two tags to mark formatted messages. When you reach a tagged block, present it as a **standalone message** — never merge with informational lists, findings, summaries, or other content.
    - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options. **Send one `[QUESTION]` per message. Never present two questions at once. Always wait for the user's answer before showing the next question.** Format: always output the question text on its own line, followed by each option as a numbered item on its own line — never inline, never collapsed to "Yes/No". Example output:
      ```
      How many pages should I crawl?
