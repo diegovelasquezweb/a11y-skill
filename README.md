@@ -23,7 +23,7 @@ Give your AI agent the following prompt:
 Install skill https://github.com/diegovelasquezweb/a11y
 ```
 
-The agent will clone the repository and run `install.sh`, which auto-detects your platform and copies the skill to the correct path:
+The agent will clone the repository and run `node install.mjs`, which auto-detects installed agents and copies the skill to the correct path on any platform (macOS, Linux, Windows):
 
 | Agent | Install path |
 | :---- | :----------- |
@@ -48,9 +48,9 @@ Start the skill with a single prompt, for example:
 
 The agent guides the rest of the session, running the audit, presenting findings, walking you through fixes, and asking whether to generate reports. Every action is confirmed before it runs.
 
-## Audit Engine (CI/CD & Local Validation)
+## Headless Audit
 
-Audit core for CI/CD pipelines and rapid local verification without consuming AI tokens
+Run the audit engine directly — no AI agent required. Ideal for CI/CD pipelines, pre-commit hooks, and rapid local validation without consuming AI tokens.
 
 Execute the audit script directly from the skill directory. For the full technical reference of supported options, see the [CLI Handbook](docs/cli-handbook.md).
 
