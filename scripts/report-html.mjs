@@ -295,23 +295,23 @@ function buildHtml(args, findings, metadata = {}) {
             </div>
             <div class="premium-card p-5 rounded-2xl border-l-[6px] border-orange-500">
               <div class="flex justify-between items-start mb-2">
-                <span class="text-[10px] font-bold text-orange-600 uppercase tracking-widest">High</span>
+                <span class="text-[10px] font-bold text-orange-600 uppercase tracking-widest">Serious</span>
               </div>
-              <div class="text-4xl font-black text-slate-900">${totals.High}</div>
+              <div class="text-4xl font-black text-slate-900">${totals.Serious}</div>
               <p class="text-[10px] text-slate-400 font-medium mt-1 leading-tight">Serious impediments</p>
             </div>
             <div class="premium-card p-5 rounded-2xl border-l-[6px] border-amber-400">
               <div class="flex justify-between items-start mb-2">
-                <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Medium</span>
+                <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Moderate</span>
               </div>
-              <div class="text-4xl font-black text-slate-900">${totals.Medium}</div>
+              <div class="text-4xl font-black text-slate-900">${totals.Moderate}</div>
               <p class="text-[10px] text-slate-400 font-medium mt-1 leading-tight">Significant friction</p>
             </div>
             <div class="premium-card p-5 rounded-2xl border-l-[6px] border-emerald-500">
               <div class="flex justify-between items-start mb-2">
-                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Low</span>
+                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Minor</span>
               </div>
-              <div class="text-4xl font-black text-slate-900">${totals.Low}</div>
+              <div class="text-4xl font-black text-slate-900">${totals.Minor}</div>
               <p class="text-[10px] text-slate-400 font-medium mt-1 leading-tight">Best practices</p>
             </div>
           </div>
@@ -416,9 +416,9 @@ function buildHtml(args, findings, metadata = {}) {
               </optgroup>
               <optgroup label="Severity">
                 <option value="Critical">Critical</option>
-                <option value="High">High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+                <option value="Serious">Serious</option>
+                <option value="Moderate">Moderate</option>
+                <option value="Minor">Minor</option>
               </optgroup>
               <optgroup label="WCAG Principle">
                 <option value="Perceivable">Perceivable</option>

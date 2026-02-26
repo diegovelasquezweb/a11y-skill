@@ -23,20 +23,20 @@ Give your AI agent the following prompt:
 
 The agent will clone the repository to its skills directory automatically:
 
-| Agent | Install path |
-| :---- | :----------- |
-| Claude Code | `~/.claude/skills/a11y/` |
-| Cursor | `~/.cursor/skills/a11y/` |
-| Gemini CLI | `~/.gemini/skills/a11y/` |
-| Codex | `~/.agents/skills/a11y/` |
-| Windsurf | `~/.codeium/windsurf/skills/a11y/` |
-| Antigravity | `~/.gemini/antigravity/skills/a11y/` |
+| Agent | Install path | Invoke |
+| :---- | :----------- | :----- |
+| Claude Code | `~/.claude/skills/a11y/` | `/a11y` |
+| Cursor | `~/.cursor/skills/a11y/` | `/a11y` |
+| Gemini CLI | `~/.gemini/skills/a11y/` | — |
+| Codex | `~/.agents/skills/a11y/` | `$a11y` |
+| Windsurf | `~/.codeium/windsurf/skills/a11y/` | `@a11y` |
+| Antigravity | `~/.gemini/antigravity/skills/a11y/` | `/a11y` |
 
 Restart your agent session after installation to ensure the skill is loaded.
 
 ## How to Use
 
-Invoke it directly with `/a11y <URL>` or `$a11y <URL>` or start the skill with a natural language prompt like:
+Invoke it directly using your agent's syntax (`/a11y`, `$a11y`, or `@a11y` — see table above), or start the skill with a natural language prompt like:
 
 ```bash
 "Audit accessibility localhost:3000"

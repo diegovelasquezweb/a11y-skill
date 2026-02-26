@@ -159,11 +159,11 @@ Then summarize and present:
 
 Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes**: present the following message, then proceed to Step 6 immediately — execute all Step 6 items in order (summary → passed criteria → out of scope → reports question → manual checklist message → closing message → final question).
+If the user chooses **Skip fixes**: present the following message, then proceed to Step 6 immediately — execute all Step 6 items in order (summary → passed criteria → reports question → manual checklist message → closing message → final question).
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
-**0 issues found** → proceed to Step 6 immediately — execute all Step 6 items in order (summary → passed criteria → out of scope → reports question → manual checklist message → closing message → final question). Note: automated tools cannot catch every barrier; recommend manual checks.
+**0 issues found** → proceed to Step 6 immediately — execute all Step 6 items in order (summary → passed criteria → reports question → manual checklist message → closing message → final question). Note: automated tools cannot catch every barrier; recommend manual checks.
 
 ### Step 4 — Fix
 
@@ -322,7 +322,7 @@ After the script completes, immediately parse ALL findings in the same turn — 
      2. **Move on** — accept the remaining issues and proceed to the final summary
 
   4. If **Keep fixing**: fix following Step 4 procedures (4a for structural, 4b approval gate for style), then run the re-audit again. Go back to step 1 of this sequence.
-  5. If **Move on**: proceed to Step 6 immediately. Do not stop — execute all Step 6 items in order (summary → passed criteria → out of scope → reports question → manual checklist message → closing message → final question).
+  5. If **Move on**: proceed to Step 6 immediately. Do not stop — execute all Step 6 items in order (summary → passed criteria → reports question → manual checklist message → closing message → final question).
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 
@@ -330,7 +330,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 ### Step 6 — Deliver results
 
-**All items in this step are mandatory and must execute in order (1 → 10). Never stop after the summary — complete the full step.**
+**All items in this step are mandatory and must execute in order (1 → 9). Never stop after the summary — complete the full step.**
 
 1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**, filling in values from the remediation guide. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`.
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
@@ -340,15 +340,14 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
    |-----------|------|-------|
    | 1.1.1     | Non-text Content | A |
    | …         | …    | …     |
-4. **Out of Scope**: present the "Out of Scope" section from the remediation guide as-is.
-5. Ask about reports. Wait for the answer before continuing:
+4. Ask about reports. Wait for the answer before continuing:
 
 `[QUESTION]` **Would you like a visual report?**
 
 1. **Yes**
 2. **No thanks**
 
-If **No thanks**: skip to item 8.
+If **No thanks**: skip to item 7.
 
    If **Yes**, wait for that answer, then ask which format in a new message:
 
@@ -359,7 +358,7 @@ If **No thanks**: skip to item 8.
    3. **Both**
    4. **Back** — change your report preference
 
-6. If reports requested, wait for the format answer above, then ask save location. Skip this question if a path was already set earlier in this session (Step 3) — reuse that path silently:
+5. If reports requested, wait for the format answer above, then ask save location. Skip this question if a path was already set earlier in this session (Step 3) — reuse that path silently:
 
 `[QUESTION]` **Where should I save the reports?**
 
@@ -368,7 +367,7 @@ If **No thanks**: skip to item 8.
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
 
-7. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
+6. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
 
    ```bash
    # HTML (run if HTML or Both was selected)
@@ -378,9 +377,9 @@ If **No thanks**: skip to item 8.
    node scripts/report-pdf.mjs --output <path>/report.pdf --base-url <URL>
    ```
 
-   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually. **Then immediately continue to item 8 in the same response — do not wait for user input.**
+   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually. **Then immediately continue to item 7 in the same response — do not wait for user input.**
 
-8. Output the manual testing reminder and checklist offer — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 9.
+7. Output the manual testing reminder and checklist offer — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 8.
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
@@ -397,7 +396,7 @@ Then ask:
 1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
 2. **No thanks**
 
-If **Yes**: if a save path was already established in item 6 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 5), ask:
+If **Yes**: present the "Out of Scope" section from the remediation guide as context, then if a save path was already established in item 5 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 4), ask:
 
 `[QUESTION]` **Where should I save the checklist?**
 
@@ -412,14 +411,14 @@ Then:
 node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
 ```
 
-Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually. **Then immediately continue to item 9 in the same response — do not wait for user input.**
+Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually. **Then immediately continue to item 8 in the same response — do not wait for user input.**
 
-9. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
+8. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 
-10. After the closing message (or after item 7 if items 8 and 9 were skipped):
-    - If no deliverable was generated this session — user declined reports (item 5) and either declined or was never offered the checklist (item 8 skipped): the workflow is complete — do not ask a follow-up question.
+9. After the closing message (or after item 6 if items 7 and 8 were skipped):
+    - If no deliverable was generated this session — user declined reports (item 4) and either declined or was never offered the checklist (item 7 skipped): the workflow is complete — do not ask a follow-up question.
     - Otherwise, ask:
 
 `[QUESTION]` **Is there anything else I can help you with?**
