@@ -168,7 +168,7 @@ If the chosen path is inside the project, ask (first time only):
 
 If **Yes**: append the path to `.gitignore` (create if missing), confirm, then generate. If **No**: generate directly.
 
-Generate and **open each file**. After the reports are open, return here and continue to Step 4 to begin fixes by severity.
+Generate and **open each file**. After the reports are open, proceed directly to Step 4 — do not ask for confirmation again. The user already committed to fixing when they chose this option.
 
 If the user chooses **Skip fixes**: present the following message, then skip to Step 6.
 
@@ -287,26 +287,25 @@ Output the following message, then **in the same turn without pausing** run the 
 node scripts/audit.mjs --base-url <URL> [--max-routes <N>]
 ```
 
-After completion, parse ALL findings — new regressions and unresolved originals:
+After the script completes, immediately parse ALL findings in the same turn — do not pause or wait for user input before presenting results:
 
 - **All clear (0 issues)** → proceed to Step 6.
 - **Issues found (any kind)** → follow this sequence:
 
-  1. If the issues are new regressions (not seen before the fixes), inform the user first:
+  1. If the issues include new regressions (not seen before the fixes), inform the user first:
 
-     `[MESSAGE]` The verification re-audit found new issues that were not present in the initial scan. This is expected — some issues only surface after earlier fixes change the DOM structure. Here are the new findings:
+     `[MESSAGE]` The verification re-audit found new issues that were not present in the initial scan. This is expected and not a regression — axe-core stops evaluating child elements when a parent has a critical violation. Once that parent is fixed, the children get evaluated for the first time and may surface their own issues. Here are the new findings:
 
   2. Present all findings using the same format as Step 3 (grouped by severity).
-  3. Fix them following Step 4 procedures (4a for structural, 4b approval gate for style). Do not skip to Step 6.
-  4. Run the re-audit again.
-  5. If issues **still persist after fixing**, ask:
+  3. **Always ask** — even if all remaining issues were previously declined:
 
-     `[QUESTION]` **The re-audit still shows [N] issue(s) after attempting fixes. How would you like to proceed?**
+     `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
 
-     1. **Keep fixing**
-     2. **Move on** — accept the remaining issues and continue
+     1. **Keep fixing** — address the remaining issues
+     2. **Move on** — accept the remaining issues and continue to Step 6
 
-  6. If the user chooses **Move on**, proceed to Step 6. If they choose **Keep fixing**, go back to step 2 of this sequence (present findings and fix following Step 4 procedures).
+  4. If **Keep fixing**: fix following Step 4 procedures (4a for structural, 4b approval gate for style), then run the re-audit again. Go back to step 1 of this sequence.
+  5. If **Move on**: proceed to Step 6.
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 
@@ -421,5 +420,5 @@ If **Yes**: help the user with their request, then ask this question again. If *
 1. Do not guess credentials or attempt brute-force access.
 2. Report blocked routes (401/403 or login redirect).
 3. Ask the user: provide session cookies, test credentials, or skip those routes.
-4. Use credentials for the audit session only — do not persist to disk.
+4. Use credentials for the audit session only. Do not persist to disk.
 5. Note skipped routes as "Not Tested — Auth Required."
