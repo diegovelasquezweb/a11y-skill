@@ -448,6 +448,7 @@ async function analyzeRoute(
       return {
         url: routeUrl,
         violations: axeResults.violations,
+        passes: axeResults.passes.map((p) => p.id),
         metadata,
       };
     } catch (error) {
@@ -468,6 +469,7 @@ async function analyzeRoute(
     url: routeUrl,
     error: lastError.message,
     violations: [],
+    passes: [],
     metadata: {},
   };
 }

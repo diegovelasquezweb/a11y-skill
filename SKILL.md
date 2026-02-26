@@ -122,7 +122,9 @@ node scripts/audit.mjs --base-url <URL> --max-routes <N>
 
 For local projects with framework auto-detection, add `--project-dir <path>`. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
 
-After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user. Proceed to Step 3.
+After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user.
+
+Proceed to Step 3.
 
 If the script fails, consult [references/troubleshooting.md](references/troubleshooting.md) to self-correct before asking the user. If unrecoverable, offer: (1) Retry, (2) Different URL, (3) Skip and troubleshoot manually. After resolving, proceed to Step 3.
 
@@ -130,9 +132,25 @@ If the script fails, consult [references/troubleshooting.md](references/troubles
 
 Load [references/report-standards.md](references/report-standards.md) for finding field requirements and deliverable format.
 
-Read the remediation guide and:
+Read the remediation guide. The audit pipeline has already handled deduplication, false positive filtering, and computed the Overall Assessment — read these directly from the report.
 
-1. Summarize by severity (Critical → Serious → Moderate → Minor).
+Apply your own judgment using this decision tree to override severity when the automated classification is inaccurate:
+
+```
+Can the user complete the task?
+├── No → Is there a workaround?
+│        ├── No → CRITICAL
+│        └── Yes, but difficult → SERIOUS
+└── Yes → Is the experience degraded?
+          ├── Significantly → MODERATE
+          └── Slightly → MINOR
+```
+
+Apply consistently — same issue type = same severity across all findings.
+
+Then summarize and present:
+
+1. State the **Overall Assessment** from the report header. Follow with a count by severity (Critical → Serious → Moderate → Minor).
 2. Propose specific fixes from the remediation guide.
 3. Group by component or page area, explaining why each fix matters.
 4. Ask how to proceed:
@@ -282,7 +300,7 @@ After the script completes, immediately parse ALL findings in the same turn — 
      2. **Move on** — accept the remaining issues and continue to Step 6
 
   4. If **Keep fixing**: fix following Step 4 procedures (4a for structural, 4b approval gate for style), then run the re-audit again. Go back to step 1 of this sequence.
-  5. If **Move on**: proceed to Step 6 immediately. Do not stop — execute all Step 6 items in order (summary → reports question → manual checklist message → closing message → final question).
+  5. If **Move on**: proceed to Step 6 immediately. Do not stop — execute all Step 6 items in order (summary → passed criteria → out of scope → reports question → manual checklist message → closing message → final question).
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 
@@ -290,18 +308,20 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 ### Step 6 — Deliver results
 
-**All items in this step are mandatory and must execute in order (1 → 9). Never stop after the summary — complete the full step.**
+**All items in this step are mandatory and must execute in order (1 → 11). Never stop after the summary — complete the full step.**
 
-1. **Summarize**: total found, resolved, files modified, remaining (if any).
+1. **Summarize**: state the **Overall Assessment** first — `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), or `Fail` (any Critical or Serious remain unresolved). Follow with: total found, resolved, files modified, remaining (if any).
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
-3. Ask about reports. Wait for the answer before continuing:
+3. **Passed Criteria**: present the "Passed Criteria" section from the remediation guide as-is. Note it reflects automated coverage only.
+4. **Out of Scope**: present the "Out of Scope" section from the remediation guide as-is.
+5. Ask about reports. Wait for the answer before continuing:
 
 `[QUESTION]` **Would you like a visual report?**
 
 1. **Yes**
 2. **No thanks**
 
-If **No thanks**: skip to step 7.
+If **No thanks**: skip to step 9.
 
    If **Yes**, wait for that answer, then ask which format in a new message:
 
@@ -312,7 +332,7 @@ If **No thanks**: skip to step 7.
    3. **Both**
    4. **Back** — change your report preference
 
-4. If reports requested, wait for the format answer above, then ask save location. Skip this question if a path was already set earlier in this session (Step 3) — reuse that path silently:
+6. If reports requested, wait for the format answer above, then ask save location. Skip this question if a path was already set earlier in this session (Step 3) — reuse that path silently:
 
 `[QUESTION]` **Where should I save the reports?**
 
@@ -321,7 +341,7 @@ If **No thanks**: skip to step 7.
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
 
-5. After the save location is confirmed, ask about `.gitignore` **only if the chosen path is inside the project** (e.g., `./audit/` or any relative path) **and this question was not already asked in Step 3**. If the user chose Desktop or any path outside the project root, skip this question entirely. Ask once per session — skip if already asked:
+7. After the save location is confirmed, ask about `.gitignore` **only if the chosen path is inside the project** (e.g., `./audit/` or any relative path) **and this question was not already asked in Step 3**. If the user chose Desktop or any path outside the project root, skip this question entirely. Ask once per session — skip if already asked:
 
 `[QUESTION]` **Should I add the reports folder to `.gitignore`?**
 
@@ -329,9 +349,9 @@ If **No thanks**: skip to step 7.
 2. **No** — keep reports tracked
 3. **Back** — change the save location
 
-If **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message, then proceed to item 6 below (generate the reports). If **No**: proceed to item 6 below (generate the reports).
+If **Yes**: immediately append the reports folder path to `.gitignore` (create the file if it does not exist). Confirm the action in your next message, then proceed to item 8 below (generate the reports). If **No**: proceed to item 8 below (generate the reports).
 
-6. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
+8. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
 
    ```bash
    # HTML (run if HTML or Both was selected)
@@ -343,7 +363,7 @@ If **Yes**: immediately append the reports folder path to `.gitignore` (create t
 
    After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
 
-7. **MANDATORY** — output the following message verbatim before finishing:
+9. **MANDATORY** — output the following message verbatim before finishing:
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
@@ -360,7 +380,7 @@ Then ask:
 1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
 2. **No thanks**
 
-If **Yes**: use the output path already set earlier in this session (Step 3 or Step 6). If no path was set yet, ask:
+If **Yes**: use the output path already set earlier in this session (Step 3 or Step 6 item 6). If no path was set yet, ask:
 
 `[QUESTION]` **Where should I save the checklist?**
 
@@ -377,11 +397,11 @@ node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL
 
 Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually.
 
-8. **MANDATORY** — output the following closing message verbatim. Do not skip it:
+10. **MANDATORY** — output the following closing message verbatim. Do not skip it:
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 
-9. After the closing message, ask:
+11. After the closing message, ask:
 
 `[QUESTION]` **Is there anything else I can help you with?**
 

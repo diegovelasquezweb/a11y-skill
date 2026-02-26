@@ -101,6 +101,8 @@ export function normalizeFindings(payload) {
       managedByLibrary: item.managed_by_library ?? null,
       componentHint: item.component_hint ?? null,
       verificationCommand: item.verification_command ?? null,
+      pagesAffected: typeof item.pages_affected === "number" ? item.pages_affected : null,
+      affectedUrls: Array.isArray(item.affected_urls) ? item.affected_urls : null,
     }))
     .sort((a, b) => {
       const sa = SEVERITY_ORDER[a.severity] ?? 99;

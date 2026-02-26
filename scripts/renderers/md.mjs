@@ -198,6 +198,49 @@ function buildGuardrails(framework) {
  * @param {Object} [metadata={}] - Optional scan metadata.
  * @returns {string} The complete Markdown document.
  */
+/**
+ * Builds the Passed Criteria section listing WCAG criteria with no violations.
+ * @param {string[]} passedCriteria
+ * @returns {string}
+ */
+function buildPassedCriteriaSection(passedCriteria) {
+  if (!Array.isArray(passedCriteria) || passedCriteria.length === 0) return "";
+  return `## ✅ Passed Criteria
+
+The following WCAG 2.2 AA criteria were verified by automated scanning and returned no violations. This list reflects automated coverage only — manual testing may reveal additional issues.
+
+${passedCriteria.map((c) => `- ${c}`).join("\n")}
+`;
+}
+
+/**
+ * Builds the Out of Scope section documenting what was not tested.
+ * @param {Object} outOfScope
+ * @returns {string}
+ */
+function buildOutOfScopeSection(outOfScope) {
+  if (!outOfScope) return "";
+  const parts = [];
+  if (outOfScope.auth_blocked_routes?.length > 0) {
+    parts.push(
+      `**Routes not tested (access error):**\n${outOfScope.auth_blocked_routes.map((r) => `- \`${r}\``).join("\n")}`,
+    );
+  }
+  if (outOfScope.manual_testing_required?.length > 0) {
+    parts.push(
+      `**Requires manual testing (not detectable by axe-core):**\n${outOfScope.manual_testing_required.map((c) => `- ${c}`).join("\n")}`,
+    );
+  }
+  if (outOfScope.aaa_excluded) {
+    parts.push(`**AAA criteria:** Not in scope for this audit.`);
+  }
+  if (parts.length === 0) return "";
+  return `## 📋 Out of Scope
+
+${parts.join("\n\n")}
+`;
+}
+
 export function buildMarkdownSummary(args, findings, metadata = {}) {
   const framework = resolveFramework(
     metadata,
@@ -206,6 +249,13 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
   );
   const totals = buildSummary(findings);
   const status = findings.length === 0 ? "PASS" : "ISSUES FOUND";
+
+  const assessmentEmoji =
+    metadata.overallAssessment === "Pass" ? "✅" :
+    metadata.overallAssessment === "Conditional Pass" ? "⚠️" : "❌";
+  const assessmentLine = metadata.overallAssessment
+    ? `> **Overall Assessment:** ${assessmentEmoji} ${metadata.overallAssessment}\n`
+    : "";
 
   function findingToMd(f) {
     let evidenceHtml = null;
@@ -230,6 +280,11 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       f.fixDescription || f.fixCode
         ? `#### Recommended Technical Solution\n${f.fixDescription ? `**Implementation:** ${f.fixDescription}\n` : ""}${f.fixCode ? `\`\`\`${codeLang}\n${f.fixCode}\n\`\`\`` : ""}`.trimEnd()
         : `#### Recommended Remediation\n${f.recommendedFix}`;
+
+    const crossPageBlock =
+      f.pagesAffected && f.pagesAffected > 1
+        ? `> ℹ️ **Found on ${f.pagesAffected} pages** — same pattern detected across: ${(f.affectedUrls || []).join(", ")}`
+        : null;
 
     const fpRisk =
       f.falsePositiveRisk && f.falsePositiveRisk !== "low"
@@ -293,6 +348,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         ? `- **Priority Score:** ${f.priorityScore}/100`
         : null,
       ``,
+      crossPageBlock ? `${crossPageBlock}\n` : null,
       managedBlock ? `${managedBlock}\n` : null,
       `**Why it matters:** ${f.impact || "This violation creates barriers for users with disabilities."}`,
       ``,
@@ -384,13 +440,18 @@ ${rows.join("\n")}
 `
     : "";
 
+  const pipelineNotes = [
+    metadata.fpFiltered > 0 ? `${metadata.fpFiltered} false positive(s) removed` : null,
+    metadata.deduplicatedCount > 0 ? `${metadata.deduplicatedCount} cross-page finding(s) deduplicated` : null,
+  ].filter(Boolean).join(" · ");
+
   return (
     `# 🛡️ Accessibility Remediation Guide — AI MODE
 > **Scan Date:** ${metadata.scanDate || new Date().toISOString()}
 > **Base URL:** ${args.baseUrl || "N/A"}
 > **Target:** ${args.target}
 > **Status:** ${status}
-
+${assessmentLine}
 ## 📊 Findings Overview
 
 | Severity | Count | Priority |
@@ -400,7 +461,7 @@ ${rows.join("\n")}
 | 🟡 **Moderate** | ${totals.Moderate} | **Standard** |
 | 🔵 **Minor** | ${totals.Minor} | **Backlog** |
 
-Total findings: **${findings.length} issues**
+Total findings: **${findings.length} issues**${pipelineNotes ? `\n\n> ℹ️ Audit pipeline: ${pipelineNotes}` : ""}
 
 ---
 
@@ -416,7 +477,7 @@ ${buildComponentMap()}${blockers ? `## 🔴 Priority Fixes (Critical & Serious)\
 
 ${deferred ? `## 🔵 Deferred Issues (Moderate & Minor)\n\n${deferred}` : "## Deferred Issues\n\nNo moderate or minor severity issues found."}
 
-${buildCodePatternsMd(metadata.code_patterns, framework)}
+${buildPassedCriteriaSection(metadata.passedCriteria)}${buildOutOfScopeSection(metadata.outOfScope)}${buildCodePatternsMd(metadata.code_patterns, framework)}
 ${buildManualChecksMd()}
 ${referencesSection}`.trimEnd() + "\n"
   );

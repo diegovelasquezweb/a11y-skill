@@ -329,6 +329,147 @@ export function extractSearchHint(selector) {
 }
 
 /**
+ * Checks whether a single finding is a confirmed false positive based on evidence HTML patterns.
+ * Only covers cases where the violation is provably impossible given the axe evidence.
+ * @param {Object} finding - An enriched finding object.
+ * @returns {boolean}
+ */
+function isFalsePositive(finding) {
+  const htmls = finding.evidence.map((e) => e.html || "").join(" ");
+  if (finding.rule_id === "color-contrast") {
+    if (/background(?:-image)?\s*:\s*(?:linear|radial|conic)-gradient/i.test(htmls)) return true;
+    if (/visibility\s*:\s*hidden|display\s*:\s*none/i.test(htmls)) return true;
+  }
+  return false;
+}
+
+/**
+ * Removes confirmed false positives from findings.
+ * @param {Object[]} findings
+ * @returns {{ filtered: Object[], removedCount: number }}
+ */
+function filterFalsePositives(findings) {
+  const filtered = [];
+  let removedCount = 0;
+  for (const finding of findings) {
+    if (isFalsePositive(finding)) {
+      removedCount++;
+    } else {
+      filtered.push(finding);
+    }
+  }
+  return { filtered, removedCount };
+}
+
+/**
+ * Deduplicates findings that fire on the same rule and element pattern across multiple pages.
+ * Groups them into one representative finding with pages_affected and affected_urls.
+ * @param {Object[]} findings
+ * @returns {{ findings: Object[], deduplicatedCount: number }}
+ */
+function deduplicateFindings(findings) {
+  function normalizeSelector(selector) {
+    if (!selector) return "";
+    return selector
+      .replace(/:nth-child\(\d+\)/g, "")
+      .replace(/:nth-of-type\(\d+\)/g, "")
+      .replace(/\[\d+\]/g, "")
+      .trim();
+  }
+
+  const groups = new Map();
+  for (const finding of findings) {
+    const key = `${finding.rule_id}||${normalizeSelector(finding.primary_selector)}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(finding);
+  }
+
+  const result = [];
+  let deduplicatedCount = 0;
+  for (const [, group] of groups) {
+    if (group.length === 1) {
+      result.push(group[0]);
+    } else {
+      const representative = group.reduce((best, f) =>
+        (f.total_instances || 1) >= (best.total_instances || 1) ? f : best,
+      );
+      const affectedUrls = [...new Set(group.map((f) => f.url))];
+      const totalInstances = group.reduce((sum, f) => sum + (f.total_instances || 1), 0);
+      result.push({
+        ...representative,
+        total_instances: totalInstances,
+        pages_affected: affectedUrls.length,
+        affected_urls: affectedUrls,
+      });
+      deduplicatedCount++;
+    }
+  }
+  return { findings: result, deduplicatedCount };
+}
+
+/**
+ * Computes the overall WCAG compliance assessment.
+ * @param {Object[]} findings
+ * @returns {'Fail' | 'Conditional Pass' | 'Pass'}
+ */
+function computeOverallAssessment(findings) {
+  if (findings.some((f) => f.severity === "Critical" || f.severity === "Serious")) return "Fail";
+  if (findings.length > 0) return "Conditional Pass";
+  return "Pass";
+}
+
+/**
+ * Aggregates WCAG 2.2 AA criteria that passed across all scanned routes.
+ * @param {Object[]} routes - Raw scan routes with a passes array of rule IDs.
+ * @param {Object<string, string>} wcagCriterionMap - Map from rule_id to WCAG criterion ID.
+ * @returns {string[]} Sorted unique WCAG criterion IDs that passed.
+ */
+function computePassedCriteria(routes, wcagCriterionMap) {
+  const passed = new Set();
+  for (const route of routes) {
+    for (const ruleId of route.passes || []) {
+      const criterion = wcagCriterionMap[ruleId];
+      if (criterion) passed.add(criterion);
+    }
+  }
+  return [...passed].sort();
+}
+
+/**
+ * Computes out-of-scope information: errored routes and static manual/AAA criteria.
+ * @param {Object[]} routes - Raw scan routes.
+ * @returns {Object}
+ */
+function computeOutOfScope(routes) {
+  const authBlockedRoutes = routes
+    .filter((r) => r.error)
+    .map((r) => r.url || r.path)
+    .filter(Boolean);
+  return {
+    auth_blocked_routes: authBlockedRoutes,
+    manual_testing_required: [
+      "1.2.2 Captions (Prerecorded)",
+      "1.2.3 Audio Description or Media Alternative",
+      "1.2.4 Captions (Live)",
+      "1.2.5 Audio Description (Prerecorded)",
+      "1.3.3 Sensory Characteristics",
+      "1.4.1 Use of Color",
+      "2.1.1 Keyboard",
+      "2.1.2 No Keyboard Trap",
+      "2.3.1 Three Flashes or Below Threshold",
+      "2.4.3 Focus Order",
+      "2.4.7 Focus Visible",
+      "2.5.3 Label in Name",
+      "3.2.1 On Focus",
+      "3.2.2 On Input",
+      "3.3.3 Error Suggestion",
+      "3.3.4 Error Prevention",
+    ],
+    aaa_excluded: true,
+  };
+}
+
+/**
  * Processes scan results into a high-level auditing findings object.
  * Enriches findings with intelligence metadata, framework notes, and fix recommendations.
  * @param {Object} inputPayload - The raw JSON payload from scanner.mjs.
@@ -542,7 +683,7 @@ function main() {
     }
   }
 
-  const findings =
+  let findings =
     ignoredRules.size > 0
       ? result.findings.filter((f) => !ignoredRules.has(f.rule_id))
       : result.findings;
@@ -553,9 +694,30 @@ function main() {
     );
   }
 
-  writeJson(args.output, { ...result, findings });
+  const { filtered: fpFiltered, removedCount: fpRemovedCount } = filterFalsePositives(findings);
+  if (fpRemovedCount > 0) log.info(`Removed ${fpRemovedCount} confirmed false positive(s).`);
 
-  if (findings.length === 0) {
+  const { findings: dedupedFindings, deduplicatedCount } = deduplicateFindings(fpFiltered);
+  if (deduplicatedCount > 0) log.info(`Deduplicated ${deduplicatedCount} cross-page finding group(s).`);
+
+  const overallAssessment = computeOverallAssessment(dedupedFindings);
+  const passedCriteria = computePassedCriteria(payload.routes || [], WCAG_CRITERION_MAP);
+  const outOfScope = computeOutOfScope(payload.routes || []);
+
+  writeJson(args.output, {
+    ...result,
+    findings: dedupedFindings,
+    metadata: {
+      ...result.metadata,
+      overallAssessment,
+      passedCriteria,
+      outOfScope,
+      fpFiltered: fpRemovedCount,
+      deduplicatedCount,
+    },
+  });
+
+  if (dedupedFindings.length === 0) {
     log.info("Congratulations, no issues found.");
   }
   log.success(`Findings processed and saved to ${args.output}`);
