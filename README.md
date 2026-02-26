@@ -6,21 +6,19 @@ This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with
 
 This skill transforms accessibility audits into actionable fix roadmaps. It runs a full WCAG 2.2 AA scan, identifies the exact code locations responsible for each violation, and guides the agent through fixes with framework-aware intelligence.
 
-| Capability             | With a11y                                                                          | Without                                                                        |
-| :--------------------- | :--------------------------------------------------------------------------------- | :----------------------------------------------------------------------------- |
-| **Remediation IQ**     | ✅ Surgical fix blueprints with exact selectors, ready-to-apply code fixes, and an automated re-audit loop | ❌ Manual hunting through code with no fix guidance or verification loop        |
-| **WCAG 2.2 AA Coverage** | ✅ Full multi-layer coverage: runtime DOM scan, grep-based source code audit, and manual verification checklist | ❌ Partial automated scans miss violations that only exist in source code |
-| **Stack Awareness**    | ✅ Guardrails and fix patterns tailored to major frameworks, CMSs, and UI libraries | ❌ Generic DOM feedback with no awareness of your stack or components          |
-| **Workflow**           | ✅ Guided, repeatable audit process with the same checkpoints and decisions on every run | ❌ Ad-hoc conversations with inconsistent flow and unpredictable results  |
-| **Token Economy**      | ✅ Audit runs outside the AI context so the agent reads only a structured fix roadmap | ❌ Entire page HTML fed into context on every scan                           |
-| **Scale & Speed**      | ✅ Automatic route discovery via sitemap and concurrent parallel tabs              | ❌ Manual one-page scans with no route discovery                               |
+| Capability                  | With a11y                                                                                                              | Without                                                                                          |
+| :-------------------------- | :--------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
+| **WCAG 2.2 AA Coverage**    | ✅ Full multi-layer coverage of the WCAG 2.2 AA standard                                                             | ❌ Partial automated scans miss violations that only exist in source code                        |
+| **Fix Intelligence**        | ✅ Surgical fix blueprints with stack-aware patterns for your specific codebase                                        | ❌ Manual hunting through code with generic DOM feedback and no fix guidance                     |
+| **Workflow**                | ✅ Guided session that takes you from raw findings to applied fixes, no guesswork                                      | ❌ Unstructured prompting with inconsistent flow and unpredictable results                        |
+| **Token Efficiency**          | ✅ The agent reads a compact structured report, not raw page HTML                                                     | ❌ Entire page HTML fed into context on every scan                                               |
 
 ## Installation
 
 Give your AI agent the following prompt:
 
-```
-Install skill https://github.com/diegovelasquezweb/a11y
+```bash
+"Install skill https://github.com/diegovelasquezweb/a11y"
 ```
 
 The agent will clone the repository and run `node install.mjs`, which auto-detects installed agents and copies the skill to the correct path on any platform (macOS, Linux, Windows):
