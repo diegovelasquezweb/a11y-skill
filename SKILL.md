@@ -266,12 +266,19 @@ If 0 matches were found in both groups, proceed automatically to Step 5 without 
 **Structural patterns** — present as a batch using this exact format:
 
 ```
-1. `[file path]` · line [line] · [element tag / selector]
-   Before: [current code]
-   After:  [proposed code]
+Pattern: [pattern name]
+WCAG: [criterion] ([level A/AA]) · Severity: [severity]
+
+Findings:
+  1. `[file path]` · line [line] · [element tag / selector]
+     Before: [current code]
+     After:  [proposed code]
+  2. `[file path]` · line [line] · [element tag / selector]
+     Before: [current code]
+     After:  [proposed code]
 ```
 
-Include: pattern name, WCAG criterion, level (A/AA), severity above the list. Then ask:
+Present each matched pattern as a separate block (one block per pattern name). Keep findings numbered within each block. After presenting all blocks, ask — **options are always 1/2/3 regardless of finding count**:
 
 `[QUESTION]` **I found [N] structural issue(s) in your source code that axe-core cannot detect at runtime — HTML attributes, ARIA, and JS APIs invisible to the browser scanner. Apply fixes?**
 
@@ -290,7 +297,7 @@ If **Yes, fix all** or after **Let me pick** completes: list the files and chang
 
 If **Looks good**: proceed to style patterns below (or Step 5 if none). If **Something's wrong**: apply corrections, then proceed.
 
-If **Skip**: proceed to style patterns (or Step 5 if none) — do not show the `[MESSAGE]` yet.
+If **Skip**: mark structural as skipped. Proceed to style patterns (or Step 5 if none).
 
 **Style patterns** — show each match using this exact format before applying anything:
 
@@ -321,7 +328,13 @@ If **Yes** or after **Let me pick** completes: list the files and exact values m
 
 If **Looks good**: proceed to Step 5. If **Something's wrong**: apply corrections, then proceed to Step 5.
 
-If the user chose **Skip** on both structural and style patterns, show before proceeding to Step 5:
+**End of 4c — closing message gate:**
+
+Show the `[MESSAGE]` below **only if ALL of the following are true**:
+- The structural patterns question was answered **Skip** (no structural fix was applied in 4c)
+- The style patterns question was answered **Skip** (no style pattern fix was applied in 4c)
+
+In all other cases — including when at least one fix was applied, or when no style patterns were found — proceed directly to Step 5 without any message.
 
 `[MESSAGE]` No problem — these issues will remain in the remediation guide if you decide to revisit them. Keep in mind they affect real users: missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page.
 
@@ -333,9 +346,7 @@ This step is **mandatory** — always run it after fixes, no exceptions. Do not 
 
 **Never generate reports in this step.** Reports are exclusively handled in Step 6. Do not offer to generate reports here, even if issues are resolved.
 
-`[MESSAGE]` All fixes applied. Running a verification scan now to confirm what was resolved and catch anything that may have surfaced.
-
-Immediately run the script without waiting for a response:
+**Immediately run the script — do not output any message before running it.** Running the script IS the first action of this step:
 
 ```bash
 # Same flags as Step 2
@@ -344,7 +355,7 @@ node scripts/audit.mjs --base-url <URL> [--max-routes <N>]
 
 If the script fails: verify the site is reachable (`curl -s -o /dev/null -w "%{http_code}" <URL>`) before retrying. If it returns a non-200 status, stop and report the error to the user — do not retry with modified flags. If the site is reachable and the script fails a second time, stop and report the error.
 
-After the script completes, immediately parse ALL findings in the same turn — do not pause or wait for user input before presenting results:
+After the script completes, immediately parse ALL findings in the same turn — do not pause or wait for user input before presenting results. Open with: **"All fixes applied — here are the verification results:"**
 
 - **All clear (0 issues)** → proceed to Step 6.
 - **Issues found (any kind)** → follow this sequence:
