@@ -47,7 +47,7 @@ function formatEvidence(evidence) {
         ? `<div class="mt-2 p-3 bg-rose-50 border-l-4 border-rose-500 text-rose-700 text-xs font-mono whitespace-pre-wrap">${formatMultiline(item.failureSummary)}</div>`
         : "";
       const htmlSnippet = item.html
-        ? `<div class="mb-2"><span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1">Source</span><pre class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(item.html)}</code></pre></div>`
+        ? `<div class="mb-2"><span class="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-1">Source</span><pre tabindex="0" class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(item.html)}</code></pre></div>`
         : "";
       return `
       <div class="mb-4 last:mb-0">
@@ -66,7 +66,7 @@ function formatEvidence(evidence) {
 export function buildIssueCard(finding) {
   const screenshotHtml = finding.screenshotPath
     ? `<div class="mt-6 border-t border-slate-100 pt-6">
-        <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <h4 class="text-[11px] font-black text-slate-600 uppercase tracking-widest mb-4 flex items-center gap-2">
             <div class="p-1 bg-slate-100 rounded-md">
               <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
             </div>
@@ -81,7 +81,7 @@ export function buildIssueCard(finding) {
   const evidenceHtml = finding.evidence && finding.evidence.length > 0
     ? `<div class="mt-6 bg-slate-900 rounded-xl p-6 border border-slate-700 shadow-2xl relative overflow-hidden">
         <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-        <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 relative z-10 flex items-center gap-2">
+        <h4 class="text-[11px] font-black text-slate-600 uppercase tracking-widest mb-4 relative z-10 flex items-center gap-2">
             <div class="p-1 bg-slate-800 rounded-md border border-slate-700">
                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
             </div>
@@ -183,13 +183,13 @@ export function buildIssueCard(finding) {
               : ""
           }
           <span class="wcag-label px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-100/80 shadow-sm backdrop-blur-sm">WCAG ${escapeHtml(finding.wcag)}</span>
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-slate-100 text-slate-500 border border-slate-200">${escapeHtml(finding.ruleId)}</span>
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">${escapeHtml(finding.ruleId)}</span>
         </div>
         <h3 class="text-lg md:text-xl font-extrabold text-slate-900 leading-tight mb-3 group-hover:text-indigo-900 transition-colors searchable-field issue-title">${escapeHtml(finding.title)}</h3>
         <div class="flex flex-wrap gap-x-4 gap-y-2 text-[13px] text-slate-600 font-medium">
           <div class="flex items-center gap-1.5 bg-slate-50/50 px-2 py-1 rounded-md border border-slate-100">
             <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-            <a href="${escapeHtml(finding.url)}" target="_blank" class="hover:text-indigo-600 hover:underline truncate max-w-[200px] md:max-w-md transition-colors searchable-field issue-url">${escapeHtml(finding.url)}</a>
+            <span class="truncate max-w-[200px] md:max-w-md transition-colors searchable-field issue-url">${escapeHtml(finding.url)}</span>
           </div>
           <div class="flex items-center gap-1.5 min-w-0 bg-slate-50/50 px-2 py-1 rounded-md border border-slate-100">
             <svg class="w-3.5 h-3.5 text-slate-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
@@ -226,7 +226,7 @@ export function buildIssueCard(finding) {
           <p class="text-[13px] text-slate-700 leading-relaxed border-l-2 border-emerald-300 pl-3">${formatMultiline(finding.expected)}</p>
         </div>` : ""}
         <div>
-          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Impacted Users</span>
+          <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider block mb-1">Impacted Users</span>
           <p class="text-[13px] text-slate-600 leading-relaxed italic border-l-2 border-slate-200 pl-3">${formatMultiline(finding.impactedUsers)}</p>
         </div>
       </div>
@@ -243,8 +243,8 @@ export function buildIssueCard(finding) {
           ${finding.fixDescription ? `<p class="text-sm text-indigo-800 leading-relaxed">${escapeHtml(finding.fixDescription)}</p>` : ""}
           ${finding.fixCode ? `
           <div class="relative group/code">
-            <pre class="bg-slate-900 text-emerald-300 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700 whitespace-pre-wrap">${escapeHtml(finding.fixCode)}</pre>
-            <button onclick="copyToClipboard(\`${escapeHtml(finding.fixCode).replace(/`/g, "\\`")}\`, this)" class="absolute top-2 right-2 p-1.5 rounded-lg bg-indigo-500/50 text-white opacity-0 group-hover/code:opacity-100 transition-all hover:bg-indigo-500">
+            <pre tabindex="0" class="bg-slate-900 text-emerald-300 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700 whitespace-pre-wrap">${escapeHtml(finding.fixCode)}</pre>
+            <button aria-label="Copy code snippet" title="Copy code snippet" onclick="copyToClipboard(\`${escapeHtml(finding.fixCode).replace(/`/g, "\\`")}\`, this)" class="absolute top-2 right-2 p-1.5 rounded-lg bg-indigo-500/50 text-white opacity-0 group-hover/code:opacity-100 transition-all hover:bg-indigo-500">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </button>
           </div>` : ""}
@@ -283,7 +283,7 @@ export function buildManualCheckCard(check) {
     .join("");
 
   const criterionPill = check.level !== "AT"
-    ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-slate-100 text-slate-500 border border-slate-200">${escapeHtml(check.criterion)}</span>`
+    ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">${escapeHtml(check.criterion)}</span>`
     : "";
 
   const levelPill = check.level === "AT"
@@ -299,15 +299,15 @@ export function buildManualCheckCard(check) {
 
   const codeExampleHtml = check.code_example
     ? `<div class="border-t border-slate-100 mt-2 pt-6">
-        <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4">Before / After</h4>
+        <h4 class="text-[11px] font-black text-slate-600 uppercase tracking-widest mb-4">Before / After</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <span class="text-[10px] font-bold text-rose-600 uppercase tracking-widest block mb-1.5">Before</span>
-            <pre class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(check.code_example.before)}</code></pre>
+            <pre tabindex="0" class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(check.code_example.before)}</code></pre>
           </div>
           <div>
             <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest block mb-1.5">After</span>
-            <pre class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(check.code_example.after)}</code></pre>
+            <pre tabindex="0" class="bg-slate-900 text-slate-50 p-3 rounded-lg overflow-x-auto text-xs font-mono border border-slate-700"><code>${escapeHtml(check.code_example.after)}</code></pre>
           </div>
         </div>
       </div>`
@@ -350,11 +350,11 @@ export function buildManualCheckCard(check) {
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <div class="bg-white rounded-xl border border-slate-200/60 shadow-sm p-5">
-        <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">What to verify</h4>
+        <h4 class="text-[11px] font-black text-slate-600 uppercase tracking-widest mb-3">What to verify</h4>
         <p class="text-[13px] text-slate-600 leading-relaxed">${escapeHtml(check.description)}</p>
       </div>
       <div class="bg-white rounded-xl border border-slate-200/60 shadow-sm p-5">
-        <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">How to test</h4>
+        <h4 class="text-[11px] font-black text-slate-600 uppercase tracking-widest mb-3">How to test</h4>
         <ol class="space-y-2 list-none">
           ${steps}
         </ol>
@@ -411,4 +411,3 @@ export function buildPageGroupedSection(findings) {
     })
     .join("");
 }
-
