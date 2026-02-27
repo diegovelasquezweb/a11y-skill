@@ -321,39 +321,18 @@ export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
 async function detectProjectContext(page) {
   const domSignals = STACK_CONFIG.frameworkDetection.domSignals;
 
-  const framework = await page.evaluate((signals) => {
+  const domFramework = await page.evaluate((signals) => {
     for (const entry of signals) {
       const s = entry.signals;
-      let match = false;
-
-      if (s.id && document.getElementById(s.id)) match = true;
-      if (!match && s.window && window[s.window]) match = true;
-      if (!match && s.selector && document.querySelector(s.selector))
-        match = true;
-      if (!match && s.selectorAlt && document.querySelector(s.selectorAlt))
-        match = true;
-      if (
-        !match &&
-        s.hrefContains &&
-        document.querySelector(`link[href*="${s.hrefContains}"]`)
-      )
-        match = true;
-      if (
-        !match &&
-        s.metaGenerator &&
-        document.querySelector(
-          `meta[name="generator"][content*="${s.metaGenerator}"]`,
-        )
-      )
-        match = true;
-
-      if (match) return entry.framework;
+      if (s.window && window[s.window]) return entry.framework;
+      if (s.scriptSrc && document.querySelector(`script[src*="${s.scriptSrc}"]`)) return entry.framework;
     }
     return null;
   }, domSignals);
 
   const uiLibraries = [];
   let pkgFramework = null;
+  let fileFramework = null;
   try {
     const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
     const pkgPath = path.join(projectDir, "package.json");
@@ -381,9 +360,25 @@ async function detectProjectContext(page) {
     // package.json not available — running against remote URL
   }
 
-  const resolvedFramework = pkgFramework || framework;
+  if (!pkgFramework) {
+    const fileSignals = STACK_CONFIG.frameworkDetection.fileSignals || [];
+    try {
+      const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
+      for (const entry of fileSignals) {
+        if (entry.files.some((f) => fs.existsSync(path.join(projectDir, f)))) {
+          fileFramework = entry.framework;
+          break;
+        }
+      }
+    } catch { /* not a local project */ }
+  }
 
-  if (resolvedFramework) log.info(`Detected framework: ${resolvedFramework}${pkgFramework ? " (from package.json)" : " (from DOM)"}`);
+  const resolvedFramework = pkgFramework || fileFramework || domFramework;
+
+  if (resolvedFramework) {
+    const source = pkgFramework ? "(from package.json)" : fileFramework ? "(from file structure)" : "(from DOM)";
+    log.info(`Detected framework: ${resolvedFramework} ${source}`);
+  }
   if (uiLibraries.length) log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
 
   return { framework: resolvedFramework, uiLibraries };

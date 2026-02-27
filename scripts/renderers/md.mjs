@@ -75,7 +75,7 @@ function trimViolation(actual, maxAny = 3) {
       const lines = conditions.split("\n").filter((l) => l.trim());
       if (lines.length <= maxAny) return `Fix any of the following:\n${conditions}`;
       const kept = lines.slice(0, maxAny).map((l) => `  ${l.trim()}`).join("\n");
-      return `Fix any of the following:\n${kept}\n  _(+${lines.length - maxAny} more conditions)_\n`;
+      return `Fix any of the following:\n${kept}\n  _(+${lines.length - maxAny} more conditions)_`;
     },
   );
 }

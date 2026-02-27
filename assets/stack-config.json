@@ -1,17 +1,16 @@
 {
   "frameworkDetection": {
     "domSignals": [
-      { "framework": "nextjs", "signals": { "id": "__next", "window": "__NEXT_DATA__" } },
-      { "framework": "nuxt", "signals": { "id": "__nuxt", "window": "__NUXT__" } },
-      { "framework": "angular", "signals": { "selector": "[ng-version]" } },
-      { "framework": "gatsby", "signals": { "id": "___gatsby" } },
-      { "framework": "astro", "signals": { "selector": "[data-astro-cid]", "selectorAlt": "astro-island" } },
-      { "framework": "react", "signals": { "window": "__vite_plugin_react_preamble_installed__", "selector": "[data-reactroot]" } },
-      { "framework": "vue", "signals": { "selector": "[data-v-]", "selectorAlt": "[data-server-rendered]" } },
-      { "framework": "shopify", "signals": { "window": "Shopify", "selector": "[data-shopify]" } },
-      { "framework": "wordpress", "signals": { "hrefContains": "wp-content", "metaGenerator": "WordPress" } },
-      { "framework": "svelte", "signals": { "selector": "[data-svelte-h]", "window": "__sveltekit_dev" } },
-      { "framework": "drupal", "signals": { "window": "Drupal", "selector": "[data-drupal-messages-unseen]" } }
+      { "framework": "nextjs", "signals": { "scriptSrc": "/_next/" } },
+      { "framework": "nuxt", "signals": { "scriptSrc": "/_nuxt/", "window": "__NUXT__" } },
+      { "framework": "react", "signals": { "window": "__vite_plugin_react_preamble_installed__" } },
+      { "framework": "shopify", "signals": { "window": "Shopify" } },
+      { "framework": "svelte", "signals": { "window": "__sveltekit_dev" } },
+      { "framework": "drupal", "signals": { "window": "Drupal" } }
+    ],
+    "fileSignals": [
+      { "framework": "wordpress", "files": ["wp-config.php", "wp-content"] },
+      { "framework": "drupal", "files": ["core/lib/Drupal.php", "sites/default/settings.php"] }
     ],
     "uiLibrarySignals": [
       ["@radix-ui", "radix"],

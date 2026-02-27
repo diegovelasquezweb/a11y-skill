@@ -2688,7 +2688,7 @@
     "nested-interactive": {
       "fix": {
         "description": "Remove or restructure nested interactive elements. Interactive controls (buttons, links, inputs) must not be descendants of other interactive controls.",
-        "code": "<!-- Before: button inside a link (invalid) -->\n<a href=\"/product\">\n  Product name\n  <button onclick=\"addToCart()\">Add to cart</button>\n</a>\n\n<!-- After: separate elements -->\n<div class=\"product-card\">\n  <a href=\"/product\">Product name</a>\n  <button onclick=\"addToCart()\">Add to cart</button>\n</div>"
+        "code": "<!-- Pattern A: <a> wrapping a <button> (card pattern) -->\n<!-- Before: -->\n<a href=\"/product\">\n  Product name\n  <button onclick=\"addToCart()\">Add to cart</button>\n</a>\n<!-- After: stretched-link keeps card clickable without wrapping the button -->\n<div style=\"position:relative\">\n  <a href=\"/product\" style=\"position:absolute;inset:0\" aria-label=\"Product name\"></a>\n  <span>Product name</span>\n  <button onclick=\"addToCart()\">Add to cart</button>\n</div>\n\n<!-- Pattern B: role=\"option\" / role=\"listitem\" with focusable descendants -->\n<!-- ARIA spec forbids interactive children inside option/listitem roles. -->\n<!-- Before: -->\n<div role=\"option\" aria-selected=\"true\">\n  <a href=\"/detail\">View details</a>\n</div>\n<!-- After: remove href/tabIndex from descendants; parent handles keyboard interaction -->\n<div role=\"option\" aria-selected=\"true\" tabindex=\"0\" onkeydown=\"handleSelect(event)\">\n  <span>View details</span>\n</div>"
       },
       "false_positive_risk": "low",
       "framework_notes": {
