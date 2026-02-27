@@ -163,17 +163,17 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     (() => {
       if (!f.evidence || !Array.isArray(f.evidence) || f.evidence.length === 0)
         return;
-      const shownCount = f.evidence.filter((n) => n.html).length;
+      const seen = new Set();
+      const unique = f.evidence.filter((n) => {
+        if (!n.html || seen.has(n.html)) return false;
+        seen.add(n.html);
+        return true;
+      });
+      const shownCount = unique.length;
       if (f.totalInstances && f.totalInstances > shownCount) {
         evidenceLabel = `#### Evidence from DOM (showing ${shownCount} of ${f.totalInstances} instances)`;
       }
-      const seen = new Set();
-      evidenceHtml = f.evidence
-        .filter((n) => {
-          if (!n.html || seen.has(n.html)) return false;
-          seen.add(n.html);
-          return true;
-        })
+      evidenceHtml = unique
         .map((n, i) => `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\``)
         .join("\n\n");
     })();

@@ -24,7 +24,8 @@
       ["ariakit", "ariakit"],
       ["shadcn-ui", "shadcn"],
       ["primevue", "primevue"],
-      ["vuetify", "vuetify"]
+      ["vuetify", "vuetify"],
+      ["swiper", "swiper"]
     ],
     "packageSignals": [
       ["next", "nextjs"],
