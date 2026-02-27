@@ -45,14 +45,7 @@ These rules apply at all times, independent of any workflow step.
 4. **Recovery** — if the user types `continue`, `resume`, or `where are we`, read the conversation history to determine the current state and resume from the next pending action. If the state cannot be determined, briefly summarize what was completed and ask where to continue from.
 5. **Message tags** — this playbook uses two tags to mark formatted messages. When you reach a tagged block, present it as a **standalone message** — never merge with informational lists, findings, summaries, or other content.
 6. **Data-first** — if the user's message already contains the answer to a pending question (URL scheme, discovery method, page count, save path, etc.), skip that question and proceed directly. Never ask for information already provided in the current turn.
-   - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options. **Send one `[QUESTION]` per message. Never present two questions at once. Always wait for the user's answer before showing the next question.** Format: always output the question text on its own line, followed by each option as a numbered item on its own line — never inline, never collapsed to "Yes/No". Example output:
-     ```
-     How many pages should I crawl?
-
-     1. 5 pages
-     2. 10 pages
-     3. 15 pages
-     ```
+   - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options. **Send one `[QUESTION]` per message. Never present two questions at once. Always wait for the user's answer before showing the next question.** Format: always output the question text on its own line, followed by each option as a numbered item on its own line — never inline, never collapsed to "Yes/No".
    - `[MESSAGE]` — a mandatory pre-written message. **You MUST output the exact text — never skip, rephrase, summarize, or adapt it.** Skipping a `[MESSAGE]` block is not allowed under any circumstance. **A `[MESSAGE]` does not require a user response — never pause or show an input after it. Continue executing the next instruction in the same turn immediately after displaying it.**
 
 ---
@@ -159,11 +152,11 @@ Then summarize and present:
 
 Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes**: present the following message, then proceed to Step 6 immediately — execute all Step 6 items in order (summary → passed criteria → reports question → manual checklist message → closing message → final question).
+If the user chooses **Skip fixes**: present the following message, then proceed to Step 6 immediately.
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
-**0 issues found** → proceed to Step 6 immediately — execute all Step 6 items in order (summary → passed criteria → reports question → manual checklist message → closing message → final question). Note: automated tools cannot catch every barrier; recommend manual checks.
+**0 issues found** → proceed to Step 6 immediately. Note: automated tools cannot catch every barrier; recommend manual checks.
 
 ### Step 4 — Fix
 
@@ -205,11 +198,11 @@ If **Looks good**: proceed to the next severity group, or to 4b if this was the 
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
+If there are no style-dependent findings (color-contrast, font-size, or spacing), skip directly to 4c.
+
 `[MESSAGE]` Structural fixes done. Now let me review color contrast, font sizes, and spacing — changes here will affect the visual appearance of your site.
 
 > **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
-
-If there are no style-dependent findings (color-contrast, font-size, or spacing), skip directly to 4c.
 
 Show all style changes upfront using this exact format:
 
@@ -291,7 +284,7 @@ If **Skip**: proceed to style patterns (or Step 5 if none) — do not show the `
 
 **Style patterns** — show each match using this exact format before applying anything:
 
-> **Style-dependent protection — hard stop**: these pattern fixes change visual appearance. **Never apply before showing the exact proposed diff and receiving an explicit "yes".**
+> **Style-dependent protection — hard stop**: same rule as style-dependent fixes — **never apply before showing the exact proposed diff and receiving an explicit "yes".**
 
 ```
 | # | File | Line | Element | Current → Proposed |
@@ -359,7 +352,7 @@ After the script completes, immediately parse ALL findings in the same turn — 
      2. **Move on** — accept the remaining issues and proceed to the final summary
 
   4. If **Keep fixing**: fix following Step 4 procedures (4a for structural, 4b approval gate for style), then run the re-audit again. Go back to step 1 of this sequence.
-  5. If **Move on**: proceed to Step 6 immediately. Do not stop — execute all Step 6 items in order (summary → passed criteria → reports question → manual checklist message → closing message → final question).
+  5. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 

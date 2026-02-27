@@ -190,6 +190,7 @@ async function main() {
     await runScript("toolchain.mjs");
 
     const screenshotsDir = getInternalPath("screenshots");
+    fs.rmSync(screenshotsDir, { recursive: true, force: true });
 
     const scanArgs = [
       "--base-url",
