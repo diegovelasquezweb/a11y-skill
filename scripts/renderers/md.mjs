@@ -60,24 +60,8 @@ function buildGuardrails(framework) {
   return [frameworkRule, ...shared].join("\n");
 }
 
-/**
- * Trims "Fix any of the following:" condition lists to maxAny items.
- * "Fix all of the following:" sections are never trimmed (all conditions are required).
- * @param {string} actual
- * @param {number} maxAny
- * @returns {string}
- */
-function trimViolation(actual, maxAny = 3) {
-  if (!actual) return actual;
-  return actual.replace(
-    /Fix any of the following:\n((?:  [^\n]+\n?)+)/g,
-    (_, conditions) => {
-      const lines = conditions.split("\n").filter((l) => l.trim());
-      if (lines.length <= maxAny) return `Fix any of the following:\n${conditions}`;
-      const kept = lines.slice(0, maxAny).map((l) => `  ${l.trim()}`).join("\n");
-      return `Fix any of the following:\n${kept}\n  _(+${lines.length - maxAny} more conditions)_`;
-    },
-  );
+function formatViolation(actual) {
+  return actual || "";
 }
 
 function normalizeComponentHint(hint) {
@@ -86,6 +70,23 @@ function normalizeComponentHint(hint) {
   if (/^(p|px|py|pt|pr|pb|pl|m|mx|my|mt|mr|mb|ml|w|h|min|max|gap|space|text|bg|border|rounded|shadow|opacity|z|top|right|bottom|left|flex|grid|items|justify|content|self)-/i.test(hint)) return "source-not-resolved";
   if (/^\d/.test(hint)) return "source-not-resolved";
   return hint;
+}
+
+const PRIORITY_BY_SEVERITY = {
+  Critical: 1,
+  Serious: 2,
+  Moderate: 3,
+  Minor: 4,
+};
+
+function inferActionType(finding) {
+  if ((finding.fixCodeLang || "").toLowerCase() === "css") return "style";
+  if ((finding.fixCodeLang || "").toLowerCase() === "jsx") return "component";
+  const category = String(finding.category || "").toLowerCase();
+  if (["color", "keyboard"].includes(category)) return "interaction";
+  if (["aria", "name-role-value", "semantics", "structure"].includes(category))
+    return "markup";
+  return "general";
 }
 
 
@@ -134,7 +135,7 @@ function buildRecommendationsSection(recommendations) {
     );
   }
 
-  return `## 💡 Recommendations\n\n${parts.join("\n\n")}\n`;
+  return `## Recommendations\n\n${parts.join("\n\n")}\n`;
 }
 
 
@@ -154,6 +155,24 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
   );
   const wcagFindings = findings.filter((f) => f.wcagClassification !== "AAA");
   const totals = buildSummary(wcagFindings);
+  const orderedFindings = [...wcagFindings].sort((a, b) => {
+    const pa = PRIORITY_BY_SEVERITY[a.severity] ?? 99;
+    const pb = PRIORITY_BY_SEVERITY[b.severity] ?? 99;
+    if (pa !== pb) return pa - pb;
+    return String(a.id || "").localeCompare(String(b.id || ""));
+  });
+  const executionIndex = new Map(
+    orderedFindings.map((f, idx) => [f.id || f.ruleId, idx + 1]),
+  );
+
+  function buildExecutionOrderSection() {
+    if (orderedFindings.length === 0) return "";
+    const rows = orderedFindings.map((f) => {
+      const id = f.id || f.ruleId;
+      return `| ${executionIndex.get(id)} | \`${id}\` | ${f.severity} | \`${f.ruleId}\` | ${f.category || "n/a"} | \`${f.area}\` |`;
+    });
+    return `## Execution Order\n\n| Priority | ID | Severity | Rule | Category | Area |\n|---|---|---|---|---|---|\n${rows.join("\n")}\n`;
+  }
 
   function findingToMd(f) {
     let evidenceHtml = null;
@@ -187,9 +206,9 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         ? `> ℹ️ **Found on ${f.pagesAffected} pages** — same pattern detected across: ${(f.affectedUrls || []).join(", ")}`
         : null;
 
-    const fpRisk =
+    const manualVerificationFlag =
       f.falsePositiveRisk && f.falsePositiveRisk !== "low"
-        ? `> ⚠️ **False Positive Risk (${f.falsePositiveRisk}):** Verify this finding manually before applying a fix — automated detection of this rule has known edge cases.`
+        ? `**manual_verification_required:** true\n**false_positive_risk:** ${f.falsePositiveRisk}`
         : null;
 
     const difficultyBlock = f.fixDifficultyNotes
@@ -226,12 +245,20 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       : null;
 
     const managedBlock = f.managedByLibrary
-      ? `> ⚠️ **Managed Component Warning:** Check evidence HTML for vendor class names (e.g., \`swiper-*\`, \`radix-*\`, \`mantine-*\`) — if library-owned, fix via config/wrapper, not the generated DOM.`
+      ? `**managed_component_warning:** true\n**managed_by_library:** ${f.managedByLibrary}`
       : null;
 
     const verifyBlock = f.verificationCommand
       ? `**Quick verify:** \`${f.verificationCommand}\`${f.verificationCommandFallback ? `\n**Fallback verify:** \`${f.verificationCommandFallback}\`` : ""}`
       : null;
+    const id = f.id || f.ruleId;
+    const executionMeta = [
+      `**Execution Metadata**`,
+      `- \`fix_priority\`: ${executionIndex.get(id) || "n/a"}`,
+      `- \`action_type\`: ${inferActionType(f)}`,
+      `- \`target_files_glob\`: ${f.fileSearchPattern ? `\`${f.fileSearchPattern}\`` : "`n/a`"}`,
+      `- \`requires_manual_verification\`: ${f.falsePositiveRisk && f.falsePositiveRisk !== "low" ? "true" : "false"}`,
+    ].join("\n");
 
     const guardrailsBlock =
       f.guardrails && typeof f.guardrails === "object"
@@ -250,7 +277,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
 
     return [
       `---`,
-      `### ID: ${f.id || f.ruleId} · ${f.severity} · \`${f.title}\``,
+      `### ID: ${id} · ${f.severity} · \`${f.title}\``,
       ``,
       `- **Target Area:** \`${f.area}\``,
       `- **Surgical Selector:** \`${f.primarySelector || f.selector}\``,
@@ -261,9 +288,11 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       ``,
       crossPageBlock ? `${crossPageBlock}\n` : null,
       managedBlock ? `${managedBlock}\n` : null,
-      `**Observed Violation:** ${trimViolation(f.actual)}`,
+      `**Observed Violation:** ${formatViolation(f.actual)}`,
       searchPatternBlock ? `` : null,
       searchPatternBlock,
+      ``,
+      executionMeta,
       ``,
       fixBlock,
       guardrailsBlock ? `` : null,
@@ -274,8 +303,8 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       frameworkBlock,
       cmsBlock ? `` : null,
       cmsBlock,
-      fpRisk ? `` : null,
-      fpRisk,
+      manualVerificationFlag ? `` : null,
+      manualVerificationFlag,
       evidenceHtml ? `` : null,
       evidenceHtml ? `${evidenceLabel}\n${evidenceHtml}` : null,
       relatedBlock ? `` : null,
@@ -332,7 +361,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       const rules = [...new Set(items.map((i) => i.ruleId))].join(", ");
       return `| \`${component}\` | ${items.length} | ${severities} | ${rules} |`;
     });
-    return `## 🧩 Fixes by Component
+    return `## Fixes by Component
 
 > Fix all issues in the same component before moving to the next — reduces file switching.
 > \`source-not-resolved\` means the selector hint looks like utility CSS; use \`Search in\` + evidence blocks to locate source.
@@ -344,32 +373,31 @@ ${rows.join("\n")}
   }
 
   return (
-    `# 🛡️ Accessibility Remediation Guide — AI MODE
+      `# Accessibility Remediation Guide
 > **Base URL:** ${args.baseUrl || "N/A"}
 
 | Severity | Count |
 |---|---|
-| 🔴 Critical | ${totals.Critical} |
-| 🟠 Serious | ${totals.Serious} |
-| 🟡 Moderate | ${totals.Moderate} |
-| 🔵 Minor | ${totals.Minor} |
+| Critical | ${totals.Critical} |
+| Serious | ${totals.Serious} |
+| Moderate | ${totals.Moderate} |
+| Minor | ${totals.Minor} |
 
 ---
 
-## 🤖 AI AGENT OPERATING PROCEDURES (GUARDRAILS)
-
-**FOLLOW THESE RULES TO PREVENT REGRESSIONS AND HALLUCINATIONS:**
+## Agent Operating Procedures (Guardrails)
 
 ${buildGuardrails(framework)}
 
-**Fix strategy:** surgical-minimal-change — apply the smallest edit that resolves the violation. If evidence is ambiguous, fall back to \`requires_manual_verification\` — do not guess.
+**Fix strategy:** surgical-minimal-change. Apply the smallest edit that resolves the violation. If evidence is ambiguous, set \`requires_manual_verification\` and do not guess.
 
 ---
 
 ${buildComponentMap()}
 ${buildRecommendationsSection(metadata.recommendations)}
-${blockers ? `## 🔴 Priority Fixes (Critical & Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
-${deferred ? `\n## 🔵 Deferred Issues (Moderate & Minor)\n\n${deferred}` : ""}
+${buildExecutionOrderSection()}
+${blockers ? `## Priority Fixes (Critical and Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
+${deferred ? `\n## Deferred Issues (Moderate and Minor)\n\n${deferred}` : ""}
 `
   .trimEnd() + "\n"
   );
