@@ -205,6 +205,8 @@ If **Looks good**: proceed to the next severity group, or to 4b if this was the 
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
+`[MESSAGE]` Structural fixes done. Now let me review color contrast, font sizes, and spacing — changes here will affect the visual appearance of your site.
+
 > **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
 If there are no style-dependent findings (color-contrast, font-size, or spacing), skip directly to 4c.
@@ -328,7 +330,9 @@ This step is **mandatory** — always run it after fixes, no exceptions. Do not 
 
 **Never generate reports in this step.** Reports are exclusively handled in Step 6. Do not offer to generate reports here, even if issues are resolved.
 
-Inform the user that a verification re-audit is running, then immediately run the script without waiting for a response:
+`[MESSAGE]` All fixes applied. Running a verification scan now to confirm what was resolved and catch anything that may have surfaced.
+
+Immediately run the script without waiting for a response:
 
 ```bash
 # Same flags as Step 2
