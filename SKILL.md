@@ -202,6 +202,8 @@ If there are no style-dependent findings (color-contrast, font-size, or spacing)
 
 `[MESSAGE]` Structural fixes done. Now let me review color contrast, font sizes, and spacing — changes here will affect the visual appearance of your site.
 
+→ **Do not wait for input — continue immediately in the same response.**
+
 > **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
 Show all style changes upfront using this exact format:
@@ -241,6 +243,8 @@ If **Looks good**: proceed to 4c. If **Something's wrong**: apply corrections, t
 #### 4c. Source code patterns
 
 `[MESSAGE]` Let me scan your source code for accessibility patterns that the browser scanner cannot detect at runtime.
+
+→ **Do not wait for input — continue immediately in the same response.**
 
 Process the "🔍 Source Code Pattern Audit" section from the remediation guide. Each entry has a `detection.search` regex and `detection.files` glob — use these to grep the project source:
 
@@ -417,6 +421,8 @@ If **No thanks**: skip to item 7.
 - [ ] **Motion & timing** — `prefers-reduced-motion` is respected; no content flashes >3×/sec; auto-playing content has a pause control.
 - [ ] **Forms & errors** — Error messages give specific correction guidance; financial/legal submissions have a confirmation step.
 
+→ **Do not wait for input — continue immediately in the same response.**
+
 Then ask:
 
 `[QUESTION]` **Would you like to export the manual testing checklist?**
@@ -444,6 +450,8 @@ Verify the file exists on disk. Attempt to open it with the appropriate system c
 8. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
+
+→ **Do not wait for input — continue immediately in the same response.**
 
 9. After the closing message (or after item 6 if items 7 and 8 were skipped):
     - If no deliverable was generated this session — user declined reports (item 4) and either declined or was never offered the checklist (item 7 skipped): the workflow is complete — do not ask a follow-up question.
