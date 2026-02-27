@@ -13,6 +13,7 @@ import {
   normalizeFindings,
   buildSummary,
   computeComplianceScore,
+  wcagOverallStatus,
 } from "./renderers/findings.mjs";
 import {
   scoreMetrics,
@@ -184,7 +185,7 @@ function buildPdfHtml(args, findings) {
   </style>
 </head>
 <body>
-  ${buildPdfCoverPage({ siteHostname, target: args.target, score, coverDate })}
+  ${buildPdfCoverPage({ siteHostname, target: args.target, score, wcagStatus: wcagOverallStatus(totals), coverDate })}
   ${buildPdfTableOfContents()}
   ${buildPdfExecutiveSummary(args, findings, totals)}
   ${buildPdfRiskSection(totals)}

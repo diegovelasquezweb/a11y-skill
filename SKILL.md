@@ -259,6 +259,8 @@ Each entry has a `Search for` regex and `In files` glob — use these to grep th
 
 If 0 matches were found in both groups, proceed automatically to Step 5. Open with: **"Scanned source code — no additional patterns found."**
 
+`[MESSAGE]` These findings were detected via source code analysis using an expert-curated pattern database. They are not part of the axe-core scan and will not appear in the visual report.
+
 **Structural patterns** — open with: **"Scanned source code — found [N] pattern(s) not detectable by the browser scanner."** Then present as a batch using this exact format:
 
 ```
@@ -300,9 +302,16 @@ If **Skip**: mark structural as skipped. Proceed to style patterns (or Step 5 if
 > **Style-dependent protection — hard stop**: same rule as style-dependent fixes — **never apply before showing the exact proposed diff and receiving an explicit "yes".**
 
 ```
-1. `[file path]` · line [line] · [element tag / selector]
-   Before: [current CSS value]
-   After:  [proposed CSS value]
+Pattern: [pattern name]
+WCAG: [criterion] ([level A/AA]) · Severity: [severity]
+
+Findings:
+  1. `[file path]` · line [line] · [element tag / selector]
+     Before: [current CSS value]
+     After:  [proposed CSS value]
+  2. `[file path]` · line [line] · [element tag / selector]
+     Before: [current CSS value]
+     After:  [proposed CSS value]
 ```
 
 Then ask:

@@ -1,21 +1,21 @@
 # a11y - Accessibility Audit & Remediation Skill
 
-This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. Built following [skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. It is built following [skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 ## Why this Skill?
 
-This skill transforms accessibility audits into actionable fix roadmaps. It runs a full WCAG 2.2 AA scan, identifies the exact code locations responsible for each violation, and guides the agent through fixes with framework-aware intelligence.
+This skill runs a structured accessibility audit and remediation workflow. It scans routes, produces classified findings with evidence, generates a remediation guide, applies fixes with explicit user approval gates, validates outcomes through mandatory re-audits, and generates reports.
 
 | Capability                  | With a11y                                                                                                              | Without                                                                                          |
 | :-------------------------- | :--------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
-| **WCAG 2.2 AA Coverage**    | ✅ Full multi-layer coverage of the WCAG 2.2 AA standard                                                             | ❌ Automated scans limited to the rendered DOM, missing source-level violations                        |
-| **Fix Intelligence**        | ✅ Surgical fix blueprints with stack-aware patterns for your specific codebase                                        | ❌ Manual hunting through code with generic DOM feedback and no fix guidance                     |
-| **Workflow**                | ✅ Guided session from findings to applied fixes, prioritize by severity or by issue category | ❌ Unstructured prompting with inconsistent flow and unpredictable results                        |
-| **Token Efficiency**          | ✅ The agent reads a compact structured report, not raw page HTML                                                     | ❌ Entire page HTML fed into context on every scan                                               |
+| **WCAG 2.2 AA Checks**      | ✅ Automated WCAG 2.2 AA coverage with classified findings and evidence per issue                                     | ❌ Basic checks without standardized finding structure or remediation context                     |
+| **Fix Intelligence**        | ✅ Stack-aware remediation guidance tied to affected routes and components                                              | ❌ Manual code search from generic scanner output                                                 |
+| **Workflow Control**        | ✅ Structured flow with mandatory verification re-audit and explicit approval gates                                   | ❌ Ad-hoc fixes without controlled ordering or re-validation                                      |
+| **Token Efficiency**        | ✅ Uses structured artifacts from findings and remediation instead of raw page dumps                                    | ❌ Large raw HTML context and repeated manual interpretation                                      |
 
 ## Installation
 
-Give your AI agent the following prompt:
+Give your AI agent the install prompt, or use your agent's native skill installer.
 
 ```bash
 "Install skill https://github.com/diegovelasquezweb/a11y"
@@ -23,26 +23,35 @@ Give your AI agent the following prompt:
 
 The agent will clone the repository to its skills directory automatically:
 
-| Agent | Install path | Invoke |
-| :---- | :----------- | :----- |
-| Claude Code | `~/.claude/skills/a11y/` | `/a11y` |
-| Cursor | `~/.cursor/skills/a11y/` | `/a11y` |
-| Gemini CLI | `~/.gemini/skills/a11y/` | — |
-| Codex | `~/.codex/skills/a11y/` | `$a11y` |
-| Windsurf | `~/.codeium/windsurf/skills/a11y/` | `@a11y` |
-| Antigravity | `~/.gemini/antigravity/skills/a11y/` | `/a11y` |
+| Agent | Install path | Install command |
+| :---- | :----------- | :-------------- |
+| Antigravity | `~/.gemini/antigravity/skills/a11y/` | `Install skill <repo-url>` |
+| Claude Code | `~/.claude/skills/a11y/` | `Install skill <repo-url>` |
+| Codex | `~/.codex/skills/a11y/` | `$skill-installer <repo-url>` |
+| Cursor | `~/.cursor/skills/a11y/` | `Install skill <repo-url>` |
+| Gemini CLI | `~/.gemini/skills/a11y/` | `gemini skills install <repo-url>` |
+| Windsurf | `~/.codeium/windsurf/skills/a11y/` | `Install skill <repo-url>` |
 
 Restart your agent session after installation to ensure the skill is loaded.
 
 ## How to Use
 
-Invoke it directly using your agent's syntax or start the skill with a natural language prompt like:
+Give your AI agent the audit prompt, or use your agent's invoke shortcut.
 
 ```bash
 "Audit accessibility localhost:3000"
 ```
 
 The agent guides the rest of the session as a conversation, running the audit, presenting findings, walking you through fixes, and asking for your input at every decision point. Every action is confirmed before it runs.
+
+| Agent | Invoke shortcut | Audit command |
+| :---- | :------------- | :------------ |
+| Antigravity | `/a11y <url>` | `Audit accessibility <url>` |
+| Claude Code | `/a11y <url>` | `Audit accessibility <url>` |
+| Codex | `$a11y <url>` | `Audit accessibility <url>` |
+| Cursor | `/a11y <url>` | `Audit accessibility <url>` |
+| Gemini CLI | `--` | `Audit accessibility <url>` |
+| Windsurf | `@a11y <url>` | `Audit accessibility <url>` |
 
 ## Headless Audit
 

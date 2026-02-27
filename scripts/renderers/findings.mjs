@@ -133,6 +133,12 @@ export function scoreLabel(score) {
   return "Critical";
 }
 
+export function wcagOverallStatus(totals) {
+  if (totals.Critical > 0 || totals.Serious > 0) return "Fail";
+  if (totals.Moderate > 0 || totals.Minor > 0) return "Conditional Pass";
+  return "Pass";
+}
+
 /**
  * Analyzes findings to determine the unique number of issues impacting specific user personas.
  * @param {Object[]} findings - The normalized list of findings.

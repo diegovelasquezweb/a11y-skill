@@ -611,7 +611,12 @@
         "svelte": "Svelte does not warn about prohibited ARIA attributes at compile time. Attributes like aria-label on elements with role='presentation' or role='none' are prohibited — remove them. Use eslint-plugin-svelte for static analysis.",
         "astro": "In .astro files, prohibited ARIA attributes render to static HTML without warnings. Validate the build output with axe-core to catch attributes that conflict with the element's role."
       },
-      "fix_difficulty_notes": "Read the Observed Violation message — it names the exact prohibited combination. Three patterns: (1) aria-label on a plain <div> or <span> with no role — add a semantic role that permits labelling (role='region' for sections, role='navigation' for nav-like containers, role='complementary' for sidebars); (2) aria-label on role='none' or role='presentation' — these roles explicitly remove the element from the accessibility tree, so any ARIA attribute is meaningless: remove the aria-label, or swap to a real role if labelling is needed; (3) wrong ARIA state for a role (e.g. aria-checked on a plain button) — change the role to one that supports the attribute (role='switch' for aria-checked). Consult https://www.w3.org/TR/wai-aria/#role_definitions for 'Inherited States and Properties' per role.",
+      "fix_difficulty_notes": [
+        "Read the Observed Violation message — it names the exact prohibited combination.",
+        "Pattern 1: `aria-label` on a plain `<div>` or `<span>` with no role — add a semantic role that permits labelling (`role=\"region\"` for sections, `role=\"navigation\"` for nav-like containers, `role=\"complementary\"` for sidebars).",
+        "Pattern 2: `aria-label` on `role=\"none\"` or `role=\"presentation\"` — these roles explicitly remove the element from the accessibility tree, so any ARIA attribute is meaningless: remove the `aria-label`, or swap to a real role if labelling is needed.",
+        "Pattern 3: wrong ARIA state for a role (e.g. `aria-checked` on a plain button) — change the role to one that supports the attribute (`role=\"switch\"` for `aria-checked`). Consult https://www.w3.org/TR/wai-aria/#role_definitions for Inherited States and Properties per role."
+      ],
       "related_rules": [
         {
           "id": "aria-required-attr",
@@ -1375,7 +1380,10 @@
         "wordpress": "In Gutenberg custom blocks, use the RichText component for button text or set aria-label in the block's save() function. Avoid adding labels only in edit() — they must be in the rendered HTML.",
         "drupal": "In Twig templates, add aria-label via the Attribute object: <button{{ attributes.setAttribute('aria-label', 'Close'|t) }}>. Use Drupal's |t filter for translatable labels."
       },
-      "fix_difficulty_notes": "Using aria-label on a button with visible text creates a label mismatch — voice control users speak the visible text, not the aria-label. If visible text exists, keep it and remove aria-label. Only use aria-label for icon-only buttons with no visible text.",
+      "fix_difficulty_notes": [
+        "Using `aria-label` on a button with visible text creates a label mismatch — voice control users speak the visible text, not the `aria-label`. If visible text exists, keep it and remove `aria-label`.",
+        "Only use `aria-label` for icon-only buttons with no visible text."
+      ],
       "related_rules": [
         {
           "id": "input-button-name",
@@ -1477,7 +1485,12 @@
         "wordpress": "Classic themes use the Customizer's color settings; block themes use theme.json's color.palette. Verify default palette contrast pairs. If using wp_add_inline_style(), ensure injected colors are contrast-checked.",
         "drupal": "Olivero (Drupal's default theme) ships with WCAG 2.1 AA contrast. Custom themes should use CSS custom properties for colors and validate pairs in the color scheme configuration. Check sub-theme overrides in the .theme file."
       },
-      "fix_difficulty_notes": "⚠️ Each instance in Evidence from DOM is an INDEPENDENT element in a potentially different component — fix every instance separately, not just the Surgical Selector. False positives are common on text rendered over gradient backgrounds, images, or when color is set dynamically via JavaScript or CSS variables resolved at runtime. axe-core samples a single point of the background — text on gradients may appear to fail even when contrast is sufficient. Verify each flagged instance visually using the browser DevTools color picker before fixing.",
+      "fix_difficulty_notes": [
+        "⚠️ Each instance in Evidence from DOM is an INDEPENDENT element — fix every instance separately, not just the Surgical Selector.",
+        "False positives are common on text rendered over gradient backgrounds, images, or when color is set dynamically via JavaScript or CSS variables resolved at runtime.",
+        "axe-core samples a single point of the background — text on gradients may appear to fail even when contrast is sufficient.",
+        "Verify each flagged instance visually using the browser DevTools color picker before fixing."
+      ],
       "related_rules": [
         {
           "id": "link-in-text-block",
@@ -2006,7 +2019,10 @@
         "wordpress": "Gutenberg's Heading block lets authors pick any level — there is no enforcement of hierarchy. Educate content authors or use a plugin like Flavor that warns about heading order violations in the editor. Theme templates that hardcode <h2> for widget titles also break hierarchy.",
         "drupal": "Drupal Views titles default to <h2>, and block titles also default to <h2> — when multiple blocks appear on the same page, the hierarchy breaks. Override heading levels in block--*.html.twig or via the Views UI. Use the Block Title Level module to give editors control."
       },
-      "fix_difficulty_notes": "Never use heading elements purely for visual sizing (e.g., using <h4> because it renders smaller). Use CSS classes for font size. The heading level must reflect document structure, not visual hierarchy. Resolve page-has-heading-one first — a missing h1 often causes cascading heading-order violations.",
+      "fix_difficulty_notes": [
+        "Never use heading elements purely for visual sizing (e.g., `<h4>` because it renders smaller) — use CSS classes for font size. Heading level must reflect document structure, not visual hierarchy.",
+        "Resolve `page-has-heading-one` first — a missing `h1` often causes cascading `heading-order` violations."
+      ],
       "related_rules": [
         {
           "id": "page-has-heading-one",
@@ -2804,7 +2820,10 @@
         "wordpress": "Classic themes should wrap the_content() in <main> inside page.php/single.php. Block themes use <main> in templates/index.html. WordPress core does not add <main> automatically — the theme is responsible.",
         "drupal": "Olivero (the default theme) includes <main> in page.html.twig. Custom themes must ensure page.html.twig wraps {{ page.content }} in <main id='main-content'>. Sub-theme overrides of page.html.twig sometimes lose this landmark."
       },
-      "fix_difficulty_notes": "SPAs often render the <main> landmark conditionally — in React, Vue Router, and Angular, the layout shell may not include <main> if each page component is responsible for its own layout. Ensure the root layout component (e.g., layout.tsx in Next.js, App.vue in Vue, app.component.html in Angular) always wraps page content in <main>, not individual page components. Axe may also flag SPA routes where <main> is rendered client-side after the initial snapshot.",
+      "fix_difficulty_notes": [
+        "SPAs often render `<main>` conditionally — ensure the root layout component (`layout.tsx` in Next.js, `App.vue` in Vue, `app.component.html` in Angular) always wraps page content in `<main>`, not individual page components.",
+        "axe may flag SPA routes where `<main>` is rendered client-side after the initial snapshot — ensure it is server-side rendered or present in the initial HTML payload."
+      ],
       "guardrails_overrides": {
         "must_not": [
           "Do not add <main> to individual page components if the root layout already wraps content in <main> — this creates a duplicate-main violation.",
@@ -2939,7 +2958,10 @@
         "wordpress": "WordPress nav menus (wp_nav_menu) use the menu item title as link text. Custom link labels can be empty if the author only sets a URL. Social icon blocks render <a> with SVG — ensure aria-label is set via the block's 'Label' field in the editor.",
         "drupal": "Drupal's Menu system uses the link title field as the accessible name. In Twig, menu links render via menu.html.twig — verify {{ item.title }} is not empty. For icon links in custom blocks, add aria-label via the Attribute object."
       },
-      "fix_difficulty_notes": "Adding aria-label to a link that already has visible text creates a mismatch — voice control users speak the visible text, not the aria-label, and activation may fail. Use aria-label only for icon links with no visible text, or use aria-labelledby to reference visible content.",
+      "fix_difficulty_notes": [
+        "Adding `aria-label` to a link that already has visible text creates a mismatch — voice control users speak the visible text, not the `aria-label`, and activation may fail.",
+        "Use `aria-label` only for icon links with no visible text, or use `aria-labelledby` to reference visible content."
+      ],
       "related_rules": [
         {
           "id": "button-name",
@@ -3183,7 +3205,13 @@
         "svelte": "In Svelte, avoid nesting interactive elements (e.g., <button> inside <a>, <a> inside <button>). Svelte does not warn about nested interactives — verify manually. This commonly occurs when wrapping card components in links.",
         "astro": "In .astro files, nested interactive elements (links inside buttons, buttons inside links) render to static HTML. This is invalid HTML and confuses AT — restructure to avoid nesting."
       },
-      "fix_difficulty_notes": "The evidence shows the OUTER container — identify the nested focusable element first. Search the component for `tabIndex`, `href=`, `<button`, `<a `, or `role=\"button\"` inside the flagged selector. The most common pattern: a card wrapped in <a> containing a <button> — the HTML spec forbids interactive content inside <a>. Solutions: (1) stretched-link CSS pattern (position <a> with ::after overlay, keep button outside <a> in DOM order); (2) keep elements separate and handle card-level clicks via JS.",
+      "fix_difficulty_notes": [
+        "The evidence shows the OUTER container — identify the nested focusable element first. Search the component for `tabIndex`, `href=`, `<button`, `<a `, or `role=\"button\"` inside the flagged selector.",
+        "Most common pattern: a card wrapped in `<a>` containing a `<button>` — the HTML spec forbids interactive content inside `<a>`. Solutions: (1) stretched-link CSS pattern (position `<a>` with `::after` overlay, keep button outside `<a>` in DOM order); (2) keep elements separate and handle card-level clicks via JS.",
+        "⚠️ COMPOUND CASE — link-as-button co-occurring: if the nested `<a>` calls `e.preventDefault()` and runs a JS action, two violations are stacked.",
+        "Remove only the invalid ARIA attributes from the container (`role`, `aria-selected`); preserve ALL `onClick`/`onKeyDown` handlers that contain non-ARIA conditional logic (drag state, position offsets, gesture thresholds, business flags).",
+        "Fix the link separately: if it never navigates, convert to `<button type=\"button\">`; if it sometimes navigates, keep `<a href>` and remove `e.preventDefault()`. Never delete a handler because the ARIA around it was wrong."
+      ],
       "related_rules": [
         {
           "id": "focus-order-semantics",
@@ -3343,7 +3371,10 @@
         "svelte": "In SvelteKit, ensure every page has exactly one <h1>. Place it in the +page.svelte component (not +layout.svelte, since the h1 should be page-specific). The layout should define the page structure; individual pages define their h1.",
         "astro": "In .astro files, each page should have exactly one <h1> that describes the page content. Place it in the page component, not the layout, since the heading should be unique per page."
       },
-      "fix_difficulty_notes": "In SPAs and SSR frameworks, the h1 may be injected client-side after the initial DOM snapshot axe evaluates. Ensure the h1 is server-side rendered or present in the initial HTML payload. In Next.js, place the h1 directly in the page component, not behind a loading state.",
+      "fix_difficulty_notes": [
+        "In SPAs and SSR frameworks, the `h1` may be injected client-side after the initial DOM snapshot axe evaluates — ensure it is server-side rendered or present in the initial HTML payload.",
+        "In Next.js, place the `h1` directly in the page component, not behind a loading state."
+      ],
       "related_rules": [
         {
           "id": "heading-order",
@@ -3411,7 +3442,10 @@
         "wordpress": "Classic themes define landmarks in header.php (<header>), footer.php (<footer>), and wrap the_content() in <main>. Block themes use template parts for header/footer. Sidebar widgets in <aside> are standard. Verify no content renders between </header> and <main> without a landmark.",
         "drupal": "Olivero defines landmarks in page.html.twig using Drupal's region system. Content outside defined regions (e.g., custom block placements) can create orphan content. Ensure all regions in the .info.yml file map to semantic landmark elements in the page template."
       },
-      "fix_difficulty_notes": "Decorative separators, spacer divs, and background containers do not need to be inside landmarks. Only meaningful visible content requires landmark wrapping. Review each flagged element before adding a landmark.",
+      "fix_difficulty_notes": [
+        "Decorative separators, spacer divs, and background containers do not need to be inside landmarks — only meaningful visible content requires landmark wrapping.",
+        "Review each flagged element before adding a landmark."
+      ],
       "guardrails_overrides": {
         "must_not": [
           "Do not wrap decorative elements (spacers, background divs, separator lines) in landmark regions — only meaningful visible content requires landmark wrapping.",

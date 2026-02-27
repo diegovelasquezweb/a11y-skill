@@ -60,24 +60,8 @@ function buildGuardrails(framework) {
   return [frameworkRule, ...shared].join("\n");
 }
 
-/**
- * Trims "Fix any of the following:" condition lists to maxAny items.
- * "Fix all of the following:" sections are never trimmed (all conditions are required).
- * @param {string} actual
- * @param {number} maxAny
- * @returns {string}
- */
-function trimViolation(actual, maxAny = 3) {
-  if (!actual) return actual;
-  return actual.replace(
-    /Fix any of the following:\n((?:  [^\n]+\n?)+)/g,
-    (_, conditions) => {
-      const lines = conditions.split("\n").filter((l) => l.trim());
-      if (lines.length <= maxAny) return `Fix any of the following:\n${conditions}`;
-      const kept = lines.slice(0, maxAny).map((l) => `  ${l.trim()}`).join("\n");
-      return `Fix any of the following:\n${kept}\n  _(+${lines.length - maxAny} more conditions)_`;
-    },
-  );
+function formatViolation(actual) {
+  return actual || "";
 }
 
 function normalizeComponentHint(hint) {
@@ -86,6 +70,23 @@ function normalizeComponentHint(hint) {
   if (/^(p|px|py|pt|pr|pb|pl|m|mx|my|mt|mr|mb|ml|w|h|min|max|gap|space|text|bg|border|rounded|shadow|opacity|z|top|right|bottom|left|flex|grid|items|justify|content|self)-/i.test(hint)) return "source-not-resolved";
   if (/^\d/.test(hint)) return "source-not-resolved";
   return hint;
+}
+
+const PRIORITY_BY_SEVERITY = {
+  Critical: 1,
+  Serious: 2,
+  Moderate: 3,
+  Minor: 4,
+};
+
+function inferActionType(finding) {
+  if ((finding.fixCodeLang || "").toLowerCase() === "css") return "style";
+  if ((finding.fixCodeLang || "").toLowerCase() === "jsx") return "component";
+  const category = String(finding.category || "").toLowerCase();
+  if (["color", "keyboard"].includes(category)) return "interaction";
+  if (["aria", "name-role-value", "semantics", "structure"].includes(category))
+    return "markup";
+  return "general";
 }
 
 
@@ -121,7 +122,7 @@ function buildRecommendationsSection(recommendations) {
       (r) => `| \`${r.component}\` | ${r.total_issues} | ${r.total_pages} | ${(r.rules || []).map((x) => `\`${x}\``).join(", ")} |`,
     );
     parts.push(
-      `### Fix once, resolve everywhere\n\nThese issues trace back to shared components — a single fix eliminates all instances.\n\n| Component | Issues | Pages | Rules |\n|---|---|---|---|\n${normalizedRows.join("\n")}`,
+      `### Shared Component Opportunities\n\n| Component | Issues | Pages | Rules |\n|---|---|---|---|\n${normalizedRows.join("\n")}`,
     );
   }
 
@@ -130,11 +131,11 @@ function buildRecommendationsSection(recommendations) {
       (r) => `| ${r.wcag_criterion} | ${r.total_issues} | ${r.affected_components.map((c) => `\`${normalizeComponentHint(c)}\``).join(", ")} |`,
     );
     parts.push(
-      `### Systemic patterns\n\nThe same WCAG criterion recurs across multiple components — consider a design system-level fix.\n\n| Criterion | Issues | Affected Components |\n|---|---|---|\n${rows.join("\n")}`,
+      `### Systemic Patterns\n\n| Criterion | Issues | Affected Components |\n|---|---|---|\n${rows.join("\n")}`,
     );
   }
 
-  return `## 💡 Recommendations\n\n${parts.join("\n\n")}\n`;
+  return `## Recommendations\n\n${parts.join("\n\n")}\n`;
 }
 
 
@@ -154,6 +155,24 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
   );
   const wcagFindings = findings.filter((f) => f.wcagClassification !== "AAA");
   const totals = buildSummary(wcagFindings);
+  const orderedFindings = [...wcagFindings].sort((a, b) => {
+    const pa = PRIORITY_BY_SEVERITY[a.severity] ?? 99;
+    const pb = PRIORITY_BY_SEVERITY[b.severity] ?? 99;
+    if (pa !== pb) return pa - pb;
+    return String(a.id || "").localeCompare(String(b.id || ""));
+  });
+  const executionIndex = new Map(
+    orderedFindings.map((f, idx) => [f.id || f.ruleId, idx + 1]),
+  );
+
+  function buildExecutionOrderSection() {
+    if (orderedFindings.length === 0) return "";
+    const rows = orderedFindings.map((f) => {
+      const id = f.id || f.ruleId;
+      return `| ${executionIndex.get(id)} | \`${id}\` | ${f.severity} | \`${f.ruleId}\` | ${f.category || "n/a"} | \`${f.area}\` |`;
+    });
+    return `## Execution Order\n\n| Priority | ID | Severity | Rule | Category | Area |\n|---|---|---|---|---|---|\n${rows.join("\n")}\n`;
+  }
 
   function findingToMd(f) {
     let evidenceHtml = null;
@@ -179,40 +198,33 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     const codeLang = f.fixCodeLang || "html";
     const fixBlock =
       f.fixDescription || f.fixCode
-        ? `#### Recommended Technical Solution\n${f.fixDescription ? `**Implementation:** ${f.fixDescription}\n` : ""}${f.fixCode ? `\`\`\`${codeLang}\n${f.fixCode}\n\`\`\`` : ""}`.trimEnd()
+        ? `#### Recommended Technical Solution\n${f.fixDescription ? `${f.fixDescription}\n\n` : ""}${f.fixCode ? `\`\`\`${codeLang}\n${f.fixCode}\n\`\`\`` : ""}`.trimEnd()
         : `#### Recommended Remediation\n${f.recommendedFix}`;
 
     const crossPageBlock =
       f.pagesAffected && f.pagesAffected > 1
-        ? `> ℹ️ **Found on ${f.pagesAffected} pages** — same pattern detected across: ${(f.affectedUrls || []).join(", ")}`
-        : null;
-
-    const fpRisk =
-      f.falsePositiveRisk && f.falsePositiveRisk !== "low"
-        ? `> ⚠️ **False Positive Risk (${f.falsePositiveRisk}):** Verify this finding manually before applying a fix — automated detection of this rule has known edge cases.`
+        ? `> ℹ️ **Cross-page:** Found on ${f.pagesAffected} pages — ${(f.affectedUrls || []).join(", ")}`
         : null;
 
     const difficultyBlock = f.fixDifficultyNotes
-      ? `**Implementation Notes:** ${f.fixDifficultyNotes}`
+      ? `#### Implementation Notes\n${
+          Array.isArray(f.fixDifficultyNotes)
+            ? f.fixDifficultyNotes.map((n) => `- ${n}`).join("\n")
+            : f.fixDifficultyNotes
+        }`
       : null;
 
     const frameworkBlock =
       f.frameworkNotes && typeof f.frameworkNotes === "object"
-        ? `**Framework Guidance:**\n${Object.entries(f.frameworkNotes)
-            .map(
-              ([fw, note]) =>
-                `- **${fw.charAt(0).toUpperCase() + fw.slice(1)}:** ${note}`,
-            )
+        ? `#### Framework Notes\n${Object.entries(f.frameworkNotes)
+            .map(([fw, note]) => `- **${fw.charAt(0).toUpperCase() + fw.slice(1)}:** ${note}`)
             .join("\n")}`
         : null;
 
     const cmsBlock =
       f.cmsNotes && typeof f.cmsNotes === "object"
-        ? `**CMS Guidance:**\n${Object.entries(f.cmsNotes)
-            .map(
-              ([cms, note]) =>
-                `- **${cms.charAt(0).toUpperCase() + cms.slice(1)}:** ${note}`,
-            )
+        ? `#### CMS Notes\n${Object.entries(f.cmsNotes)
+            .map(([cms, note]) => `- **${cms.charAt(0).toUpperCase() + cms.slice(1)}:** ${note}`)
             .join("\n")}`
         : null;
 
@@ -226,31 +238,42 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       : null;
 
     const managedBlock = f.managedByLibrary
-      ? `> ⚠️ **Managed Component Warning:** Check evidence HTML for vendor class names (e.g., \`swiper-*\`, \`radix-*\`, \`mantine-*\`) — if library-owned, fix via config/wrapper, not the generated DOM.`
+      ? `> ⚠️ **Managed Component:** Controlled by \`${f.managedByLibrary}\` — fix via the library's prop API, not direct DOM attributes.`
       : null;
 
     const verifyBlock = f.verificationCommand
       ? `**Quick verify:** \`${f.verificationCommand}\`${f.verificationCommandFallback ? `\n**Fallback verify:** \`${f.verificationCommandFallback}\`` : ""}`
       : null;
 
+    const id = f.id || f.ruleId;
+    const requiresManualVerification = f.falsePositiveRisk && f.falsePositiveRisk !== "low";
+
+    const executionMeta = [
+      `**Execution Metadata**`,
+      `- \`fix_priority\`: ${executionIndex.get(id) || "n/a"}`,
+      `- \`action_type\`: ${inferActionType(f)}`,
+      `- \`target_files_glob\`: ${f.fileSearchPattern ? `\`${f.fileSearchPattern}\`` : "`n/a`"}`,
+      requiresManualVerification ? `- \`requires_manual_verification\`: true _(false positive risk: ${f.falsePositiveRisk})_` : `- \`requires_manual_verification\`: false`,
+    ].join("\n");
+
     const guardrailsBlock =
       f.guardrails && typeof f.guardrails === "object"
         ? [
             Array.isArray(f.guardrails.must) && f.guardrails.must.length > 0
-              ? `**Preconditions:**\n${f.guardrails.must.map((g) => `- ${g}`).join("\n")}`
+              ? `#### Preconditions\n${f.guardrails.must.map((g) => `- ${g}`).join("\n")}`
               : null,
             Array.isArray(f.guardrails.must_not) && f.guardrails.must_not.length > 0
-              ? `**Do Not Apply If:**\n${f.guardrails.must_not.map((g) => `- ${g}`).join("\n")}`
+              ? `#### Do Not Apply\n${f.guardrails.must_not.map((g) => `- ${g}`).join("\n")}`
               : null,
             Array.isArray(f.guardrails.verify) && f.guardrails.verify.length > 0
-              ? `**Post-Fix Checks:**\n${f.guardrails.verify.map((g) => `- ${g}`).join("\n")}`
+              ? `#### Post-Fix Checks\n${f.guardrails.verify.map((g) => `- ${g}`).join("\n")}`
               : null,
           ].filter(Boolean).join("\n\n")
         : null;
 
     return [
       `---`,
-      `### ID: ${f.id || f.ruleId} · ${f.severity} · \`${f.title}\``,
+      `### ID: ${id} · ${f.severity} · \`${f.title}\``,
       ``,
       `- **Target Area:** \`${f.area}\``,
       `- **Surgical Selector:** \`${f.primarySelector || f.selector}\``,
@@ -258,12 +281,16 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         ? `- **WCAG Criterion:** ${f.wcag} _(Best Practice — not a WCAG AA requirement)_`
         : `- **WCAG Criterion:** ${f.wcag}`,
       f.category ? `- **Category:** ${f.category}` : null,
+      requiresManualVerification ? `- **False Positive Risk:** ${f.falsePositiveRisk} — verify before applying` : null,
       ``,
-      crossPageBlock ? `${crossPageBlock}\n` : null,
-      managedBlock ? `${managedBlock}\n` : null,
-      `**Observed Violation:** ${trimViolation(f.actual)}`,
+      crossPageBlock,
+      managedBlock,
+      crossPageBlock || managedBlock ? `` : null,
+      `**Observed Violation:** ${formatViolation(f.actual)}`,
       searchPatternBlock ? `` : null,
       searchPatternBlock,
+      ``,
+      executionMeta,
       ``,
       fixBlock,
       guardrailsBlock ? `` : null,
@@ -274,8 +301,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       frameworkBlock,
       cmsBlock ? `` : null,
       cmsBlock,
-      fpRisk ? `` : null,
-      fpRisk,
       evidenceHtml ? `` : null,
       evidenceHtml ? `${evidenceLabel}\n${evidenceHtml}` : null,
       relatedBlock ? `` : null,
@@ -332,10 +357,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       const rules = [...new Set(items.map((i) => i.ruleId))].join(", ");
       return `| \`${component}\` | ${items.length} | ${severities} | ${rules} |`;
     });
-    return `## 🧩 Fixes by Component
-
-> Fix all issues in the same component before moving to the next — reduces file switching.
-> \`source-not-resolved\` means the selector hint looks like utility CSS; use \`Search in\` + evidence blocks to locate source.
+    return `## Fixes by Component
 
 | Component | Issues | Severities | Rules |
 |---|---|---|---|
@@ -344,32 +366,29 @@ ${rows.join("\n")}
   }
 
   return (
-    `# 🛡️ Accessibility Remediation Guide — AI MODE
+      `# Accessibility Remediation Guide
 > **Base URL:** ${args.baseUrl || "N/A"}
 
 | Severity | Count |
 |---|---|
-| 🔴 Critical | ${totals.Critical} |
-| 🟠 Serious | ${totals.Serious} |
-| 🟡 Moderate | ${totals.Moderate} |
-| 🔵 Minor | ${totals.Minor} |
+| Critical | ${totals.Critical} |
+| Serious | ${totals.Serious} |
+| Moderate | ${totals.Moderate} |
+| Minor | ${totals.Minor} |
 
 ---
 
-## 🤖 AI AGENT OPERATING PROCEDURES (GUARDRAILS)
-
-**FOLLOW THESE RULES TO PREVENT REGRESSIONS AND HALLUCINATIONS:**
+## Agent Operating Procedures (Guardrails)
 
 ${buildGuardrails(framework)}
-
-**Fix strategy:** surgical-minimal-change — apply the smallest edit that resolves the violation. If evidence is ambiguous, fall back to \`requires_manual_verification\` — do not guess.
 
 ---
 
 ${buildComponentMap()}
 ${buildRecommendationsSection(metadata.recommendations)}
-${blockers ? `## 🔴 Priority Fixes (Critical & Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
-${deferred ? `\n## 🔵 Deferred Issues (Moderate & Minor)\n\n${deferred}` : ""}
+${buildExecutionOrderSection()}
+${blockers ? `## Priority Fixes (Critical and Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
+${deferred ? `\n## Deferred Issues (Moderate and Minor)\n\n${deferred}` : ""}
 `
   .trimEnd() + "\n"
   );

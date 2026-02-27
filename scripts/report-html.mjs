@@ -15,6 +15,7 @@ import {
   computeComplianceScore,
   scoreLabel,
   buildPersonaSummary,
+  wcagOverallStatus,
 } from "./renderers/findings.mjs";
 import { escapeHtml } from "./renderers/utils.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -106,7 +107,7 @@ function buildHtml(args, findings, metadata = {}) {
   } catch {}
 
   const statusColor = hasIssues
-    ? "text-rose-600 bg-rose-50 border-rose-200"
+    ? "text-rose-700 bg-rose-50 border-rose-200"
     : "text-emerald-600 bg-emerald-50 border-emerald-200";
   const statusIcon = hasIssues
     ? `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`
@@ -144,11 +145,12 @@ function buildHtml(args, findings, metadata = {}) {
 
   const score = computeComplianceScore(totals);
   const label = scoreLabel(score);
+  const wcagStatus = wcagOverallStatus(totals);
   /**
    * The hue value for the compliance score gauge (green for high, orange for medium, red for low).
    * @type {number}
    */
-  const scoreHue = score >= 75 ? 142 : score >= 55 ? 38 : 0;
+  const scoreHue = wcagStatus === "Fail" ? 0 : score >= 75 ? 142 : score >= 55 ? 38 : 0;
 
   /**
    * Summary of issues grouped by user persona impact.
@@ -240,8 +242,8 @@ function buildHtml(args, findings, metadata = {}) {
 </head>
 <body class="text-slate-900 min-h-screen">
 
-  <div>
-    <div class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-slate-200/80 shadow-sm" id="navbar">
+  <header class="fixed top-0 left-0 right-0 z-50 glass-header border-b border-slate-200/80 shadow-sm" id="navbar">
+    <nav aria-label="Report header">
       <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
         <div class="flex items-center gap-3">
           <div class="px-3 h-10 rounded-lg bg-slate-900 text-white font-bold text-base font-mono flex items-center justify-center shadow-md">a11y</div>
@@ -251,9 +253,10 @@ function buildHtml(args, findings, metadata = {}) {
           ${statusIcon} <span>${statusText}</span>
         </div>
       </div>
-    </div>
+    </nav>
+  </header>
 
-    <div class="max-w-7xl mx-auto px-4 pt-24 pb-20">
+    <main id="main-content" class="max-w-7xl mx-auto px-4 pt-24 pb-20">
       <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 class="text-3xl font-extrabold mb-2">Web Accessibility Audit</h2>
@@ -291,28 +294,28 @@ function buildHtml(args, findings, metadata = {}) {
                 <span class="text-[10px] font-bold text-rose-600 uppercase tracking-widest">Critical</span>
               </div>
               <div class="text-4xl font-black text-slate-900">${totals.Critical}</div>
-              <p class="text-[10px] text-slate-400 font-medium mt-1 leading-tight">Functional blockers</p>
+              <p class="text-[10px] text-slate-600 font-medium mt-1 leading-tight">Functional blockers</p>
             </div>
             <div class="premium-card p-5 rounded-2xl border-l-[6px] border-orange-500">
               <div class="flex justify-between items-start mb-2">
-                <span class="text-[10px] font-bold text-orange-600 uppercase tracking-widest">Serious</span>
+                <span class="text-[10px] font-bold text-orange-700 uppercase tracking-widest">Serious</span>
               </div>
               <div class="text-4xl font-black text-slate-900">${totals.Serious}</div>
-              <p class="text-[10px] text-slate-400 font-medium mt-1 leading-tight">Serious impediments</p>
+              <p class="text-[10px] text-slate-600 font-medium mt-1 leading-tight">Serious impediments</p>
             </div>
             <div class="premium-card p-5 rounded-2xl border-l-[6px] border-amber-400">
               <div class="flex justify-between items-start mb-2">
-                <span class="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Moderate</span>
+                <span class="text-[10px] font-bold text-amber-700 uppercase tracking-widest">Moderate</span>
               </div>
               <div class="text-4xl font-black text-slate-900">${totals.Moderate}</div>
-              <p class="text-[10px] text-slate-400 font-medium mt-1 leading-tight">Significant friction</p>
+              <p class="text-[10px] text-slate-600 font-medium mt-1 leading-tight">Significant friction</p>
             </div>
             <div class="premium-card p-5 rounded-2xl border-l-[6px] border-emerald-500">
               <div class="flex justify-between items-start mb-2">
-                <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Minor</span>
+                <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-widest">Minor</span>
               </div>
               <div class="text-4xl font-black text-slate-900">${totals.Minor}</div>
-              <p class="text-[10px] text-slate-400 font-medium mt-1 leading-tight">Minor violations</p>
+              <p class="text-[10px] text-slate-600 font-medium mt-1 leading-tight">Minor violations</p>
             </div>
           </div>
         </div>
@@ -323,7 +326,7 @@ function buildHtml(args, findings, metadata = {}) {
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Persona Impact Matrix
           </h3>
-          <p class="text-xs text-slate-400 mb-6 -mt-4 leading-relaxed italic">Distribution of unique accessibility barriers per user profile. Duplicate errors are grouped to show strategic impact.</p>
+          <p class="text-xs text-slate-600 mb-6 -mt-4 leading-relaxed italic">Distribution of unique accessibility barriers per user profile. Duplicate errors are grouped to show strategic impact.</p>
           <div class="space-y-4">
             ${Object.entries(personaGroups)
               .map(
@@ -331,7 +334,7 @@ function buildHtml(args, findings, metadata = {}) {
             <div class="group">
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[var(--primary-light)] group-hover:text-[var(--primary)] transition-colors">${p.icon}</div>
+                  <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600 group-hover:bg-[var(--primary-light)] group-hover:text-[var(--primary)] transition-colors">${p.icon}</div>
                   <span class="text-sm font-bold text-slate-700">${p.label}</span>
                 </div>
                 <span class="text-xs font-black text-slate-900">${p.count} issues</span>
@@ -367,11 +370,11 @@ function buildHtml(args, findings, metadata = {}) {
             <div class="bg-slate-800/50 border border-slate-700 p-4 rounded-xl backdrop-blur-sm">
               <div class="flex items-center justify-between mb-2">
                 <span class="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 text-[9px] font-bold uppercase tracking-tight line-clamp-1">${w.severity}</span>
-                <span class="text-slate-500 text-[9px] font-mono">${w.id}</span>
+                <span class="text-slate-300 text-[9px] font-mono">${w.id}</span>
               </div>
               <h4 class="text-sm font-bold text-slate-200 mb-1 line-clamp-1">${w.title}</h4>
-              <p class="text-[10px] text-slate-500 font-mono mb-3 truncate">Page: ${w.area}</p>
-              <button onclick="scrollToIssue('${w.id}')" class="text-[10px] font-bold text-[var(--primary)] hover:opacity-80 transition-colors uppercase tracking-widest flex items-center gap-1">
+              <p class="text-[10px] text-slate-300 font-mono mb-3 truncate">Page: ${w.area}</p>
+              <button onclick="scrollToIssue('${w.id}')" class="text-[10px] font-bold text-blue-300 hover:text-blue-200 transition-colors uppercase tracking-widest flex items-center gap-1">
                 View Solution
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </button>
@@ -388,7 +391,7 @@ function buildHtml(args, findings, metadata = {}) {
         <!-- Row 1: Title, View Toggle & Expand All -->
         <div class="flex items-center justify-between w-full">
           <div class="flex items-center gap-4">
-            <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Findings <span class="text-slate-400 font-bold ml-1">${findings.length}</span></h3>
+            <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Findings <span class="text-slate-600 font-bold ml-1">${findings.length}</span></h3>
             <div class="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
               <button onclick="setView('severity')" id="view-severity" class="view-btn px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest bg-[var(--primary-light)] text-[var(--primary)] transition-all">By Severity</button>
               ${
@@ -441,10 +444,9 @@ function buildHtml(args, findings, metadata = {}) {
       </div>
 
       <footer class="mt-10 py-6 border-t border-slate-200 text-center">
-        <p class="text-slate-400 text-sm font-medium">Generated by <a href="https://github.com/diegovelasquezweb/a11y" target="_blank" class="text-slate-500 hover:text-[var(--primary)] font-semibold transition-colors">a11y</a> &bull; <span class="text-slate-500">${escapeHtml(args.target)}</span></p>
+        <p class="text-slate-600 text-sm font-medium">Generated by <a href="https://github.com/diegovelasquezweb/a11y" target="_blank" class="text-slate-700 hover:text-[var(--primary)] font-semibold transition-colors">a11y</a> &bull; <span class="text-slate-700">${escapeHtml(args.target)}</span></p>
       </footer>
-    </div>
-  </div>
+    </main>
 
   <script>
     function setView(view) {
@@ -503,6 +505,61 @@ function buildHtml(args, findings, metadata = {}) {
       if (!btn) return;
       const anyCollapsed = _activeCards().some(c => c.dataset.collapsed === 'true');
       btn.textContent = anyCollapsed ? 'Expand all' : 'Collapse all';
+    }
+
+    function switchIssueTab(button, tabKey) {
+      const root = button.closest('[data-issue-tab-root]');
+      if (!root) return;
+      const card = button.closest('.issue-card');
+      if (!card) return;
+
+      const tabs = [...root.querySelectorAll('[role="tab"]')];
+      const panels = [...card.querySelectorAll('[role="tabpanel"][data-tab-panel]')];
+
+      tabs.forEach((tab) => {
+        const isActive = tab === button;
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        tab.setAttribute('tabindex', isActive ? '0' : '-1');
+        if (isActive) {
+          tab.classList.add('bg-white', 'text-indigo-700', 'border', 'border-indigo-200', 'shadow-sm');
+          tab.classList.remove('text-slate-600', 'border-transparent', 'hover:bg-white/70');
+        } else {
+          tab.classList.remove('bg-white', 'text-indigo-700', 'border', 'border-indigo-200', 'shadow-sm');
+          tab.classList.add('text-slate-600', 'border-transparent', 'hover:bg-white/70');
+        }
+      });
+
+      panels.forEach((panel) => {
+        const isTarget = panel.dataset.tabPanel === tabKey;
+        panel.classList.toggle('hidden', !isTarget);
+      });
+    }
+
+    function handleIssueTabKeydown(event, button) {
+      const root = button.closest('[data-issue-tab-root]');
+      if (!root) return;
+      const tabs = [...root.querySelectorAll('[role="tab"]')];
+      const index = tabs.indexOf(button);
+      if (index === -1) return;
+
+      let nextIndex = index;
+      if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+      else if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = tabs.length - 1;
+      else if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        const key = button.getAttribute('aria-controls')?.split('-').pop();
+        if (key) switchIssueTab(button, key);
+        return;
+      } else {
+        return;
+      }
+
+      event.preventDefault();
+      tabs[nextIndex].focus();
+      const key = tabs[nextIndex].getAttribute('aria-controls')?.split('-').pop();
+      if (key) switchIssueTab(tabs[nextIndex], key);
     }
 
 
