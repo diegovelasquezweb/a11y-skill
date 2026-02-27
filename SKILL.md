@@ -67,9 +67,9 @@ Progress:
 
 ### Step 1 — Page discovery
 
-If no URL provided, ask for one.
+**Hard stop — URL required before anything else.** If no URL is present in the current message, ask: *"What URL should I audit?"* and wait for the answer. Do not ask about pages, sitemap, or any other topic until a URL is confirmed.
 
-Normalize input before passing to `--base-url`:
+Once the user provides a URL, normalize it before passing to `--base-url`:
 
 - `localhost:3000` → `http://localhost:3000`
 - `mysite.com` → `https://mysite.com`
@@ -428,7 +428,7 @@ If **No thanks**: skip to item 7.
    node scripts/report-pdf.mjs --output <path>/report.pdf --base-url <URL>
    ```
 
-   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually. **Then immediately continue to item 7 in the same response — do not wait for user input.**
+   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows) **only when a GUI session is available**. In headless/sandbox environments, skip auto-open and share the absolute path for manual opening. If auto-open is attempted and fails, share the absolute path so the user can open it manually. **Then immediately continue to item 7 in the same response — do not wait for user input.**
 
 7. Output the manual testing reminder and checklist offer — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 8.
 
@@ -464,7 +464,7 @@ Then:
 node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
 ```
 
-Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows). If it fails, share the absolute path so the user can open it manually. **Then immediately continue to item 8 in the same response — do not wait for user input.**
+Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows) **only when a GUI session is available**. In headless/sandbox environments, skip auto-open and share the absolute path for manual opening. If auto-open is attempted and fails, share the absolute path so the user can open it manually. **Then immediately continue to item 8 in the same response — do not wait for user input.**
 
 8. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
 
