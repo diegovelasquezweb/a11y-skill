@@ -6,7 +6,12 @@
     "Minor": 3
   },
   "priorityScoring": {
-    "severityPoints": { "0": 50, "1": 30, "2": 10, "3": 0 },
+    "severityPoints": {
+      "0": 50,
+      "1": 30,
+      "2": 10,
+      "3": 0
+    },
     "instancePointsMax": 30,
     "instanceScale": 10,
     "fixBonus": 20
@@ -21,11 +26,26 @@
     }
   },
   "gradeThresholds": [
-    { "min": 90, "label": "Excellent" },
-    { "min": 75, "label": "Good" },
-    { "min": 55, "label": "Fair" },
-    { "min": 35, "label": "Poor" },
-    { "min": 0, "label": "Critical" }
+    {
+      "min": 90,
+      "label": "Excellent"
+    },
+    {
+      "min": 75,
+      "label": "Good"
+    },
+    {
+      "min": 55,
+      "label": "Fair"
+    },
+    {
+      "min": 35,
+      "label": "Poor"
+    },
+    {
+      "min": 0,
+      "label": "Critical"
+    }
   ],
   "riskLabels": {
     "Excellent": "Minimal Risk",
@@ -35,10 +55,26 @@
     "Critical": "Severe Risk"
   },
   "riskLevels": [
-    { "minScore": 75, "label": "Low", "color": "#16a34a" },
-    { "minScore": 55, "label": "Moderate", "color": "#d97706" },
-    { "minScore": 35, "label": "High", "color": "#dc2626" },
-    { "minScore": 0, "label": "Severe", "color": "#dc2626" }
+    {
+      "minScore": 75,
+      "label": "Low",
+      "color": "#16a34a"
+    },
+    {
+      "minScore": 55,
+      "label": "Moderate",
+      "color": "#d97706"
+    },
+    {
+      "minScore": 35,
+      "label": "High",
+      "color": "#dc2626"
+    },
+    {
+      "minScore": 0,
+      "label": "Severe",
+      "color": "#dc2626"
+    }
   ],
   "effortMultipliers": {
     "Critical": 4,
@@ -77,11 +113,6 @@
     "serious": "Serious",
     "moderate": "Moderate",
     "minor": "Minor"
-  },
-  "usRegulatory": {
-    "default": "https://accessibility.18f.gov/checklist/",
-    "section508": "https://www.section508.gov/create/software-websites/",
-    "18f": "https://accessibility.18f.gov/tools/"
   },
   "regulations": [
     {
