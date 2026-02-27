@@ -233,7 +233,7 @@ Then ask:
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip style fixes
 
-If **No**: proceed to 4c immediately — do not output any message here. 4c always runs regardless of what happened in 4b. Never skip to Step 5 from 4b.
+If **No**: your very next action is the first tool call of 4c — reading `references/code-patterns.md`. Do not output any text, transition phrase, or acknowledgment before that tool call. 4c always runs regardless of what happened in 4b. Never skip to Step 5 from 4b.
 
 If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these style changes?** prompt. Otherwise apply the selected changes, list files and exact values modified, then ask the verification question below.
 
@@ -244,11 +244,13 @@ If **Yes** or after **Let me pick** completes: list the files and exact values m
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
 
-If **Looks good**: proceed to 4c. If **Something's wrong**: apply corrections, then proceed to 4c.
+If **Looks good**: your very next action is the first tool call of 4c — reading `references/code-patterns.md`. No text before it. If **Something's wrong**: apply corrections, then proceed to 4c the same way.
 
 #### 4c. Source code patterns
 
-Immediately load [references/code-patterns.md](references/code-patterns.md) — do not output any message before scanning. Each entry has a `Search for` regex and `In files` glob — use these to grep the project source. Apply the framework note matching the detected stack:
+**This step runs automatically — no user confirmation needed. Do not output any text before scanning.** The very first action is a tool call: read `references/code-patterns.md`. Output begins only after the scan is complete and results are ready to present.
+
+Each entry has a `Search for` regex and `In files` glob — use these to grep the project source. Apply the framework note matching the detected stack:
 
 1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
 2. Classify confirmed matches into two groups:
@@ -322,15 +324,7 @@ If **Yes** or after **Let me pick** completes: list the files and exact values m
 
 If **Looks good**: proceed to Step 5. If **Something's wrong**: apply corrections, then proceed to Step 5.
 
-**End of 4c — closing message gate:**
-
-Show the `[MESSAGE]` below **only if ALL of the following are true**:
-- The structural patterns question was answered **Skip** (no structural fix was applied in 4c)
-- The style patterns question was answered **Skip** (no style pattern fix was applied in 4c)
-
-In all other cases — including when at least one fix was applied, or when no style patterns were found — proceed directly to Step 5 without any message.
-
-If both were skipped, proceed to Step 5 immediately. The verification scan will open with: **"No source code fixes applied — running verification to confirm the current state."**
+**End of 4c:** Proceed directly to Step 5. Do not output any text, summary, or transition phrase — regardless of what happened in 4c. The very next action is running the audit script in Step 5.
 
 ### Step 5 — Verification re-audit (mandatory)
 
@@ -347,21 +341,21 @@ node scripts/audit.mjs --base-url <URL> [--max-routes <N>]
 
 If the script fails: verify the site is reachable (`curl -s -o /dev/null -w "%{http_code}" <URL>`) before retrying. If it returns a non-200 status, stop and report the error to the user — do not retry with modified flags. If the site is reachable and the script fails a second time, stop and report the error.
 
-After the script completes, immediately parse ALL findings in the same turn — do not pause or wait for user input before presenting results. Open with: **"All fixes applied — here are the verification results:"**
+After the script completes, immediately parse ALL findings and present results — do not pause or wait for user input. Do not output any text before the script finishes executing.
 
 - **All clear (0 issues)** → proceed to Step 6.
 - **Issues found (any kind)** → follow this sequence:
 
   1. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. If `{new} > 0`, append inline: *"New issues are expected after fixing parent violations — axe-core evaluates child elements for the first time once the parent is resolved."* Then present all findings grouped by severity (same format as Step 3).
-  3. **Always ask immediately after presenting findings** — never stop or pause here, even if all remaining issues were previously declined:
+  2. **Always ask immediately after presenting findings** — never stop or pause here, even if all remaining issues were previously declined:
 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
 
      1. **Keep fixing** — address the remaining issues
      2. **Move on** — accept the remaining issues and proceed to the final summary
 
-  4. If **Keep fixing**: fix following Step 4 procedures (4a for structural, 4b approval gate for style), then run the re-audit again. Go back to step 1 of this sequence.
-  5. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
+  3. If **Keep fixing**: apply fixes following Step 4 procedures (4a → structural, 4b approval gate → style, 4c → source patterns). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
+  4. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 
