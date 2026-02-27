@@ -15,6 +15,7 @@ import {
   computeComplianceScore,
   scoreLabel,
   buildPersonaSummary,
+  wcagOverallStatus,
 } from "./renderers/findings.mjs";
 import { escapeHtml } from "./renderers/utils.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -144,6 +145,7 @@ function buildHtml(args, findings, metadata = {}) {
 
   const score = computeComplianceScore(totals);
   const label = scoreLabel(score);
+  const wcagStatus = wcagOverallStatus(totals);
   /**
    * The hue value for the compliance score gauge (green for high, orange for medium, red for low).
    * @type {number}

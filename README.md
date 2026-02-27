@@ -15,7 +15,7 @@ This skill transforms accessibility audits into actionable fix roadmaps. It runs
 
 ## Installation
 
-Give your AI agent the following prompt, or use your agent's native skill installer:
+Give your AI agent the install prompt, or use your agent's native skill installer
 
 ```bash
 "Install skill https://github.com/diegovelasquezweb/a11y"
@@ -23,14 +23,14 @@ Give your AI agent the following prompt, or use your agent's native skill instal
 
 The agent will clone the repository to its skills directory automatically:
 
-| Agent | Install path | Invoke |
-| :---- | :----------- | :----- |
-| Claude Code | `~/.claude/skills/a11y/` | `/a11y` |
-| Cursor | `~/.cursor/skills/a11y/` | `/a11y` |
-| Gemini CLI | `~/.gemini/skills/a11y/` | — |
-| Codex | `~/.codex/skills/a11y/` | `$a11y` |
-| Windsurf | `~/.codeium/windsurf/skills/a11y/` | `@a11y` |
-| Antigravity | `~/.gemini/antigravity/skills/a11y/` | `/a11y` |
+| Agent | Install path | Install command | Invoke |
+| :---- | :----------- | :-------------- | :----- |
+| Claude Code | `~/.claude/skills/a11y/` | `Install skill <repo-url>` | `/a11y` |
+| Cursor | `~/.cursor/skills/a11y/` | `Install skill <repo-url>` | `/a11y` |
+| Gemini CLI | `~/.gemini/skills/a11y/` | `gemini skills install <repo-url>` | — |
+| Codex | `~/.codex/skills/a11y/` | `$skill-installer <repo-url>` | `$a11y` |
+| Windsurf | `~/.codeium/windsurf/skills/a11y/` | `Install skill <repo-url>` | `@a11y` |
+| Antigravity | `~/.gemini/antigravity/skills/a11y/` | `Install skill <repo-url>` | `/a11y` |
 
 Restart your agent session after installation to ensure the skill is loaded.
 
