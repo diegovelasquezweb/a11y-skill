@@ -212,9 +212,7 @@ Affected elements:
 [/page-path] — [element descriptions with selector/class]
 
 Proposed change — [file path]:
-| Token | Property | Current value | Proposed value | Current ratio | Proposed ratio |
-|---|---|---|---|---|---|
-| --token-name | color | value (#hex) | value (#hex) | X.XX:1 | ~Y.YY:1 |
+· --token-name: current value (#hex) → proposed value (#hex)  (X.XX:1 → ~Y.YY:1)
 
 Scope: [explain whether this is a global token or a local change, and what other elements it affects]
 ```
@@ -256,12 +254,12 @@ If 0 matches were found in both groups, proceed automatically to Step 5 without 
 **Structural patterns** — present as a batch using this exact format:
 
 ```
-| # | File | Line | Element | Current → Proposed |
-|---|---|---|---|---|
-| 1 | [file path] | [line] | [element tag / selector] | [current code] → [proposed code] |
+1. `[file path]` · line [line] · [element tag / selector]
+   Before: [current code]
+   After:  [proposed code]
 ```
 
-Include: pattern name, WCAG criterion, level (A/AA), severity above the table. Then ask:
+Include: pattern name, WCAG criterion, level (A/AA), severity above the list. Then ask:
 
 `[QUESTION]` **I found [N] structural issue(s) in your source code that axe-core cannot detect at runtime — HTML attributes, ARIA, and JS APIs invisible to the browser scanner. Apply fixes?**
 
@@ -287,9 +285,9 @@ If **Skip**: proceed to style patterns (or Step 5 if none) — do not show the `
 > **Style-dependent protection — hard stop**: same rule as style-dependent fixes — **never apply before showing the exact proposed diff and receiving an explicit "yes".**
 
 ```
-| # | File | Line | Element | Current → Proposed |
-|---|---|---|---|---|
-| 1 | [file path] | [line] | [element tag / selector] | [current CSS value] → [proposed CSS value] |
+1. `[file path]` · line [line] · [element tag / selector]
+   Before: [current CSS value]
+   After:  [proposed CSS value]
 ```
 
 Then ask:
