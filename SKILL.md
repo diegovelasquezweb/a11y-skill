@@ -44,10 +44,10 @@ These rules apply at all times, independent of any workflow step.
 2. **Tone** — concise and technical. State findings, propose action, ask for a decision.
 3. **Internal steps** — never expose internal step labels, phase codes, or workflow reasoning to the user. This includes codes like "4b", phase names like "Step 4c" or "Source Code Pattern Audit", and internal logic like "not re-offering" or "user declined in 4b". Always describe outcomes in plain language only. **Never pre-announce a sequence of steps** ("first I'll do X, then Y, then Z") — execute immediately and let the output speak for itself.
 4. **Recovery** — if the user types `continue`, `resume`, or `where are we`, read the conversation history to determine the current state and resume from the next pending action. If the state cannot be determined, briefly summarize what was completed and ask where to continue from.
-5. **Message tags** — this playbook uses two tags to mark formatted messages. When you reach a tagged block, present it as a **standalone message** — never merge with informational lists, findings, summaries, or other content.
+5. **Message tags** — this playbook uses two tags to mark formatted messages:
+   - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options. **Send one `[QUESTION]` per message. Never present two questions at once. Always wait for the user's answer before showing the next question.** Format: always output the question text on its own line, followed by each option as a numbered item on its own line — never inline, never collapsed to "Yes/No". A `[QUESTION]` is the only tag that ends the agent's turn and waits for user input.
+   - `[MESSAGE]` — a mandatory pre-written message. **You MUST output the exact text — never skip, rephrase, summarize, or adapt it.** Skipping a `[MESSAGE]` block is not allowed under any circumstance. Output it as a **visually distinct paragraph** — never inline or merged with surrounding content. **A `[MESSAGE]` does NOT end the agent's turn. Do not wait for user input after it. Immediately output whatever comes next in the same response.**
 6. **Data-first** — if the user's message already contains the answer to a pending question (URL scheme, discovery method, page count, save path, etc.), skip that question and proceed directly. Never ask for information already provided in the current turn.
-   - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options. **Send one `[QUESTION]` per message. Never present two questions at once. Always wait for the user's answer before showing the next question.** Format: always output the question text on its own line, followed by each option as a numbered item on its own line — never inline, never collapsed to "Yes/No".
-   - `[MESSAGE]` — a mandatory pre-written message. **You MUST output the exact text — never skip, rephrase, summarize, or adapt it.** Skipping a `[MESSAGE]` block is not allowed under any circumstance. **A `[MESSAGE]` does not require a user response — never pause or show an input after it. Continue executing the next instruction in the same turn immediately after displaying it.**
 
 ---
 
@@ -183,17 +183,19 @@ Load [references/source-patterns.md](references/source-patterns.md) to locate so
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
-Present one severity group at a time (Critical → Serious → Moderate → Minor) — list the findings and proposed changes, then ask:
+Present one group at a time — list the findings and proposed changes, then ask. The `[QUESTION]` label depends on the active mode:
 
-`[QUESTION]` **Apply these [severity] fixes?**
+- **Fix by severity**: `[QUESTION]` **Apply these [severity] fixes?**
+- **Fix by category**: `[QUESTION]` **Apply these [category] fixes?**
+- **Other criteria**: adapt the label to match the user's specified grouping.
 
 1. **Yes** — apply all proposed changes
 2. **Let me pick** — show me the full list, I'll choose by number
-3. **No** — skip this severity group
+3. **No** — skip this group
 
-If **No**: skip to the next severity group (or 4b if this was the last).
+If **No**: skip to the next group (or 4b if this was the last).
 
-If **Let me pick**: present all fixes as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these [severity] fixes?** prompt. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
+If **Let me pick**: present all fixes as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the group question. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
 
 If **Yes** or after **Let me pick** completes: list the files and changes made, then ask:
 
@@ -202,19 +204,15 @@ If **Yes** or after **Let me pick** completes: list the files and changes made, 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
 
-If **Looks good**: proceed to the next severity group, or to 4b if this was the last group. If **Something's wrong**: apply corrections, then proceed to the next severity group (or 4b if last).
+If **Looks good**: proceed to the next group, or to 4b if this was the last. If **Something's wrong**: apply corrections, then proceed to the next group (or 4b if last).
 
 #### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
 
 If there are no style-dependent findings (color-contrast, font-size, or spacing), skip directly to 4c.
 
-`[MESSAGE]` Structural fixes done. Now let me review color contrast, font sizes, and spacing — changes here will affect the visual appearance of your site.
-
-→ **Do not wait for input — continue immediately in the same response.**
-
 > **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
-Show all style changes upfront using this exact format:
+Open with: **"Structural fixes done — reviewing color contrast, font sizes, and spacing. Changes here will affect the visual appearance of your site."** Then show all style changes using this exact format:
 
 ```
 Root cause: [problem description with actual values and ratios — e.g. "--color-pewter (#8E8A86) renders at 3.22:1 against --color-soft-white (#F8F8F8). Minimum required is 4.5:1 for normal text."]
@@ -250,20 +248,16 @@ If **Looks good**: proceed to 4c. If **Something's wrong**: apply corrections, t
 
 #### 4c. Source code patterns
 
-`[MESSAGE]` Let me scan your source code for accessibility patterns that the browser scanner cannot detect at runtime.
-
-→ **Do not wait for input — continue immediately in the same response.**
-
-Load [references/code-patterns.md](references/code-patterns.md). Each entry has a `Search for` regex and `In files` glob — use these to grep the project source. Apply the framework note matching the detected stack:
+Immediately load [references/code-patterns.md](references/code-patterns.md) — do not output any message before scanning. Each entry has a `Search for` regex and `In files` glob — use these to grep the project source. Apply the framework note matching the detected stack:
 
 1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
 2. Classify confirmed matches into two groups:
    - **Structural** — fixes to HTML attributes, ARIA, JS APIs, or non-visual DOM changes
    - **Style** — fixes that modify a CSS property value (`outline`, `color`, `background`, `font-size`, `pointer-events`, `visibility`, `opacity`, `display`, `border`, `box-shadow`, or any other visual property)
 
-If 0 matches were found in both groups, proceed automatically to Step 5 without showing any message.
+If 0 matches were found in both groups, proceed automatically to Step 5. Open with: **"Scanned source code — no additional patterns found."**
 
-**Structural patterns** — present as a batch using this exact format:
+**Structural patterns** — open with: **"Scanned source code — found [N] pattern(s) not detectable by the browser scanner."** Then present as a batch using this exact format:
 
 ```
 Pattern: [pattern name]
@@ -336,9 +330,7 @@ Show the `[MESSAGE]` below **only if ALL of the following are true**:
 
 In all other cases — including when at least one fix was applied, or when no style patterns were found — proceed directly to Step 5 without any message.
 
-`[MESSAGE]` No problem — these issues will remain in the remediation guide if you decide to revisit them. Keep in mind they affect real users: missing keyboard support can trap keyboard-only users, and absent skip links force screen reader users to navigate through every repeated element on every page.
-
-After the message, **immediately proceed to Step 5 in the same response** — do not wait for user input.
+If both were skipped, proceed to Step 5 immediately. The verification scan will open with: **"No source code fixes applied — running verification to confirm the current state."**
 
 ### Step 5 — Verification re-audit (mandatory)
 
@@ -360,11 +352,7 @@ After the script completes, immediately parse ALL findings in the same turn — 
 - **All clear (0 issues)** → proceed to Step 6.
 - **Issues found (any kind)** → follow this sequence:
 
-  1. If the issues include new regressions (not seen before the fixes), inform the user first:
-
-     `[MESSAGE]` The verification re-audit found new issues that were not present in the initial scan. This is expected and not a regression — axe-core stops evaluating child elements when a parent has a critical violation. Once that parent is fixed, the children get evaluated for the first time and may surface their own issues. Here are the new findings:
-
-  2. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. Then present all findings grouped by severity (same format as Step 3).
+  1. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. If `{new} > 0`, append inline: *"New issues are expected after fixing parent violations — axe-core evaluates child elements for the first time once the parent is resolved."* Then present all findings grouped by severity (same format as Step 3).
   3. **Always ask immediately after presenting findings** — never stop or pause here, even if all remaining issues were previously declined:
 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
