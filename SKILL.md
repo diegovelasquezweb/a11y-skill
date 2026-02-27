@@ -247,6 +247,8 @@ If **Looks good**: proceed to 4c. If **Something's wrong**: apply corrections, t
 
 #### 4c. Source code patterns
 
+`[MESSAGE]` Let me scan your source code for accessibility patterns that the browser scanner cannot detect at runtime.
+
 Process the "🔍 Source Code Pattern Audit" section from the remediation guide. Each entry has a `detection.search` regex and `detection.files` glob — use these to grep the project source:
 
 1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
