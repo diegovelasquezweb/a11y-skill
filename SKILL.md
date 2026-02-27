@@ -154,9 +154,16 @@ Then summarize and present:
 
 Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity**, **Fix by category**, or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes** (option 4): present the following message, then proceed to Step 6 immediately.
+If the user chooses **Skip fixes** (option 4): present the following message, then ask the confirmation question below.
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
+
+`[QUESTION]` **Are you sure you want to skip all fixes?**
+
+1. **Yes, skip** — proceed to the final summary without applying any fixes
+2. **No, let's fix them** — go back and apply the fixes
+
+If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: return to the `[QUESTION]` **How would you like to proceed?** and treat the answer as **Fix by severity**.
 
 **0 issues found** → proceed to Step 6 immediately. Note: automated tools cannot catch every barrier; recommend manual checks.
 
@@ -376,8 +383,8 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 > **File-open rule** — applies to all generated files in this step: verify the file exists on disk before reporting success. Attempt to open with `open` (macOS), `xdg-open` (Linux), or `start` (Windows) only when a GUI session is available. In headless/sandbox environments or if auto-open fails, share the absolute path so the user can open it manually.
 
-1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**, filling in values from the remediation guide. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`. If Overall Assessment is `Pass`, also confirm the site passes WCAG 2.2 AA automated checks. If any remaining issues were explicitly skipped by the user during Step 4, append: *"Note: [N] of these finding(s) were intentionally skipped in this session — the assessment reflects the current state of the site. They remain available in the remediation guide."*
-2. **Passed Criteria**: read `passedCriteria` from `.audit/a11y-findings.json` and present as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification.
+1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**. All metric values (`total`, `resolved`, `remaining`, `files modified`) must come from the **Step 5 re-audit results** — never recompute them manually or carry over values from the original Step 2 scan. `resolved` = Step 2 total − Step 5 remaining. `remaining` = issue count in the Step 5 re-audit output. If Step 4 was skipped entirely, use Step 2 values with `resolved = 0`. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`. If Overall Assessment is `Pass`, also confirm the site passes WCAG 2.2 AA automated checks. If any remaining issues were explicitly skipped by the user during Step 4, append: *"Note: [N] of these finding(s) were intentionally skipped in this session — the assessment reflects the current state of the site. They remain available in the remediation guide."*
+2. **Passed Criteria**: read `metadata.passedCriteria` from `.audit/a11y-findings.json` and present as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification.
 
    | Criterion | Name | Level |
    |-----------|------|-------|
@@ -458,12 +465,12 @@ Apply the file-open rule. **Then immediately continue to item 7 — do not wait 
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 
-`[QUESTION]` **Is there anything else I can help you with?**
+`[QUESTION]` **Would you like to audit another site?**
 
-1. **Yes** — tell me what you need
-2. **No, we're done**
+1. **Yes** — start a new audit
+2. **No, goodbye**
 
-If **Yes**: help the user with their request, then ask this question again. If **No, we're done**: the workflow is complete.
+If **Yes**: discard all session state (URL, findings, fix history) and restart the full workflow from Step 1 as if this were a new session. If **No, goodbye**: the workflow is complete.
 
 ---
 
