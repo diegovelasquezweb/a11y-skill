@@ -214,9 +214,7 @@ async function main() {
     process.exit(1);
   }
 
-  const findings = normalizeFindings(inputPayload).filter(
-    (f) => f.wcagClassification !== "Best Practice" && f.wcagClassification !== "AAA",
-  );
+  const findings = normalizeFindings(inputPayload).filter((f) => f.wcagClassification !== "AAA");
   const html = buildPdfHtml(args, findings);
 
   log.info("Generating professional PDF report...");

@@ -152,9 +152,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     args.baseUrl,
     args.framework ?? null,
   );
-  const wcagFindings = findings.filter(
-    (f) => f.wcagClassification !== "Best Practice" && f.wcagClassification !== "AAA",
-  );
+  const wcagFindings = findings.filter((f) => f.wcagClassification !== "AAA");
   const totals = buildSummary(wcagFindings);
 
   function findingToMd(f) {
@@ -258,9 +256,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `- **Surgical Selector:** \`${f.primarySelector || f.selector}\``,
       f.wcagClassification === "Best Practice"
         ? `- **WCAG Criterion:** ${f.wcag} _(Best Practice — not a WCAG AA requirement)_`
-        : f.wcagClassification === "AAA"
-          ? `- **WCAG Criterion:** ${f.wcag} _(Level AAA — informational only)_`
-          : `- **WCAG Criterion:** ${f.wcag}`,
+        : `- **WCAG Criterion:** ${f.wcag}`,
       ``,
       crossPageBlock ? `${crossPageBlock}\n` : null,
       managedBlock ? `${managedBlock}\n` : null,
