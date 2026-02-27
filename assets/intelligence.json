@@ -239,6 +239,10 @@
         {
           "id": "link-name",
           "reason": "link-name covers native <a> elements — fix all interactive element naming together."
+        },
+        {
+          "id": "aria-tooltip-name",
+          "reason": "Tooltip triggers often lack accessible names — fix both to ensure the trigger and tooltip are consistently named."
         }
       ],
       "guardrails_overrides": {
@@ -394,6 +398,10 @@
         {
           "id": "aria-hidden-focus",
           "reason": "Both involve aria-hidden misuse — if aria-hidden is on the body, all focusable elements are affected."
+        },
+        {
+          "id": "hidden-content",
+          "reason": "Revealing hidden content (hidden-content) may affect body-level aria-hidden state — verify both together."
         }
       ],
       "guardrails_overrides": {
@@ -436,6 +444,10 @@
         {
           "id": "aria-hidden-body",
           "reason": "Both involve aria-hidden misuse — if aria-hidden is on the body, all focusable elements are affected."
+        },
+        {
+          "id": "hidden-content",
+          "reason": "Revealing hidden content (hidden-content) can expose focusable elements that need aria-hidden-focus review."
         }
       ],
       "guardrails_overrides": {
@@ -880,6 +892,10 @@
         {
           "id": "aria-deprecated-role",
           "reason": "Both rules validate role attribute values — fix all role violations together."
+        },
+        {
+          "id": "aria-roledescription",
+          "reason": "A valid role must exist before adding a custom roledescription — fix aria-roles first."
         }
       ],
       "guardrails_overrides": {
@@ -1372,6 +1388,10 @@
         {
           "id": "aria-command-name",
           "reason": "button-name covers native <button> elements — fix all button naming violations together."
+        },
+        {
+          "id": "summary-name",
+          "reason": "summary acts as a toggle button — both must have accessible names for the disclosure widget to be operable."
         }
       ],
       "guardrails_overrides": {
@@ -1418,6 +1438,10 @@
         {
           "id": "skip-link",
           "reason": "Skip links are the primary mechanism for satisfying the bypass blocks requirement (WCAG 2.4.1)."
+        },
+        {
+          "id": "accesskeys",
+          "reason": "Both are keyboard enhancement mechanisms — accesskey conflicts with the shortcuts bypass provides."
         }
       ],
       "guardrails_overrides": {
@@ -1698,6 +1722,10 @@
         {
           "id": "heading-order",
           "reason": "Empty headings disrupt the heading hierarchy — resolve them together."
+        },
+        {
+          "id": "summary-name",
+          "reason": "An unnamed summary is similar to an empty heading — both leave structural landmarks without labels."
         }
       ]
     },
@@ -1764,6 +1792,10 @@
         {
           "id": "scrollable-region-focusable",
           "reason": "Scrollable regions may need tabindex='0' for keyboard access but also need an appropriate role."
+        },
+        {
+          "id": "nested-interactive",
+          "reason": "Nested interactive elements corrupt focus order — fix nested-interactive first, then verify focus-order-semantics."
         }
       ]
     },
@@ -2920,6 +2952,10 @@
         {
           "id": "aria-command-name",
           "reason": "link-name covers native <a> elements — fix all interactive element naming together."
+        },
+        {
+          "id": "identical-links-same-purpose",
+          "reason": "Generic link names (link-name) are the root cause of identical-links-same-purpose failures — fix link-name first."
         }
       ],
       "guardrails_overrides": {
@@ -3075,6 +3111,10 @@
         {
           "id": "meta-viewport-large",
           "reason": "meta-viewport checks for user-scalable=no (blocks zoom entirely); meta-viewport-large checks for insufficient maximum-scale."
+        },
+        {
+          "id": "css-orientation-lock",
+          "reason": "Both restrict how users can adapt the viewport — fix together for complete WCAG 1.3.4 / 1.4.4 coverage."
         }
       ],
       "guardrails_overrides": {
@@ -3116,6 +3156,10 @@
         {
           "id": "meta-viewport",
           "reason": "meta-viewport checks for user-scalable=no (blocks zoom entirely); meta-viewport-large checks for insufficient maximum-scale."
+        },
+        {
+          "id": "avoid-inline-spacing",
+          "reason": "Both address WCAG 1.4.4/1.4.12 adaptability — fixing one without the other leaves the same user group affected."
         }
       ]
     },
@@ -3148,6 +3192,10 @@
         {
           "id": "scrollable-region-focusable",
           "reason": "Scrollable containers inside interactive elements can create compounded focusability issues — audit together."
+        },
+        {
+          "id": "aria-text",
+          "reason": "role=text forbids focusable descendants — aria-text violations often co-occur with nested interactive elements."
         }
       ],
       "guardrails_overrides": {
@@ -3200,6 +3248,10 @@
         {
           "id": "video-caption",
           "reason": "Auto-playing video with audio needs captions — address media accessibility holistically."
+        },
+        {
+          "id": "meta-refresh",
+          "reason": "Both are WCAG 2.2.x timing failures that disrupt users without warning — fix together for complete criterion coverage."
         }
       ]
     },
@@ -3300,6 +3352,10 @@
         {
           "id": "p-as-heading",
           "reason": "If converting a p-as-heading introduces a new h1, verify it is the only h1 on the page."
+        },
+        {
+          "id": "document-title",
+          "reason": "Page title and h1 together describe the same page — fix both to give screen reader users consistent context."
         }
       ]
     },
@@ -3502,6 +3558,10 @@
         {
           "id": "focus-order-semantics",
           "reason": "Scrollable regions may need tabindex='0' for keyboard access but also need an appropriate role."
+        },
+        {
+          "id": "nested-interactive",
+          "reason": "Nested interactive elements inside scroll containers create keyboard traps — fix both together."
         }
       ]
     },
