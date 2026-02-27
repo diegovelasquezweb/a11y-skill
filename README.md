@@ -1,6 +1,6 @@
 # a11y - Accessibility Audit & Remediation Skill
 
-This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. Built following [skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. It is built following [skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
 ## Why this Skill?
 
@@ -8,14 +8,14 @@ This skill transforms accessibility audits into actionable fix roadmaps. It runs
 
 | Capability                  | With a11y                                                                                                              | Without                                                                                          |
 | :-------------------------- | :--------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
-| **WCAG 2.2 AA Coverage**    | ✅ Full multi-layer coverage of the WCAG 2.2 AA standard                                                             | ❌ Automated scans limited to the rendered DOM, missing source-level violations                        |
+| **WCAG 2.2 AA Coverage**    | ✅ Full multi-layer coverage of the WCAG 2.2 AA standard                                                             | ❌ Automated scans are limited to the rendered DOM and miss source-level violations                    |
 | **Fix Intelligence**        | ✅ Surgical fix blueprints with stack-aware patterns for your specific codebase                                        | ❌ Manual hunting through code with generic DOM feedback and no fix guidance                     |
-| **Workflow**                | ✅ Guided session from findings to applied fixes, prioritize by severity or by issue category | ❌ Unstructured prompting with inconsistent flow and unpredictable results                        |
-| **Token Efficiency**          | ✅ The agent reads a compact structured report, not raw page HTML                                                     | ❌ Entire page HTML fed into context on every scan                                               |
+| **Workflow**                | ✅ Guided session from findings to applied fixes, with prioritization by severity or issue category                   | ❌ Unstructured prompting with inconsistent flow and unpredictable results                         |
+| **Token Efficiency**        | ✅ The agent reads a compact, structured report instead of raw page HTML                                               | ❌ Entire page HTML is fed into context on every scan                                             |
 
 ## Installation
 
-Give your AI agent the install prompt, or use your agent's native skill installer
+Give your AI agent the install prompt, or use your agent's native skill installer.
 
 ```bash
 "Install skill https://github.com/diegovelasquezweb/a11y"
@@ -36,7 +36,7 @@ Restart your agent session after installation to ensure the skill is loaded.
 
 ## How to Use
 
-Invoke it directly using your agent's syntax or start the skill with a natural language prompt like:
+Give your AI agent the audit prompt, or use your agent's invoke shortcut.
 
 ```bash
 "Audit accessibility localhost:3000"
@@ -44,14 +44,14 @@ Invoke it directly using your agent's syntax or start the skill with a natural l
 
 The agent guides the rest of the session as a conversation, running the audit, presenting findings, walking you through fixes, and asking for your input at every decision point. Every action is confirmed before it runs.
 
-| Agent | Invoke | Path |
-| :---- | :----- | :--- |
-| Antigravity | `/a11y` | `~/.gemini/antigravity/skills/a11y/` |
-| Claude Code | `/a11y` | `~/.claude/skills/a11y/` |
-| Codex | `$a11y` | `~/.codex/skills/a11y/` |
-| Cursor | `/a11y` | `~/.cursor/skills/a11y/` |
-| Gemini CLI | `—` | `~/.gemini/skills/a11y/` |
-| Windsurf | `@a11y` | `~/.codeium/windsurf/skills/a11y/` |
+| Agent | Invoke shortcut | Audit command |
+| :---- | :------------- | :------------ |
+| Antigravity | `/a11y <url>` | `Audit accessibility <url>` |
+| Claude Code | `/a11y <url>` | `Audit accessibility <url>` |
+| Codex | `$a11y <url>` | `Audit accessibility <url>` |
+| Cursor | `/a11y <url>` | `Audit accessibility <url>` |
+| Gemini CLI | `--` | `Audit accessibility <url>` |
+| Windsurf | `@a11y <url>` | `Audit accessibility <url>` |
 
 ## Headless Audit
 

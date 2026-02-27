@@ -9,6 +9,7 @@
 - [Penalty Weights](#penalty-weights)
 - [The Formula](#the-formula)
 - [Grade Thresholds](#grade-thresholds)
+- [WCAG Overall Status](#wcag-overall-status)
 - [Calculation Logic](#calculation-logic-scriptsrenderersfindingsmjs)
 
 The a11y skill uses a **Weighted Debt Model** to calculate the Compliance Score. Instead of a simple percentage of passed rules, it penalizes the score based on the severity and frequency of issues.
@@ -72,6 +73,19 @@ The score is mapped to a letter grade for quick stakeholder communication:
 | **55 - 74**  | **Fair**      | Noticeable barriers present    |
 | **35 - 54**  | **Poor**      | Significant accessibility debt |
 | **0 - 34**   | **Critical**  | Critical blockers detected     |
+
+## WCAG Overall Status
+
+The Compliance Score is a **continuous metric** (0–100). The **WCAG Overall Status** is a separate **binary assessment** that gates report colors in the HTML and PDF outputs (`scripts/renderers/findings.mjs → wcagOverallStatus()`).
+
+| Status | Condition |
+| :--- | :--- |
+| **Fail** | Any Critical or Serious finding remains |
+| **Conditional Pass** | Only Moderate or Minor findings remain |
+| **Pass** | Zero findings across all severities |
+
+> [!IMPORTANT]
+> Report colors are driven by WCAG Overall Status, **not** by the Compliance Score. A site with a 90/100 score that still has one Critical finding will render **red** in both the HTML and PDF reports. The score and status are independent metrics — the score measures accumulated debt; the status measures WCAG binary conformance.
 
 ## Calculation Logic (`scripts/renderers/findings.mjs`)
 
