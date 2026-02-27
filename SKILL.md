@@ -363,7 +363,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 ### Step 6 — Deliver results
 
-**All items in this step are mandatory and must execute in order (1 → 8). Never stop after the summary — complete the full step.**
+**All items in this step are mandatory and must execute in order (1 → 7). Never stop after the summary — complete the full step.**
 
 > **File-open rule** — applies to all generated files in this step: verify the file exists on disk before reporting success. Attempt to open with `open` (macOS), `xdg-open` (Linux), or `start` (Windows) only when a GUI session is available. In headless/sandbox environments or if auto-open fails, share the absolute path so the user can open it manually.
 
@@ -413,7 +413,7 @@ If **No thanks**: skip to item 6.
 
    Apply the file-open rule to each generated file. **Then immediately continue to item 6 — do not wait for user input.**
 
-6. Output the manual testing reminder and checklist offer — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 7.
+6. Output the manual testing reminder and checklist offer in the same response — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 7.
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
@@ -422,10 +422,6 @@ If **No thanks**: skip to item 6.
 - [ ] **Media** — Prerecorded video has accurate captions and an audio description track; audio-only content has a text transcript.
 - [ ] **Motion & timing** — `prefers-reduced-motion` is respected; no content flashes >3×/sec; auto-playing content has a pause control.
 - [ ] **Forms & errors** — Error messages give specific correction guidance; financial/legal submissions have a confirmation step.
-
-→ **Do not wait for input — continue immediately in the same response.**
-
-Then ask:
 
 `[QUESTION]` **Would you like to export the manual testing checklist?**
 
@@ -449,13 +445,9 @@ node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL
 
 Apply the file-open rule. **Then immediately continue to item 7 — do not wait for user input.**
 
-7. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
+7. Output the closing message and follow-up question in the same response. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip the `[MESSAGE]` and go directly to the `[QUESTION]`.
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
-
-→ **Do not wait for input — continue immediately in the same response.**
-
-8. After the closing message (or after item 5 if items 6 and 7 were skipped), always ask:
 
 `[QUESTION]` **Is there anything else I can help you with?**
 
