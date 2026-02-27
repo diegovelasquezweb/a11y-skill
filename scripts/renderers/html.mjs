@@ -232,7 +232,7 @@ export function buildIssueCard(finding) {
   const ruleLabel = normalizeBadgeText(finding.ruleId);
   const categoryLabel = finding.category
     ? normalizeBadgeText(finding.category, { keepAcronyms: true })
-    : "";
+    : "Uncategorized";
 
   const tabs = [
     { key: "problem", label: "The Problem", content: problemPanelHtml },
@@ -289,8 +289,8 @@ export function buildIssueCard(finding) {
           <span class="px-3 py-1 rounded-full text-[11px] font-bold border ${severityBadge} shadow-sm backdrop-blur-sm uppercase tracking-wider">${escapeHtml(finding.severity)}</span>
           ${effortBadge}
           <span class="wcag-label px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-100/80 shadow-sm backdrop-blur-sm">WCAG ${escapeHtml(finding.wcag)}</span>
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">${escapeHtml(ruleLabel)}</span>
-          ${categoryLabel ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-violet-50 text-violet-700 border border-violet-200">${escapeHtml(categoryLabel)}</span>` : ""}
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">${escapeHtml(ruleLabel)}</span>
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-violet-50 text-violet-700 border border-violet-200">${escapeHtml(categoryLabel)}</span>
         </div>
         <h3 class="text-lg md:text-xl font-extrabold text-slate-900 leading-tight mb-3 group-hover:text-indigo-900 transition-colors searchable-field issue-title">${escapeHtml(finding.title)}</h3>
         <div class="flex flex-wrap gap-x-4 gap-y-2 text-[13px] text-slate-600 font-medium">

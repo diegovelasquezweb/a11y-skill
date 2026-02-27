@@ -6,6 +6,10 @@
 ## Table of Contents
 
 - [`placeholder-only-label` — Critical (WCAG 1.3.1 / 4.1.2 · Level A)](#placeholder-only-label--critical-wcag-131--412--level-a)
+- [`mouseover-without-focus` — Serious (WCAG 2.1.1 · Level A)](#mouseover-without-focus--serious-wcag-211--level-a)
+- [`new-window-no-warning` — Serious (WCAG 3.2.2 · Level A)](#new-window-no-warning--serious-wcag-322--level-a)
+- [`tabindex-positive` — Serious (WCAG 2.4.3 · Level A)](#tabindex-positive--serious-wcag-243--level-a)
+- [`spa-route-title` — Serious (WCAG 2.4.2 · Level A)](#spa-route-title--serious-wcag-242--level-a)
 - [`focus-outline-suppressed` — Serious (WCAG 2.4.7 · Level AA)](#focus-outline-suppressed--serious-wcag-247--level-aa)
 - [`autoplay-media` — Serious (WCAG 1.4.2 · Level A)](#autoplay-media--serious-wcag-142--level-a)
 - [`orientation-lock` — Moderate (WCAG 1.3.4 · Level AA)](#orientation-lock--moderate-wcag-134--level-aa)
@@ -64,6 +68,214 @@ For each match, inspect the same element block. Flag as a violation only if **no
 - **Angular:** Use `[for]="inputId"` or wrap the input inside the label. For dynamically rendered forms, ensure the label is present in the initial server render.
 - **Svelte:** The compiler emits `a11y-label-has-associated-control` for unlabelled inputs — treat compiler warnings as violations. Use standard `<label for='id'>` or wrap the input.
 - **Astro:** Apply the label in the component island. Cross-island label associations are not supported — both label and input must be in the same component boundary.
+
+---
+
+### `mouseover-without-focus` — Serious (WCAG 2.1.1 · Level A)
+
+An element exposes functionality on `mouseOver` or `mouseEnter` without a corresponding `onFocus` handler. Keyboard-only users and switch device users never trigger hover events — the functionality is entirely unreachable without a mouse.
+
+**Search for:** `onMouseOver=|onMouseEnter=`
+**In files:** `**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.html`
+
+For each match, check whether the same element or a nearby sibling has a corresponding `onFocus` or `onFocusIn` handler. Flag as a violation only if no keyboard-equivalent exists.
+
+**Fix:** Mirror every `onMouseOver`/`onMouseEnter` with `onFocus`, and every `onMouseOut`/`onMouseLeave` with `onBlur`.
+```tsx
+// Before — hover only, keyboard users locked out
+<div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+  Hover me
+</div>
+
+// After — keyboard parity
+<div
+  onMouseEnter={showTooltip}
+  onMouseLeave={hideTooltip}
+  onFocus={showTooltip}
+  onBlur={hideTooltip}
+  tabIndex={0}
+>
+  Hover me
+</div>
+```
+
+**Fix Strategy:** regex-match-then-context-validate
+**Fallback:** requires_manual_verification
+
+**Preconditions:**
+- Confirm the hover handler exposes actual content or functionality (tooltips, dropdowns, previews). Pure CSS hover effects do not require a keyboard equivalent.
+- Verify the element is reachable via keyboard (`tabIndex={0}` or naturally focusable) after the fix.
+
+**Do Not Apply If:**
+- The hover effect is purely decorative (CSS scale, shadow, color shift) with no content change.
+- A managed component (Radix Tooltip, Floating UI) already handles keyboard equivalence internally.
+
+**Post-Fix Checks:**
+- Tab to the element and confirm the same content appears on focus as on hover.
+- Confirm the content dismisses on Blur/Escape as it does on MouseLeave.
+
+**Framework Notes:**
+- **React:** Add `onFocus` and `onBlur` props alongside `onMouseEnter`/`onMouseLeave`. If using Tailwind `group-hover:`, add a `group-focus-within:` variant to the same element.
+- **Vue:** Add `@focus` and `@blur` alongside `@mouseenter`/`@mouseleave`. For `v-show` tooltip patterns, bind the same reactive state to both.
+- **Angular:** Add `(focus)` and `(blur)` event bindings alongside `(mouseenter)`/`(mouseleave)`.
+- **Svelte:** Add `on:focus` and `on:blur` alongside `on:mouseenter`/`on:mouseleave`.
+- **Astro:** In `.astro` files, add inline `onfocus`/`onblur` handlers. In framework island components, apply the framework-specific pattern above.
+
+---
+
+### `new-window-no-warning` — Serious (WCAG 3.2.2 · Level A)
+
+A link opens in a new tab or window (`target="_blank"`) without warning the user. Unexpected context changes disorient screen reader users and users with cognitive disabilities who lose track of their original browsing context.
+
+**Search for:** `target=["']_blank["']`
+**In files:** `**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.html, **/*.astro`
+
+For each match, check whether the element has an `aria-label` that mentions "new tab/window", or an adjacent icon with descriptive `aria-label`. Flag as a violation if no warning exists.
+
+**Fix:** Add a visible or screen-reader-accessible warning, and always pair with `rel="noopener noreferrer"`.
+```tsx
+// Option 1 — aria-label includes the warning
+<a
+  href="https://example.com"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="View product details (opens in new tab)"
+>
+  View details
+</a>
+
+// Option 2 — sr-only text appended inside the link
+<a href="https://example.com" target="_blank" rel="noopener noreferrer">
+  View details
+  <span className="sr-only"> (opens in new tab)</span>
+</a>
+
+// Option 3 — icon with aria-label (when icon is the only child)
+<a href="https://example.com" target="_blank" rel="noopener noreferrer">
+  View details
+  <ExternalLinkIcon aria-label="opens in new tab" />
+</a>
+```
+
+**Fix Strategy:** regex-match-then-context-validate
+**Fallback:** requires_manual_verification
+
+**Preconditions:**
+- Confirm the link actually navigates away (not a download link or a link to the same origin in a lightbox).
+- Do not add duplicate warnings if `aria-label` already includes "new tab" language.
+
+**Do Not Apply If:**
+- The link context makes it obvious a new window will open (e.g., explicit "Open in new tab" button label).
+- `target="_blank"` is on a `<form>` element — apply a different pattern.
+
+**Post-Fix Checks:**
+- Confirm screen readers announce the new-tab warning when the link receives focus.
+- Confirm `rel="noopener noreferrer"` is present to prevent the opened page from accessing `window.opener`.
+
+**Framework Notes:**
+- **React:** Add `rel="noopener noreferrer"` and a `<span className="sr-only">` child or update the `aria-label`. Next.js `<Link>` components pass `target` and `rel` as standard props.
+- **Vue:** Apply `rel="noopener noreferrer"` and an sr-only `<span>`. Vue Router `<RouterLink>` supports `target` — add `rel` as an attribute.
+- **Angular:** Add `rel="noopener noreferrer"` as an attribute. Angular Router links use `[attr.rel]` binding.
+- **Svelte:** Add `rel="noopener noreferrer"` and an sr-only `<span>` child inline.
+- **Astro:** Apply directly in `.astro` markup. For framework island links, apply the framework-specific pattern.
+
+---
+
+### `tabindex-positive` — Serious (WCAG 2.4.3 · Level A)
+
+An element has a `tabindex` value greater than 0. Positive `tabindex` values override the natural DOM focus order and create an unpredictable, non-sequential tab sequence — especially problematic for screen reader users who rely on a logical reading order matching the visual layout.
+
+**Search for:** `tabindex=["'][1-9]|tabIndex=\{[1-9]`
+**In files:** `**/*.tsx, **/*.jsx, **/*.vue, **/*.svelte, **/*.html, **/*.astro`
+
+**Fix:** Replace positive `tabindex` with `0` and fix focus order by correcting DOM source order instead.
+```tsx
+// Before — overrides natural tab order unpredictably
+<button tabIndex={3}>First visually</button>
+<button tabIndex={1}>Second visually</button>
+<button tabIndex={2}>Third visually</button>
+
+// After — DOM order matches visual order, natural tab sequence
+<button type="button">First visually</button>
+<button type="button">Second visually</button>
+<button type="button">Third visually</button>
+```
+
+**Fix Strategy:** regex-match-then-context-validate
+**Fallback:** requires_manual_verification
+
+**Preconditions:**
+- Identify why the positive `tabindex` was added. It is almost always compensating for a DOM order that does not match the visual layout — fix the source order instead.
+- `tabindex="0"` makes an element focusable in natural DOM order. `tabindex="-1"` removes it from tab order while keeping it programmatically focusable (for `focus()` calls in JS).
+
+**Do Not Apply If:**
+- The element uses `tabindex="-1"` — that is valid and intentional for programmatic focus management.
+- The element uses `tabindex="0"` — that is valid.
+
+**Post-Fix Checks:**
+- Tab through the page after the fix and confirm the focus sequence is logical and matches reading order.
+- Verify no other element relied on the now-removed positive tabindex as an anchor point.
+
+**Framework Notes:**
+- **React:** Replace `tabIndex={N}` with `tabIndex={0}` and restructure JSX render order to match intended tab sequence.
+- **Vue:** Replace `:tabindex="N"` with `tabindex="0"` and reorder template elements.
+- **Angular:** Remove positive `[tabindex]` bindings. Use `cdkFocusInitial` from Angular CDK if initial focus management is needed.
+- **Svelte:** Replace `tabindex={N}` with `tabindex="0"`. Svelte's compiler does not warn about positive tabindex — verify manually.
+- **Astro:** Apply directly to markup. For island components, apply the framework-specific pattern.
+
+---
+
+### `spa-route-title` — Serious (WCAG 2.4.2 · Level A)
+
+A single-page application performs client-side navigation without updating `document.title`. Screen reader users rely on the page title to understand where they are after a route change — without it, every page announces the same title and navigation becomes disorienting.
+
+**Search for:** `router\.push\(|router\.replace\(|navigate\(|useNavigate\(`
+**In files:** `**/*.tsx, **/*.jsx, **/*.ts, **/*.js, **/*.vue`
+
+For each match, check whether `document.title` is updated in the same scope (component, route handler, or effect). Flag as a violation if no title update exists near the navigation call or in the route's page component.
+
+**Fix:** Update `document.title` on every route. In framework routers, the page component is the right place.
+```tsx
+// Next.js App Router — use metadata export (preferred)
+export const metadata = { title: 'Product Details — Acme Store' };
+
+// Next.js Pages Router — use next/head
+import Head from 'next/head';
+<Head><title>Product Details — Acme Store</title></Head>
+
+// React Router — update in the route component
+useEffect(() => {
+  document.title = 'Product Details — Acme Store';
+}, [productName]);
+
+// Vue Router — update in navigation guard or component
+router.afterEach((to) => {
+  document.title = to.meta.title ?? 'Acme Store';
+});
+```
+
+**Fix Strategy:** regex-match-then-context-validate
+**Fallback:** requires_manual_verification
+
+**Preconditions:**
+- Verify the app uses client-side routing (SPA pattern). Static multi-page apps with server-rendered `<title>` tags are not affected.
+- Check whether a global router guard already handles title updates before flagging individual route components.
+
+**Do Not Apply If:**
+- The framework handles `document.title` via a metadata API at the route level (Next.js App Router `export const metadata` — already correct).
+- A third-party library (e.g., `react-helmet`, `vue-meta`) manages the title centrally.
+
+**Post-Fix Checks:**
+- Navigate between routes and confirm each page announces a unique, descriptive title via screen reader.
+- Confirm the title format is consistent across pages (e.g., `Page Name — Site Name`).
+
+**Framework Notes:**
+- **React (React Router):** Add a `useEffect` updating `document.title` in each route component, or add a global `useLayoutEffect` in a route wrapper that reads from route metadata.
+- **Next.js App Router:** Use `export const metadata` or `export async function generateMetadata()` — this is the canonical solution and requires no manual `document.title` update.
+- **Next.js Pages Router:** Use `<Head><title>...</title></Head>` from `next/head` in each page component.
+- **Vue (Vue Router):** Add a global `router.afterEach` guard that reads `to.meta.title` and sets `document.title`. Define `title` in each route's `meta` object.
+- **Svelte (SvelteKit):** Use `<svelte:head><title>...</title></svelte:head>` in each `+page.svelte` file.
+- **Astro:** Each `.astro` page file should have `<title>` in its `<head>`. For dynamic routes, use `Astro.props` to compose the title.
 
 ---
 
