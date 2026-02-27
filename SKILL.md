@@ -381,24 +381,25 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 ### Step 6 — Deliver results
 
-**All items in this step are mandatory and must execute in order (1 → 9). Never stop after the summary — complete the full step.**
+**All items in this step are mandatory and must execute in order (1 → 8). Never stop after the summary — complete the full step.**
 
-1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**, filling in values from the remediation guide. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`.
-2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
-3. **Passed Criteria**: read `passedCriteria` from `.audit/a11y-findings.json` and present as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification.
+> **File-open rule** — applies to all generated files in this step: verify the file exists on disk before reporting success. Attempt to open with `open` (macOS), `xdg-open` (Linux), or `start` (Windows) only when a GUI session is available. In headless/sandbox environments or if auto-open fails, share the absolute path so the user can open it manually.
+
+1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**, filling in values from the remediation guide. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`. If Overall Assessment is `Pass`, also confirm the site passes WCAG 2.2 AA automated checks.
+2. **Passed Criteria**: read `passedCriteria` from `.audit/a11y-findings.json` and present as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification.
 
    | Criterion | Name | Level |
    |-----------|------|-------|
    | 1.1.1     | Non-text Content | A |
    | …         | …    | …     |
-4. Ask about reports. Wait for the answer before continuing:
+3. Ask about reports. Wait for the answer before continuing:
 
 `[QUESTION]` **Would you like a visual report?**
 
 1. **Yes**
 2. **No thanks**
 
-If **No thanks**: skip to item 7.
+If **No thanks**: skip to item 6.
 
    If **Yes**, wait for that answer, then ask which format in a new message:
 
@@ -409,7 +410,7 @@ If **No thanks**: skip to item 7.
    3. **Both**
    4. **Back** — change your report preference
 
-5. If reports requested, wait for the format answer above, then ask save location. Skip this question if a path was already set earlier in this session (Step 3) — reuse that path silently:
+4. If reports requested, wait for the format answer above, then ask save location. Skip this question if a path was already set earlier in this session — reuse that path silently:
 
 `[QUESTION]` **Where should I save the reports?**
 
@@ -418,7 +419,7 @@ If **No thanks**: skip to item 7.
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
 
-6. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
+5. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
 
    ```bash
    # HTML (run if HTML or Both was selected)
@@ -428,9 +429,9 @@ If **No thanks**: skip to item 7.
    node scripts/report-pdf.mjs --output <path>/report.pdf --base-url <URL>
    ```
 
-   After each command completes, verify the output file exists on disk before continuing. If a file is missing, report the error — never claim a report was generated without confirming the file is present. Attempt to open each generated file with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows) **only when a GUI session is available**. In headless/sandbox environments, skip auto-open and share the absolute path for manual opening. If auto-open is attempted and fails, share the absolute path so the user can open it manually. **Then immediately continue to item 7 in the same response — do not wait for user input.**
+   Apply the file-open rule to each generated file. **Then immediately continue to item 6 — do not wait for user input.**
 
-7. Output the manual testing reminder and checklist offer — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 8.
+6. Output the manual testing reminder and checklist offer — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 7.
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
@@ -449,7 +450,7 @@ Then ask:
 1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
 2. **No thanks**
 
-If **Yes**: load [references/out-of-scope.md](references/out-of-scope.md) and present it as context, then if a save path was already established in item 5 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 4), ask:
+If **Yes**: load [references/out-of-scope.md](references/out-of-scope.md) and present it as context, then if a save path was already established in item 4 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 3), ask:
 
 `[QUESTION]` **Where should I save the checklist?**
 
@@ -464,16 +465,16 @@ Then:
 node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
 ```
 
-Verify the file exists on disk. Attempt to open it with the appropriate system command (`open` on macOS, `xdg-open` on Linux, `start` on Windows) **only when a GUI session is available**. In headless/sandbox environments, skip auto-open and share the absolute path for manual opening. If auto-open is attempted and fails, share the absolute path so the user can open it manually. **Then immediately continue to item 8 in the same response — do not wait for user input.**
+Apply the file-open rule. **Then immediately continue to item 7 — do not wait for user input.**
 
-8. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
+7. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 
 → **Do not wait for input — continue immediately in the same response.**
 
-9. After the closing message (or after item 6 if items 7 and 8 were skipped):
-    - If no deliverable was generated this session — user declined reports (item 4) and either declined or was never offered the checklist (item 7 skipped): the workflow is complete — do not ask a follow-up question.
+8. After the closing message (or after item 5 if items 6 and 7 were skipped):
+    - If no deliverable was generated this session — user declined reports (item 3) and either declined or was never offered the checklist (item 6 skipped): the workflow is complete — do not ask a follow-up question.
     - Otherwise, ask:
 
 `[QUESTION]` **Is there anything else I can help you with?**

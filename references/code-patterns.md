@@ -3,6 +3,13 @@
 > These patterns are not detectable by axe-core at runtime. Use the search regex to grep source files and apply the fixes wherever the pattern is found.
 > Apply the framework-specific note that matches the detected project stack.
 
+## Table of Contents
+
+- [`focus-outline-suppressed` — Serious (WCAG 2.4.7 · Level AA)](#focus-outline-suppressed--serious-wcag-247--level-aa)
+- [`autoplay-media` — Serious (WCAG 1.4.2 · Level A)](#autoplay-media--serious-wcag-142--level-a)
+- [`orientation-lock` — Moderate (WCAG 1.3.4 · Level AA)](#orientation-lock--moderate-wcag-134--level-aa)
+- [`character-key-shortcut` — Moderate (WCAG 2.1.4 · Level A)](#character-key-shortcut--moderate-wcag-214--level-a)
+
 ---
 
 ### `focus-outline-suppressed` — Serious (WCAG 2.4.7 · Level AA)
