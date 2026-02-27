@@ -8,7 +8,7 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { computeComplianceScore, scoreLabel } from "./findings.mjs";
+import { computeComplianceScore, scoreLabel, wcagOverallStatus } from "./findings.mjs";
 import { escapeHtml } from "./utils.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -199,12 +199,15 @@ export function buildPdfRiskSection(totals) {
       .map((r) => `${r.name} (${r.deadline})`)
       .slice(0, 2)
       .join(", ");
+    const wcagStatus = wcagOverallStatus(totals);
     const riskText =
-      score >= 75
-        ? `The site demonstrates strong accessibility fundamentals. Remaining issues should be addressed to achieve full compliance before applicable regulatory deadlines. In-force regulations include: ${inForce}.`
-        : score >= 55
-          ? `The site has meaningful accessibility gaps that create legal exposure. A remediation plan should be established and executed promptly. Applicable regulations include ${inForce}${upcoming ? `, with upcoming deadlines under ${upcoming}` : ""}.`
-          : `The site has significant accessibility barriers that create substantial legal exposure. Immediate remediation of Critical and Serious issues is strongly recommended. Applicable in-force regulations: ${inForce}${upcoming ? `. Upcoming deadlines: ${upcoming}` : ""}.`;
+      wcagStatus === "Fail"
+        ? `The site has unresolved Critical or Serious issues that prevent WCAG conformance. Immediate remediation is required. Applicable in-force regulations: ${inForce}${upcoming ? `. Upcoming deadlines: ${upcoming}` : ""}.`
+        : score >= 75
+          ? `The site demonstrates strong accessibility fundamentals. Remaining issues should be addressed to achieve full compliance before applicable regulatory deadlines. In-force regulations include: ${inForce}.`
+          : score >= 55
+            ? `The site has meaningful accessibility gaps that create legal exposure. A remediation plan should be established and executed promptly. Applicable regulations include ${inForce}${upcoming ? `, with upcoming deadlines under ${upcoming}` : ""}.`
+            : `The site has significant accessibility barriers that create substantial legal exposure. Immediate remediation of Critical and Serious issues is strongly recommended. Applicable in-force regulations: ${inForce}${upcoming ? `. Upcoming deadlines: ${upcoming}` : ""}.`;
     return `<div style="margin-top: 1.5rem; padding: 1rem 1.2rem; border: 1.5pt solid ${riskColor}; border-left: 5pt solid ${riskColor}; background: #f9fafb; page-break-inside: avoid; page-break-before: avoid;">
     <p style="font-family: sans-serif; font-size: 9pt; font-weight: 800; text-transform: uppercase; letter-spacing: 1pt; margin: 0 0 4pt 0; color: #6b7280;">Current Risk Assessment</p>
     <p style="font-family: sans-serif; font-size: 16pt; font-weight: 900; margin: 0; color: ${riskColor};">${riskLevel} Risk</p>
@@ -454,10 +457,10 @@ export function buildPdfAuditLimitations() {
  * @param {string} options.coverDate - The formatted date for the cover.
  * @returns {string} The HTML string for the cover page.
  */
-export function buildPdfCoverPage({ siteHostname, target, score, coverDate }) {
+export function buildPdfCoverPage({ siteHostname, target, score, wcagStatus, coverDate }) {
   const metrics = scoreMetrics(score);
   const scoreColor =
-    score >= 75 ? "#16a34a" : score >= 55 ? "#d97706" : "#dc2626";
+    wcagStatus === "Fail" ? "#dc2626" : score >= 75 ? "#16a34a" : score >= 55 ? "#d97706" : "#dc2626";
 
   return `
     <div class="cover-page">

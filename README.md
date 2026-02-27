@@ -23,14 +23,14 @@ Give your AI agent the install prompt, or use your agent's native skill installe
 
 The agent will clone the repository to its skills directory automatically:
 
-| Agent | Install path | Install command | Invoke |
-| :---- | :----------- | :-------------- | :----- |
-| Claude Code | `~/.claude/skills/a11y/` | `Install skill <repo-url>` | `/a11y` |
-| Cursor | `~/.cursor/skills/a11y/` | `Install skill <repo-url>` | `/a11y` |
-| Gemini CLI | `~/.gemini/skills/a11y/` | `gemini skills install <repo-url>` | — |
-| Codex | `~/.codex/skills/a11y/` | `$skill-installer <repo-url>` | `$a11y` |
-| Windsurf | `~/.codeium/windsurf/skills/a11y/` | `Install skill <repo-url>` | `@a11y` |
-| Antigravity | `~/.gemini/antigravity/skills/a11y/` | `Install skill <repo-url>` | `/a11y` |
+| Agent | Install path | Install command |
+| :---- | :----------- | :-------------- |
+| Antigravity | `~/.gemini/antigravity/skills/a11y/` | `Install skill <repo-url>` |
+| Claude Code | `~/.claude/skills/a11y/` | `Install skill <repo-url>` |
+| Codex | `~/.codex/skills/a11y/` | `$skill-installer <repo-url>` |
+| Cursor | `~/.cursor/skills/a11y/` | `Install skill <repo-url>` |
+| Gemini CLI | `~/.gemini/skills/a11y/` | `gemini skills install <repo-url>` |
+| Windsurf | `~/.codeium/windsurf/skills/a11y/` | `Install skill <repo-url>` |
 
 Restart your agent session after installation to ensure the skill is loaded.
 
@@ -43,6 +43,15 @@ Invoke it directly using your agent's syntax or start the skill with a natural l
 ```
 
 The agent guides the rest of the session as a conversation, running the audit, presenting findings, walking you through fixes, and asking for your input at every decision point. Every action is confirmed before it runs.
+
+| Agent | Invoke | Path |
+| :---- | :----- | :--- |
+| Antigravity | `/a11y` | `~/.gemini/antigravity/skills/a11y/` |
+| Claude Code | `/a11y` | `~/.claude/skills/a11y/` |
+| Codex | `$a11y` | `~/.codex/skills/a11y/` |
+| Cursor | `/a11y` | `~/.cursor/skills/a11y/` |
+| Gemini CLI | `—` | `~/.gemini/skills/a11y/` |
+| Windsurf | `@a11y` | `~/.codeium/windsurf/skills/a11y/` |
 
 ## Headless Audit
 

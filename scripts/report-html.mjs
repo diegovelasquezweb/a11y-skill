@@ -150,7 +150,7 @@ function buildHtml(args, findings, metadata = {}) {
    * The hue value for the compliance score gauge (green for high, orange for medium, red for low).
    * @type {number}
    */
-  const scoreHue = score >= 75 ? 142 : score >= 55 ? 38 : 0;
+  const scoreHue = wcagStatus === "Fail" ? 0 : score >= 75 ? 142 : score >= 55 ? 38 : 0;
 
   /**
    * Summary of issues grouped by user persona impact.
