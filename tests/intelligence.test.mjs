@@ -33,8 +33,27 @@ const WCAG22_PROACTIVE = new Set([
 ]);
 
 const rules = intel.rules;
+const defaults = intel.defaults || {};
 const ruleIds = new Set(Object.keys(rules));
 let axeRules = null;
+
+function mergeUnique(a = [], b = []) {
+  return [...new Set([...(a || []), ...(b || [])])];
+}
+
+function resolveFixPattern(entry, fallback) {
+  return entry.fix_pattern || fallback || null;
+}
+
+function resolveGuardrails(entry, shared) {
+  if (entry.guardrails) return entry.guardrails;
+  if (!entry.guardrails_overrides && !shared) return null;
+  return {
+    must: mergeUnique(shared?.must, entry.guardrails_overrides?.must),
+    must_not: mergeUnique(shared?.must_not, entry.guardrails_overrides?.must_not),
+    verify: mergeUnique(shared?.verify, entry.guardrails_overrides?.verify),
+  };
+}
 
 beforeAll(async () => {
   try {
@@ -69,6 +88,28 @@ describe("intelligence.json — schema", () => {
 
       it("has valid false_positive_risk", () => {
         expect(VALID_FP_RISK.has(rule.false_positive_risk)).toBe(true);
+      });
+
+      it("has fix_pattern metadata", () => {
+        const resolved = resolveFixPattern(rule, defaults.rule_fix_pattern);
+        expect(resolved).toBeDefined();
+        expect(typeof resolved).toBe("object");
+        expect(resolved.apply_strategy?.trim()).toBeTruthy();
+        expect(Array.isArray(resolved.source_of_truth)).toBe(true);
+        expect(resolved.source_of_truth.length).toBeGreaterThan(0);
+        expect(resolved.fallback?.trim()).toBeTruthy();
+      });
+
+      it("has guardrails metadata", () => {
+        const resolved = resolveGuardrails(rule, defaults.rule_guardrails_shared);
+        expect(resolved).toBeDefined();
+        expect(typeof resolved).toBe("object");
+        expect(Array.isArray(resolved.must)).toBe(true);
+        expect(Array.isArray(resolved.must_not)).toBe(true);
+        expect(Array.isArray(resolved.verify)).toBe(true);
+        expect(resolved.must.length).toBeGreaterThan(0);
+        expect(resolved.must_not.length).toBeGreaterThan(0);
+        expect(resolved.verify.length).toBeGreaterThan(0);
       });
 
       if (rule.framework_notes) {
@@ -392,6 +433,31 @@ describe("code_patterns", () => {
         for (const key of keys) {
           expect(VALID_FW_KEYS.has(key)).toBe(true);
         }
+      });
+
+      it("has fix_pattern metadata", () => {
+        const resolved = resolveFixPattern(pattern, defaults.code_pattern_fix_pattern);
+        expect(resolved).toBeDefined();
+        expect(typeof resolved).toBe("object");
+        expect(resolved.apply_strategy?.trim()).toBeTruthy();
+        expect(Array.isArray(resolved.source_of_truth)).toBe(true);
+        expect(resolved.source_of_truth.length).toBeGreaterThan(0);
+        expect(resolved.fallback?.trim()).toBeTruthy();
+      });
+
+      it("has guardrails metadata", () => {
+        const resolved = resolveGuardrails(
+          pattern,
+          defaults.code_pattern_guardrails_shared,
+        );
+        expect(resolved).toBeDefined();
+        expect(typeof resolved).toBe("object");
+        expect(Array.isArray(resolved.must)).toBe(true);
+        expect(Array.isArray(resolved.must_not)).toBe(true);
+        expect(Array.isArray(resolved.verify)).toBe(true);
+        expect(resolved.must.length).toBeGreaterThan(0);
+        expect(resolved.must_not.length).toBeGreaterThan(0);
+        expect(resolved.verify.length).toBeGreaterThan(0);
       });
     });
   }

@@ -95,6 +95,8 @@ export function normalizeFindings(payload) {
       fixCodeLang: item.fix_code_lang ?? "html",
       screenshotPath: item.screenshot_path ?? null,
       falsePositiveRisk: item.false_positive_risk ?? null,
+      fixPattern: item.fix_pattern ?? null,
+      guardrails: item.guardrails ?? null,
       fixDifficultyNotes: item.fix_difficulty_notes ?? null,
       frameworkNotes: item.framework_notes ?? null,
       cmsNotes: item.cms_notes ?? null,
@@ -102,6 +104,7 @@ export function normalizeFindings(payload) {
       managedByLibrary: item.managed_by_library ?? null,
       componentHint: item.component_hint ?? null,
       verificationCommand: item.verification_command ?? null,
+      verificationCommandFallback: item.verification_command_fallback ?? null,
       pagesAffected: typeof item.pages_affected === "number" ? item.pages_affected : null,
       affectedUrls: Array.isArray(item.affected_urls) ? item.affected_urls : null,
     }))

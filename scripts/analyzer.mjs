@@ -84,12 +84,51 @@ function makeFindingId(ruleId, url, selector) {
 const RULES = INTELLIGENCE.rules || {};
 /** @type {Object} */
 const CODE_PATTERNS = INTELLIGENCE.code_patterns || {};
+/** @type {Object} */
+const INTELLIGENCE_DEFAULTS = INTELLIGENCE.defaults || {};
+const DEFAULT_RULE_FIX_PATTERN = INTELLIGENCE_DEFAULTS.rule_fix_pattern || null;
+const DEFAULT_CODE_PATTERN_FIX_PATTERN =
+  INTELLIGENCE_DEFAULTS.code_pattern_fix_pattern || null;
+const DEFAULT_RULE_GUARDRAILS =
+  INTELLIGENCE_DEFAULTS.rule_guardrails_shared || null;
+const DEFAULT_CODE_PATTERN_GUARDRAILS =
+  INTELLIGENCE_DEFAULTS.code_pattern_guardrails_shared || null;
 /** @type {Object<string, string>} */
 const APG_PATTERNS = WCAG_REFERENCE.apgPatterns;
 /** @type {Object<string, string>} */
 const MDN = WCAG_REFERENCE.mdn || {};
 /** @type {Object<string, string>} */
 const WCAG_CRITERION_MAP = WCAG_REFERENCE.wcagCriterionMap || {};
+
+function mergeUnique(first = [], second = []) {
+  return [...new Set([...(first || []), ...(second || [])])];
+}
+
+function resolveFixPattern(target, fallback) {
+  if (target?.fix_pattern) return target.fix_pattern;
+  return fallback ?? null;
+}
+
+function resolveGuardrails(target, shared) {
+  if (target?.guardrails) return target.guardrails;
+  if (!target?.guardrails_overrides && !shared) return null;
+  return {
+    must: mergeUnique(shared?.must, target?.guardrails_overrides?.must),
+    must_not: mergeUnique(shared?.must_not, target?.guardrails_overrides?.must_not),
+    verify: mergeUnique(shared?.verify, target?.guardrails_overrides?.verify),
+  };
+}
+
+const RESOLVED_CODE_PATTERNS = Object.fromEntries(
+  Object.entries(CODE_PATTERNS).map(([id, pattern]) => [
+    id,
+    {
+      ...pattern,
+      fix_pattern: resolveFixPattern(pattern, DEFAULT_CODE_PATTERN_FIX_PATTERN),
+      guardrails: resolveGuardrails(pattern, DEFAULT_CODE_PATTERN_GUARDRAILS),
+    },
+  ]),
+);
 
 /**
  * Detects the programming language of a code snippet for syntax highlighting.
@@ -603,6 +642,8 @@ function buildFindings(inputPayload, cliArgs) {
 
         const ruleInfo = RULES[v.id] || {};
         const fixInfo = ruleInfo.fix || {};
+        const resolvedFixPattern = resolveFixPattern(ruleInfo, DEFAULT_RULE_FIX_PATTERN);
+        const resolvedGuardrails = resolveGuardrails(ruleInfo, DEFAULT_RULE_GUARDRAILS);
 
         let recFix = apgUrl
           ? `Reference: ${apgUrl}`
@@ -643,6 +684,8 @@ function buildFindings(inputPayload, cliArgs) {
           related_rules: Array.isArray(ruleInfo.related_rules)
             ? ruleInfo.related_rules
             : [],
+          fix_pattern: resolvedFixPattern,
+          guardrails: resolvedGuardrails,
           false_positive_risk: ruleInfo.false_positive_risk ?? null,
           fix_difficulty_notes: ruleInfo.fix_difficulty_notes ?? null,
           framework_notes: filterNotes(ruleInfo.framework_notes, ctx.framework),
@@ -658,6 +701,7 @@ function buildFindings(inputPayload, cliArgs) {
           managed_by_library: getManagedByLibrary(v.id, ctx.uiLibraries),
           component_hint: extractComponentHint(bestSelector),
           verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
+          verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
         });
       }
     }
@@ -673,6 +717,14 @@ function buildFindings(inputPayload, cliArgs) {
     ) {
       const _ruleInfo = RULES["page-has-heading-one"] || {};
       const _fixInfo = _ruleInfo.fix || {};
+      const _resolvedFixPattern = resolveFixPattern(
+        _ruleInfo,
+        DEFAULT_RULE_FIX_PATTERN,
+      );
+      const _resolvedGuardrails = resolveGuardrails(
+        _ruleInfo,
+        DEFAULT_RULE_GUARDRAILS,
+      );
       findings.push({
         id: "",
         rule_id: "page-has-heading-one",
@@ -695,11 +747,15 @@ function buildFindings(inputPayload, cliArgs) {
         mdn: MDN["page-has-heading-one"] ?? null,
         effort: null,
         related_rules: Array.isArray(_ruleInfo.related_rules) ? _ruleInfo.related_rules : [],
+        fix_pattern: _resolvedFixPattern,
+        guardrails: _resolvedGuardrails,
         false_positive_risk: _ruleInfo.false_positive_risk ?? null,
         fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
         framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
         cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
         wcag_classification: "Best Practice",
+        verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule page-has-heading-one --max-routes 1`,
+        verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule page-has-heading-one --max-routes 1`,
       });
     }
 
@@ -711,6 +767,14 @@ function buildFindings(inputPayload, cliArgs) {
     ) {
       const _ruleInfo = RULES["landmark-one-main"] || {};
       const _fixInfo = _ruleInfo.fix || {};
+      const _resolvedFixPattern = resolveFixPattern(
+        _ruleInfo,
+        DEFAULT_RULE_FIX_PATTERN,
+      );
+      const _resolvedGuardrails = resolveGuardrails(
+        _ruleInfo,
+        DEFAULT_RULE_GUARDRAILS,
+      );
       findings.push({
         id: "",
         rule_id: "landmark-one-main",
@@ -733,11 +797,15 @@ function buildFindings(inputPayload, cliArgs) {
         mdn: MDN["landmark-one-main"] ?? null,
         effort: null,
         related_rules: Array.isArray(_ruleInfo.related_rules) ? _ruleInfo.related_rules : [],
+        fix_pattern: _resolvedFixPattern,
+        guardrails: _resolvedGuardrails,
         false_positive_risk: _ruleInfo.false_positive_risk ?? null,
         fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
         framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
         cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
         wcag_classification: "Best Practice",
+        verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule landmark-one-main --max-routes 1`,
+        verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule landmark-one-main --max-routes 1`,
       });
     }
   }
@@ -747,13 +815,13 @@ function buildFindings(inputPayload, cliArgs) {
       ...f,
       id: makeFindingId(f.rule_id || f.title, f.url, f.selector),
     })),
-    metadata: {
+      metadata: {
       scanDate: new Date().toISOString(),
       regulatory: US_REGULATORY,
       checklist: "https://www.a11yproject.com/checklist/",
       projectContext: ctx,
-      code_patterns: CODE_PATTERNS,
-    },
+        code_patterns: RESOLVED_CODE_PATTERNS,
+      },
   };
 }
 

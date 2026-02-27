@@ -52,18 +52,27 @@ try {
 function buildCodePatternsMd(patterns, framework) {
   if (!patterns || Object.keys(patterns).length === 0) return "";
 
+  const frameworkAlias = STACK_CONFIG.frameworkAliases?.intelKey?.[framework] || framework;
+  const inferPatternCodeLang = (files = "") => {
+    if (/\.(css|scss|sass)\b/i.test(files)) return "css";
+    if (/\.(ts|tsx|js|jsx|vue|svelte)\b/i.test(files)) return "ts";
+    return "html";
+  };
+
   const entries = Object.entries(patterns)
     .map(([id, pattern]) => {
       const frameworkNote =
-        framework && pattern.framework_notes?.[framework]
-          ? `\n**${framework.charAt(0).toUpperCase() + framework.slice(1)} Note:** ${pattern.framework_notes[framework]}`
+        frameworkAlias && pattern.framework_notes?.[frameworkAlias]
+          ? `\n**${frameworkAlias.charAt(0).toUpperCase() + frameworkAlias.slice(1)} Note:** ${pattern.framework_notes[frameworkAlias]}`
           : "";
 
       const fixBlock = [
         pattern.fix?.description
           ? `**Fix:** ${pattern.fix.description}`
           : null,
-        pattern.fix?.code ? `\`\`\`jsx\n${pattern.fix.code}\n\`\`\`` : null,
+        pattern.fix?.code
+          ? `\`\`\`${inferPatternCodeLang(pattern.detection?.files || "")}\n${pattern.fix.code}\n\`\`\``
+          : null,
       ]
         .filter(Boolean)
         .join("\n");
@@ -79,9 +88,41 @@ function buildCodePatternsMd(patterns, framework) {
           ? `> ⚠️ **Managed Component Warning:** This pattern may match components managed by **${pattern.managed_by_libraries.join(", ")}** — verify the library does not already handle this before applying a fix.`
           : null;
 
+      const fixPatternBlock =
+        pattern.fix_pattern && typeof pattern.fix_pattern === "object"
+          ? [
+              `**Fix Strategy:** ${pattern.fix_pattern.apply_strategy || "regex-match-then-context-validate"}`,
+              Array.isArray(pattern.fix_pattern.source_of_truth) && pattern.fix_pattern.source_of_truth.length > 0
+                ? `**Source of Truth:** ${pattern.fix_pattern.source_of_truth.map((s) => `\`${s}\``).join(", ")}`
+                : null,
+              pattern.fix_pattern.fallback
+                ? `**Fallback:** ${pattern.fix_pattern.fallback}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join("\n")
+          : null;
+
+      const guardrailsBlock =
+        pattern.guardrails && typeof pattern.guardrails === "object"
+          ? [
+              pattern.guardrails.must?.length
+                ? `**Preconditions:**\n${pattern.guardrails.must.map((g) => `- ${g}`).join("\n")}`
+                : null,
+              pattern.guardrails.must_not?.length
+                ? `**Do Not Apply If:**\n${pattern.guardrails.must_not.map((g) => `- ${g}`).join("\n")}`
+                : null,
+              pattern.guardrails.verify?.length
+                ? `**Post-Fix Checks:**\n${pattern.guardrails.verify.map((g) => `- ${g}`).join("\n")}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join("\n\n")
+          : null;
+
       return [
         `---`,
-        `### \`${id}\` — ${pattern.severity.charAt(0).toUpperCase() + pattern.severity.slice(1)} (WCAG ${pattern.wcag})`,
+        `### \`${id}\` — ${pattern.severity.charAt(0).toUpperCase() + pattern.severity.slice(1)} (WCAG ${pattern.wcag}${pattern.level ? ` · Level ${pattern.level}` : ""})`,
         ``,
         `${pattern.description}`,
         ``,
@@ -92,6 +133,10 @@ function buildCodePatternsMd(patterns, framework) {
         fpRisk,
         ``,
         fixBlock,
+        fixPatternBlock ? `` : null,
+        fixPatternBlock,
+        guardrailsBlock ? `` : null,
+        guardrailsBlock,
         frameworkNote || null,
       ]
         .filter((line) => line !== null)
@@ -190,6 +235,14 @@ function buildGuardrails(framework) {
   return [frameworkRule, ...shared].join("\n");
 }
 
+function normalizeComponentHint(hint) {
+  if (!hint || hint === "other") return "source-not-resolved";
+  if (hint.length <= 3) return "source-not-resolved";
+  if (/^(p|px|py|pt|pr|pb|pl|m|mx|my|mt|mr|mb|ml|w|h|min|max|gap|space|text|bg|border|rounded|shadow|opacity|z|top|right|bottom|left|flex|grid|items|justify|content|self)-/i.test(hint)) return "source-not-resolved";
+  if (/^\d/.test(hint)) return "source-not-resolved";
+  return hint;
+}
+
 /**
  * Builds the Passed Criteria section listing WCAG criteria with no violations.
  * @param {string[]} passedCriteria
@@ -246,11 +299,29 @@ function buildRecommendationsSection(recommendations) {
   const parts = [];
 
   if (single_point_fixes.length > 0) {
+    const merged = new Map();
+    for (const r of single_point_fixes) {
+      const component = normalizeComponentHint(r.component);
+      if (!merged.has(component)) {
+        merged.set(component, { ...r, component, rules: [...r.rules] });
+        continue;
+      }
+      const current = merged.get(component);
+      current.total_issues += r.total_issues;
+      current.total_pages = Math.max(current.total_pages, r.total_pages);
+      current.rules = [...new Set([...(current.rules || []), ...(r.rules || [])])];
+    }
+    const mergedRows = [...merged.values()].sort(
+      (a, b) => (b.total_issues * b.total_pages) - (a.total_issues * a.total_pages),
+    );
     const rows = single_point_fixes.map(
       (r) => `| \`${r.component}\` | ${r.total_issues} | ${r.total_pages} | ${r.rules.map((x) => `\`${x}\``).join(", ")} |`,
     );
+    const normalizedRows = mergedRows.map(
+      (r) => `| \`${r.component}\` | ${r.total_issues} | ${r.total_pages} | ${(r.rules || []).map((x) => `\`${x}\``).join(", ")} |`,
+    );
     parts.push(
-      `### Fix once, resolve everywhere\n\nThese issues trace back to shared components — a single fix eliminates all instances.\n\n| Component | Issues | Pages | Rules |\n|---|---|---|---|\n${rows.join("\n")}`,
+      `### Fix once, resolve everywhere\n\nThese issues trace back to shared components — a single fix eliminates all instances.\n\n| Component | Issues | Pages | Rules |\n|---|---|---|---|\n${normalizedRows.length > 0 ? normalizedRows.join("\n") : rows.join("\n")}`,
     );
   }
 
@@ -390,8 +461,36 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       : null;
 
     const verifyBlock = f.verificationCommand
-      ? `**Quick verify:** \`${f.verificationCommand}\``
+      ? `**Quick verify:** \`${f.verificationCommand}\`${f.verificationCommandFallback ? `\n**Fallback verify:** \`${f.verificationCommandFallback}\`` : ""}`
       : null;
+
+    const fixPatternBlock =
+      f.fixPattern && typeof f.fixPattern === "object"
+        ? [
+            `**Fix Strategy:** ${f.fixPattern.apply_strategy || "surgical-minimal-change"}`,
+            Array.isArray(f.fixPattern.source_of_truth) && f.fixPattern.source_of_truth.length > 0
+              ? `**Source of Truth:** ${f.fixPattern.source_of_truth.map((s) => `\`${s}\``).join(", ")}`
+              : null,
+            f.fixPattern.fallback
+              ? `**Fallback:** ${f.fixPattern.fallback}`
+              : null,
+          ].filter(Boolean).join("\n")
+        : null;
+
+    const guardrailsBlock =
+      f.guardrails && typeof f.guardrails === "object"
+        ? [
+            Array.isArray(f.guardrails.must) && f.guardrails.must.length > 0
+              ? `**Preconditions:**\n${f.guardrails.must.map((g) => `- ${g}`).join("\n")}`
+              : null,
+            Array.isArray(f.guardrails.must_not) && f.guardrails.must_not.length > 0
+              ? `**Do Not Apply If:**\n${f.guardrails.must_not.map((g) => `- ${g}`).join("\n")}`
+              : null,
+            Array.isArray(f.guardrails.verify) && f.guardrails.verify.length > 0
+              ? `**Post-Fix Checks:**\n${f.guardrails.verify.map((g) => `- ${g}`).join("\n")}`
+              : null,
+          ].filter(Boolean).join("\n\n")
+        : null;
 
     return [
       `---`,
@@ -420,6 +519,10 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       searchPatternBlock,
       ``,
       fixBlock,
+      fixPatternBlock ? `` : null,
+      fixPatternBlock,
+      guardrailsBlock ? `` : null,
+      guardrailsBlock,
       difficultyBlock ? `` : null,
       difficultyBlock,
       frameworkBlock ? `` : null,
@@ -442,7 +545,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
   }
 
   function findingsByPage(severities) {
-    const filtered = findings.filter((f) => severities.includes(f.severity));
+    const filtered = wcagFindings.filter((f) => severities.includes(f.severity));
     if (filtered.length === 0) return "";
 
     const pages = new Set();
@@ -461,9 +564,19 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
   const deferred = findingsByPage(["Moderate", "Minor"]);
 
   function buildComponentMap() {
+    const isLikelyUtilityHint = (hint) => {
+      if (!hint || hint === "other") return true;
+      if (hint.length <= 3) return true;
+      if (/^(p|px|py|pt|pr|pb|pl|m|mx|my|mt|mr|mb|ml|w|h|min|max|gap|space|text|bg|border|rounded|shadow|opacity|z|top|right|bottom|left|flex|grid|items|justify|content|self)-/i.test(hint)) return true;
+      if (/^\d/.test(hint)) return true;
+      return false;
+    };
+
     const groups = {};
-    for (const f of findings) {
-      const hint = f.componentHint || "other";
+    for (const f of wcagFindings) {
+      const hint = isLikelyUtilityHint(f.componentHint)
+        ? "source-not-resolved"
+        : normalizeComponentHint(f.componentHint);
       if (!groups[hint]) groups[hint] = [];
       groups[hint].push(f);
     }
@@ -479,27 +592,13 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     return `## 🧩 Fixes by Component
 
 > Fix all issues in the same component before moving to the next — reduces file switching.
+> \`source-not-resolved\` means the selector hint looks like utility CSS; use \`Search in\` + evidence blocks to locate source.
 
 | Component | Issues | Severities | Rules |
 |---|---|---|---|
 ${rows.join("\n")}
 `;
   }
-
-  const referencesSection = metadata.regulatory
-    ? `
----
-
-## 📚 Global References & Regulatory Context
-
-### US Regulatory Context (ADA/Section 508)
-- **18F Accessibility Guide**: ${metadata.regulatory["18f"]}
-- **Section 508 Standards**: ${metadata.regulatory.section508}
-
-### Verification & Checklists
-- **A11y Project Checklist**: ${metadata.checklist}
-`
-    : "";
 
   const pipelineNotes = [
     metadata.fpFiltered > 0 ? `${metadata.fpFiltered} false positive(s) removed` : null,
@@ -535,13 +634,16 @@ ${buildGuardrails(framework)}
 
 ---
 
+## 🚀 Execution Scope
+
+Apply fixes in this order: **Priority Fixes** -> **Deferred Issues**.  
+Use the sections below as the execution plan. Treat **Source Code Pattern Audit** and **Static Code Checks** as appendices for follow-up.
+
 ${buildComponentMap()}${buildRecommendationsSection(metadata.recommendations)}
 ${blockers ? `## 🔴 Priority Fixes (Critical & Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
 
 ${deferred ? `## 🔵 Deferred Issues (Moderate & Minor)\n\n${deferred}` : "## Deferred Issues\n\nNo moderate or minor severity issues found."}
 
-${buildPassedCriteriaSection(metadata.passedCriteria)}${buildOutOfScopeSection(metadata.outOfScope)}${buildTestingMethodologySection(metadata.testingMethodology)}${buildCodePatternsMd(metadata.code_patterns, framework)}
-${buildManualChecksMd()}
-${referencesSection}`.trimEnd() + "\n"
+${buildPassedCriteriaSection(metadata.passedCriteria)}${buildOutOfScopeSection(metadata.outOfScope)}${buildTestingMethodologySection(metadata.testingMethodology)}${buildCodePatternsMd(metadata.code_patterns, framework)}`.trimEnd() + "\n"
   );
 }

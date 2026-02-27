@@ -70,7 +70,7 @@ describe("findings logic", () => {
       expect(normalized[2].severity).toBe("Minor");
     });
 
-    it("passes through wcagCriterionId, falsePositiveRisk, fixDifficultyNotes, frameworkNotes", () => {
+    it("passes through wcagCriterionId, falsePositiveRisk, fixDifficultyNotes, frameworkNotes, and guardrails metadata", () => {
       const raw = {
         findings: [
           {
@@ -81,6 +81,17 @@ describe("findings logic", () => {
             false_positive_risk: "medium",
             fix_difficulty_notes: "Check context before fixing.",
             framework_notes: { react: "Use aria-label prop." },
+            fix_pattern: {
+              apply_strategy: "surgical-minimal-change",
+              source_of_truth: ["fix.code", "evidence.html"],
+              fallback: "requires_manual_verification",
+            },
+            guardrails: {
+              must: ["Confirm selector and evidence match."],
+              must_not: ["Do not overwrite valid accessible names."],
+              verify: ["Re-run targeted rule scan."],
+            },
+            verification_command_fallback: "node scripts/audit.mjs --base-url http://localhost:3000",
           },
         ],
       };
@@ -89,6 +100,19 @@ describe("findings logic", () => {
       expect(f.falsePositiveRisk).toBe("medium");
       expect(f.fixDifficultyNotes).toBe("Check context before fixing.");
       expect(f.frameworkNotes).toEqual({ react: "Use aria-label prop." });
+      expect(f.fixPattern).toEqual({
+        apply_strategy: "surgical-minimal-change",
+        source_of_truth: ["fix.code", "evidence.html"],
+        fallback: "requires_manual_verification",
+      });
+      expect(f.guardrails).toEqual({
+        must: ["Confirm selector and evidence match."],
+        must_not: ["Do not overwrite valid accessible names."],
+        verify: ["Re-run targeted rule scan."],
+      });
+      expect(f.verificationCommandFallback).toBe(
+        "node scripts/audit.mjs --base-url http://localhost:3000",
+      );
     });
 
     it("defaults new fields to null when absent", () => {

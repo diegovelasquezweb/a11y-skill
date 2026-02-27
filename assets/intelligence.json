@@ -38,7 +38,21 @@
           "id": "server-side-image-map",
           "reason": "If replacing with a client-side image map, ensure every <area> has alt text."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "If a link uses target=\"_blank\", ensure rel=\"noopener noreferrer\" (or stricter equivalent) is present."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not mention \"opens in a new tab\" unless target=\"_blank\" is actually present."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm link purpose remains clear out of context and in the accessibility tree."
+        ]
+      }
     },
     "aria-allowed-attr": {
       "managed_by_libraries": [
@@ -84,7 +98,18 @@
           "id": "aria-conditional-attr",
           "reason": "aria-allowed-attr checks which attributes a role supports; aria-conditional-attr checks whether the attribute value is semantically valid for that role — fix both in one pass."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-allowed-role": {
       "managed_by_libraries": [
@@ -122,7 +147,18 @@
           "id": "aria-required-attr",
           "reason": "After ensuring the role is allowed, verify all required ARIA attributes for that role are present."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-braille-equivalent": {
       "fix": {
@@ -137,7 +173,18 @@
         "svelte": "Svelte passes aria-brailleroledescription and aria-braillelabel to the DOM as-is. Ensure a non-braille equivalent (aria-roledescription or aria-label) is always present alongside the braille variant.",
         "astro": "In .astro files, braille ARIA attributes are passed through to static HTML. This is a rare rule — it only applies to elements that specifically target braille display users."
       },
-      "fix_difficulty_notes": "This rule is rarely triggered because aria-braillelabel and aria-brailleroledescription are specialized attributes used almost exclusively by applications targeting braille display users. The fix is simple: ensure a non-braille accessible name or role description exists alongside the braille variant. If you did not intentionally add braille attributes, they may have been introduced by a third-party library — check your dependencies."
+      "fix_difficulty_notes": "This rule is rarely triggered because aria-braillelabel and aria-brailleroledescription are specialized attributes used almost exclusively by applications targeting braille display users. The fix is simple: ensure a non-braille accessible name or role description exists alongside the braille variant. If you did not intentionally add braille attributes, they may have been introduced by a third-party library — check your dependencies.",
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-command-name": {
       "fix": {
@@ -162,7 +209,21 @@
           "id": "link-name",
           "reason": "link-name covers native <a> elements — fix all interactive element naming together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-conditional-attr": {
       "fix": {
@@ -187,7 +248,18 @@
           "id": "aria-valid-attr-value",
           "reason": "After fixing the attribute choice, verify the value is a valid token."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-deprecated-role": {
       "fix": {
@@ -208,7 +280,18 @@
           "id": "aria-roles",
           "reason": "Both rules validate role attribute values — fix all role violations together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-dialog-name": {
       "managed_by_libraries": [
@@ -242,7 +325,21 @@
           "id": "aria-required-attr",
           "reason": "Dialogs require aria-modal and aria-labelledby as required attributes — verify both are present when fixing dialog naming."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-hidden-body": {
       "fix": {
@@ -263,7 +360,18 @@
           "id": "aria-hidden-focus",
           "reason": "Both involve aria-hidden misuse — if aria-hidden is on the body, all focusable elements are affected."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-hidden-focus": {
       "fix": {
@@ -293,7 +401,18 @@
           "id": "aria-hidden-body",
           "reason": "Both involve aria-hidden misuse — if aria-hidden is on the body, all focusable elements are affected."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-input-field-name": {
       "fix": {
@@ -318,7 +437,21 @@
           "id": "aria-toggle-field-name",
           "reason": "Fix all ARIA field naming violations together — they share the same accessible name patterns."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-meter-name": {
       "fix": {
@@ -339,7 +472,21 @@
           "id": "aria-progressbar-name",
           "reason": "Meters and progress bars share the same accessible name requirements — fix both together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-progressbar-name": {
       "fix": {
@@ -360,7 +507,21 @@
           "id": "aria-meter-name",
           "reason": "Meters and progress bars share the same accessible name requirements — fix both together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-prohibited-attr": {
       "managed_by_libraries": [
@@ -410,7 +571,18 @@
           "id": "presentation-role-conflict",
           "reason": "Both rules address ARIA attributes that should not be present on the element — fix together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-required-attr": {
       "managed_by_libraries": [
@@ -468,7 +640,18 @@
           "id": "aria-dialog-name",
           "reason": "Dialogs with aria-modal='true' require proper focus trapping — fix naming and modal attributes together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-required-children": {
       "managed_by_libraries": [
@@ -506,7 +689,18 @@
           "id": "aria-treeitem-name",
           "reason": "Tree structures require correct nesting of treeitem within tree and group roles — fix hierarchy and naming together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-required-parent": {
       "managed_by_libraries": [
@@ -544,7 +738,18 @@
           "id": "aria-treeitem-name",
           "reason": "Each treeitem must be a child of a tree or group role — fix parent role requirements alongside naming."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-roledescription": {
       "fix": {
@@ -559,7 +764,18 @@
         "svelte": "Svelte passes aria-roledescription to the DOM as-is. This attribute must only be used on elements with an explicit or implicit ARIA role. It customizes how AT announces the role — use only when the default role announcement is insufficient.",
         "astro": "In .astro files, aria-roledescription renders to static HTML. Ensure it is paired with a valid role. This is a specialized attribute — most elements do not need it."
       },
-      "fix_difficulty_notes": "aria-roledescription customizes the role announcement for screen readers (e.g., 'slide' instead of 'group'). It only works on elements that have a role in the accessibility tree. Elements with no role or role='generic' (implicit for <div>/<span>) are ignored by AT, so the roledescription has no effect. The fix: add an appropriate semantic role to the element before applying aria-roledescription."
+      "fix_difficulty_notes": "aria-roledescription customizes the role announcement for screen readers (e.g., 'slide' instead of 'group'). It only works on elements that have a role in the accessibility tree. Elements with no role or role='generic' (implicit for <div>/<span>) are ignored by AT, so the roledescription has no effect. The fix: add an appropriate semantic role to the element before applying aria-roledescription.",
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-roles": {
       "fix": {
@@ -600,7 +816,18 @@
           "id": "aria-deprecated-role",
           "reason": "Both rules validate role attribute values — fix all role violations together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-text": {
       "fix": {
@@ -615,7 +842,18 @@
         "svelte": "In Svelte, role='text' can be used to prevent AT from splitting text interrupted by semantic elements. Ensure the element with role='text' contains only text content and no interactive children.",
         "astro": "In .astro files, role='text' renders to static HTML. This role is used to prevent screen readers from splitting text content at semantic boundaries — use sparingly."
       },
-      "fix_difficulty_notes": "role='text' is a convenience for preventing AT from splitting visually contiguous text into separate announcements (e.g., prices with styled currency symbols). It is not a WCAG requirement — if removing it causes no usability regression, removal is the safest fix. If role='text' is needed, audit all descendants to ensure none are focusable (no links, buttons, inputs, or elements with tabindex >= 0)."
+      "fix_difficulty_notes": "role='text' is a convenience for preventing AT from splitting visually contiguous text into separate announcements (e.g., prices with styled currency symbols). It is not a WCAG requirement — if removing it causes no usability regression, removal is the safest fix. If role='text' is needed, audit all descendants to ensure none are focusable (no links, buttons, inputs, or elements with tabindex >= 0).",
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-toggle-field-name": {
       "managed_by_libraries": [
@@ -657,7 +895,21 @@
           "id": "aria-input-field-name",
           "reason": "Fix all ARIA field naming violations together — they share the same accessible name patterns."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-tooltip-name": {
       "fix": {
@@ -672,7 +924,21 @@
         "svelte": "In Svelte, elements with role='tooltip' must have accessible text content or aria-label. Tooltip libraries for Svelte (like Tippy.js/svelte) should expose a label prop for the tooltip trigger.",
         "astro": "In .astro files, role='tooltip' elements need text content or aria-label in the static HTML. For dynamic tooltips inside framework islands, the island framework's tooltip component rules apply."
       },
-      "fix_difficulty_notes": "Tooltips should contain plain text that describes or supplements the trigger element. Complex interactive content inside a tooltip is an anti-pattern — use a dialog or popover instead. The tooltip's accessible name comes from its text content; aria-label is only needed when the tooltip contains non-text content (icons, formatted markup)."
+      "fix_difficulty_notes": "Tooltips should contain plain text that describes or supplements the trigger element. Complex interactive content inside a tooltip is an anti-pattern — use a dialog or popover instead. The tooltip's accessible name comes from its text content; aria-label is only needed when the tooltip contains non-text content (icons, formatted markup).",
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-treeitem-name": {
       "fix": {
@@ -697,7 +963,21 @@
           "id": "aria-required-parent",
           "reason": "Each treeitem must be a child of a tree or group role — fix parent role requirements alongside naming."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-valid-attr": {
       "managed_by_libraries": [
@@ -731,7 +1011,18 @@
           "id": "aria-valid-attr-value",
           "reason": "After fixing the attribute name, verify the value is also valid."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "aria-valid-attr-value": {
       "managed_by_libraries": [
@@ -781,7 +1072,18 @@
           "id": "aria-valid-attr",
           "reason": "After fixing the attribute name, verify the value is also valid."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "audio-caption": {
       "fix": {
@@ -806,7 +1108,18 @@
           "id": "no-autoplay-audio",
           "reason": "Auto-playing audio also needs captions if it conveys information — fix both together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "autocomplete-valid": {
       "fix": {
@@ -868,7 +1181,18 @@
           "id": "marquee",
           "reason": "Both <blink> and <marquee> are deprecated elements that cause inaccessible animations — remove both together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If a link uses target=\"_blank\", ensure rel=\"noopener noreferrer\" (or stricter equivalent) is present."
+        ],
+        "must_not": [
+          "Do not mention \"opens in a new tab\" unless target=\"_blank\" is actually present."
+        ],
+        "verify": [
+          "Confirm link purpose remains clear out of context and in the accessibility tree."
+        ]
+      }
     },
     "button-name": {
       "fix": {
@@ -902,7 +1226,18 @@
           "id": "aria-command-name",
           "reason": "button-name covers native <button> elements — fix all button naming violations together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "bypass": {
       "fix": {
@@ -1043,7 +1378,18 @@
         "wordpress": "WordPress generates titles via wp_get_document_title() and the document_title_parts filter. Yoast SEO and similar plugins override the default. Block themes use <title>{{ wp_title }}</title> in html.html. Never hardcode the title in header.php.",
         "drupal": "Drupal sets the page title via the title_resolver service and renders it in html.html.twig: <title>{{ head_title|safe_join(' | ') }}</title>. Custom modules can alter titles via hook_preprocess_html(). Verify that Views pages set proper titles."
       },
-      "fix_difficulty_notes": "In SPAs, the <title> is often set only on initial load. After client-side route changes, the title must be updated programmatically — the browser tab title stays stale otherwise. Each page title should follow the pattern 'Page Name — Site Name' so users understand context without reading page content."
+      "fix_difficulty_notes": "In SPAs, the <title> is often set only on initial load. After client-side route changes, the title must be updated programmatically — the browser tab title stays stale otherwise. Each page title should follow the pattern 'Page Name — Site Name' so users understand context without reading page content.",
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "duplicate-id": {
       "fix": {
@@ -1090,7 +1436,18 @@
           "id": "duplicate-id",
           "reason": "Duplicate IDs break both element references and ARIA relationships — fix all ID uniqueness violations together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "empty-heading": {
       "fix": {
@@ -1204,7 +1561,18 @@
           "id": "label-title-only",
           "reason": "When adding a visible label, verify you are not creating a duplicate label association."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "frame-focusable-content": {
       "fix": {
@@ -1275,7 +1643,18 @@
           "id": "frame-title-unique",
           "reason": "frame-title checks for the presence of a title; frame-title-unique checks for uniqueness — fix both together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "frame-title-unique": {
       "fix": {
@@ -1296,7 +1675,18 @@
           "id": "frame-title",
           "reason": "frame-title checks for the presence of a title; frame-title-unique checks for uniqueness — fix both together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "heading-order": {
       "fix": {
@@ -1448,7 +1838,18 @@
         "svelte": "In Svelte, links with the same accessible name should navigate to the same URL. If two 'Learn more' links go to different pages, make the link text unique: 'Learn more about pricing', 'Learn more about features'.",
         "astro": "In .astro files, links with identical text must go to the same destination. Use descriptive, unique link text rather than generic 'Read more' or 'Click here' across different sections."
       },
-      "fix_difficulty_notes": "axe uses heuristics to detect this — it flags links with identical text pointing to different URLs. False positives are common when 'Read more' links in a card grid are accompanied by a heading that provides context. WCAG 2.4.4 allows disambiguation through programmatic context (e.g., an aria-labelledby relationship between a card heading and its link). Check whether this is already satisfied before fixing. The simplest fix that avoids template changes is aria-label."
+      "fix_difficulty_notes": "axe uses heuristics to detect this — it flags links with identical text pointing to different URLs. False positives are common when 'Read more' links in a card grid are accompanied by a heading that provides context. WCAG 2.4.4 allows disambiguation through programmatic context (e.g., an aria-labelledby relationship between a card heading and its link). Check whether this is already satisfied before fixing. The simplest fix that avoids template changes is aria-label.",
+      "guardrails_overrides": {
+        "must": [
+          "If a link uses target=\"_blank\", ensure rel=\"noopener noreferrer\" (or stricter equivalent) is present."
+        ],
+        "must_not": [
+          "Do not mention \"opens in a new tab\" unless target=\"_blank\" is actually present."
+        ],
+        "verify": [
+          "Confirm link purpose remains clear out of context and in the accessibility tree."
+        ]
+      }
     },
     "image-alt": {
       "fix": {
@@ -1494,7 +1895,18 @@
           "id": "role-img-alt",
           "reason": "Both rules require images to have accessible names — fix all image alternatives together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "image-redundant-alt": {
       "fix": {
@@ -1519,7 +1931,18 @@
           "id": "svg-img-alt",
           "reason": "When adding aria-label to SVGs, avoid duplicating visible adjacent text."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "input-button-name": {
       "fix": {
@@ -1544,7 +1967,18 @@
           "id": "link-name",
           "reason": "The same accessible name requirement applies to links — fix all interactive element naming together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "input-image-alt": {
       "fix": {
@@ -1569,7 +2003,18 @@
           "id": "svg-img-alt",
           "reason": "SVGs used as images share the same accessible name requirement."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "label": {
       "fix": {
@@ -1619,7 +2064,18 @@
           "id": "label-title-only",
           "reason": "Both rules enforce proper label association — fix label-title-only and label violations together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "label-content-name-mismatch": {
       "fix": {
@@ -1644,7 +2100,18 @@
           "id": "form-field-multiple-labels",
           "reason": "Multiple labels frequently cause accessible name to differ from visible label text."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "label-title-only": {
       "fix": {
@@ -1669,7 +2136,18 @@
           "id": "form-field-multiple-labels",
           "reason": "When adding a visible label, verify you are not creating a duplicate label association."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "landmark-banner-is-top-level": {
       "fix": {
@@ -1976,7 +2454,18 @@
           "id": "color-contrast",
           "reason": "Links distinguished only by color need sufficient contrast — both rules enforce color-based visual distinction."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If a link uses target=\"_blank\", ensure rel=\"noopener noreferrer\" (or stricter equivalent) is present."
+        ],
+        "must_not": [
+          "Do not mention \"opens in a new tab\" unless target=\"_blank\" is actually present."
+        ],
+        "verify": [
+          "Confirm link purpose remains clear out of context and in the accessibility tree."
+        ]
+      }
     },
     "link-name": {
       "fix": {
@@ -2010,7 +2499,21 @@
           "id": "aria-command-name",
           "reason": "link-name covers native <a> elements — fix all interactive element naming together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "If a link uses target=\"_blank\", ensure rel=\"noopener noreferrer\" (or stricter equivalent) is present."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not mention \"opens in a new tab\" unless target=\"_blank\" is actually present."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm link purpose remains clear out of context and in the accessibility tree."
+        ]
+      }
     },
     "list": {
       "fix": {
@@ -2149,7 +2652,18 @@
         "svelte": "In Svelte, avoid nesting interactive elements (e.g., <button> inside <a>, <a> inside <button>). Svelte does not warn about nested interactives — verify manually. This commonly occurs when wrapping card components in links.",
         "astro": "In .astro files, nested interactive elements (links inside buttons, buttons inside links) render to static HTML. This is invalid HTML and confuses AT — restructure to avoid nesting."
       },
-      "fix_difficulty_notes": "The most common pattern causing this is a 'card' component where the entire card is wrapped in an <a> tag and a button (e.g., 'Add to cart', 'Save') is placed inside. The HTML spec forbids interactive content inside <a>. Solutions: (1) use the 'stretched link' CSS pattern to make the <a> visually cover the card without wrapping the button, or (2) use JavaScript to handle card-level clicks while keeping elements separate in the DOM."
+      "fix_difficulty_notes": "The most common pattern causing this is a 'card' component where the entire card is wrapped in an <a> tag and a button (e.g., 'Add to cart', 'Save') is placed inside. The HTML spec forbids interactive content inside <a>. Solutions: (1) use the 'stretched link' CSS pattern to make the <a> visually cover the card without wrapping the button, or (2) use JavaScript to handle card-level clicks while keeping elements separate in the DOM.",
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "no-autoplay-audio": {
       "fix": {
@@ -2195,7 +2709,18 @@
           "id": "image-alt",
           "reason": "The same text alternative requirement applies to <img> — audit both together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "p-as-heading": {
       "fix": {
@@ -2266,7 +2791,18 @@
           "id": "aria-prohibited-attr",
           "reason": "Both rules address ARIA attributes that should not be present on the element — fix together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "region": {
       "fix": {
@@ -2326,7 +2862,21 @@
           "id": "svg-img-alt",
           "reason": "svg-img-alt specifically targets SVG elements with role='img' — they overlap with this rule."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
+          "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text).",
+          "Do not add composite widget roles unless the full keyboard interaction model is implemented."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase.",
+          "Confirm role, state, and name are exposed correctly in accessibility tooling."
+        ]
+      }
     },
     "scope-attr-valid": {
       "fix": {
@@ -2406,7 +2956,18 @@
           "id": "label",
           "reason": "The same label association pattern applies — fix label rule to resolve both."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "server-side-image-map": {
       "fix": {
@@ -2461,7 +3022,18 @@
           "id": "region",
           "reason": "Proper landmark regions reduce the need for skip links but do not replace them — both mechanisms should coexist."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If a link uses target=\"_blank\", ensure rel=\"noopener noreferrer\" (or stricter equivalent) is present."
+        ],
+        "must_not": [
+          "Do not mention \"opens in a new tab\" unless target=\"_blank\" is actually present."
+        ],
+        "verify": [
+          "Confirm link purpose remains clear out of context and in the accessibility tree."
+        ]
+      }
     },
     "summary-name": {
       "fix": {
@@ -2476,7 +3048,18 @@
         "svelte": "In Svelte, <summary> elements inside <details> must have visible text content that describes the disclosed section. Svelte does not warn about empty <summary> — add descriptive text.",
         "astro": "In .astro files, <summary> must contain visible text in the static HTML. This serves as the accessible name for the disclosure widget."
       },
-      "fix_difficulty_notes": "The fix is to add descriptive text content to the <summary> element. In CMS-driven content, the issue often occurs when an author creates a <details> block but leaves the summary empty. The text should describe what the disclosure widget reveals when expanded — not a generic label like 'Details' or 'More'."
+      "fix_difficulty_notes": "The fix is to add descriptive text content to the <summary> element. In CMS-driven content, the issue often occurs when an author creates a <details> block but leaves the summary empty. The text should describe what the disclosure widget reveals when expanded — not a generic label like 'Details' or 'More'.",
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "svg-img-alt": {
       "fix": {
@@ -2509,7 +3092,18 @@
           "id": "role-img-alt",
           "reason": "svg-img-alt specifically targets SVG elements with role='img' — they overlap with this rule."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "tabindex": {
       "fix": {
@@ -2551,7 +3145,18 @@
           "id": "table-fake-caption",
           "reason": "If both a <caption> and aria-label exist, they must not duplicate each other."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "table-fake-caption": {
       "fix": {
@@ -2572,7 +3177,18 @@
           "id": "table-duplicate-name",
           "reason": "If both a <caption> and aria-label exist, they must not duplicate each other."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     },
     "target-size": {
       "fix": {
@@ -2729,7 +3345,18 @@
           "id": "no-autoplay-audio",
           "reason": "Auto-playing video with audio needs captions — address media accessibility holistically."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists, preserve label-in-name: accessible name must include the visible label."
+        ],
+        "must_not": [
+          "Do not add or replace aria-label when a valid accessible name already exists (visible text, aria-labelledby, existing aria-label, associated label, or sr-only text)."
+        ],
+        "verify": [
+          "Confirm computed accessible name matches expected spoken phrase."
+        ]
+      }
     }
   },
   "code_patterns": {
@@ -2753,7 +3380,18 @@
         "svelte": "Check <style> blocks in .svelte files and global CSS. Tailwind users replace focus:outline-none with focus-visible: variants.",
         "astro": "Check global CSS in /src/styles/ and component <style> blocks. Tailwind users audit all focus:outline-none instances."
       },
-      "false_positive_risk": "low"
+      "false_positive_risk": "low",
+      "guardrails_overrides": {
+        "must": [
+          "Ensure a visible :focus-visible indicator exists after removing outline suppression."
+        ],
+        "must_not": [
+          "Do not remove all focus indicators for keyboard users."
+        ],
+        "verify": [
+          "Tab through interactive elements and confirm a visible focus ring."
+        ]
+      }
     },
     "autoplay-media": {
       "description": "An `<audio>` or `<video>` element has the `autoplay` attribute without being muted. Auto-playing audio interferes with screen readers and disorienting for users with cognitive disabilities.",
@@ -2775,7 +3413,18 @@
         "svelte": "Remove `autoplay` from `<video>` or `<audio>`. If needed: `<video autoplay muted controls {src}>`.",
         "astro": "Remove `autoplay` from media elements in .astro templates. If required, add `muted controls`."
       },
-      "false_positive_risk": "low"
+      "false_positive_risk": "low",
+      "guardrails_overrides": {
+        "must": [
+          "If autoplay is retained, require muted and user controls."
+        ],
+        "must_not": [
+          "Do not leave autoplaying audio without an immediate pause/stop path."
+        ],
+        "verify": [
+          "Confirm media does not auto-play audible sound on load."
+        ]
+      }
     },
     "orientation-lock": {
       "description": "The page calls `screen.orientation.lock()` to restrict display to portrait or landscape mode. Users who mount their device in a fixed position (e.g., on a wheelchair) cannot physically rotate it.",
@@ -2797,7 +3446,18 @@
         "svelte": "Remove from `onMount()`. Check any Capacitor/Cordova integration for orientation lock config.",
         "astro": "This is a client-side JS pattern. Remove from any `<script>` blocks or client-side island components."
       },
-      "false_positive_risk": "low"
+      "false_positive_risk": "low",
+      "guardrails_overrides": {
+        "must": [
+          "Allow both portrait and landscape unless orientation lock is essential."
+        ],
+        "must_not": [
+          "Do not block usage when device orientation cannot be changed."
+        ],
+        "verify": [
+          "Confirm key flows remain usable in both orientations."
+        ]
+      }
     },
     "character-key-shortcut": {
       "description": "An `accesskey` attribute creates single-character keyboard shortcuts that conflict with screen reader and browser shortcuts, with no mechanism for users to remap or disable them.",
@@ -2819,7 +3479,68 @@
         "svelte": "Remove `accesskey` from markup. For custom shortcuts, use `on:keydown` with modifier key guards.",
         "astro": "Remove `accesskey` from .astro template elements and any component files."
       },
-      "false_positive_risk": "low"
+      "false_positive_risk": "low",
+      "guardrails_overrides": {
+        "must": [
+          "Prefer removing accesskey or provide remap/disable mechanism for shortcuts."
+        ],
+        "must_not": [
+          "Do not introduce single-character shortcuts without user override."
+        ],
+        "verify": [
+          "Confirm no conflicting single-key shortcut remains active."
+        ]
+      }
+    }
+  },
+  "defaults": {
+    "rule_fix_pattern": {
+      "apply_strategy": "surgical-minimal-change",
+      "source_of_truth": [
+        "fix.description",
+        "fix.code",
+        "evidence.html",
+        "primary_selector"
+      ],
+      "fallback": "requires_manual_verification"
+    },
+    "code_pattern_fix_pattern": {
+      "apply_strategy": "regex-match-then-context-validate",
+      "source_of_truth": [
+        "detection.search",
+        "detection.files",
+        "fix.description",
+        "fix.code"
+      ],
+      "fallback": "requires_manual_verification"
+    },
+    "rule_guardrails_shared": {
+      "must": [
+        "Confirm DOM evidence and source code point to the same element before editing.",
+        "Apply changes at the source component/template, never compiled output.",
+        "Prefer native semantics over ARIA when an equivalent native element exists."
+      ],
+      "must_not": [
+        "Do not apply a fix when evidence is stale or selector-to-source mapping is ambiguous.",
+        "Do not ship placeholder or partial accessibility fixes."
+      ],
+      "verify": [
+        "Run the rule-specific verification command after patching.",
+        "Re-check keyboard navigation and screen-reader announcement on the affected element."
+      ]
+    },
+    "code_pattern_guardrails_shared": {
+      "must": [
+        "Confirm the regex match is a real violation in context before applying a patch.",
+        "Apply the smallest change that resolves the pattern while preserving behavior."
+      ],
+      "must_not": [
+        "Do not patch matches that are already handled by a higher-level accessibility abstraction.",
+        "Do not apply style-impacting changes without explicit visual verification."
+      ],
+      "verify": [
+        "Re-run targeted scan and manually verify affected flow."
+      ]
     }
   }
 }
