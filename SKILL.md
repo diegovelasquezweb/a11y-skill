@@ -209,7 +209,22 @@ If **Looks good**: proceed to the next severity group, or to 4b if this was the 
 
 If there are no style-dependent findings (color-contrast, font-size, or spacing), skip directly to 4c.
 
-Show all style changes upfront: property, current value → proposed value, contrast ratio change (for color). Then ask:
+Show all style changes upfront using this exact format:
+
+```
+Root cause: [problem description with actual values and ratios — e.g. "--color-pewter (#8E8A86) renders at 3.22:1 against --color-soft-white (#F8F8F8). Minimum required is 4.5:1 for normal text."]
+Affected elements:
+[/page-path] — [element descriptions with selector/class]
+
+Proposed change — [file path]:
+| Token | Property | Current value | Proposed value | Current ratio | Proposed ratio |
+|---|---|---|---|---|---|
+| --token-name | color | value (#hex) | value (#hex) | X.XX:1 | ~Y.YY:1 |
+
+Scope: [explain whether this is a global token or a local change, and what other elements it affects]
+```
+
+Then ask:
 
 `[QUESTION]` **Apply these style changes?**
 
@@ -241,7 +256,15 @@ Process the "🔍 Source Code Pattern Audit" section from the remediation guide.
 
 If 0 matches were found in both groups, proceed automatically to Step 5 without showing any message.
 
-**Structural patterns** — present as a batch, include: pattern name, WCAG criterion, level (A/AA), severity, affected files, proposed fix from `fix.description`. Then ask:
+**Structural patterns** — present as a batch using this exact format:
+
+```
+| # | File | Line | Element | Current → Proposed |
+|---|---|---|---|---|
+| 1 | [file path] | [line] | [element tag / selector] | [current code] → [proposed code] |
+```
+
+Include: pattern name, WCAG criterion, level (A/AA), severity above the table. Then ask:
 
 `[QUESTION]` **I found [N] structural issue(s) in your source code that axe-core cannot detect at runtime — HTML attributes, ARIA, and JS APIs invisible to the browser scanner. Apply fixes?**
 
@@ -262,9 +285,17 @@ If **Looks good**: proceed to style patterns below (or Step 5 if none). If **Som
 
 If **Skip**: proceed to style patterns (or Step 5 if none) — do not show the `[MESSAGE]` yet.
 
-**Style patterns** — these change visual appearance. Apply the same hard stop as 4b: **never apply before showing the exact proposed diff and receiving an explicit "yes".**
+**Style patterns** — show each match using this exact format before applying anything:
 
-> **Style-dependent protection — hard stop**: show each match with: property, current value → proposed value, and affected file + line. Then ask:
+> **Style-dependent protection — hard stop**: these pattern fixes change visual appearance. **Never apply before showing the exact proposed diff and receiving an explicit "yes".**
+
+```
+| # | File | Line | Element | Current → Proposed |
+|---|---|---|---|---|
+| 1 | [file path] | [line] | [element tag / selector] | [current CSS value] → [proposed CSS value] |
+```
+
+Then ask:
 
 `[QUESTION]` **I found [N] CSS pattern(s) in your source code that suppress or break accessible visual states — these are invisible to the browser scanner but affect real users. Apply fixes?**
 
