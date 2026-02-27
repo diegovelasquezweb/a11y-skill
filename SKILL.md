@@ -21,7 +21,7 @@ Load these files on demand — never preload all at once.
 | CLI flags reference               | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md)       |
 | Quality gates                     | Any phase boundary — verifying gate pass/fail | [references/quality-gates.md](references/quality-gates.md)       |
 | Troubleshooting                   | Any script failure                            | [references/troubleshooting.md](references/troubleshooting.md)   |
-| Out of scope (manual testing)     | Step 6 item 7 — checklist export             | [references/out-of-scope.md](references/out-of-scope.md)         |
+| Out of scope (manual testing · backend root cause) | Step 4 — finding has server-side evidence · Step 6 item 7 — checklist export | [references/out-of-scope.md](references/out-of-scope.md) |
 | Source code patterns              | Step 4c — pattern grep + fix                 | [references/code-patterns.md](references/code-patterns.md)       |
 
 ## Constraints
@@ -255,7 +255,14 @@ If **Looks good**: your very next action is the first tool call of 4c — readin
 
 #### 4c. Source code patterns
 
-**This step runs automatically — no user confirmation needed. Do not output any text before scanning.** The very first action is a tool call: read `references/code-patterns.md`. Output begins only after the scan is complete and results are ready to present.
+`[QUESTION]` **Would you like me to scan your source code using an expert-curated pattern database to detect issues the automated browser scanner cannot find?**
+
+1. **Yes** — scan and fix any matches found
+2. **No** — skip to the verification re-audit
+
+If **No**: proceed immediately to Step 5.
+
+If **Yes**: read `references/code-patterns.md` as the first action — no text before that tool call. Output begins only after the scan is complete and results are ready to present.
 
 Each entry has a `Search for` regex and `In files` glob — use these to grep the project source. Apply the framework note matching the detected stack:
 
