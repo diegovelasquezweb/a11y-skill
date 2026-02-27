@@ -82,12 +82,6 @@ function makeFindingId(ruleId, url, selector) {
 
 /** @type {Object} */
 const RULES = INTELLIGENCE.rules || {};
-/** @type {Object} */
-const INTELLIGENCE_DEFAULTS = INTELLIGENCE.defaults || {};
-const DEFAULT_RULE_GUARDRAILS =
-  INTELLIGENCE_DEFAULTS.rule_guardrails_shared || null;
-const DEFAULT_CODE_PATTERN_GUARDRAILS =
-  INTELLIGENCE_DEFAULTS.code_pattern_guardrails_shared || null;
 /** @type {Object<string, string>} */
 const APG_PATTERNS = WCAG_REFERENCE.apgPatterns;
 /** @type {Object<string, string>} */
@@ -616,7 +610,7 @@ function buildFindings(inputPayload, cliArgs) {
 
         const ruleInfo = RULES[v.id] || {};
         const fixInfo = ruleInfo.fix || {};
-        const resolvedGuardrails = resolveGuardrails(ruleInfo, DEFAULT_RULE_GUARDRAILS);
+        const resolvedGuardrails = resolveGuardrails(ruleInfo, null);
 
         let recFix = apgUrl
           ? `Reference: ${apgUrl}`
@@ -691,7 +685,7 @@ function buildFindings(inputPayload, cliArgs) {
       const _fixInfo = _ruleInfo.fix || {};
       const _resolvedGuardrails = resolveGuardrails(
         _ruleInfo,
-        DEFAULT_RULE_GUARDRAILS,
+        null,
       );
       findings.push({
         id: "",
@@ -734,13 +728,9 @@ function buildFindings(inputPayload, cliArgs) {
     ) {
       const _ruleInfo = RULES["landmark-one-main"] || {};
       const _fixInfo = _ruleInfo.fix || {};
-      const _resolvedFixPattern = resolveFixPattern(
-        _ruleInfo,
-        DEFAULT_RULE_FIX_PATTERN,
-      );
       const _resolvedGuardrails = resolveGuardrails(
         _ruleInfo,
-        DEFAULT_RULE_GUARDRAILS,
+        null,
       );
       findings.push({
         id: "",

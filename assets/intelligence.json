@@ -3415,24 +3415,5 @@
         ]
       }
     }
-  },
-  "defaults": {
-    "rule_guardrails_shared": {
-      "must": [],
-      "must_not": [],
-      "verify": []
-    },
-    "code_pattern_guardrails_shared": {
-      "must": [
-        "Confirm the regex match is a real violation in context before applying a patch.",
-        "Apply the smallest change that resolves the pattern while preserving behavior."
-      ],
-      "must_not": [
-        "Do not patch matches that are already handled by a higher-level accessibility abstraction."
-      ],
-      "verify": [
-        "Re-run targeted scan and manually verify affected flow."
-      ]
-    }
   }
 }
