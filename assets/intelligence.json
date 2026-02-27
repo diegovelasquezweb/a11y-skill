@@ -538,8 +538,8 @@
         "vuetify"
       ],
       "fix": {
-        "description": "Remove ARIA attributes that are prohibited for the element's role. Each ARIA role has a defined set of allowed attributes — attributes outside that set are ignored or cause incorrect AT behavior.",
-        "code": "<!-- aria-label is prohibited on role='presentation' and role='none' -->\n<!-- Before: -->\n<div role=\"none\" aria-label=\"Section wrapper\">...</div>\n<!-- After: -->\n<div>...</div>\n\n<!-- aria-checked is prohibited on role='button' -->\n<!-- Before: -->\n<button role=\"button\" aria-checked=\"true\">Toggle</button>\n<!-- After (use role='switch' for toggle state): -->\n<button role=\"switch\" aria-checked=\"true\">Toggle</button>"
+        "description": "The violation message identifies the exact prohibited combination. Two distinct cases: (1) aria-label on an element with NO role — add a landmark or semantic role that permits aria-label (e.g. role='region', role='navigation', role='complementary'); (2) aria-label on role='none' or role='presentation' — these roles strip all semantics so aria-label has no effect: either assign a real role or remove both attributes.",
+        "code": "<!-- Case 1: aria-label on element with NO role → add a semantic role -->\n<!-- Before: -->\n<div aria-label=\"Hero slides\">...</div>\n<!-- After: add a role that permits aria-label -->\n<div role=\"region\" aria-label=\"Hero slides\">...</div>\n\n<!-- Case 2: aria-label on role='none' or role='presentation' → remove aria-label -->\n<!-- Before: -->\n<div role=\"none\" aria-label=\"Decorative wrapper\">...</div>\n<!-- After: -->\n<div role=\"none\">...</div>\n\n<!-- Case 3: wrong ARIA state for a role (e.g. aria-checked on plain button) -->\n<!-- Before: -->\n<button aria-checked=\"true\">Toggle</button>\n<!-- After: use role='switch' which supports aria-checked -->\n<button role=\"switch\" aria-checked=\"true\">Toggle</button>"
       },
       "false_positive_risk": "low",
       "framework_notes": {
@@ -549,7 +549,7 @@
         "svelte": "Svelte does not warn about prohibited ARIA attributes at compile time. Attributes like aria-label on elements with role='presentation' or role='none' are prohibited — remove them. Use eslint-plugin-svelte for static analysis.",
         "astro": "In .astro files, prohibited ARIA attributes render to static HTML without warnings. Validate the build output with axe-core to catch attributes that conflict with the element's role."
       },
-      "fix_difficulty_notes": "The most common case is aria-label on role='none' or role='presentation' — the role explicitly removes the element from the accessibility tree, so any ARIA attribute on it has no effect (and axe flags it). Also common: adding aria-expanded or aria-checked to a plain <button> role instead of using role='switch' or role='menuitemcheckbox'. Consult https://www.w3.org/TR/wai-aria/#role_definitions for the 'Inherited States and Properties' list per role.",
+      "fix_difficulty_notes": "Read the Observed Violation message — it names the exact prohibited combination. Three patterns: (1) aria-label on a plain <div> or <span> with no role — add a semantic role that permits labelling (role='region' for sections, role='navigation' for nav-like containers, role='complementary' for sidebars); (2) aria-label on role='none' or role='presentation' — these roles explicitly remove the element from the accessibility tree, so any ARIA attribute is meaningless: remove the aria-label, or swap to a real role if labelling is needed; (3) wrong ARIA state for a role (e.g. aria-checked on a plain button) — change the role to one that supports the attribute (role='switch' for aria-checked). Consult https://www.w3.org/TR/wai-aria/#role_definitions for 'Inherited States and Properties' per role.",
       "related_rules": [
         {
           "id": "aria-required-attr",
@@ -1271,12 +1271,25 @@
           "id": "skip-link",
           "reason": "Skip links are the primary mechanism for satisfying the bypass blocks requirement (WCAG 2.4.1)."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Place the skip link as the very first focusable element in the DOM, before any navigation or header markup."
+        ],
+        "must_not": [
+          "Do not hide the skip link with display:none or visibility:hidden — use the off-screen CSS pattern (position:absolute; left:-9999px) and bring on-screen on :focus.",
+          "Do not point the href to a non-existent or unmatched id."
+        ],
+        "verify": [
+          "Confirm the skip link is the first focusable element in keyboard tab order.",
+          "Confirm activating the skip link moves focus to the <main> content target."
+        ]
+      }
     },
     "color-contrast": {
       "fix": {
-        "description": "Increase the contrast ratio between text and its background. Minimum 4.5:1 for normal text, 3:1 for large text (≥18pt or ≥14pt bold).",
-        "code": "/* Adjust the foreground or background color until contrast ≥4.5:1 */\n/* Use CSS custom properties to keep the fix systematic: */\n.element {\n  color: var(--color-text-primary); /* verify ≥4.5:1 against background */\n  background-color: var(--color-surface); /* e.g. #fff or #1e293b */\n}\n/* Tip: Check contrast at https://webaim.org/resources/contrastchecker/ */"
+        "description": "The Observed Violation contains the exact foreground hex, background hex, and failing ratio. Use those values as your starting point: input both into https://webaim.org/resources/contrastchecker/, darken the foreground (or lighten the background) until the ratio reaches ≥4.5:1 for normal text or ≥3:1 for large text (≥18pt / ≥14pt bold). Then locate the CSS token or utility class that sets that foreground color in the source and replace it with the compliant value.",
+        "code": "/* Step 1 — identify the failing pair from Observed Violation, e.g.: */\n/* foreground: #8e8a86 / background: #f8f8f8 / ratio: 3.22 — target ≥4.5:1 */\n\n/* Step 2 — find the CSS token or Tailwind class that sets the color */\n/* e.g. text-cloud → look up --color-cloud in CSS vars or tailwind.config.js */\n\n/* Step 3 — replace with a compliant value */\n.element {\n  color: #5e5b58; /* example: darkened value — verify ratio before committing */\n}\n/* Or update the CSS custom property at its definition point: */\n:root {\n  --color-cloud: #5e5b58; /* was #8e8a86 (3.22:1) → now verify ≥4.5:1 */\n}"
       },
       "false_positive_risk": "high",
       "framework_notes": {
@@ -1297,7 +1310,17 @@
           "id": "link-in-text-block",
           "reason": "Links distinguished only by color need sufficient contrast — both rules enforce color-based visual distinction."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not rely solely on adjusting opacity to fix contrast — opacity affects both foreground and background.",
+          "Do not apply a fix without verifying the computed contrast ratio using browser DevTools or https://webaim.org/resources/contrastchecker/"
+        ],
+        "verify": [
+          "Confirm ratio is ≥4.5:1 for normal text and ≥3:1 for large text (≥18pt or ≥14pt bold).",
+          "Re-check contrast under keyboard :focus state — focus indicators may reduce background contrast."
+        ]
+      }
     },
     "css-orientation-lock": {
       "fix": {
@@ -1720,7 +1743,20 @@
           "id": "p-as-heading",
           "reason": "After converting p-as-heading to real headings, verify they fit the existing heading hierarchy."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must": [
+          "Resolve page-has-heading-one first — a missing h1 causes cascading heading-order violations."
+        ],
+        "must_not": [
+          "Do not change heading levels purely for visual sizing — use CSS classes for font size.",
+          "Do not adjust heading numbers alone without restructuring content hierarchy — the fix must reflect document structure, not just the numeric sequence."
+        ],
+        "verify": [
+          "Confirm no heading levels are skipped in the final DOM output.",
+          "Confirm the fix does not alter visual design — heading element changes must be purely structural."
+        ]
+      }
     },
     "hidden-content": {
       "fix": {
@@ -2616,7 +2652,17 @@
           "id": "meta-viewport-large",
           "reason": "meta-viewport checks for user-scalable=no (blocks zoom entirely); meta-viewport-large checks for insufficient maximum-scale."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not use user-scalable=no in any combination — even paired with initial-scale=1.",
+          "Do not add maximum-scale=1 as a substitute — it has the same zoom-blocking effect."
+        ],
+        "verify": [
+          "Confirm the final viewport tag contains neither user-scalable=no nor maximum-scale=1.",
+          "Test pinch-to-zoom on a physical device or Chrome DevTools mobile simulation after the fix."
+        ]
+      }
     },
     "meta-viewport-large": {
       "fix": {
@@ -3124,7 +3170,17 @@
           "id": "focus-order-semantics",
           "reason": "Both rules address focus order issues — fix tabindex values and semantic roles together."
         }
-      ]
+      ],
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not assign tabindex > 0 — this creates a separate focus sequence that runs before natural DOM order and breaks keyboard navigation.",
+          "Do not use positive tabindex as a workaround for DOM order issues — reorder the DOM instead."
+        ],
+        "verify": [
+          "Confirm no tabindex values greater than 0 remain in the affected file.",
+          "Tab through the modified element to confirm it appears in logical, predictable focus order."
+        ]
+      }
     },
     "table-duplicate-name": {
       "fix": {
@@ -3386,7 +3442,8 @@
           "Ensure a visible :focus-visible indicator exists after removing outline suppression."
         ],
         "must_not": [
-          "Do not remove all focus indicators for keyboard users."
+          "Do not remove all focus indicators for keyboard users.",
+          "Do not apply style-impacting changes without explicit visual verification."
         ],
         "verify": [
           "Tab through interactive elements and confirm a visible focus ring."
@@ -3517,8 +3574,7 @@
     "rule_guardrails_shared": {
       "must": [
         "Confirm DOM evidence and source code point to the same element before editing.",
-        "Apply changes at the source component/template, never compiled output.",
-        "Prefer native semantics over ARIA when an equivalent native element exists."
+        "Apply changes at the source component/template, never compiled output."
       ],
       "must_not": [
         "Do not apply a fix when evidence is stale or selector-to-source mapping is ambiguous.",
@@ -3535,8 +3591,7 @@
         "Apply the smallest change that resolves the pattern while preserving behavior."
       ],
       "must_not": [
-        "Do not patch matches that are already handled by a higher-level accessibility abstraction.",
-        "Do not apply style-impacting changes without explicit visual verification."
+        "Do not patch matches that are already handled by a higher-level accessibility abstraction."
       ],
       "verify": [
         "Re-run targeted scan and manually verify affected flow."

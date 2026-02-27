@@ -21,6 +21,8 @@ Load these files on demand — never preload all at once.
 | CLI flags reference               | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md)       |
 | Quality gates                     | Any phase boundary — verifying gate pass/fail | [references/quality-gates.md](references/quality-gates.md)       |
 | Troubleshooting                   | Any script failure                            | [references/troubleshooting.md](references/troubleshooting.md)   |
+| Out of scope (manual testing)     | Step 6 item 7 — checklist export             | [references/out-of-scope.md](references/out-of-scope.md)         |
+| Source code patterns              | Step 4c — pattern grep + fix                 | [references/code-patterns.md](references/code-patterns.md)       |
 
 ## Constraints
 
@@ -245,7 +247,7 @@ If **Looks good**: proceed to 4c. If **Something's wrong**: apply corrections, t
 
 → **Do not wait for input — continue immediately in the same response.**
 
-Process the "🔍 Source Code Pattern Audit" section from the remediation guide. Each entry has a `detection.search` regex and `detection.files` glob — use these to grep the project source:
+Load [references/code-patterns.md](references/code-patterns.md). Each entry has a `Search for` regex and `In files` glob — use these to grep the project source. Apply the framework note matching the detected stack:
 
 1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
 2. Classify confirmed matches into two groups:
@@ -365,7 +367,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**, filling in values from the remediation guide. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`.
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
-3. **Passed Criteria**: present the criteria from the "Passed Criteria" section of the remediation guide as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification. Omit any "Requires manual testing" subsection and any "AAA criteria: Not in scope" line — both are redundant given the manual checklist delivered later.
+3. **Passed Criteria**: read `passedCriteria` from `.audit/a11y-findings.json` and present as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification.
 
    | Criterion | Name | Level |
    |-----------|------|-------|
@@ -429,7 +431,7 @@ Then ask:
 1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
 2. **No thanks**
 
-If **Yes**: present the "Out of Scope" section from the remediation guide as context, then if a save path was already established in item 5 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 4), ask:
+If **Yes**: load [references/out-of-scope.md](references/out-of-scope.md) and present it as context, then if a save path was already established in item 5 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 4), ask:
 
 `[QUESTION]` **Where should I save the checklist?**
 

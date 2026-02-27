@@ -27,181 +27,6 @@ try {
   );
 }
 
-const manualChecksPath = join(__dirname, "../../assets/manual-checks.json");
-
-/**
- * List of manual accessibility checks for documentation.
- * @type {Object[]}
- */
-let MANUAL_CHECKS;
-try {
-  MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
-} catch {
-  throw new Error(
-    "Missing or invalid assets/manual-checks.json — reinstall the skill.",
-  );
-}
-
-/**
- * Renders the source code pattern audit section from intelligence.json code_patterns.
- * Each pattern includes a detection regex, file globs, and a concrete code fix.
- * @param {Object} patterns - The code_patterns object from intelligence.json (via metadata).
- * @param {string} [framework] - Detected framework ID for filtering framework-specific notes.
- * @returns {string} The source code pattern audit section, or empty string if no patterns.
- */
-function buildCodePatternsMd(patterns, framework) {
-  if (!patterns || Object.keys(patterns).length === 0) return "";
-
-  const frameworkAlias = STACK_CONFIG.frameworkAliases?.intelKey?.[framework] || framework;
-  const inferPatternCodeLang = (files = "") => {
-    if (/\.(css|scss|sass)\b/i.test(files)) return "css";
-    if (/\.(ts|tsx|js|jsx|vue|svelte)\b/i.test(files)) return "ts";
-    return "html";
-  };
-
-  const entries = Object.entries(patterns)
-    .map(([id, pattern]) => {
-      const frameworkNote =
-        frameworkAlias && pattern.framework_notes?.[frameworkAlias]
-          ? `\n**${frameworkAlias.charAt(0).toUpperCase() + frameworkAlias.slice(1)} Note:** ${pattern.framework_notes[frameworkAlias]}`
-          : "";
-
-      const fixBlock = [
-        pattern.fix?.description
-          ? `**Fix:** ${pattern.fix.description}`
-          : null,
-        pattern.fix?.code
-          ? `\`\`\`${inferPatternCodeLang(pattern.detection?.files || "")}\n${pattern.fix.code}\n\`\`\``
-          : null,
-      ]
-        .filter(Boolean)
-        .join("\n");
-
-      const fpRisk =
-        pattern.false_positive_risk && pattern.false_positive_risk !== "low"
-          ? `> ⚠️ **False Positive Risk (${pattern.false_positive_risk}):** Verify the match is a real violation before applying the fix — the search regex may match code that already handles this correctly at a higher level.`
-          : null;
-
-      const managedBlock =
-        Array.isArray(pattern.managed_by_libraries) &&
-        pattern.managed_by_libraries.length > 0
-          ? `> ⚠️ **Managed Component Warning:** This pattern may match components managed by **${pattern.managed_by_libraries.join(", ")}** — verify the library does not already handle this before applying a fix.`
-          : null;
-
-      const fixPatternBlock =
-        pattern.fix_pattern && typeof pattern.fix_pattern === "object"
-          ? [
-              `**Fix Strategy:** ${pattern.fix_pattern.apply_strategy || "regex-match-then-context-validate"}`,
-              Array.isArray(pattern.fix_pattern.source_of_truth) && pattern.fix_pattern.source_of_truth.length > 0
-                ? `**Source of Truth:** ${pattern.fix_pattern.source_of_truth.map((s) => `\`${s}\``).join(", ")}`
-                : null,
-              pattern.fix_pattern.fallback
-                ? `**Fallback:** ${pattern.fix_pattern.fallback}`
-                : null,
-            ]
-              .filter(Boolean)
-              .join("\n")
-          : null;
-
-      const guardrailsBlock =
-        pattern.guardrails && typeof pattern.guardrails === "object"
-          ? [
-              pattern.guardrails.must?.length
-                ? `**Preconditions:**\n${pattern.guardrails.must.map((g) => `- ${g}`).join("\n")}`
-                : null,
-              pattern.guardrails.must_not?.length
-                ? `**Do Not Apply If:**\n${pattern.guardrails.must_not.map((g) => `- ${g}`).join("\n")}`
-                : null,
-              pattern.guardrails.verify?.length
-                ? `**Post-Fix Checks:**\n${pattern.guardrails.verify.map((g) => `- ${g}`).join("\n")}`
-                : null,
-            ]
-              .filter(Boolean)
-              .join("\n\n")
-          : null;
-
-      return [
-        `---`,
-        `### \`${id}\` — ${pattern.severity.charAt(0).toUpperCase() + pattern.severity.slice(1)} (WCAG ${pattern.wcag}${pattern.level ? ` · Level ${pattern.level}` : ""})`,
-        ``,
-        `${pattern.description}`,
-        ``,
-        `**Search for:** \`${pattern.detection.search}\``,
-        `**In files:** \`${pattern.detection.files}\``,
-        ``,
-        managedBlock,
-        fpRisk,
-        ``,
-        fixBlock,
-        fixPatternBlock ? `` : null,
-        fixPatternBlock,
-        guardrailsBlock ? `` : null,
-        guardrailsBlock,
-        frameworkNote || null,
-      ]
-        .filter((line) => line !== null)
-        .join("\n");
-    })
-    .join("\n\n");
-
-  return `## 🔍 Source Code Pattern Audit
-
-> These patterns are not detectable by axe-core at runtime. Use the search regex to grep source files and apply the fixes wherever the pattern is found.
-
-${entries}
-`;
-}
-
-/**
- * Generates the manual checks section in Markdown format.
- * Includes descriptions, verification steps, and remediation advice for AI agents.
- * @returns {string} The manual checks remediation section.
- */
-function buildManualChecksMd() {
-  const entries = MANUAL_CHECKS.map((check) => {
-    const codeBlock = check.code_example
-      ? [
-          ``,
-          `**Before / After:**`,
-          `\`\`\`${check.code_example.lang || "html"}`,
-          check.code_example.before,
-          `\`\`\``,
-          `\`\`\`${check.code_example.lang || "html"}`,
-          check.code_example.after,
-          `\`\`\``,
-        ].join("\n")
-      : null;
-
-    return [
-      `---`,
-      `### ${check.criterion} — ${check.title} (WCAG 2.2 ${check.level})`,
-      ``,
-      `${check.description}`,
-      ``,
-      `**Verification Steps:**`,
-      check.steps.map((s, i) => `${i + 1}. ${s}`).join("\n"),
-      ``,
-      ...(check.remediation?.length
-        ? [
-            `**Recommended Fix:**`,
-            check.remediation.map((r) => `- ${r}`).join("\n"),
-            ``,
-          ]
-        : []),
-      codeBlock,
-      `**Reference:** ${check.ref}`,
-    ]
-      .filter(Boolean)
-      .join("\n");
-  }).join("\n\n");
-
-  return `## WCAG 2.2 Static Code Checks
-
-> These criteria are not detectable by axe-core. Search the source code for the patterns below and apply fixes where missing.
-
-${entries}
-`;
-}
 
 /**
  * Resolves the active web framework or CMS platform to provide tailored guardrails.
@@ -243,48 +68,6 @@ function normalizeComponentHint(hint) {
   return hint;
 }
 
-/**
- * Builds the Passed Criteria section listing WCAG criteria with no violations.
- * @param {string[]} passedCriteria
- * @returns {string}
- */
-function buildPassedCriteriaSection(passedCriteria) {
-  if (!Array.isArray(passedCriteria) || passedCriteria.length === 0) return "";
-  return `## ✅ Passed Criteria
-
-The following WCAG 2.2 AA criteria were verified by automated scanning and returned no violations. This list reflects automated coverage only — manual testing may reveal additional issues.
-
-${passedCriteria.map((c) => `- ${c}`).join("\n")}
-`;
-}
-
-/**
- * Builds the Out of Scope section documenting what was not tested.
- * @param {Object} outOfScope
- * @returns {string}
- */
-function buildOutOfScopeSection(outOfScope) {
-  if (!outOfScope) return "";
-  const parts = [];
-  if (outOfScope.auth_blocked_routes?.length > 0) {
-    parts.push(
-      `**Routes not tested (access error):**\n${outOfScope.auth_blocked_routes.map((r) => `- \`${r}\``).join("\n")}`,
-    );
-  }
-  if (outOfScope.manual_testing_required?.length > 0) {
-    parts.push(
-      `**Requires manual testing (not detectable by axe-core):**\n${outOfScope.manual_testing_required.map((c) => `- ${c}`).join("\n")}`,
-    );
-  }
-  if (outOfScope.aaa_excluded) {
-    parts.push(`**AAA criteria:** Not in scope for this audit.`);
-  }
-  if (parts.length === 0) return "";
-  return `## 📋 Out of Scope
-
-${parts.join("\n\n")}
-`;
-}
 
 /**
  * Builds the Recommendations section with single-point-fix opportunities and systemic patterns.
@@ -314,20 +97,17 @@ function buildRecommendationsSection(recommendations) {
     const mergedRows = [...merged.values()].sort(
       (a, b) => (b.total_issues * b.total_pages) - (a.total_issues * a.total_pages),
     );
-    const rows = single_point_fixes.map(
-      (r) => `| \`${r.component}\` | ${r.total_issues} | ${r.total_pages} | ${r.rules.map((x) => `\`${x}\``).join(", ")} |`,
-    );
     const normalizedRows = mergedRows.map(
       (r) => `| \`${r.component}\` | ${r.total_issues} | ${r.total_pages} | ${(r.rules || []).map((x) => `\`${x}\``).join(", ")} |`,
     );
     parts.push(
-      `### Fix once, resolve everywhere\n\nThese issues trace back to shared components — a single fix eliminates all instances.\n\n| Component | Issues | Pages | Rules |\n|---|---|---|---|\n${normalizedRows.length > 0 ? normalizedRows.join("\n") : rows.join("\n")}`,
+      `### Fix once, resolve everywhere\n\nThese issues trace back to shared components — a single fix eliminates all instances.\n\n| Component | Issues | Pages | Rules |\n|---|---|---|---|\n${normalizedRows.join("\n")}`,
     );
   }
 
   if (systemic_patterns.length > 0) {
     const rows = systemic_patterns.map(
-      (r) => `| ${r.wcag_criterion} | ${r.total_issues} | ${r.affected_components.map((c) => `\`${c}\``).join(", ")} |`,
+      (r) => `| ${r.wcag_criterion} | ${r.total_issues} | ${r.affected_components.map((c) => `\`${normalizeComponentHint(c)}\``).join(", ")} |`,
     );
     parts.push(
       `### Systemic patterns\n\nThe same WCAG criterion recurs across multiple components — consider a design system-level fix.\n\n| Criterion | Issues | Affected Components |\n|---|---|---|\n${rows.join("\n")}`,
@@ -337,25 +117,6 @@ function buildRecommendationsSection(recommendations) {
   return `## 💡 Recommendations\n\n${parts.join("\n\n")}\n`;
 }
 
-/**
- * Builds the Testing Methodology section from auto-generated scan metadata.
- * @param {Object} tm
- * @returns {string}
- */
-function buildTestingMethodologySection(tm) {
-  if (!tm) return "";
-  return `## 🔬 Testing Methodology
-
-| | |
-|---|---|
-| **Automated Tools** | ${(tm.automated_tools || []).join(", ")} |
-| **Compliance Target** | ${tm.compliance_target} |
-| **Pages Scanned** | ${tm.pages_scanned}${tm.pages_errored > 0 ? ` (${tm.pages_errored} failed to load)` : ""} |
-| **Framework Detected** | ${tm.framework_detected} |
-| **Manual Testing** | ${tm.manual_testing} |
-| **Assistive Technology Tested** | ${tm.assistive_tech_tested} |
-`;
-}
 
 /**
  * Builds the full AI-optimized remediation guide in Markdown format.
@@ -448,10 +209,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         ? `**Fixing this also helps:**\n${f.relatedRules.map((r) => `- \`${r.id}\` — ${r.reason}`).join("\n")}`
         : null;
 
-    const ruleRef = f.ruleId
-      ? `**Rule Logic:** https://dequeuniversity.com/rules/axe/4.11/${f.ruleId}`
-      : null;
-
     const searchPatternBlock = f.fileSearchPattern
       ? `**Search in:** \`${f.fileSearchPattern}\``
       : null;
@@ -463,19 +220,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     const verifyBlock = f.verificationCommand
       ? `**Quick verify:** \`${f.verificationCommand}\`${f.verificationCommandFallback ? `\n**Fallback verify:** \`${f.verificationCommandFallback}\`` : ""}`
       : null;
-
-    const fixPatternBlock =
-      f.fixPattern && typeof f.fixPattern === "object"
-        ? [
-            `**Fix Strategy:** ${f.fixPattern.apply_strategy || "surgical-minimal-change"}`,
-            Array.isArray(f.fixPattern.source_of_truth) && f.fixPattern.source_of_truth.length > 0
-              ? `**Source of Truth:** ${f.fixPattern.source_of_truth.map((s) => `\`${s}\``).join(", ")}`
-              : null,
-            f.fixPattern.fallback
-              ? `**Fallback:** ${f.fixPattern.fallback}`
-              : null,
-          ].filter(Boolean).join("\n")
-        : null;
 
     const guardrailsBlock =
       f.guardrails && typeof f.guardrails === "object"
@@ -503,24 +247,14 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         : f.wcagClassification === "AAA"
           ? `- **WCAG Criterion:** ${f.wcag} _(Level AAA — informational only)_`
           : `- **WCAG Criterion:** ${f.wcag}`,
-      `- **Persona Impact:** ${f.impactedUsers}`,
-      f.priorityScore != null
-        ? `- **Priority Score:** ${f.priorityScore}/100`
-        : null,
       ``,
       crossPageBlock ? `${crossPageBlock}\n` : null,
       managedBlock ? `${managedBlock}\n` : null,
-      `**Why it matters:** ${f.impact || "This violation creates barriers for users with disabilities."}`,
-      ``,
-      `**Expected Behavior:** ${f.expected}`,
-      ``,
       `**Observed Violation:** ${f.actual}`,
       searchPatternBlock ? `` : null,
       searchPatternBlock,
       ``,
       fixBlock,
-      fixPatternBlock ? `` : null,
-      fixPatternBlock,
       guardrailsBlock ? `` : null,
       guardrailsBlock,
       difficultyBlock ? `` : null,
@@ -533,8 +267,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       fpRisk,
       evidenceHtml ? `` : null,
       evidenceHtml ? `${evidenceLabel}\n${evidenceHtml}` : null,
-      ruleRef ? `` : null,
-      ruleRef,
       relatedBlock ? `` : null,
       relatedBlock,
       verifyBlock ? `` : null,
@@ -632,18 +364,14 @@ Total findings: **${wcagFindings.length} WCAG AA violations**${bpCount > 0 ? ` +
 
 ${buildGuardrails(framework)}
 
+**Fix strategy:** surgical-minimal-change — apply the smallest edit that resolves the violation. If evidence is ambiguous, fall back to \`requires_manual_verification\` — do not guess.
+
 ---
-
-## 🚀 Execution Scope
-
-Apply fixes in this order: **Priority Fixes** -> **Deferred Issues**.  
-Use the sections below as the execution plan. Treat **Source Code Pattern Audit** and **Static Code Checks** as appendices for follow-up.
 
 ${buildComponentMap()}${buildRecommendationsSection(metadata.recommendations)}
 ${blockers ? `## 🔴 Priority Fixes (Critical & Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
-
-${deferred ? `## 🔵 Deferred Issues (Moderate & Minor)\n\n${deferred}` : "## Deferred Issues\n\nNo moderate or minor severity issues found."}
-
-${buildPassedCriteriaSection(metadata.passedCriteria)}${buildOutOfScopeSection(metadata.outOfScope)}${buildTestingMethodologySection(metadata.testingMethodology)}${buildCodePatternsMd(metadata.code_patterns, framework)}`.trimEnd() + "\n"
+${deferred ? `\n## 🔵 Deferred Issues (Moderate & Minor)\n\n${deferred}` : ""}
+`
+  .trimEnd() + "\n"
   );
 }

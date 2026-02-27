@@ -625,8 +625,8 @@ function buildFindings(inputPayload, cliArgs) {
         const nodes = v.nodes || [];
         const selectors = nodes.map((n) => n.target.join(" ")).slice(0, 5);
         const bestSelector = selectors.reduce((best, s) => {
-          if (/#[\w-]+/.test(s)) return s;
           if (best && /#[\w-]+/.test(best)) return best;
+          if (/#[\w-]+/.test(s)) return s;
           const len = s.replace(/[^a-z0-9-]/gi, "").length;
           const bestLen = best ? best.replace(/[^a-z0-9-]/gi, "").length : 0;
           return len < bestLen ? s : best;

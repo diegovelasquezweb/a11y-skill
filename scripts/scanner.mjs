@@ -353,15 +353,23 @@ async function detectProjectContext(page) {
   }, domSignals);
 
   const uiLibraries = [];
+  let pkgFramework = null;
   try {
-    const projectDir = process.env.A11Y_PROJECT_DIR;
-    const pkgPath = projectDir ? path.join(projectDir, "package.json") : null;
-    if (pkgPath && fs.existsSync(pkgPath)) {
-      const deps = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+    const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
+    const pkgPath = path.join(projectDir, "package.json");
+    if (fs.existsSync(pkgPath)) {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
       const allDeps = Object.keys({
-        ...deps.dependencies,
-        ...deps.devDependencies,
+        ...(pkg.dependencies || {}),
+        ...(pkg.devDependencies || {}),
       });
+      const PKG_SIGNALS = STACK_CONFIG.frameworkDetection.packageSignals;
+      for (const [dep, fw] of PKG_SIGNALS) {
+        if (allDeps.some((d) => d === dep || d.startsWith(`${dep}/`))) {
+          pkgFramework = fw;
+          break;
+        }
+      }
       const LIB_SIGNALS = STACK_CONFIG.frameworkDetection.uiLibrarySignals;
       for (const [prefix, name] of LIB_SIGNALS) {
         if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
@@ -373,11 +381,12 @@ async function detectProjectContext(page) {
     // package.json not available — running against remote URL
   }
 
-  if (framework) log.info(`Detected framework: ${framework}`);
-  if (uiLibraries.length)
-    log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
+  const resolvedFramework = pkgFramework || framework;
 
-  return { framework, uiLibraries };
+  if (resolvedFramework) log.info(`Detected framework: ${resolvedFramework}${pkgFramework ? " (from package.json)" : " (from DOM)"}`);
+  if (uiLibraries.length) log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
+
+  return { framework: resolvedFramework, uiLibraries };
 }
 
 /**

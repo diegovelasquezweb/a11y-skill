@@ -6,7 +6,7 @@
       { "framework": "angular", "signals": { "selector": "[ng-version]" } },
       { "framework": "gatsby", "signals": { "id": "___gatsby" } },
       { "framework": "astro", "signals": { "selector": "[data-astro-cid]", "selectorAlt": "astro-island" } },
-      { "framework": "react", "signals": { "selector": "[data-reactroot]" } },
+      { "framework": "react", "signals": { "window": "__vite_plugin_react_preamble_installed__", "selector": "[data-reactroot]" } },
       { "framework": "vue", "signals": { "selector": "[data-v-]", "selectorAlt": "[data-server-rendered]" } },
       { "framework": "shopify", "signals": { "window": "Shopify", "selector": "[data-shopify]" } },
       { "framework": "wordpress", "signals": { "hrefContains": "wp-content", "metaGenerator": "WordPress" } },
@@ -26,6 +26,18 @@
       ["shadcn-ui", "shadcn"],
       ["primevue", "primevue"],
       ["vuetify", "vuetify"]
+    ],
+    "packageSignals": [
+      ["next", "nextjs"],
+      ["gatsby", "gatsby"],
+      ["nuxt", "nuxt"],
+      ["@nuxt/core", "nuxt"],
+      ["@angular/core", "angular"],
+      ["astro", "astro"],
+      ["@sveltejs/kit", "svelte"],
+      ["svelte", "svelte"],
+      ["vue", "vue"],
+      ["react", "react"]
     ],
     "urlSignals": [
       { "pattern": "myshopify.com", "framework": "shopify" },
@@ -72,6 +84,13 @@
       "5.  **No Placeholders**: Do not add \"todo\" comments. Provide the complete code fix."
     ],
     "framework": {
+      "react": "1.  **React Project**: Edit `.tsx`/`.jsx` files in `src/`. **NEVER** edit `dist/`, `build/`, or `.cache/`. Source of Truth: fix at the component, not the compiled output.",
+      "nextjs": "1.  **Next.js Project**: Edit `.tsx`/`.jsx` files in `app/`, `pages/`, or `components/`. **NEVER** edit `.next/` or `out/`. Source of Truth: fix at the component or page.",
+      "gatsby": "1.  **Gatsby Project**: Edit `.tsx`/`.jsx` in `src/pages/` or `src/components/`. **NEVER** edit `public/` or `.cache/`. Source of Truth: fix at the component.",
+      "vue": "1.  **Vue Project**: Edit `.vue` files in `src/`. **NEVER** edit `dist/` or `node_modules/`. Source of Truth: fix at the component.",
+      "nuxt": "1.  **Nuxt Project**: Edit `.vue` files in `pages/`, `components/`, or `layouts/`. **NEVER** edit `.nuxt/` or `dist/`. Source of Truth: fix at the component.",
+      "angular": "1.  **Angular Project**: Edit `.component.html` and `.component.ts` in `src/`. **NEVER** edit `dist/`. Source of Truth: fix at the component.",
+      "astro": "1.  **Astro Project**: Edit `.astro` files in `src/`. **NEVER** edit `dist/` or `.astro/`. Source of Truth: fix at the component or page.",
       "shopify": "1.  **Shopify Project**: Edit `.liquid` files in `sections/`, `snippets/`, or `layout/`. **NEVER** edit compiled assets in `assets/*.min.js`. Source of Truth: fix at the template, not the rendered DOM.",
       "wordpress": "1.  **WordPress Project**: Work only in `wp-content/themes/` or `plugins/`. **NEVER** edit `wp-admin/` or `wp-includes/` or any cached file. Source of Truth: fix at the theme template.",
       "svelte": "1.  **Svelte/SvelteKit Project**: Edit `.svelte` files in `src/`. **NEVER** edit `.svelte-kit/`, `build/`, or `dist/`. Source of Truth: fix at the component, not the compiled output.",
