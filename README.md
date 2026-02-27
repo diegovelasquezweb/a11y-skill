@@ -61,8 +61,8 @@ Visual reports on demand. After any audit, you can optionally generate these pro
 | Deliverable           | Format  | Audience         | Key Value                                                                                                        |
 | :-------------------- | :------ | :--------------- | :--------------------------------------------------------------------------------------------------------------- |
 | **Audit Dashboard**   | `.html` | Developers       | Shareable report with severity-grouped findings, DOM evidence, and ready-to-apply fix blueprints per component.  |
-| **Manual Checklist**  | `.html` | Developers / QA  | Step-by-step guide for the WCAG criteria that automated tools cannot detect, covering all 41 manual checkpoints. |
 | **Executive Summary** | `.pdf`  | Stakeholders     | Formal document with compliance score, legal risk summary, and remediation roadmap for non-technical audiences.  |
+| **Manual Checklist**  | `.html` | Developers / QA  | Step-by-step guide for the WCAG criteria that automated tools cannot detect, covering all 41 manual checkpoints. |
 
 ## Technical Reference
 
