@@ -135,16 +135,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
   const wcagFindings = findings.filter(
     (f) => f.wcagClassification !== "Best Practice" && f.wcagClassification !== "AAA",
   );
-  const bpCount = findings.length - wcagFindings.length;
   const totals = buildSummary(wcagFindings);
-  const status = wcagFindings.length === 0 ? "PASS" : "ISSUES FOUND";
-
-  const assessmentEmoji =
-    metadata.overallAssessment === "Pass" ? "✅" :
-    metadata.overallAssessment === "Conditional Pass" ? "⚠️" : "❌";
-  const assessmentLine = metadata.overallAssessment
-    ? `> **Overall Assessment:** ${assessmentEmoji} ${metadata.overallAssessment}\n`
-    : "";
 
   function findingToMd(f) {
     let evidenceHtml = null;
@@ -332,29 +323,16 @@ ${rows.join("\n")}
 `;
   }
 
-  const pipelineNotes = [
-    metadata.fpFiltered > 0 ? `${metadata.fpFiltered} false positive(s) removed` : null,
-    metadata.deduplicatedCount > 0 ? `${metadata.deduplicatedCount} cross-page finding(s) deduplicated` : null,
-    bpCount > 0 ? `${bpCount} Best Practice / AAA finding(s) excluded from WCAG assessment` : null,
-  ].filter(Boolean).join(" · ");
-
   return (
     `# 🛡️ Accessibility Remediation Guide — AI MODE
-> **Scan Date:** ${metadata.scanDate || new Date().toISOString()}
 > **Base URL:** ${args.baseUrl || "N/A"}
-> **Target:** ${args.target}
-> **Status:** ${status}
-${assessmentLine}
-## 📊 Findings Overview
 
-| Severity | Count | Priority |
-|---|---|---|
-| 🔴 **Critical** | ${totals.Critical} | **Blocker** |
-| 🟠 **Serious** | ${totals.Serious} | **Immediate** |
-| 🟡 **Moderate** | ${totals.Moderate} | **Standard** |
-| 🔵 **Minor** | ${totals.Minor} | **Backlog** |
-
-Total findings: **${wcagFindings.length} WCAG AA violations**${bpCount > 0 ? ` + ${bpCount} informational (Best Practice / AAA)` : ""}${pipelineNotes ? `\n\n> ℹ️ Audit pipeline: ${pipelineNotes}` : ""}
+| Severity | Count |
+|---|---|
+| 🔴 Critical | ${totals.Critical} |
+| 🟠 Serious | ${totals.Serious} |
+| 🟡 Moderate | ${totals.Moderate} |
+| 🔵 Minor | ${totals.Minor} |
 
 ---
 
