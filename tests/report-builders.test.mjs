@@ -18,7 +18,7 @@ describe("HTML Report Builder Components", () => {
     rule_id: "image-alt",
     title: "Images must have alternate text",
     severity: "Critical",
-    wcag_criterion_id: "1.1.1",
+    wcag: "1.1.1",
     area: "HomePage",
     selector: "img",
     impacted_users: "Users with visual impairments",

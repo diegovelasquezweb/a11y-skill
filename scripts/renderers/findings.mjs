@@ -24,24 +24,6 @@ const RULE_METADATA = JSON.parse(
  */
 export const SEVERITY_ORDER = SCORING_CONFIG.severityOrder;
 
-/**
- * Calculates a weighted priority score for a finding based on severity, instance count, and fix availability.
- * @param {Object} item - The finding item to score.
- * @returns {number} A calculated score (typically 0-100).
- */
-function computePriorityScore(item) {
-  const sev = SEVERITY_ORDER[item.severity] ?? 3;
-  const { severityPoints, instancePointsMax, instanceScale, fixBonus } =
-    SCORING_CONFIG.priorityScoring;
-  const sevPts = severityPoints[String(sev)] ?? 0;
-  const instances = item.total_instances || 1;
-  const instancePts = Math.min(
-    Math.round(Math.log2(instances + 1) * instanceScale),
-    instancePointsMax,
-  );
-  const fixPts = item.fix_code ? fixBonus : 0;
-  return sevPts + instancePts + fixPts;
-}
 
 /**
  * Normalizes raw scanner finding objects into a consistent structure for reporting.
@@ -66,8 +48,7 @@ export function normalizeFindings(payload) {
       ruleId: String(item.rule_id ?? ""),
       title: String(item.title ?? "Untitled finding"),
       severity: String(item.severity ?? "Unknown"),
-      wcag: String(item.wcag ?? item.wcag_criterion_id ?? ""),
-      wcagCriterionId: item.wcag_criterion_id ?? null,
+      wcag: String(item.wcag ?? ""),
       wcagClassification: item.wcag_classification ?? null,
       area: String(item.area ?? ""),
       url: String(item.url ?? ""),
@@ -76,10 +57,6 @@ export function normalizeFindings(payload) {
       impactedUsers: String(
         item.impacted_users ?? "Users relying on assistive technology",
       ),
-      impact: String(item.impact ?? ""),
-      reproduction: Array.isArray(item.reproduction)
-        ? item.reproduction.map((v) => String(v))
-        : [],
       actual: String(item.actual ?? ""),
       expected: String(item.expected ?? ""),
       mdn: item.mdn ?? null,
@@ -89,7 +66,6 @@ export function normalizeFindings(payload) {
       evidence: Array.isArray(item.evidence) ? item.evidence : [],
       totalInstances:
         typeof item.total_instances === "number" ? item.total_instances : null,
-      priorityScore: computePriorityScore(item),
       effort: item.effort ?? null,
       relatedRules: Array.isArray(item.related_rules) ? item.related_rules : [],
       fixCodeLang: item.fix_code_lang ?? "html",

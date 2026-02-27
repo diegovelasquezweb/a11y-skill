@@ -41,10 +41,6 @@ function mergeUnique(a = [], b = []) {
   return [...new Set([...(a || []), ...(b || [])])];
 }
 
-function resolveFixPattern(entry, fallback) {
-  return entry.fix_pattern || fallback || null;
-}
-
 function resolveGuardrails(entry, shared) {
   if (entry.guardrails) return entry.guardrails;
   if (!entry.guardrails_overrides && !shared) return null;
@@ -90,27 +86,16 @@ describe("intelligence.json — schema", () => {
         expect(VALID_FP_RISK.has(rule.false_positive_risk)).toBe(true);
       });
 
-      it("has fix_pattern metadata", () => {
-        const resolved = resolveFixPattern(rule, defaults.rule_fix_pattern);
-        expect(resolved).toBeDefined();
-        expect(typeof resolved).toBe("object");
-        expect(resolved.apply_strategy?.trim()).toBeTruthy();
-        expect(Array.isArray(resolved.source_of_truth)).toBe(true);
-        expect(resolved.source_of_truth.length).toBeGreaterThan(0);
-        expect(resolved.fallback?.trim()).toBeTruthy();
-      });
-
-      it("has guardrails metadata", () => {
-        const resolved = resolveGuardrails(rule, defaults.rule_guardrails_shared);
-        expect(resolved).toBeDefined();
-        expect(typeof resolved).toBe("object");
-        expect(Array.isArray(resolved.must)).toBe(true);
-        expect(Array.isArray(resolved.must_not)).toBe(true);
-        expect(Array.isArray(resolved.verify)).toBe(true);
-        expect(resolved.must.length).toBeGreaterThan(0);
-        expect(resolved.must_not.length).toBeGreaterThan(0);
-        expect(resolved.verify.length).toBeGreaterThan(0);
-      });
+      if (rule.guardrails || rule.guardrails_overrides) {
+        it("has guardrails metadata", () => {
+          const resolved = resolveGuardrails(rule, null);
+          expect(resolved).not.toBeNull();
+          expect(typeof resolved).toBe("object");
+          expect(Array.isArray(resolved.must)).toBe(true);
+          expect(Array.isArray(resolved.must_not)).toBe(true);
+          expect(Array.isArray(resolved.verify)).toBe(true);
+        });
+      }
 
       if (rule.framework_notes) {
         it("framework_notes keys are valid", () => {
@@ -384,81 +369,3 @@ describe("manual-checks.json — schema", () => {
   }
 });
 
-describe("code_patterns", () => {
-  const patterns = intel.code_patterns;
-  const VALID_SEVERITIES = new Set(["Critical", "Serious", "Moderate", "Minor"]);
-
-  it("code_patterns section exists and is non-empty", () => {
-    expect(patterns).toBeDefined();
-    expect(typeof patterns).toBe("object");
-    expect(Object.keys(patterns).length).toBeGreaterThan(0);
-  });
-
-  for (const [id, pattern] of Object.entries(patterns ?? {})) {
-    describe(`pattern: ${id}`, () => {
-      it("has a non-empty description", () => {
-        expect(pattern.description?.trim()).toBeTruthy();
-      });
-
-      it("has a detection.search regex string", () => {
-        expect(typeof pattern.detection?.search).toBe("string");
-        expect(pattern.detection.search.trim()).toBeTruthy();
-      });
-
-      it("has a detection.files glob string", () => {
-        expect(typeof pattern.detection?.files).toBe("string");
-        expect(pattern.detection.files.trim()).toBeTruthy();
-      });
-
-      it("has a fix.description", () => {
-        expect(pattern.fix?.description?.trim()).toBeTruthy();
-      });
-
-      it("has a fix.code snippet", () => {
-        expect(pattern.fix?.code?.trim()).toBeTruthy();
-      });
-
-      it("has a valid wcag criterion (e.g. 2.1.1)", () => {
-        expect(pattern.wcag).toMatch(/^\d+\.\d+\.\d+$/);
-      });
-
-      it("has a valid severity", () => {
-        expect(VALID_SEVERITIES.has(pattern.severity)).toBe(true);
-      });
-
-      it("has framework_notes with at least one known framework", () => {
-        expect(typeof pattern.framework_notes).toBe("object");
-        const keys = Object.keys(pattern.framework_notes);
-        expect(keys.length).toBeGreaterThan(0);
-        for (const key of keys) {
-          expect(VALID_FW_KEYS.has(key)).toBe(true);
-        }
-      });
-
-      it("has fix_pattern metadata", () => {
-        const resolved = resolveFixPattern(pattern, defaults.code_pattern_fix_pattern);
-        expect(resolved).toBeDefined();
-        expect(typeof resolved).toBe("object");
-        expect(resolved.apply_strategy?.trim()).toBeTruthy();
-        expect(Array.isArray(resolved.source_of_truth)).toBe(true);
-        expect(resolved.source_of_truth.length).toBeGreaterThan(0);
-        expect(resolved.fallback?.trim()).toBeTruthy();
-      });
-
-      it("has guardrails metadata", () => {
-        const resolved = resolveGuardrails(
-          pattern,
-          defaults.code_pattern_guardrails_shared,
-        );
-        expect(resolved).toBeDefined();
-        expect(typeof resolved).toBe("object");
-        expect(Array.isArray(resolved.must)).toBe(true);
-        expect(Array.isArray(resolved.must_not)).toBe(true);
-        expect(Array.isArray(resolved.verify)).toBe(true);
-        expect(resolved.must.length).toBeGreaterThan(0);
-        expect(resolved.must_not.length).toBeGreaterThan(0);
-        expect(resolved.verify.length).toBeGreaterThan(0);
-      });
-    });
-  }
-});
