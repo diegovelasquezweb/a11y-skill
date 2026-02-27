@@ -10,7 +10,7 @@ This skill transforms accessibility audits into actionable fix roadmaps. It runs
 | :-------------------------- | :--------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
 | **WCAG 2.2 AA Coverage**    | ✅ Full multi-layer coverage of the WCAG 2.2 AA standard                                                             | ❌ Automated scans limited to the rendered DOM, missing source-level violations                        |
 | **Fix Intelligence**        | ✅ Surgical fix blueprints with stack-aware patterns for your specific codebase                                        | ❌ Manual hunting through code with generic DOM feedback and no fix guidance                     |
-| **Workflow**                | ✅ Guided session that takes you from raw findings to applied fixes, no guesswork                                      | ❌ Unstructured prompting with inconsistent flow and unpredictable results                        |
+| **Workflow**                | ✅ Guided session from findings to applied fixes, prioritize by severity or by issue category | ❌ Unstructured prompting with inconsistent flow and unpredictable results                        |
 | **Token Efficiency**          | ✅ The agent reads a compact structured report, not raw page HTML                                                     | ❌ Entire page HTML fed into context on every scan                                               |
 
 ## Installation
@@ -28,7 +28,7 @@ The agent will clone the repository to its skills directory automatically:
 | Claude Code | `~/.claude/skills/a11y/` | `/a11y` |
 | Cursor | `~/.cursor/skills/a11y/` | `/a11y` |
 | Gemini CLI | `~/.gemini/skills/a11y/` | — |
-| Codex | `~/.agents/skills/a11y/` | `$a11y` |
+| Codex | `~/.codex/skills/a11y/` | `$a11y` |
 | Windsurf | `~/.codeium/windsurf/skills/a11y/` | `@a11y` |
 | Antigravity | `~/.gemini/antigravity/skills/a11y/` | `/a11y` |
 

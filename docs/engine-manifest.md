@@ -73,6 +73,41 @@ These Markdown guides define the **Operational Standards** that the AI Agent fol
 
 ---
 
+## 5. Step-by-Step Conversation Flow (with files)
+
+```mermaid
+%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#1e293b', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b', 'secondaryColor': '#f1f5f9', 'tertiaryColor': '#fff', 'mainBkg': '#fff', 'nodeBorder': '#e2e8f0' } } }%%
+flowchart TD
+    S1["Step 1<br/>Page Discovery"] --> S2["Step 2<br/>Run Audit"]
+    S2 --> S3["Step 3<br/>Present Findings + Ask Permission"]
+    S3 --> S4["Step 4<br/>Fix (4a Structural -> 4b Style -> 4c Source Patterns)"]
+    S4 --> S5["Step 5<br/>Verification Re-audit"]
+    S5 --> S6["Step 6<br/>Deliver Results"]
+
+    F1["SKILL.md<br/>Workflow + question/message contracts"] -.used in.-> S1
+    F2["references/quality-gates.md<br/>Gate 1 (pre-audit)"] -.used in.-> S1
+    F3["scripts/audit.mjs"] -.executes.-> S2
+    F4[".audit/remediation.md<br/>(or REMEDIATION_PATH)"] -.read after S2.-> S2
+    F5["references/troubleshooting.md"] -.fallback on failures.-> S2
+    F6["references/report-standards.md"] -.used in.-> S3
+    F7["references/source-patterns.md"] -.used in 4a.-> S4
+    F8["references/code-patterns.md"] -.used in 4c.-> S4
+    F9["references/quality-gates.md<br/>Gate 4 (fix integrity)"] -.used in.-> S4
+    F10["scripts/audit.mjs<br/>(same flags as Step 2)"] -.executes.-> S5
+    F11["references/quality-gates.md<br/>Gate 5 (delta: resolved/remaining/new)"] -.used in.-> S5
+    F12[".audit/a11y-findings.json<br/>passedCriteria"] -.read in.-> S6
+    F13["scripts/report-html.mjs / scripts/report-pdf.mjs<br/>(optional, user requested)"] -.optional outputs.-> S6
+    F14["scripts/report-checklist.mjs + references/out-of-scope.md<br/>(optional manual checklist)"] -.optional outputs.-> S6
+
+    classDef step fill:#3b5cd9,color:#fff,stroke:#1e308a;
+    classDef file fill:#f1f5f9,color:#0f172a,stroke:#cbd5e1,stroke-dasharray: 5 5;
+
+    class S1,S2,S3,S4,S5,S6 step;
+    class F1,F2,F3,F4,F5,F6,F7,F8,F9,F10,F11,F12,F13,F14 file;
+```
+
+---
+
 ## Technical Linkage Map
 
 ```mermaid
