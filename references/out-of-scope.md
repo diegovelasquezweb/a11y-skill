@@ -24,3 +24,20 @@ The following WCAG 2.2 AA criteria cannot be verified by axe-core automated scan
 ## Not in scope
 
 - AAA criteria are excluded from WCAG 2.2 AA compliance assessment.
+
+## Backend root cause findings
+
+Some axe-core findings appear to fail in the browser but originate from server-side output, not from frontend components or stylesheets. These are **out of scope for frontend fixes**.
+
+**How to identify them:** Evidence in the finding contains server-generated debug output — PHP warnings, stack traces, file paths (e.g., `wp-config.php`, `.env`), line numbers, or raw error messages rendered directly into the DOM.
+
+**Common examples:**
+- WordPress `WP_DEBUG = true` in production — renders PHP warnings and `wp-config.php` paths into the page body, which axe-core flags as unlandmarked content (`region` rule)
+- Server-side error output leaking into the rendered HTML
+
+**What to do:**
+1. Identify the server-side root cause from the evidence (file path, error type)
+2. Report it to the user in plain language — explain what is causing the output and where it originates
+3. Do not attempt any frontend fix
+4. Mark the finding as **Out of scope — backend root cause** in the session
+5. Exclude it from the fix queue; count it as unresolved/unactionable in the Step 6 summary
