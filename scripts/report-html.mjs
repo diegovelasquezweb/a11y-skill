@@ -507,6 +507,61 @@ function buildHtml(args, findings, metadata = {}) {
       btn.textContent = anyCollapsed ? 'Expand all' : 'Collapse all';
     }
 
+    function switchIssueTab(button, tabKey) {
+      const root = button.closest('[data-issue-tab-root]');
+      if (!root) return;
+      const card = button.closest('.issue-card');
+      if (!card) return;
+
+      const tabs = [...root.querySelectorAll('[role="tab"]')];
+      const panels = [...card.querySelectorAll('[role="tabpanel"][data-tab-panel]')];
+
+      tabs.forEach((tab) => {
+        const isActive = tab === button;
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        tab.setAttribute('tabindex', isActive ? '0' : '-1');
+        if (isActive) {
+          tab.classList.add('bg-white', 'text-indigo-700', 'border', 'border-indigo-200', 'shadow-sm');
+          tab.classList.remove('text-slate-600', 'border-transparent', 'hover:bg-white/70');
+        } else {
+          tab.classList.remove('bg-white', 'text-indigo-700', 'border', 'border-indigo-200', 'shadow-sm');
+          tab.classList.add('text-slate-600', 'border-transparent', 'hover:bg-white/70');
+        }
+      });
+
+      panels.forEach((panel) => {
+        const isTarget = panel.dataset.tabPanel === tabKey;
+        panel.classList.toggle('hidden', !isTarget);
+      });
+    }
+
+    function handleIssueTabKeydown(event, button) {
+      const root = button.closest('[data-issue-tab-root]');
+      if (!root) return;
+      const tabs = [...root.querySelectorAll('[role="tab"]')];
+      const index = tabs.indexOf(button);
+      if (index === -1) return;
+
+      let nextIndex = index;
+      if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+      else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+      else if (event.key === 'Home') nextIndex = 0;
+      else if (event.key === 'End') nextIndex = tabs.length - 1;
+      else if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        const key = button.getAttribute('aria-controls')?.split('-').pop();
+        if (key) switchIssueTab(button, key);
+        return;
+      } else {
+        return;
+      }
+
+      event.preventDefault();
+      tabs[nextIndex].focus();
+      const key = tabs[nextIndex].getAttribute('aria-controls')?.split('-').pop();
+      if (key) switchIssueTab(tabs[nextIndex], key);
+    }
+
 
 
     function toggleCard(header) {

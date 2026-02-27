@@ -300,9 +300,16 @@ If **Skip**: mark structural as skipped. Proceed to style patterns (or Step 5 if
 > **Style-dependent protection — hard stop**: same rule as style-dependent fixes — **never apply before showing the exact proposed diff and receiving an explicit "yes".**
 
 ```
-1. `[file path]` · line [line] · [element tag / selector]
-   Before: [current CSS value]
-   After:  [proposed CSS value]
+Pattern: [pattern name]
+WCAG: [criterion] ([level A/AA]) · Severity: [severity]
+
+Findings:
+  1. `[file path]` · line [line] · [element tag / selector]
+     Before: [current CSS value]
+     After:  [proposed CSS value]
+  2. `[file path]` · line [line] · [element tag / selector]
+     Before: [current CSS value]
+     After:  [proposed CSS value]
 ```
 
 Then ask:

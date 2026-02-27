@@ -195,3 +195,157 @@ An `accesskey` attribute creates single-character keyboard shortcuts that confli
 - **Angular:** Remove `accesskey` from templates. For custom shortcuts, use Angular CDK keyboard events with modifier keys.
 - **Svelte:** Remove `accesskey` from markup. For custom shortcuts, use `on:keydown` with modifier key guards.
 - **Astro:** Remove `accesskey` from .astro template elements and any component files.
+
+---
+
+## Compound Violations
+
+Compound violations occur when two or more axe-core findings share the same code block. Fixing them independently — as if they were unrelated — can delete business logic, create new violations, or produce fixes that are technically correct in isolation but broken in context.
+
+**Rule before applying any fix:** When a finding's flagged element contains event handlers with non-ARIA conditional logic (drag state, position thresholds, gesture flags, numeric offsets, business state variables), those handlers must be preserved. Remove only the invalid ARIA. Never use the presence of bad ARIA as justification for deleting the interaction.
+
+---
+
+### Case 1 — `nested-interactive` + `link-as-button`
+
+**Trigger:** `nested-interactive` fires AND the nested `<a>` calls `e.preventDefault()` and runs a JS action instead of navigating.
+
+**Wrong fix:** Delete `role="option"` / `aria-selected` AND the container `onClick` in one pass.
+
+**Correct fix:**
+1. Remove invalid ARIA from the container (`role`, `aria-selected`, `aria-checked`, etc.)
+2. Replace with the semantically correct attribute — `aria-current`, `aria-pressed`, or a proper `role="listbox"` parent
+3. Preserve all `onClick`/`onKeyDown` handlers that contain non-ARIA conditions
+4. Fix the link separately: no navigation → convert to `<button type="button">`; conditional navigation → keep `<a href>` and remove `e.preventDefault()`
+
+```tsx
+// Before — two violations sharing one block
+<div
+  role="option"                              // invalid: no listbox parent
+  aria-selected={isCurrent}
+  onClick={() => {
+    if (!isDragging && Math.abs(dragOffset) < 5) selectProduct(index); // business logic
+  }}
+>
+  <a href="/product" onClick={(e) => {
+    if (!isCurrent) { e.preventDefault(); selectProduct(index); } // link-as-button
+  }}>...</a>
+</div>
+
+// After — ARIA fixed, business logic intact
+<div
+  aria-current={isCurrent ? "true" : undefined}
+  onClick={() => {
+    if (!isDragging && Math.abs(dragOffset) < 5) selectProduct(index); // preserved
+  }}
+>
+  <button type="button" onClick={() => { if (!isCurrent) selectProduct(index); }}>
+    ...
+  </button>
+</div>
+```
+
+---
+
+### Case 2 — `scrollable-region-focusable` + managed carousel
+
+**Trigger:** `scrollable-region-focusable` fires on a scroll container that is rendered and managed by Swiper, Embla, or Splide.
+
+**Wrong fix:** Add `tabindex="0"` directly to the scroll container element.
+
+**Correct fix:** Enable the library's built-in accessibility configuration. The library owns the focusability of its container — manual `tabindex` will conflict with its internal state management.
+
+```js
+// Swiper
+new Swiper('.swiper', { a11y: { enabled: true } });
+
+// Embla — focusability is controlled via CSS and the library's scroll snap config
+// Add tabindex via the library's options, not inline
+
+// Splide
+new Splide('.splide', { accessibility: true });
+```
+
+---
+
+### Case 3 — `color-contrast` + CSS custom property
+
+**Trigger:** `color-contrast` fires AND the computed failing color originates from a CSS custom property (`var(--color-something)`).
+
+**Wrong fix:** Inline the hardcoded computed value at the point of use.
+
+**Correct fix:** Trace the variable to its definition point (`:root`, theme file, `tailwind.config.js`, or `@theme` block) and update the value there. Inlining a hardcoded color creates a maintenance split — the token continues to be used elsewhere at its old value.
+
+```css
+/* Before — token fails at 3.2:1 */
+:root { --color-muted: #8e8a86; }
+.subtitle { color: var(--color-muted); }
+
+/* Wrong fix — inline only */
+.subtitle { color: #5e5b58; } /* now out of sync with the token */
+
+/* Correct fix — update the token */
+:root { --color-muted: #5e5b58; } /* verify ratio ≥4.5:1 before committing */
+```
+
+---
+
+### Case 4 — `duplicate-id-aria` + dynamic list
+
+**Trigger:** `duplicate-id-aria` fires and the flagged `id` is inside a `.map()`, `v-for`, `*ngFor`, or `{#each}` block — all iterations share the same static ID.
+
+**Wrong fix:** Change the ID of only the one flagged instance.
+
+**Correct fix:** Make all iterations unique by incorporating the index or a unique item key into the ID.
+
+```tsx
+// Before — all items render id="product-desc", all duplicates
+{products.map((p) => (
+  <div id="product-desc" aria-describedby="product-desc">...</div>
+))}
+
+// After — unique per item
+{products.map((p, i) => (
+  <div id={`product-desc-${p.id ?? i}`} aria-describedby={`product-desc-${p.id ?? i}`}>...</div>
+))}
+```
+
+---
+
+### Case 5 — `button-name` + existing tooltip or `title`
+
+**Trigger:** `button-name` fires on an icon-only button AND the button already has a `title` attribute or is wrapped by a tooltip component that provides the accessible name.
+
+**Wrong fix:** Add a redundant `aria-label` that duplicates the tooltip text — this creates double-announcement on screen readers.
+
+**Correct fix:** Convert `title` to `aria-label` (title is unreliable for AT), or confirm the tooltip component exposes `aria-labelledby` pointing to its text. One accessible name source is enough.
+
+```tsx
+// Before — title ignored by most AT, button-name fires
+<button title="Close dialog"><XIcon aria-hidden /></button>
+
+// Wrong fix — double-announces "Close dialog Close dialog"
+<button title="Close dialog" aria-label="Close dialog"><XIcon aria-hidden /></button>
+
+// Correct fix — single source
+<button aria-label="Close dialog"><XIcon aria-hidden /></button>
+```
+
+---
+
+### Case 6 — `aria-required-attr` on a managed component
+
+**Trigger:** `aria-required-attr` fires on a component rendered by Radix, Headless UI, Ariakit, React Aria, shadcn, or another managed library.
+
+**Wrong fix:** Add the missing ARIA attribute directly to the rendered DOM element.
+
+**Correct fix:** The library manages ARIA internally — pass the required value via the component's prop API. Direct DOM ARIA attributes are overwritten by the library at runtime or create conflicts with its internal state.
+
+```tsx
+// Before — direct DOM attribute, overwritten by Radix at runtime
+<Radix.Switch aria-checked={checked} />
+
+// Correct fix — use the library's controlled prop
+<Radix.Switch checked={checked} onCheckedChange={setChecked} />
+// Radix sets aria-checked automatically from the `checked` prop
+```
