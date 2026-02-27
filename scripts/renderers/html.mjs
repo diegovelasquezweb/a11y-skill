@@ -219,6 +219,21 @@ export function buildIssueCard(finding) {
       </div>`
     : "";
 
+  const normalizeBadgeText = (value, { keepAcronyms = false } = {}) =>
+    String(value || "")
+      .split(/[-_]/g)
+      .map((part) => {
+        if (!part) return "";
+        if (keepAcronyms && part.toLowerCase() === "aria") return "ARIA";
+        return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+      })
+      .join(" ");
+
+  const ruleLabel = normalizeBadgeText(finding.ruleId);
+  const categoryLabel = finding.category
+    ? normalizeBadgeText(finding.category, { keepAcronyms: true })
+    : "";
+
   const tabs = [
     { key: "problem", label: "The Problem", content: problemPanelHtml },
     { key: "fix", label: "The Fix", content: fixPanelHtml },
@@ -273,13 +288,9 @@ export function buildIssueCard(finding) {
         <div class="flex flex-wrap items-center gap-2.5 mb-3.5">
           <span class="px-3 py-1 rounded-full text-[11px] font-bold border ${severityBadge} shadow-sm backdrop-blur-sm uppercase tracking-wider">${escapeHtml(finding.severity)}</span>
           ${effortBadge}
-          ${
-            finding.falsePositiveRisk && finding.falsePositiveRisk !== "low"
-              ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 uppercase tracking-widest shadow-sm" title="Automated detection of this rule has known edge cases — verify manually before fixing">⚠ ${finding.falsePositiveRisk === "high" ? "High" : "Med"} FP Risk</span>`
-              : ""
-          }
           <span class="wcag-label px-3 py-1 rounded-full text-[11px] font-bold bg-indigo-50/80 text-indigo-700 border border-indigo-100/80 shadow-sm backdrop-blur-sm">WCAG ${escapeHtml(finding.wcag)}</span>
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">${escapeHtml(finding.ruleId)}</span>
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">${escapeHtml(ruleLabel)}</span>
+          ${categoryLabel ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-semibold bg-violet-50 text-violet-700 border border-violet-200">${escapeHtml(categoryLabel)}</span>` : ""}
         </div>
         <h3 class="text-lg md:text-xl font-extrabold text-slate-900 leading-tight mb-3 group-hover:text-indigo-900 transition-colors searchable-field issue-title">${escapeHtml(finding.title)}</h3>
         <div class="flex flex-wrap gap-x-4 gap-y-2 text-[13px] text-slate-600 font-medium">

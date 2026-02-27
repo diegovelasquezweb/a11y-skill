@@ -5,10 +5,65 @@
 
 ## Table of Contents
 
+- [`placeholder-only-label` — Critical (WCAG 1.3.1 / 4.1.2 · Level A)](#placeholder-only-label--critical-wcag-131--412--level-a)
 - [`focus-outline-suppressed` — Serious (WCAG 2.4.7 · Level AA)](#focus-outline-suppressed--serious-wcag-247--level-aa)
 - [`autoplay-media` — Serious (WCAG 1.4.2 · Level A)](#autoplay-media--serious-wcag-142--level-a)
 - [`orientation-lock` — Moderate (WCAG 1.3.4 · Level AA)](#orientation-lock--moderate-wcag-134--level-aa)
 - [`character-key-shortcut` — Moderate (WCAG 2.1.4 · Level A)](#character-key-shortcut--moderate-wcag-214--level-a)
+
+---
+
+### `placeholder-only-label` — Critical (WCAG 1.3.1 / 4.1.2 · Level A)
+
+An `<input>` uses only `placeholder` text as its visible label. `placeholder` disappears on input, is not reliably announced as the field's accessible name by screen readers, and fails both WCAG 1.3.1 (Info and Relationships) and 4.1.2 (Name, Role, Value). axe-core misses this at runtime when the component renders inside a `<Suspense>` boundary or before client-side hydration completes.
+
+**Search for:** `<input[^/\n>]*\bplaceholder=`
+**In files:** `**/*.tsx, **/*.jsx, **/*.html, **/*.vue, **/*.svelte, **/*.astro`
+
+For each match, inspect the same element block. Flag as a violation only if **none** of the following are present on the element: `aria-label`, `aria-labelledby`, `id` (paired with a `<label for>` elsewhere in the file), `title`.
+
+**Fix:** Add a visually hidden `<label>` (preferred — supports voice control) or `aria-label`.
+```tsx
+// Option 1 — visually hidden label (preferred: voice control users can target by name)
+<label htmlFor="search-input" className="sr-only">Search</label>
+<input
+  id="search-input"
+  type="text"
+  placeholder="Search"
+  ...
+/>
+
+// Option 2 — aria-label (acceptable when no visible label fits the design)
+<input
+  type="text"
+  aria-label="Search"
+  placeholder="Search"
+  ...
+/>
+```
+
+**Fix Strategy:** regex-match-then-context-validate
+**Fallback:** requires_manual_verification
+
+**Preconditions:**
+- Confirm no `aria-label`, `aria-labelledby`, `id`+`<label for>`, or `title` exists on the element before adding a new accessible name.
+- Do not add `aria-label` if a visible `<label>` is already present — that creates a name mismatch.
+
+**Do Not Apply If:**
+- The input is `type="hidden"` — hidden inputs do not need labels.
+- The input is `type="submit"` or `type="button"` — use `value` or `aria-label` on those separately.
+- A valid accessible name already exists via `aria-labelledby` pointing to visible text.
+
+**Post-Fix Checks:**
+- Re-run targeted scan and verify the input is announced with its label in a screen reader.
+- Confirm voice control users can target the field by speaking its label text.
+
+**Framework Notes:**
+- **React:** Use `htmlFor` (not `for`) on `<label>`. Pair with a unique `id` on the input. For search bars inside `<Suspense>`, the accessible name must be on the `<input>` itself — `aria-label` is the safest option since the Suspense fallback renders before hydration.
+- **Vue:** Use standard `for` attribute on `<label>`. In `<Suspense>` slots, same timing caveat applies — prefer `aria-label` on the input.
+- **Angular:** Use `[for]="inputId"` or wrap the input inside the label. For dynamically rendered forms, ensure the label is present in the initial server render.
+- **Svelte:** The compiler emits `a11y-label-has-associated-control` for unlabelled inputs — treat compiler warnings as violations. Use standard `<label for='id'>` or wrap the input.
+- **Astro:** Apply the label in the component island. Cross-island label associations are not supported — both label and input must be in the same component boundary.
 
 ---
 
