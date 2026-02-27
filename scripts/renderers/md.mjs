@@ -122,7 +122,7 @@ function buildRecommendationsSection(recommendations) {
       (r) => `| \`${r.component}\` | ${r.total_issues} | ${r.total_pages} | ${(r.rules || []).map((x) => `\`${x}\``).join(", ")} |`,
     );
     parts.push(
-      `### Fix once, resolve everywhere\n\nThese issues trace back to shared components — a single fix eliminates all instances.\n\n| Component | Issues | Pages | Rules |\n|---|---|---|---|\n${normalizedRows.join("\n")}`,
+      `### Shared Component Opportunities\n\n| Component | Issues | Pages | Rules |\n|---|---|---|---|\n${normalizedRows.join("\n")}`,
     );
   }
 
@@ -131,7 +131,7 @@ function buildRecommendationsSection(recommendations) {
       (r) => `| ${r.wcag_criterion} | ${r.total_issues} | ${r.affected_components.map((c) => `\`${normalizeComponentHint(c)}\``).join(", ")} |`,
     );
     parts.push(
-      `### Systemic patterns\n\nThe same WCAG criterion recurs across multiple components — consider a design system-level fix.\n\n| Criterion | Issues | Affected Components |\n|---|---|---|\n${rows.join("\n")}`,
+      `### Systemic Patterns\n\n| Criterion | Issues | Affected Components |\n|---|---|---|\n${rows.join("\n")}`,
     );
   }
 
@@ -203,7 +203,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
 
     const crossPageBlock =
       f.pagesAffected && f.pagesAffected > 1
-        ? `> ℹ️ **Found on ${f.pagesAffected} pages** — same pattern detected across: ${(f.affectedUrls || []).join(", ")}`
+        ? `**cross_page_scope:** pages=${f.pagesAffected}; urls=${(f.affectedUrls || []).join(", ")}`
         : null;
 
     const manualVerificationFlag =
@@ -212,12 +212,12 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         : null;
 
     const difficultyBlock = f.fixDifficultyNotes
-      ? `**Implementation Notes:** ${f.fixDifficultyNotes}`
+      ? `**implementation_notes:** ${f.fixDifficultyNotes}`
       : null;
 
     const frameworkBlock =
       f.frameworkNotes && typeof f.frameworkNotes === "object"
-        ? `**Framework Guidance:**\n${Object.entries(f.frameworkNotes)
+        ? `**framework_guidance:**\n${Object.entries(f.frameworkNotes)
             .map(
               ([fw, note]) =>
                 `- **${fw.charAt(0).toUpperCase() + fw.slice(1)}:** ${note}`,
@@ -227,7 +227,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
 
     const cmsBlock =
       f.cmsNotes && typeof f.cmsNotes === "object"
-        ? `**CMS Guidance:**\n${Object.entries(f.cmsNotes)
+        ? `**cms_guidance:**\n${Object.entries(f.cmsNotes)
             .map(
               ([cms, note]) =>
                 `- **${cms.charAt(0).toUpperCase() + cms.slice(1)}:** ${note}`,
@@ -264,13 +264,13 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       f.guardrails && typeof f.guardrails === "object"
         ? [
             Array.isArray(f.guardrails.must) && f.guardrails.must.length > 0
-              ? `**Preconditions:**\n${f.guardrails.must.map((g) => `- ${g}`).join("\n")}`
+              ? `**preconditions:**\n${f.guardrails.must.map((g) => `- ${g}`).join("\n")}`
               : null,
             Array.isArray(f.guardrails.must_not) && f.guardrails.must_not.length > 0
-              ? `**Do Not Apply If:**\n${f.guardrails.must_not.map((g) => `- ${g}`).join("\n")}`
+              ? `**do_not_apply_if:**\n${f.guardrails.must_not.map((g) => `- ${g}`).join("\n")}`
               : null,
             Array.isArray(f.guardrails.verify) && f.guardrails.verify.length > 0
-              ? `**Post-Fix Checks:**\n${f.guardrails.verify.map((g) => `- ${g}`).join("\n")}`
+              ? `**post_fix_checks:**\n${f.guardrails.verify.map((g) => `- ${g}`).join("\n")}`
               : null,
           ].filter(Boolean).join("\n\n")
         : null;
@@ -363,9 +363,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     });
     return `## Fixes by Component
 
-> Fix all issues in the same component before moving to the next — reduces file switching.
-> \`source-not-resolved\` means the selector hint looks like utility CSS; use \`Search in\` + evidence blocks to locate source.
-
 | Component | Issues | Severities | Rules |
 |---|---|---|---|
 ${rows.join("\n")}
@@ -388,8 +385,6 @@ ${rows.join("\n")}
 ## Agent Operating Procedures (Guardrails)
 
 ${buildGuardrails(framework)}
-
-**Fix strategy:** surgical-minimal-change. Apply the smallest edit that resolves the violation. If evidence is ambiguous, set \`requires_manual_verification\` and do not guess.
 
 ---
 
