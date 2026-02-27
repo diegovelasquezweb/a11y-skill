@@ -15,7 +15,7 @@ This skill transforms accessibility audits into actionable fix roadmaps. It runs
 
 ## Installation
 
-Give your AI agent the following prompt:
+Give your AI agent the following prompt, or use your agent's native skill installer:
 
 ```bash
 "Install skill https://github.com/diegovelasquezweb/a11y"
