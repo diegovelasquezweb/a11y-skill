@@ -40,7 +40,7 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 
 | Asset                       | Role          | Key Data                                                                             |
 | :-------------------------- | :------------ | :----------------------------------------------------------------------------------- |
-| **`intelligence.json`**     | Fix Database  | Resolution code patterns, framework-specific fix notes, and related rules.           |
+| **`intelligence.json`**     | Fix Database  | Category, resolution code, framework/CMS notes, guardrails, managed-library flags, and related rules for all 101 axe-core rules. |
 | **`wcag-reference.json`**   | Rule Mapping  | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags.      |
 | **`manual-checks.json`**    | Verification  | 41 manual audit criteria for WCAG 2.2 areas that automation cannot detect.           |
 | **`compliance-config.json`**| Risk Engine   | Severity scoring, grade thresholds, effort multipliers, and jurisdictional data.     |
@@ -57,7 +57,10 @@ These Markdown guides define the **Operational Standards** that the AI Agent fol
 | :------------------------ | :------------------------------------------------------------------------------- |
 | **`cli-reference.md`**    | Targeted Audit command guide (flags, viewports, theme emulation).                |
 | **`report-standards.md`** | Internal standards for finding fields, deliverable order, and file storage.      |
-| **`source-patterns.md`**  | Framework-specific search patterns (Next.js, Shopify Liquid, Vue, etc.).         |
+| **`source-patterns.md`**  | Framework-specific source file patterns (Next.js, Shopify Liquid, Drupal, etc.) used to locate files during fixing. |
+| **`code-patterns.md`**    | Four regex patterns for source-only issues axe-core cannot detect at runtime (focus suppression, autoplay, orientation lock, accesskey). |
+| **`quality-gates.md`**    | Pass/fail criteria for each pipeline phase — used to verify gate transitions.    |
+| **`out-of-scope.md`**     | WCAG 2.2 AA criteria that require human testing; drives the manual checklist export. |
 | **`troubleshooting.md`**  | Self-correction guide for network timeouts, auth errors, and toolchain failures. |
 
 ---

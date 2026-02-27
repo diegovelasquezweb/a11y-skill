@@ -20,14 +20,16 @@ The skill ships with a curated knowledge base that map common accessibility viol
 
 For every rule (e.g., `aria-dialog-name`), the engine provides a roadmap for the **AI Agent** to execute the fix:
 
+- **`category`**: The axe-core issue category (`aria`, `forms`, `keyboard`, `structure`, `semantics`, `name-role-value`, `tables`, `color`, `text-alternatives`, `language`, `parsing`, `sensory`). Used by the agent to group findings when the user selects "Fix by category" in Step 3.
 - **`fix.description`**: The primary remediation strategy. The agent should use this to understand the high-level goal before looking at the code.
 - **`fix.code`**: A surgical code snippet. The agent should treat this as a structural template for the patch, adapting it to the specific variable names and context of the source file.
-- **`framework_notes`**: Platform-specific logic for **React**, **Vue**, **Angular**, **Svelte**, and **Astro**. The agent must consult the corresponding key for the framework detected in the codebase to avoid anti-patterns (e.g., using `htmlFor` instead of `for` in React).
-- **`managed_by_libraries`**: A list of component libraries (e.g., Radix, Shadcn) that handle this rule automatically. If the agent detects these libraries in `package.json` or the component imports, it should verify if the library's built-in accessibility is being bypassed before applying a manual fix.
-- **`cms_notes`**: Environment-specific constraints for **Shopify**, **WordPress**, and **Drupal**. The agent must follow these if the project structure matches one of these platforms (e.g., Liquid-specific alt-text filters in Shopify).
+- **`framework_notes`**: Platform-specific logic for **React**, **Vue**, **Angular**, **Svelte**, and **Astro**. The analyzer filters this to the detected framework before writing it to the remediation guide — the agent only ever sees the one relevant note.
+- **`managed_by_libraries`**: A list of UI libraries (e.g., `radix`, `chakra`, `headless-ui`) that manage this ARIA concern automatically. The scanner detects which libraries the project uses at runtime; the analyzer cross-references that list against `managed_by_libraries`. If there is a match, a **Managed Component Warning** appears in the remediation guide — the agent does not perform this detection manually.
+- **`guardrails_overrides`**: Rule-specific MUST / MUST_NOT / VERIFY instructions that override or extend the global guardrails in `stack-config.json`. Present only for rules with a meaningful false-positive risk or a specific constraint the agent must enforce (e.g., "do not remove `outline: none` if a `:focus-visible` replacement already exists").
+- **`cms_notes`**: Environment-specific constraints for **Shopify**, **WordPress**, and **Drupal**. The analyzer filters this to the detected CMS before writing it to the remediation guide — the agent only sees the note for the active platform.
 - **`false_positive_risk`**: Confidence level (`low` / `medium` / `high`). If `high`, the agent must prioritize manual verification and look for existing patterns that might satisfy the rule in a non-standard way.
 - **`fix_difficulty_notes`**: Edge cases and caveats. The agent must read this to avoid "blind fixing" (e.g., knowing that a missing label might be an intentional design trade-off requiring a different ARIA approach).
-- **`related_rules`**: Linked rule IDs. If the agent is fixing a rule, it should proactively check if related rules are also failing to ensure the affected component is fully remediated in one pass.
+- **`related_rules`**: Linked rule IDs with reciprocal references. If the agent is fixing a rule, it should proactively check if related rules are also failing to ensure the affected component is fully remediated in one pass. All relationships are bidirectional — if A links to B, B links back to A.
 
 ## Surgical Patch Generation
 
