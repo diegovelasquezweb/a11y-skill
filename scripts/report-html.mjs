@@ -312,7 +312,7 @@ function buildHtml(args, findings, metadata = {}) {
                 <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Minor</span>
               </div>
               <div class="text-4xl font-black text-slate-900">${totals.Minor}</div>
-              <p class="text-[10px] text-slate-400 font-medium mt-1 leading-tight">Best practices</p>
+              <p class="text-[10px] text-slate-400 font-medium mt-1 leading-tight">Minor violations</p>
             </div>
           </div>
         </div>
@@ -673,7 +673,9 @@ function main() {
     throw new Error(`Input findings file not found or invalid: ${args.input}`);
   }
 
-  const findings = normalizeFindings(inputPayload);
+  const findings = normalizeFindings(inputPayload).filter(
+    (f) => f.wcagClassification !== "Best Practice" && f.wcagClassification !== "AAA",
+  );
 
   const screenshotsDir = getInternalPath("screenshots");
   for (const finding of findings) {

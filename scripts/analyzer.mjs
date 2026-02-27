@@ -484,6 +484,8 @@ function computeOutOfScope(routes) {
  * @returns {'Best Practice' | 'AAA' | null} null = standard AA/A finding.
  */
 function classifyWcag(tags, wcagCriterionId) {
+  const isWcagAorAA = tags.some((t) => /^wcag\d+(a|aa)$/.test(t));
+  if (isWcagAorAA) return null;
   if (tags.includes("best-practice")) return "Best Practice";
   if (tags.some((t) => /aaa/i.test(t))) return "AAA";
   if (!wcagCriterionId) return "Best Practice";
