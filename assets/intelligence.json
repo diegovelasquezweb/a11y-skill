@@ -13,7 +13,13 @@
         "svelte": "In Svelte, use accesskey as a standard HTML attribute: <button accesskey='s'>. Svelte does not transform or validate accesskeys — maintain a centralized key mapping to prevent duplicates across components.",
         "astro": "In .astro files, use the standard HTML accesskey attribute. Since Astro assembles pages from multiple components, track accesskey assignments in a shared constants file to prevent cross-component duplicates."
       },
-      "fix_difficulty_notes": "The simplest fix is to remove duplicate accesskey values and assign unique keys. However, accesskey has fundamental usability problems: key combinations vary by OS and browser (Alt+key on Windows, Ctrl+Opt+key on macOS), and they frequently conflict with assistive technology shortcuts. Many accessibility experts recommend avoiding accesskey altogether in favor of skip links and landmark navigation."
+      "fix_difficulty_notes": "The simplest fix is to remove duplicate accesskey values and assign unique keys. However, accesskey has fundamental usability problems: key combinations vary by OS and browser (Alt+key on Windows, Ctrl+Opt+key on macOS), and they frequently conflict with assistive technology shortcuts. Many accessibility experts recommend avoiding accesskey altogether in favor of skip links and landmark navigation.",
+      "related_rules": [
+        {
+          "id": "bypass",
+          "reason": "Skip links and landmark navigation are the recommended keyboard shortcut alternatives to accesskey — evaluate both together."
+        }
+      ]
     },
     "area-alt": {
       "fix": {
@@ -174,6 +180,12 @@
         "astro": "In .astro files, braille ARIA attributes are passed through to static HTML. This is a rare rule — it only applies to elements that specifically target braille display users."
       },
       "fix_difficulty_notes": "This rule is rarely triggered because aria-braillelabel and aria-brailleroledescription are specialized attributes used almost exclusively by applications targeting braille display users. The fix is simple: ensure a non-braille accessible name or role description exists alongside the braille variant. If you did not intentionally add braille attributes, they may have been introduced by a third-party library — check your dependencies.",
+      "related_rules": [
+        {
+          "id": "aria-roledescription",
+          "reason": "aria-brailleroledescription must be paired with aria-roledescription — fix both together to ensure the non-braille equivalent is present."
+        }
+      ],
       "guardrails_overrides": {
         "must": [
           "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
@@ -187,6 +199,19 @@
       }
     },
     "aria-command-name": {
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Give every element with role='button', role='link', or role='menuitem' an accessible name via visible text content, aria-label, or aria-labelledby.",
         "code": "<!-- ARIA button with visible text -->\n<div role=\"button\" tabindex=\"0\">Save changes</div>\n\n<!-- ARIA link with aria-label (icon-only) -->\n<span role=\"link\" tabindex=\"0\" aria-label=\"View documentation\">\n  <svg aria-hidden=\"true\">...</svg>\n</span>\n\n<!-- ARIA menuitem with text content -->\n<li role=\"menuitem\">Copy to clipboard</li>"
@@ -489,6 +514,15 @@
       }
     },
     "aria-progressbar-name": {
+      "managed_by_libraries": [
+        "radix",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "react-aria",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Add an accessible name to every element with role='progressbar' via aria-label, aria-labelledby, or the title attribute. Without a name, screen readers announce the progress value but not what process it represents.",
         "code": "<!-- Using aria-label -->\n<div role=\"progressbar\" aria-valuenow=\"60\" aria-valuemin=\"0\" aria-valuemax=\"100\"\n  aria-label=\"File upload progress\">\n  60%\n</div>\n\n<!-- Using aria-labelledby -->\n<span id=\"download-label\">Downloading update</span>\n<progress id=\"download\" max=\"100\" value=\"30\" aria-labelledby=\"download-label\">\n  30%\n</progress>"
@@ -766,6 +800,16 @@
         "astro": "In .astro files, aria-roledescription renders to static HTML. Ensure it is paired with a valid role. This is a specialized attribute — most elements do not need it."
       },
       "fix_difficulty_notes": "aria-roledescription customizes the role announcement for screen readers (e.g., 'slide' instead of 'group'). It only works on elements that have a role in the accessibility tree. Elements with no role or role='generic' (implicit for <div>/<span>) are ignored by AT, so the roledescription has no effect. The fix: add an appropriate semantic role to the element before applying aria-roledescription.",
+      "related_rules": [
+        {
+          "id": "aria-roles",
+          "reason": "The host element needs a valid ARIA role before aria-roledescription has any effect — fix the role first."
+        },
+        {
+          "id": "aria-braille-equivalent",
+          "reason": "aria-brailleroledescription must pair with aria-roledescription — fix both when either is present."
+        }
+      ],
       "guardrails_overrides": {
         "must": [
           "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
@@ -844,6 +888,12 @@
         "astro": "In .astro files, role='text' renders to static HTML. This role is used to prevent screen readers from splitting text content at semantic boundaries — use sparingly."
       },
       "fix_difficulty_notes": "role='text' is a convenience for preventing AT from splitting visually contiguous text into separate announcements (e.g., prices with styled currency symbols). It is not a WCAG requirement — if removing it causes no usability regression, removal is the safest fix. If role='text' is needed, audit all descendants to ensure none are focusable (no links, buttons, inputs, or elements with tabindex >= 0).",
+      "related_rules": [
+        {
+          "id": "nested-interactive",
+          "reason": "role='text' forbids focusable descendants — check for nested-interactive violations in the same element."
+        }
+      ],
       "guardrails_overrides": {
         "must": [
           "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
@@ -913,6 +963,19 @@
       }
     },
     "aria-tooltip-name": {
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "floating-ui",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Give every element with role='tooltip' an accessible name via text content, aria-label, or aria-labelledby. Without a name, the tooltip is invisible to screen reader users.",
         "code": "<!-- Tooltip with text content (accessible name from content) -->\n<span role=\"tooltip\" id=\"password-hint\">\n  Password must be at least 8 characters\n</span>\n<input type=\"password\" aria-describedby=\"password-hint\">\n\n<!-- Tooltip with aria-label (for icon-based tooltips) -->\n<div role=\"tooltip\" aria-label=\"Copy to clipboard shortcut: Ctrl+C\">\n  <kbd>Ctrl</kbd>+<kbd>C</kbd>\n</div>"
@@ -926,6 +989,12 @@
         "astro": "In .astro files, role='tooltip' elements need text content or aria-label in the static HTML. For dynamic tooltips inside framework islands, the island framework's tooltip component rules apply."
       },
       "fix_difficulty_notes": "Tooltips should contain plain text that describes or supplements the trigger element. Complex interactive content inside a tooltip is an anti-pattern — use a dialog or popover instead. The tooltip's accessible name comes from its text content; aria-label is only needed when the tooltip contains non-text content (icons, formatted markup).",
+      "related_rules": [
+        {
+          "id": "aria-command-name",
+          "reason": "The trigger element for a tooltip often also needs an accessible name — fix both the tooltip and its trigger together."
+        }
+      ],
       "guardrails_overrides": {
         "must": [
           "If visible text exists, preserve label-in-name: accessible name must include the visible label.",
@@ -1141,6 +1210,15 @@
         "drupal": "Drupal's Form API supports #attributes['autocomplete'] on form elements. For login forms, Drupal core sets autocomplete='username' and autocomplete='current-password'. Custom forms built with Form API should explicitly set the autocomplete token via #attributes."
       },
       "fix_difficulty_notes": "Acceptable autocomplete tokens are strictly defined by the HTML Living Standard. Custom or invented values (e.g., autocomplete='my-app-email') are invalid even if they help password managers. Use only the tokens listed at https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofilling-form-controls:-the-autocomplete-attribute. Verify you are applying the token to the right field type — autocomplete='email' on a phone number field is invalid.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not use custom or invented autocomplete values — only use the tokens defined in the HTML Living Standard.",
+          "Do not apply autocomplete='off' as a fix — it disables autofill and harms usability for users who rely on password managers."
+        ],
+        "verify": [
+          "Confirm the autocomplete token matches the field's expected input type (e.g., 'email' on an email field, 'tel' on a phone field)."
+        ]
+      },
       "related_rules": [
         {
           "id": "label",
@@ -1161,7 +1239,31 @@
         "svelte": "In Svelte, style directives (style:letter-spacing='0.1em') render as inline styles. Move spacing properties to the component's <style> block or CSS classes instead. Scoped styles are overridable by user stylesheets.",
         "astro": "In .astro files, inline style attributes render to static HTML. Move text spacing properties (letter-spacing, word-spacing, line-height) to the component's <style> block or external CSS."
       },
-      "fix_difficulty_notes": "Inline styles with !important on spacing properties are the primary trigger. Inline styles without !important are technically overridable but still flagged by axe as a risk. The safest fix: move all text spacing (letter-spacing, word-spacing, line-height) to stylesheet classes. CMS-generated content and WYSIWYG editors are common sources of inline spacing styles — sanitize the output to remove inline spacing declarations."
+      "fix_difficulty_notes": "Inline styles with !important on spacing properties are the primary trigger. Inline styles without !important are technically overridable but still flagged by axe as a risk. The safest fix: move all text spacing (letter-spacing, word-spacing, line-height) to stylesheet classes. CMS-generated content and WYSIWYG editors are common sources of inline spacing styles — sanitize the output to remove inline spacing declarations.",
+      "cms_notes": {
+        "shopify": "Shopify's WYSIWYG rich text editor (theme editor and Metaobject editor) can inject inline letter-spacing and line-height via the Shopify HTML sanitizer. In Liquid, sanitize rich text output using the strip_html filter if spacing styles are injected. For sections with typed content, prevent inline styles by restricting the rich text schema to text blocks only.",
+        "wordpress": "WordPress's Classic Editor (TinyMCE) and Gutenberg's Typography panel both inject inline letter-spacing, word-spacing, and line-height via style attributes. In Gutenberg, these are set per-block. To fix at scale, use the remove_filter hook to strip inline style attributes from wp_kses_post output, or configure Gutenberg's theme.json to disable per-block typography controls.",
+        "drupal": "Drupal's CKEditor (4 and 5) can inject inline style attributes when authors use the Format or Style dropdowns. Restrict allowed HTML attributes in the text format's 'Limit allowed HTML tags' filter to exclude the style attribute. Use the 'Styles' plugin configuration to apply classes instead of inline styles."
+      },
+      "related_rules": [
+        {
+          "id": "css-orientation-lock",
+          "reason": "Both rules address WCAG 1.3.x/1.4.x adaptability — user ability to override visual presentation. Audit display adaptation constraints together."
+        },
+        {
+          "id": "meta-viewport-large",
+          "reason": "Restricting zoom (meta-viewport-large) and blocking text spacing overrides (avoid-inline-spacing) are both WCAG 1.4.x adaptability failures — fix as a group."
+        }
+      ],
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not strip ALL inline styles from the element — only remove the specific text spacing properties (letter-spacing, word-spacing, line-height). Other inline styles (color, background) are unrelated to this rule.",
+          "Do not move spacing into a !important declaration in CSS — user stylesheets must be able to override them."
+        ],
+        "verify": [
+          "Confirm the moved spacing properties in the stylesheet are not marked !important and can be overridden by a user stylesheet."
+        ]
+      }
     },
     "blink": {
       "fix": {
@@ -1196,6 +1298,19 @@
       }
     },
     "button-name": {
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Give every button an accessible name via visible text or aria-label.",
         "code": "<!-- Via visible text: -->\n<button>Submit form</button>\n<!-- Icon button via aria-label: -->\n<button aria-label=\"Close dialog\"><svg aria-hidden=\"true\">...</svg></button>"
@@ -1336,7 +1451,26 @@
         "svelte": "In SvelteKit, avoid CSS that locks orientation via @media (orientation: portrait) { display: none; } or similar. Content must be accessible in both orientations unless a specific orientation is essential (e.g., a piano app).",
         "astro": "In .astro files, CSS orientation locks are baked into the static build. Ensure no CSS rules hide content based on orientation unless the orientation is essential for the content."
       },
-      "fix_difficulty_notes": "Orientation locking can come from three sources: (1) CSS @media (orientation) rules with transforms, (2) the web app manifest 'orientation' field, (3) JavaScript Screen Orientation API calls. The WCAG exception applies when a specific orientation is 'essential' — e.g., a piano keyboard app, a bank check scanning interface. Most web content does not qualify for this exception. axe detects CSS-based locking; manifest and JavaScript-based locking require manual checks."
+      "fix_difficulty_notes": "Orientation locking can come from three sources: (1) CSS @media (orientation) rules with transforms, (2) the web app manifest 'orientation' field, (3) JavaScript Screen Orientation API calls. The WCAG exception applies when a specific orientation is 'essential' — e.g., a piano keyboard app, a bank check scanning interface. Most web content does not qualify for this exception. axe detects CSS-based locking; manifest and JavaScript-based locking require manual checks.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not remove orientation-related CSS without verifying the content does not have an 'essential orientation' use case (e.g., piano keyboard, check scanner, video fullscreen interface).",
+          "Do not assume axe has detected all orientation locking — also check the web app manifest 'orientation' field and any Screen Orientation API calls manually."
+        ],
+        "verify": [
+          "Confirm the layout is fully usable in both portrait and landscape orientations after removing the orientation lock."
+        ]
+      },
+      "related_rules": [
+        {
+          "id": "meta-viewport",
+          "reason": "Both rules restrict user control of the display — orientation locking and zoom blocking are the same class of WCAG 1.3.4/1.4.4 failure. Fix together."
+        },
+        {
+          "id": "avoid-inline-spacing",
+          "reason": "Both rules address WCAG adaptability requirements — users must be able to control their viewing environment. Audit together."
+        }
+      ]
     },
     "definition-list": {
       "fix": {
@@ -1403,6 +1537,12 @@
         "drupal": "Drupal sets the page title via the title_resolver service and renders it in html.html.twig: <title>{{ head_title|safe_join(' | ') }}</title>. Custom modules can alter titles via hook_preprocess_html(). Verify that Views pages set proper titles."
       },
       "fix_difficulty_notes": "In SPAs, the <title> is often set only on initial load. After client-side route changes, the title must be updated programmatically — the browser tab title stays stale otherwise. Each page title should follow the pattern 'Page Name — Site Name' so users understand context without reading page content.",
+      "related_rules": [
+        {
+          "id": "page-has-heading-one",
+          "reason": "The page title and h1 should describe the same page — fix both together to ensure consistent context for screen reader users."
+        }
+      ],
       "guardrails_overrides": {
         "must": [
           "If visible text exists, preserve label-in-name: accessible name must include the visible label."
@@ -1434,6 +1574,15 @@
         "drupal": "Drupal's Html::getUniqueId() generates unique IDs per element. In Twig templates, use {{ attributes.setAttribute('id', 'block-' ~ block.id) }} instead of hardcoding IDs. Views that render the same twig template multiple times are a common source of duplicates."
       },
       "fix_difficulty_notes": "In component-based frameworks, duplicate IDs typically occur when the same component renders multiple times on the same page. Use framework-native ID generation: useId() in React 18+, a unique :id binding per instance in Vue, or a service-based ID generator in Angular.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not fix duplicate IDs by appending '-1', '-2', '-3' suffixes manually — this approach will fail when a third instance renders. Use a programmatic ID generator instead.",
+          "Do not update the ID without also updating all elements that reference it (aria-labelledby, aria-describedby, aria-controls, href='#id', htmlFor)."
+        ],
+        "verify": [
+          "Confirm all referencing attributes (aria-labelledby, aria-controls, htmlFor, href='#') point to the updated unique ID after the fix."
+        ]
+      },
       "related_rules": [
         {
           "id": "duplicate-id-aria",
@@ -1442,6 +1591,19 @@
       ]
     },
     "duplicate-id-aria": {
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "chakra",
+        "mantine",
+        "material-ui",
+        "polaris",
+        "react-aria",
+        "ariakit",
+        "shadcn",
+        "primevue",
+        "vuetify"
+      ],
       "fix": {
         "description": "Ensure all IDs referenced by ARIA attributes (aria-labelledby, aria-describedby, aria-controls, aria-owns) are unique. Duplicate IDs cause screen readers to reference the wrong element.",
         "code": "<!-- Before: duplicate IDs break aria-labelledby -->\n<span id=\"label\">Username</span>\n<input aria-labelledby=\"label\" type=\"text\">\n<!-- ...later on same page... -->\n<span id=\"label\">Email</span>  <!-- duplicate! -->\n\n<!-- After: unique IDs -->\n<span id=\"username-label\">Username</span>\n<input aria-labelledby=\"username-label\" type=\"text\">\n<span id=\"email-label\">Email</span>\n<input aria-labelledby=\"email-label\" type=\"email\">"
@@ -1542,6 +1704,16 @@
         "astro": "In .astro files, tabindex values render to static HTML. Avoid tabindex > 0 — it creates unpredictable focus order. For dynamic focus management, use framework islands with JavaScript focus control."
       },
       "fix_difficulty_notes": "Adding tabindex='0' to a non-interactive element makes it focusable but does not make it operable — keyboard users cannot activate it with Enter or Space unless explicit keydown handlers are added. The simplest fix is to use a native interactive element (<button>, <a>, <input>). If a custom element is required, add the correct ARIA role plus full keyboard event handling.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add tabindex='0' to a non-interactive element without also adding the correct ARIA role and full keyboard event handlers (Enter/Space activation).",
+          "Do not remove a tabindex to fix focus order without verifying the element is still reachable by keyboard."
+        ],
+        "verify": [
+          "Confirm the element can be activated by keyboard (Enter or Space) after any tabindex change.",
+          "Confirm the element's role is correctly exposed in the accessibility tree."
+        ]
+      },
       "related_rules": [
         {
           "id": "tabindex",
@@ -1612,6 +1784,16 @@
         "astro": "In .astro files, <iframe> elements render to static HTML. Ensure iframes with focusable content have a title attribute. For iframes embedding external content, the external page's accessibility is the source's responsibility."
       },
       "fix_difficulty_notes": "tabindex='-1' on an iframe removes it from the sequential tab order but also prevents keyboard users from tabbing into the iframe's content. If the iframe contains any interactive content (forms, links, buttons), removing tabindex='-1' is the correct fix. If the iframe is purely decorative or contains no interactive content, tabindex='-1' combined with aria-hidden='true' is acceptable.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not remove tabindex='-1' from an iframe that is decorative (animation, background) with aria-hidden='true' — this combination is intentional and correct.",
+          "Do not remove tabindex='-1' from a cross-origin iframe containing only non-interactive content (e.g., an embedded map with no form fields or links)."
+        ],
+        "verify": [
+          "Confirm the iframe actually contains interactive content (forms, links, buttons) before removing tabindex='-1'.",
+          "Confirm aria-hidden is not also set to 'true' on the iframe — if it is, both tabindex='-1' and aria-hidden='true' may be intentional."
+        ]
+      },
       "related_rules": [
         {
           "id": "frame-title",
@@ -1633,6 +1815,15 @@
         "astro": "In .astro files, <iframe> elements render to static HTML. Axe-core cannot evaluate cross-origin iframe content — verify accessibility of embedded content separately."
       },
       "fix_difficulty_notes": "This rule is informational — it means axe-core could not analyze content inside an iframe. Same-origin iframes can be tested by enabling the iframes option in axe configuration. Cross-origin iframes (third-party widgets, payment forms) cannot be injected with axe-core — they must be tested separately by the content provider. Do not treat this as an accessibility violation; treat it as a gap in test coverage.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not mark this finding as a violation requiring a code fix — it is a test coverage gap, not an accessibility failure.",
+          "Do not modify the iframe based on this finding alone; address frame-title violations separately."
+        ],
+        "verify": [
+          "Confirm whether the iframe is same-origin (can be tested with axe iframes option) or cross-origin (requires separate testing by the provider)."
+        ]
+      },
       "related_rules": [
         {
           "id": "frame-title",
@@ -1654,6 +1845,11 @@
         "astro": "In .astro files, <iframe> elements must include a title attribute in the static HTML. This describes the iframe's purpose for screen reader users."
       },
       "fix_difficulty_notes": "Hidden or off-screen iframes used for third-party scripts (analytics, chat SDKs, A/B testing) should use title='' (empty) to suppress screen reader announcement — not a descriptive title. Only visible, interactive iframes that users would encounter need a meaningful title.",
+      "cms_notes": {
+        "shopify": "Shopify apps inject iframes for reviews (Judge.me, Yotpo), live chat (Tidio, Gorgias), and payment UIs. These are typically third-party and cannot be modified directly — contact the app provider. For theme-owned iframes (e.g., YouTube embeds in sections), add title='{{ section.settings.video_description }}' using the section schema.",
+        "wordpress": "WordPress's embed block renders iframes for YouTube, Vimeo, and Google Maps via oEmbed. WordPress core adds the video title as the iframe title for YouTube/Vimeo embeds since 5.6. For Classic Editor embeds and older plugins, the title may be missing — update the embed shortcode or use the block editor.",
+        "drupal": "Drupal's Media module and oEmbed integration renders iframes for remote video. The oEmbed title is used as the iframe title by default. For custom iframe renders in Twig, add title='{{ media.name.value }}' via the template."
+      },
       "related_rules": [
         {
           "id": "frame-focusable-content",
@@ -1772,7 +1968,26 @@
         "svelte": "In Svelte, {#if condition} removes content from the DOM entirely — axe cannot test it. Test each UI state separately: run axe after opening modals, expanding accordions, and triggering dropdowns. Use {#if} for conditional rendering, not CSS display:none.",
         "astro": "In .astro files, content hidden via CSS (display:none) is in the static HTML but excluded from axe testing. For dynamic visibility inside framework islands, test each state separately."
       },
-      "fix_difficulty_notes": "This rule is informational, not a violation. It alerts you that some page content was hidden during the scan and therefore not tested. The fix is not to change the hidden content itself, but to ensure your test suite evaluates every visibility state. Run accessibility scans on all interactive states: modals open, accordions expanded, menus visible, toast notifications active."
+      "fix_difficulty_notes": "This rule is informational, not a violation. It alerts you that some page content was hidden during the scan and therefore not tested. The fix is not to change the hidden content itself, but to ensure your test suite evaluates every visibility state. Run accessibility scans on all interactive states: modals open, accordions expanded, menus visible, toast notifications active.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not treat this finding as a code defect requiring a fix — it is a test coverage indicator.",
+          "Do not make the hidden content visible as a workaround; address actual violations found when re-testing in the visible state."
+        ],
+        "verify": [
+          "Confirm all interactive states (modals, drawers, accordions, tooltips) have been tested separately in visible state."
+        ]
+      },
+      "related_rules": [
+        {
+          "id": "aria-hidden-focus",
+          "reason": "Hidden content that becomes visible may contain focusable elements inside aria-hidden containers — test each state."
+        },
+        {
+          "id": "aria-hidden-body",
+          "reason": "If aria-hidden='true' is applied to the body or root during a hidden state, removing it on reveal must be verified."
+        }
+      ]
     },
     "html-has-lang": {
       "fix": {
@@ -1876,6 +2091,12 @@
         "astro": "In .astro files, links with identical text must go to the same destination. Use descriptive, unique link text rather than generic 'Read more' or 'Click here' across different sections."
       },
       "fix_difficulty_notes": "axe uses heuristics to detect this — it flags links with identical text pointing to different URLs. False positives are common when 'Read more' links in a card grid are accompanied by a heading that provides context. WCAG 2.4.4 allows disambiguation through programmatic context (e.g., an aria-labelledby relationship between a card heading and its link). Check whether this is already satisfied before fixing. The simplest fix that avoids template changes is aria-label.",
+      "related_rules": [
+        {
+          "id": "link-name",
+          "reason": "Both rules require descriptive link text — fixing generic link names (link-name) also resolves identical-links-same-purpose violations."
+        }
+      ],
       "guardrails_overrides": {
         "must": [
           "If a link uses target=\"_blank\", ensure rel=\"noopener noreferrer\" (or stricter equivalent) is present."
@@ -1995,6 +2216,11 @@
         "astro": "In .astro files, <input type='button'> and <input type='submit'> must have a value attribute. This renders to static HTML — ensure the value is descriptive."
       },
       "fix_difficulty_notes": "For <input type='submit'> and <input type='reset'>, browsers provide default labels ('Submit' and 'Reset') when value is omitted — axe may or may not flag these depending on context. Prefer explicit value attributes over browser defaults, as default labels are not consistently translated across locales. Prefer <button type='submit'> over <input type='submit'> for new code — it is more flexible.",
+      "cms_notes": {
+        "shopify": "Dawn theme's add-to-cart form uses <button type='submit'> not <input type='submit'>. If you see this violation it is likely in a legacy custom section or a third-party app's injected form. In theme forms, add value='{{ 'products.product.add_to_cart' | t }}' to any remaining <input type='submit'> elements.",
+        "wordpress": "Contact Form 7 and older WordPress form plugins historically used <input type='submit'>. CF7 now uses <button> by default. Classic plugin-generated forms may still use <input type='submit' value=''> with value set dynamically via PHP filters — hook into wpcf7_form_tag_data_normalize to set a valid value.",
+        "drupal": "Drupal's Form API renders submit buttons as <input type='submit'> by default with value set from #value. The #value key is required — never set #value to empty. Use 'Save' or a descriptive translatable string: '#value' => $this->t('Save configuration')."
+      },
       "related_rules": [
         {
           "id": "button-name",
@@ -2200,6 +2426,15 @@
         "astro": "In .astro layouts, ensure <header> (role='banner') is a direct child of <body>, not nested inside <main> or <section>. Astro component nesting can accidentally push <header> inside other landmarks."
       },
       "fix_difficulty_notes": "A <header> inside <article> or <section> does not create a banner landmark — it is scoped to that sectioning element. The violation occurs when a <header> intended as the site banner is nested inside <main> or another landmark. Move it to be a direct child of <body>. In SPA frameworks, ensure the layout component places <header> before <main>, not inside it.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add role='banner' to a <header> nested inside <main> as a shortcut — move the element to the correct position in the DOM.",
+          "Do not add a second <header role='banner'> at the body level if one already exists — this creates a duplicate-banner violation."
+        ],
+        "verify": [
+          "Confirm the <header> is a direct child of <body> (or is the only banner landmark at body level) in the rendered DOM."
+        ]
+      },
       "related_rules": [
         {
           "id": "landmark-no-duplicate-banner",
@@ -2233,6 +2468,15 @@
         "astro": "In .astro layouts, <aside> should be a direct child of <body> for top-level complementary content. If related to a specific section, it can be inside <main> with an aria-label."
       },
       "fix_difficulty_notes": "The HTML spec allows <aside> inside <article> or <section>, where it is scoped to that sectioning element and does not create a top-level complementary landmark. The violation occurs when an <aside> intended as a page-level sidebar is nested inside <main>. Move it to be a sibling of <main>. Common in blog layouts where the sidebar is mistakenly placed inside the main content area.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add role='complementary' to an <aside> nested inside <main> as a workaround — move the element to be a sibling of <main>.",
+          "Do not flag an <aside> inside <article> or <section> — that placement is intentional and does not create a landmark."
+        ],
+        "verify": [
+          "Confirm the <aside> intended as a page sidebar is a direct child of <body> or a sibling of <main> in the rendered DOM."
+        ]
+      },
       "related_rules": [
         {
           "id": "landmark-banner-is-top-level",
@@ -2258,6 +2502,15 @@
         "astro": "In .astro layouts, <footer> (role='contentinfo') must be a direct child of <body>. Astro component composition can accidentally nest <footer> inside other landmarks."
       },
       "fix_difficulty_notes": "A <footer> inside <article> or <section> does not create a contentinfo landmark — it is scoped to that sectioning element. The violation occurs when the site-wide <footer> is nested inside <main> or another landmark. Move it to be a direct child of <body>. In SPAs, this is typically a layout architecture issue — the layout component must place <footer> after <main>, not inside it.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add role='contentinfo' to a <footer> inside <main> as a workaround — move the element to be a direct child of <body>.",
+          "Do not flag a <footer> inside <article> or <section> — that placement is scoped to the sectioning element and does not create a landmark."
+        ],
+        "verify": [
+          "Confirm the site-wide <footer> is a direct child of <body> in the rendered DOM, not nested inside any other landmark."
+        ]
+      },
       "related_rules": [
         {
           "id": "landmark-no-duplicate-contentinfo",
@@ -2283,6 +2536,15 @@
         "astro": "In .astro layouts, <main> must be a direct child of <body>. Ensure no wrapper <div>, <section>, or other landmark nests the <main> element."
       },
       "fix_difficulty_notes": "In SPAs and component-based architectures, <main> is often wrapped by layout shells, provider components, or CSS utility wrappers that may inadvertently introduce a landmark parent. The fix requires understanding which component owns the layout structure — in Next.js it is layout.tsx, in Nuxt layouts/default.vue, in SvelteKit +layout.svelte. Non-landmark <div> wrappers (for CSS Grid/Flexbox) are safe and do not trigger this rule.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not flag <main> wrapped in a non-landmark <div> — plain <div> elements are not landmarks and do not violate this rule.",
+          "Do not add role='main' to a <main> element — the implicit role is already 'main' and the attribute is redundant."
+        ],
+        "verify": [
+          "Confirm no ancestor of <main> has an ARIA role that creates a landmark (header, footer, aside, nav, section with aria-label)."
+        ]
+      },
       "related_rules": [
         {
           "id": "landmark-one-main",
@@ -2316,6 +2578,15 @@
         "astro": "In .astro files, ensure only one top-level <header> exists per page. If the base layout includes <header>, individual page components must not add another. Use <section> with aria-label for sub-headers."
       },
       "fix_difficulty_notes": "A <header> element only creates a banner landmark when it is a direct child of <body> (not nested inside <article>, <aside>, <main>, <nav>, or <section>). axe may flag this when a layout component renders two <header> tags at body level — one for a skip link area and one for the visible site header. Consolidate them into one top-level <header>.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add aria-label to a second banner landmark as a fix — two labelled banner landmarks still violate this rule. Only one banner is permitted.",
+          "Do not flag a <header> inside <article>, <aside>, <section>, or <nav> — it does not create a banner landmark in that context."
+        ],
+        "verify": [
+          "Confirm exactly one <header> exists as a direct child of <body> (or at body level) in the rendered DOM."
+        ]
+      },
       "related_rules": [
         {
           "id": "landmark-no-duplicate-main",
@@ -2353,6 +2624,15 @@
         "astro": "In .astro files, ensure only one top-level <footer> exists per page. If the base layout includes <footer>, page components should not add another."
       },
       "fix_difficulty_notes": "A <footer> inside <article>, <section>, or <aside> does not create a contentinfo landmark — it is scoped to that sectioning element. The violation only occurs when two or more <footer> elements exist at the body level (not inside sectioning elements). Consolidate them into one <footer> or move the extra ones inside sectioning elements where they become scoped footers.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not flag a <footer> inside <article>, <section>, or <aside> — it is scoped to that element and does not create a contentinfo landmark.",
+          "Do not add aria-label to differentiate two body-level footers as a fix — the rule requires at most one contentinfo landmark."
+        ],
+        "verify": [
+          "Confirm only one <footer> exists as a direct child of <body> (or at body level) in the rendered DOM."
+        ]
+      },
       "related_rules": [
         {
           "id": "landmark-contentinfo-is-top-level",
@@ -2382,6 +2662,15 @@
         "astro": "In .astro files, ensure only one <main> element exists per page. The base layout should contain the single <main> wrapping <slot />."
       },
       "fix_difficulty_notes": "In SPAs, a second <main> commonly appears when a layout component defines one and a page component adds another. The fix is to ensure only the layout component owns the <main> wrapper, and page components render their content inside it without adding a second <main>.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add aria-label to two <main> elements as a workaround — multiple main landmarks are not permitted regardless of labelling.",
+          "Do not use role='main' as a secondary main alongside <main> — both create main landmarks and violate this rule."
+        ],
+        "verify": [
+          "Confirm exactly one <main> element exists in the rendered DOM."
+        ]
+      },
       "related_rules": [
         {
           "id": "landmark-one-main",
@@ -2416,6 +2705,15 @@
         "drupal": "Olivero (the default theme) includes <main> in page.html.twig. Custom themes must ensure page.html.twig wraps {{ page.content }} in <main id='main-content'>. Sub-theme overrides of page.html.twig sometimes lose this landmark."
       },
       "fix_difficulty_notes": "SPAs often render the <main> landmark conditionally — in React, Vue Router, and Angular, the layout shell may not include <main> if each page component is responsible for its own layout. Ensure the root layout component (e.g., layout.tsx in Next.js, App.vue in Vue, app.component.html in Angular) always wraps page content in <main>, not individual page components. Axe may also flag SPA routes where <main> is rendered client-side after the initial snapshot.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add <main> to individual page components if the root layout already wraps content in <main> — this creates a duplicate-main violation.",
+          "Do not use role='main' on a <div> if a <main> element already exists on the page."
+        ],
+        "verify": [
+          "Confirm exactly one <main> element exists in the rendered DOM after adding it."
+        ]
+      },
       "related_rules": [
         {
           "id": "bypass",
@@ -2457,6 +2755,17 @@
         "astro": "In .astro files, duplicate landmark types (multiple <nav>, <aside>, etc.) must each have a unique aria-label to distinguish them for screen reader users."
       },
       "fix_difficulty_notes": "In component-based apps, duplicate landmarks often come from independently authored components that each render their own <nav> or <aside>. The challenge is coordinating unique labels across components that don't know about each other. Establish a naming convention early (e.g., 'Primary', 'Footer', 'Breadcrumb') and document it in your design system. The label becomes part of the AT announcement: 'Primary navigation, navigation landmark'.",
+      "guardrails_overrides": {
+        "must": [
+          "If visible text exists as a heading inside the landmark, use aria-labelledby pointing to that heading rather than duplicating the text in aria-label."
+        ],
+        "must_not": [
+          "Do not use generic labels like 'navigation 1', 'navigation 2' — labels must be descriptive of the landmark's purpose."
+        ],
+        "verify": [
+          "Confirm all same-type landmarks on the page have unique, descriptive aria-label or aria-labelledby values."
+        ]
+      },
       "related_rules": [
         {
           "id": "landmark-no-duplicate-banner",
@@ -2505,6 +2814,11 @@
       }
     },
     "link-name": {
+      "managed_by_libraries": [
+        "radix",
+        "react-aria",
+        "ariakit"
+      ],
       "fix": {
         "description": "Use descriptive link text that conveys the destination or purpose. Avoid \"click here\" or \"read more\".",
         "code": "<a href=\"/products\">View our product catalog</a>\n<!-- Avoid: <a href=\"/products\">click here</a> -->"
@@ -2566,6 +2880,15 @@
         "astro": "In .astro files, <ul>/<ol> must contain only <li> children in the rendered HTML. Astro component boundaries can insert wrapper elements — verify the final DOM preserves list structure."
       },
       "fix_difficulty_notes": "Some CSS frameworks (Bootstrap, Tailwind) output <div> wrappers inside list elements via JavaScript-rendered components. axe will flag these. Before fixing, check whether the violation is in source HTML or in framework-rendered output — the fix location differs. Also note: a <ul> with role='none' on all <li> children (to remove list semantics) is an intentional pattern and not a violation of this rule.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add role='list' to a <ul> that has CSS list-style:none removed — Safari does this intentionally and it is a false positive in many cases.",
+          "Do not restructure the list purely in HTML source without verifying the final rendered DOM — framework-rendered wrappers may re-introduce the violation."
+        ],
+        "verify": [
+          "Confirm the rendered DOM (not just source HTML) has only valid list child elements (<li>, role='presentation' wrappers, or <script>/<template>) directly inside the list."
+        ]
+      },
       "related_rules": [
         {
           "id": "listitem",
@@ -2591,6 +2914,15 @@
         "astro": "In .astro files, <li> elements must be direct children of <ul>/<ol> in the rendered HTML. When splitting list items across components, verify the parent-child relationship is preserved."
       },
       "fix_difficulty_notes": "This often occurs in component-based frameworks when a list item component renders <li> at the root but is used outside a parent list component. The fix is either to ensure the parent always provides a <ul>/<ol> context, or to restructure the component so <li> is not the root element when rendered standalone.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add role='listitem' to a <li> as a fix — the element already has an implicit listitem role; the issue is the missing parent list.",
+          "Do not wrap a standalone <li> in a <ul> as a one-off fix without verifying the full list structure is correct."
+        ],
+        "verify": [
+          "Confirm the <li> element is a direct child of a <ul> or <ol> in the rendered DOM."
+        ]
+      },
       "related_rules": [
         {
           "id": "list",
@@ -2632,7 +2964,22 @@
         "svelte": "In SvelteKit, avoid <meta http-equiv='refresh'>. Use SvelteKit's goto() function for programmatic redirects, or throw redirect(301, '/new-url') in load functions for server-side redirects.",
         "astro": "In .astro files, avoid <meta http-equiv='refresh'> for redirects. Use Astro.redirect() in the frontmatter for server-side redirects, or configure redirects in astro.config.mjs."
       },
-      "fix_difficulty_notes": "Server-side HTTP redirects (301/302) do not use <meta http-equiv='refresh'> and are not flagged by this rule. The violation only occurs when a timed redirect is implemented in the HTML <head>. A delay of 0 (instant redirect) is the only permitted use — it is commonly used for canonical URL normalization and is WCAG-compliant."
+      "fix_difficulty_notes": "Server-side HTTP redirects (301/302) do not use <meta http-equiv='refresh'> and are not flagged by this rule. The violation only occurs when a timed redirect is implemented in the HTML <head>. A delay of 0 (instant redirect) is the only permitted use — it is commonly used for canonical URL normalization and is WCAG-compliant.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not remove <meta http-equiv='refresh' content='0; url=...'> — a delay of 0 is the only permitted use and is WCAG-compliant.",
+          "Do not add a JavaScript-based redirect as an alternative without also providing a manual navigation option."
+        ],
+        "verify": [
+          "Confirm the refresh delay is greater than 0 before treating this as a violation (delay=0 is allowed)."
+        ]
+      },
+      "related_rules": [
+        {
+          "id": "no-autoplay-audio",
+          "reason": "Both rules involve content that changes without user initiation — timed refresh and autoplay audio are the same class of WCAG 2.2.x timing failure."
+        }
+      ]
     },
     "meta-viewport": {
       "fix": {
@@ -2679,6 +3026,15 @@
         "astro": "In .astro layouts, the viewport meta tag must allow scaling to at least 200%. Users with low vision rely on pinch-to-zoom for readability."
       },
       "fix_difficulty_notes": "This is a best-practice rule that goes beyond the WCAG AA requirement (which only requires not blocking zoom entirely via user-scalable=no or maximum-scale=1). The best-practice threshold is maximum-scale >= 5 (500% zoom). The simplest fix is to omit maximum-scale entirely — there is no valid accessibility reason to cap zoom level. iOS Safari ignores maximum-scale restrictions as an accessibility override, but Android browsers may enforce them.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not set maximum-scale to exactly 2 or 3 as a compromise — the best-practice threshold is 5 (500%). Set to 5 or remove it entirely.",
+          "Do not confuse this rule with meta-viewport — this rule fires only on low maximum-scale values, not on user-scalable=no."
+        ],
+        "verify": [
+          "Confirm maximum-scale is set to 5.0 or higher, or that the maximum-scale parameter is absent entirely from the viewport meta tag."
+        ]
+      },
       "related_rules": [
         {
           "id": "meta-viewport",
@@ -2687,6 +3043,12 @@
       ]
     },
     "nested-interactive": {
+      "managed_by_libraries": [
+        "radix",
+        "headless-ui",
+        "react-aria",
+        "ariakit"
+      ],
       "fix": {
         "description": "Remove or restructure nested interactive elements. Interactive controls (buttons, links, inputs) must not be descendants of other interactive controls.",
         "code": "<!-- Pattern A: <a> wrapping a <button> (card pattern) -->\n<!-- Before: -->\n<a href=\"/product\">\n  Product name\n  <button onclick=\"addToCart()\">Add to cart</button>\n</a>\n<!-- After: stretched-link keeps card clickable without wrapping the button -->\n<div style=\"position:relative\">\n  <a href=\"/product\" style=\"position:absolute;inset:0\" aria-label=\"Product name\"></a>\n  <span>Product name</span>\n  <button onclick=\"addToCart()\">Add to cart</button>\n</div>\n\n<!-- Pattern B: role=\"option\" / role=\"listitem\" with focusable descendants -->\n<!-- ARIA spec forbids interactive children inside option/listitem roles. -->\n<!-- Before: -->\n<div role=\"option\" aria-selected=\"true\">\n  <a href=\"/detail\">View details</a>\n</div>\n<!-- After: remove href/tabIndex from descendants; parent handles keyboard interaction -->\n<div role=\"option\" aria-selected=\"true\" tabindex=\"0\" onkeydown=\"handleSelect(event)\">\n  <span>View details</span>\n</div>"
@@ -2700,6 +3062,16 @@
         "astro": "In .astro files, nested interactive elements (links inside buttons, buttons inside links) render to static HTML. This is invalid HTML and confuses AT — restructure to avoid nesting."
       },
       "fix_difficulty_notes": "The evidence shows the OUTER container — identify the nested focusable element first. Search the component for `tabIndex`, `href=`, `<button`, `<a `, or `role=\"button\"` inside the flagged selector. The most common pattern: a card wrapped in <a> containing a <button> — the HTML spec forbids interactive content inside <a>. Solutions: (1) stretched-link CSS pattern (position <a> with ::after overlay, keep button outside <a> in DOM order); (2) keep elements separate and handle card-level clicks via JS.",
+      "related_rules": [
+        {
+          "id": "focus-order-semantics",
+          "reason": "Restructuring nested interactives changes focus order — verify semantics and tab sequence remain logical after the fix."
+        },
+        {
+          "id": "scrollable-region-focusable",
+          "reason": "Scrollable containers inside interactive elements can create compounded focusability issues — audit together."
+        }
+      ],
       "guardrails_overrides": {
         "must": [
           "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
@@ -2726,6 +3098,21 @@
         "astro": "In .astro files, <audio autoplay> and <video autoplay> render to static HTML. Avoid autoplay, or ensure media is muted and under 3 seconds. For auto-playing media, add a pause control via a framework island."
       },
       "fix_difficulty_notes": "axe detects the autoplay attribute but cannot determine whether the audio is muted — muted autoplay is acceptable. A <video autoplay muted loop> for decorative background video does not violate WCAG 1.4.2. The violation is specifically audio content that plays without user interaction and cannot be immediately stopped. Browser autoplay policies (especially Chrome) often block autoplay with sound anyway — verify the audio actually plays in the target browser before treating it as a confirmed violation.",
+      "cms_notes": {
+        "shopify": "Dawn's video section (sections/video.liquid) uses autoplay with muted=true for hero videos — this is intentional and does not violate WCAG 1.4.2. If a merchant-selected video plays audio without muting, add muted to the <video> tag and expose a schema setting for a pause control. Shopify's native video_section block sets autoplay muted by default.",
+        "wordpress": "WordPress's Cover block and Video block allow autoplay. The block editor does not enforce muting on autoplay. If a user enables autoplay and the video has audio, add a pause/stop control using the block's 'Poster image' option and a Play/Pause button via JavaScript. The Advanced Video plugin enforces muted autoplay.",
+        "drupal": "Drupal's Media embed and Video formatter can autoplay via display settings. In the media_video_embed_field module, the 'autoplay' setting should always pair with 'muted'. Override the video formatter template in your theme to ensure autoplay is never set without muted."
+      },
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not flag <video autoplay muted> or <audio autoplay muted> as violations — muted autoplay does not violate WCAG 1.4.2.",
+          "Do not remove autoplay from decorative background video that is muted — verify the muted attribute is absent before treating as a confirmed violation."
+        ],
+        "verify": [
+          "Confirm the media element does not have the muted attribute before treating this as a violation.",
+          "Confirm the audio actually auto-plays in the target browser — browser autoplay policies may block it silently."
+        ]
+      },
       "related_rules": [
         {
           "id": "audio-caption",
@@ -2783,6 +3170,21 @@
         "astro": "In .astro files, use semantic heading elements instead of styled paragraphs. This is particularly common in CMS-driven content where formatting is applied inline."
       },
       "fix_difficulty_notes": "axe detects this heuristically — it flags <p> elements with large, bold, or otherwise heading-like CSS properties. This can produce false positives on intro paragraphs, pull quotes, or callout boxes that are intentionally styled large. Verify visually: does this text introduce a new section of content? If yes, it should be a heading. If it is decorative, a caption, or a lead-in paragraph, it may not need to be a heading despite the styling.",
+      "cms_notes": {
+        "shopify": "Shopify's rich text sections (sections/rich-text.liquid) render WYSIWYG content from the theme editor. Merchants sometimes use paragraph text formatted as bold+large instead of heading elements. In Dawn, educate merchants using the heading type selector in the rich text block. Alternatively, restrict the rich text schema to heading blocks only for section titles.",
+        "wordpress": "The Classic Editor's TinyMCE lets authors select paragraph text and apply visual formatting (bold, font-size) instead of using the heading format. The block editor's Paragraph block similarly allows font-size overrides. Educate authors to use the Heading block. The Accessibility Checker plugin by Equalize Digital flags this pattern in the editor.",
+        "drupal": "Drupal's CKEditor (both CKEditor 4 and 5) allows authors to select paragraph text and apply heading-like styling. Restrict the allowed formats in the text format configuration (admin/config/content/formats) to prevent authors from using <p> with font-size or bold styling. Use CKEditor's Heading plugin to enforce semantic heading use."
+      },
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not convert a <p> to a heading element purely because it is styled large — verify it semantically introduces a new section before changing the element.",
+          "Do not change the heading level of the new element without verifying it fits the existing heading hierarchy."
+        ],
+        "verify": [
+          "Confirm the element introduces a new section of content (not a decorative or stylistic element) before converting it to a heading.",
+          "Confirm the heading level chosen fits the document outline without skipping levels."
+        ]
+      },
       "related_rules": [
         {
           "id": "heading-order",
@@ -2870,6 +3272,15 @@
         "drupal": "Olivero defines landmarks in page.html.twig using Drupal's region system. Content outside defined regions (e.g., custom block placements) can create orphan content. Ensure all regions in the .info.yml file map to semantic landmark elements in the page template."
       },
       "fix_difficulty_notes": "Decorative separators, spacer divs, and background containers do not need to be inside landmarks. Only meaningful visible content requires landmark wrapping. Review each flagged element before adding a landmark.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not wrap decorative elements (spacers, background divs, separator lines) in landmark regions — only meaningful visible content requires landmark wrapping.",
+          "Do not add role='region' without also adding an aria-label or aria-labelledby — an unlabelled role='region' does not create a named landmark."
+        ],
+        "verify": [
+          "Confirm the orphan content is meaningful visible content that users would want to navigate to directly."
+        ]
+      },
       "related_rules": [
         {
           "id": "landmark-one-main",
@@ -2939,6 +3350,15 @@
         "astro": "In .astro files, scope on <th> must use valid values (row, col, rowgroup, colgroup). This is rendered to static HTML — incorrect values are not caught at build time."
       },
       "fix_difficulty_notes": "The scope attribute tells screen readers which data cells a header applies to. scope='col' means the header applies to the cells below it; scope='row' means it applies to cells to its right. Using scope on <td> is invalid HTML — move the scope to the appropriate <th>. For complex tables with multi-level headers, use the headers attribute on <td> elements instead of scope.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add scope to <td> elements — scope is only valid on <th>. Move the scope attribute to the <th> for that column or row.",
+          "Do not use scope='col' on a row header or scope='row' on a column header — verify the header's actual orientation before assigning a scope value."
+        ],
+        "verify": [
+          "Confirm scope is only present on <th> elements, not <td>, in the rendered HTML."
+        ]
+      },
       "related_rules": [
         {
           "id": "td-headers-attr",
@@ -2955,6 +3375,11 @@
       ]
     },
     "scrollable-region-focusable": {
+      "managed_by_libraries": [
+        "swiper",
+        "embla-carousel",
+        "splide"
+      ],
       "fix": {
         "description": "Make scrollable regions keyboard-accessible by adding tabindex=\"0\" and a descriptive label.",
         "code": "<div tabindex=\"0\" role=\"region\" aria-label=\"Product comparison table\" style=\"overflow: auto;\">\n  <table>\n    <caption>Feature comparison</caption>\n    <thead><tr><th>Feature</th><th>Basic</th><th>Pro</th></tr></thead>\n    <tbody><tr><td>Storage</td><td>5 GB</td><td>100 GB</td></tr></tbody>\n  </table>\n</div>"
@@ -2968,6 +3393,20 @@
         "astro": "In .astro files, scrollable regions are rendered in static HTML. Add tabindex='0' and aria-label to make them keyboard-accessible. For scrollable content inside framework islands, manage focus within the island."
       },
       "fix_difficulty_notes": "This rule fires on any element with overflow:auto or overflow:scroll — including CSS clip containers, masked elements, and carousels that overflow visually but have no actual scrollable content. Before adding tabindex='0', confirm the element is genuinely scrollable (has overflow content) and that keyboard users need to scroll it. Adding tabindex='0' to a non-scrollable container adds unnecessary tab stops.",
+      "cms_notes": {
+        "shopify": "Dawn's product media slider and slideshow section use Swiper.js with overflow:hidden on the wrapper and overflow:visible on the slide track. axe may flag the slide wrapper. Swiper renders its own keyboard-accessible navigation via the keyboard option — set keyboard: { enabled: true } in the Swiper config and do not add tabindex='0' to the track element.",
+        "wordpress": "WordPress themes using the SplideJS, Swiper, or Owl Carousel libraries may trigger this rule on carousel wrappers. The Splide and Swiper libraries have built-in keyboard navigation — enable it via the keyboard or a11y configuration options rather than adding manual tabindex. The WooCommerce product gallery uses Flexslider, which needs separate a11y configuration.",
+        "drupal": "Drupal's Views carousels (using Slick or Splide) may render scrollable wrapper elements. Slick Carousel (slick_carousel module) has an accessibility option in its configuration — enable it to add proper keyboard navigation and ARIA attributes rather than manually adding tabindex."
+      },
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add tabindex='0' to elements that have overflow CSS but no actual scrollable content — verify the element genuinely overflows before making it focusable.",
+          "Do not add tabindex='0' alone without also ensuring the scrollable region has an accessible name (aria-label) so screen reader users understand what they are navigating."
+        ],
+        "verify": [
+          "Confirm the element actually scrolls (has overflow content that exceeds its dimensions) before treating this as a violation requiring tabindex='0'."
+        ]
+      },
       "related_rules": [
         {
           "id": "aria-hidden-focus",
@@ -3096,6 +3535,16 @@
         "astro": "In .astro files, <summary> must contain visible text in the static HTML. This serves as the accessible name for the disclosure widget."
       },
       "fix_difficulty_notes": "The fix is to add descriptive text content to the <summary> element. In CMS-driven content, the issue often occurs when an author creates a <details> block but leaves the summary empty. The text should describe what the disclosure widget reveals when expanded — not a generic label like 'Details' or 'More'.",
+      "related_rules": [
+        {
+          "id": "button-name",
+          "reason": "<summary> acts as a toggle button — it requires an accessible name by the same principle as button-name."
+        },
+        {
+          "id": "empty-heading",
+          "reason": "In CMS content, empty <summary> and empty headings often occur together — authors leave both fields blank. Fix both in the same content audit."
+        }
+      ],
       "guardrails_overrides": {
         "must": [
           "If visible text exists, preserve label-in-name: accessible name must include the visible label."
@@ -3122,6 +3571,11 @@
         "astro": "In .astro files, meaningful <svg> elements need role='img' and an accessible name. Astro's <Image /> component handles <img> tags only — SVGs must be labeled manually."
       },
       "fix_difficulty_notes": "Most SVGs in UI are decorative (icons next to visible button text, background illustrations). axe may flag them as missing an alt even when the adjacent text is sufficient. The decision is: does this SVG convey meaning that is NOT expressed in adjacent visible text? If yes → aria-label. If no → aria-hidden='true'. Never add aria-label that duplicates adjacent text — this creates redundant announcements.",
+      "cms_notes": {
+        "shopify": "Shopify themes use {% render 'icon-cart' %}, {% render 'icon-close' %}, and similar snippets that render raw <svg> without aria attributes. For decorative icons (with accompanying visible button text), add aria-hidden='true' to the snippet's <svg> root. For standalone icon buttons (no visible text), pass an aria_label variable from the including template to the snippet.",
+        "wordpress": "WordPress core's Social Icons block (Gutenberg) adds aria-hidden='true' to SVG icons by default. Custom blocks using inline SVG must add role='img' and aria-label for informative icons, or aria-hidden='true' for decorative ones. The SVG Sanitizer used in wp_kses_post allows aria attributes.",
+        "drupal": "Drupal themes render SVG icons via Twig include. Use {{ attributes.setAttribute('aria-hidden', 'true') }} for decorative icons, or {{ attributes.setAttribute('role', 'img').setAttribute('aria-label', label|t) }} for informative icons. Icon modules like Iconify for Drupal apply aria-hidden automatically when used as decorative."
+      },
       "related_rules": [
         {
           "id": "image-alt",
@@ -3261,6 +3715,16 @@
         "astro": "In .astro files, target sizes depend entirely on CSS. Ensure icon-only buttons and small links in the base layout meet the 24px minimum. Framework islands inherit page CSS — verify the computed size of interactive elements inside hydrated islands."
       },
       "fix_difficulty_notes": "WCAG 2.5.8 provides an exception for inline text links within a sentence (e.g., 'see our privacy policy') where sufficient spacing around the link satisfies the criterion. axe may flag these — verify whether the exception applies before adding padding that could break the text flow.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add padding to inline text links within a paragraph to meet the target size — the WCAG 2.5.8 inline exception allows these to be smaller if surrounding spacing is sufficient.",
+          "Do not increase font-size to pad target size without confirming the design allows it — use min-width/min-height with padding instead."
+        ],
+        "verify": [
+          "Confirm the element is a standalone interactive control (not an inline link within text) before applying the target size fix.",
+          "Measure the computed size of the interactive element in DevTools — axe uses the bounding box, not just the text content area."
+        ]
+      },
       "related_rules": []
     },
     "td-has-header": {
@@ -3277,6 +3741,15 @@
         "astro": "In .astro files, table cells must be associated with header cells. For simple tables, proper <th>/<td> structure is sufficient. For complex tables, use the headers attribute."
       },
       "fix_difficulty_notes": "This rule triggers on 'large' tables (more than 3 rows and 3 columns) where data cells are not associated with headers. The most common fix: convert the first row from <td> to <th scope='col'> and the first column from <td> to <th scope='row'>. For complex tables with multi-level headers, use the headers attribute on <td> to explicitly reference <th id> values. Avoid merged cells (colspan/rowspan) when possible — they complicate header association significantly.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add role='presentation' or role='none' to the table to suppress this violation — this removes the table semantics and harms AT users who rely on table navigation."
+        ],
+        "verify": [
+          "Confirm the table is a data table (not a layout table) before applying header fixes — layout tables should use role='presentation' instead.",
+          "Confirm the table is not in an empty/loading state that is causing axe to find no data cells — guard tables to only display headers when data is present."
+        ]
+      },
       "related_rules": [
         {
           "id": "th-has-data-cells",
@@ -3302,6 +3775,15 @@
         "astro": "In .astro files, the headers attribute on <td> must reference <th> elements by id within the same table. Verify references in the rendered static HTML."
       },
       "fix_difficulty_notes": "The headers attribute is only needed for complex tables where a single cell spans multiple headers or the column/row relationship is ambiguous. For simple tables (one header row, one header column), use <th scope='col'> and <th scope='row'> instead — it is simpler and better supported across AT. Only use the headers attribute when scope is insufficient.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not add the headers attribute to simple tables — use <th scope='col'> and <th scope='row'> instead, which have broader AT support.",
+          "Do not reference ids that belong to <th> elements in a different table — the headers attribute must reference <th> within the same table."
+        ],
+        "verify": [
+          "Confirm every id referenced in a headers attribute exists in the DOM and belongs to a <th> element in the same table."
+        ]
+      },
       "related_rules": [
         {
           "id": "th-has-data-cells",
@@ -3335,6 +3817,15 @@
         "astro": "In .astro files, <th> elements must be associated with <td> cells in the rendered table. Headers without data cells are meaningless and should be removed."
       },
       "fix_difficulty_notes": "This rule commonly fires on dynamically rendered tables that show an empty state (loading spinner or 'No data' row). axe flags the <th> elements as having no data cells when the table body is empty or renders a colspan'd message. Guard the table to only display headers when data is present, or use a non-table element for the empty state.",
+      "guardrails_overrides": {
+        "must_not": [
+          "Do not remove <th> elements that are legitimately waiting for data — guard the table to hide headers during empty state instead."
+        ],
+        "verify": [
+          "Confirm the table is not in a loading or empty state during the scan — re-test with actual data rows present.",
+          "Confirm the <td> cells that correspond to the flagged <th> are in the same table scope, not in a sibling or child table."
+        ]
+      },
       "related_rules": [
         {
           "id": "td-headers-attr",
@@ -3368,6 +3859,11 @@
         "astro": "In .astro files, all lang attributes (on any element) must use valid BCP 47 tags. This includes the root <html lang> and any inline language overrides."
       },
       "fix_difficulty_notes": "This rule checks inline lang attributes on child elements (e.g., <p lang='es'>), not the root <html>. The most common mistake is copying locale codes from i18n libraries (e.g., 'en_US' with underscore) — only hyphenated BCP 47 tags are valid (e.g., 'en-US', 'es', 'fr-CA'). Verify each value against https://www.iana.org/assignments/language-subtag-registry/.",
+      "cms_notes": {
+        "shopify": "Shopify's Translate & Adapt app and third-party translation apps (Langify, Weglot) inject translated content as page overlays or replace DOM text. Weglot wraps translated content in <span> elements with a lang attribute — ensure it uses valid BCP 47 codes (e.g., 'fr' not 'fr_FR'). Verify via the Weglot dashboard's language code settings.",
+        "wordpress": "WPML and Polylang inject lang attributes on translated content blocks. WPML uses ISO 639-1 codes with underscore separators (e.g., 'fr_FR') in PHP — the Twig/HTML output must convert these to hyphenated BCP 47 format. Use WPML's wpml_active_languages API to retrieve properly formatted language tags.",
+        "drupal": "Drupal's Language module tags content blocks with lang attributes from the content's language assignment. Language IDs configured in /admin/config/regional/language must use valid BCP 47 tags. Custom Twig templates that output {{ node.langcode.value }} directly may produce underscore-format codes — convert using str_replace('_', '-', langcode)."
+      },
       "related_rules": [
         {
           "id": "html-has-lang",
@@ -3393,6 +3889,11 @@
         "astro": "In .astro files, <video> elements need <track kind='captions'> in the static HTML. For video players inside framework islands, ensure the island component includes caption tracks."
       },
       "fix_difficulty_notes": "axe cannot verify whether existing captions are accurate or synchronized — it only detects the presence of a <track kind='captions'> element. A <track> pointing to an empty or inaccurate VTT file technically passes axe but still violates WCAG 1.2.2. Always review caption content manually. For YouTube/Vimeo embeds inside <iframe>, this rule does not apply — the embedded player's caption controls are the platform's responsibility.",
+      "cms_notes": {
+        "shopify": "Shopify's video section renders <video> elements using the native HTML5 player. Dawn does not add <track> elements by default. Add a section schema setting for a caption file URL and include <track kind='captions' src='{{ section.settings.caption_src }}' srclang='en' label='English' default> in the section template when the setting is non-empty.",
+        "wordpress": "WordPress's Video block renders a native <video> element. The block editor does not natively support <track> — use a plugin like Able Player or Video.js WordPress Plugin for accessible captioning. For self-hosted videos, add a 'Captions' field to the media attachment and render it in the block template.",
+        "drupal": "Drupal's Media module for local video does not automatically add <track> elements. Use the Video.js player integration (videojs_media module) which supports WebVTT caption tracks via the Media source configuration. Alternatively, add <track> manually in the video--*.html.twig template using a file field on the media entity."
+      },
       "related_rules": [
         {
           "id": "audio-caption",
