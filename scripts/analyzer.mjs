@@ -29,11 +29,10 @@ const wcagReferencePath = path.join(__dirname, "../assets/wcag-reference.json");
 const complianceConfigPath = path.join(__dirname, "../assets/compliance-config.json");
 const stackConfigPath = path.join(__dirname, "../assets/stack-config.json");
 
-// Temporarily suppressed rules — remove a rule_id to re-enable it.
-const SUPPRESSED_RULES = [
-  "page-has-heading-one",
-  "landmark-one-main",
-];
+const DISABLED_RULES = {
+  "page-has-heading-one": true,
+  "landmark-one-main": true,
+};
 
 let INTELLIGENCE;
 let WCAG_REFERENCE;
@@ -700,6 +699,7 @@ function buildFindings(inputPayload, cliArgs) {
 
     const meta = route.metadata || {};
     if (
+      !DISABLED_RULES["page-has-heading-one"] &&
       !onlyRule &&
       meta.h1Count !== undefined &&
       meta.h1Count !== 1 &&
@@ -745,6 +745,7 @@ function buildFindings(inputPayload, cliArgs) {
     }
 
     if (
+      !DISABLED_RULES["landmark-one-main"] &&
       !onlyRule &&
       meta.mainCount !== undefined &&
       meta.mainCount !== 1 &&
