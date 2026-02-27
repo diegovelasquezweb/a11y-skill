@@ -198,40 +198,33 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     const codeLang = f.fixCodeLang || "html";
     const fixBlock =
       f.fixDescription || f.fixCode
-        ? `#### Recommended Technical Solution\n${f.fixDescription ? `**Implementation:** ${f.fixDescription}\n` : ""}${f.fixCode ? `\`\`\`${codeLang}\n${f.fixCode}\n\`\`\`` : ""}`.trimEnd()
+        ? `#### Recommended Technical Solution\n${f.fixDescription ? `${f.fixDescription}\n\n` : ""}${f.fixCode ? `\`\`\`${codeLang}\n${f.fixCode}\n\`\`\`` : ""}`.trimEnd()
         : `#### Recommended Remediation\n${f.recommendedFix}`;
 
     const crossPageBlock =
       f.pagesAffected && f.pagesAffected > 1
-        ? `**cross_page_scope:** pages=${f.pagesAffected}; urls=${(f.affectedUrls || []).join(", ")}`
-        : null;
-
-    const manualVerificationFlag =
-      f.falsePositiveRisk && f.falsePositiveRisk !== "low"
-        ? `**manual_verification_required:** true\n**false_positive_risk:** ${f.falsePositiveRisk}`
+        ? `> ℹ️ **Cross-page:** Found on ${f.pagesAffected} pages — ${(f.affectedUrls || []).join(", ")}`
         : null;
 
     const difficultyBlock = f.fixDifficultyNotes
-      ? `**implementation_notes:** ${f.fixDifficultyNotes}`
+      ? `#### Implementation Notes\n${
+          Array.isArray(f.fixDifficultyNotes)
+            ? f.fixDifficultyNotes.map((n) => `- ${n}`).join("\n")
+            : f.fixDifficultyNotes
+        }`
       : null;
 
     const frameworkBlock =
       f.frameworkNotes && typeof f.frameworkNotes === "object"
-        ? `**framework_guidance:**\n${Object.entries(f.frameworkNotes)
-            .map(
-              ([fw, note]) =>
-                `- **${fw.charAt(0).toUpperCase() + fw.slice(1)}:** ${note}`,
-            )
+        ? `#### Framework Notes\n${Object.entries(f.frameworkNotes)
+            .map(([fw, note]) => `- **${fw.charAt(0).toUpperCase() + fw.slice(1)}:** ${note}`)
             .join("\n")}`
         : null;
 
     const cmsBlock =
       f.cmsNotes && typeof f.cmsNotes === "object"
-        ? `**cms_guidance:**\n${Object.entries(f.cmsNotes)
-            .map(
-              ([cms, note]) =>
-                `- **${cms.charAt(0).toUpperCase() + cms.slice(1)}:** ${note}`,
-            )
+        ? `#### CMS Notes\n${Object.entries(f.cmsNotes)
+            .map(([cms, note]) => `- **${cms.charAt(0).toUpperCase() + cms.slice(1)}:** ${note}`)
             .join("\n")}`
         : null;
 
@@ -245,32 +238,35 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       : null;
 
     const managedBlock = f.managedByLibrary
-      ? `**managed_component_warning:** true\n**managed_by_library:** ${f.managedByLibrary}`
+      ? `> ⚠️ **Managed Component:** Controlled by \`${f.managedByLibrary}\` — fix via the library's prop API, not direct DOM attributes.`
       : null;
 
     const verifyBlock = f.verificationCommand
       ? `**Quick verify:** \`${f.verificationCommand}\`${f.verificationCommandFallback ? `\n**Fallback verify:** \`${f.verificationCommandFallback}\`` : ""}`
       : null;
+
     const id = f.id || f.ruleId;
+    const requiresManualVerification = f.falsePositiveRisk && f.falsePositiveRisk !== "low";
+
     const executionMeta = [
       `**Execution Metadata**`,
       `- \`fix_priority\`: ${executionIndex.get(id) || "n/a"}`,
       `- \`action_type\`: ${inferActionType(f)}`,
       `- \`target_files_glob\`: ${f.fileSearchPattern ? `\`${f.fileSearchPattern}\`` : "`n/a`"}`,
-      `- \`requires_manual_verification\`: ${f.falsePositiveRisk && f.falsePositiveRisk !== "low" ? "true" : "false"}`,
+      requiresManualVerification ? `- \`requires_manual_verification\`: true _(false positive risk: ${f.falsePositiveRisk})_` : `- \`requires_manual_verification\`: false`,
     ].join("\n");
 
     const guardrailsBlock =
       f.guardrails && typeof f.guardrails === "object"
         ? [
             Array.isArray(f.guardrails.must) && f.guardrails.must.length > 0
-              ? `**preconditions:**\n${f.guardrails.must.map((g) => `- ${g}`).join("\n")}`
+              ? `#### Preconditions\n${f.guardrails.must.map((g) => `- ${g}`).join("\n")}`
               : null,
             Array.isArray(f.guardrails.must_not) && f.guardrails.must_not.length > 0
-              ? `**do_not_apply_if:**\n${f.guardrails.must_not.map((g) => `- ${g}`).join("\n")}`
+              ? `#### Do Not Apply\n${f.guardrails.must_not.map((g) => `- ${g}`).join("\n")}`
               : null,
             Array.isArray(f.guardrails.verify) && f.guardrails.verify.length > 0
-              ? `**post_fix_checks:**\n${f.guardrails.verify.map((g) => `- ${g}`).join("\n")}`
+              ? `#### Post-Fix Checks\n${f.guardrails.verify.map((g) => `- ${g}`).join("\n")}`
               : null,
           ].filter(Boolean).join("\n\n")
         : null;
@@ -285,9 +281,11 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         ? `- **WCAG Criterion:** ${f.wcag} _(Best Practice — not a WCAG AA requirement)_`
         : `- **WCAG Criterion:** ${f.wcag}`,
       f.category ? `- **Category:** ${f.category}` : null,
+      requiresManualVerification ? `- **False Positive Risk:** ${f.falsePositiveRisk} — verify before applying` : null,
       ``,
-      crossPageBlock ? `${crossPageBlock}\n` : null,
-      managedBlock ? `${managedBlock}\n` : null,
+      crossPageBlock,
+      managedBlock,
+      crossPageBlock || managedBlock ? `` : null,
       `**Observed Violation:** ${formatViolation(f.actual)}`,
       searchPatternBlock ? `` : null,
       searchPatternBlock,
@@ -303,8 +301,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       frameworkBlock,
       cmsBlock ? `` : null,
       cmsBlock,
-      manualVerificationFlag ? `` : null,
-      manualVerificationFlag,
       evidenceHtml ? `` : null,
       evidenceHtml ? `${evidenceLabel}\n${evidenceHtml}` : null,
       relatedBlock ? `` : null,

@@ -223,15 +223,38 @@ function getManagedByLibrary(ruleId, uiLibraries) {
  * @param {string} selector - The CSS selector to analyze.
  * @returns {string|null} A potential component name or null.
  */
+const TAILWIND_UTILITY_RE =
+  /^(?:p|px|py|pt|pr|pb|pl|m|mx|my|mt|mr|mb|ml|w|h|min|max|gap|space|text|bg|border|rounded|shadow|opacity|z|top|right|bottom|left|flex|grid|items|justify|content|self|col|row|sr|group|peer|focus|hover|active|disabled|lg|md|sm|xl|font|leading|tracking|uppercase|lowercase|capitalize|truncate|overflow|relative|absolute|fixed|sticky|inset|block|inline|hidden|cursor|pointer|select|resize|transition|duration|ease|delay|animate|fill|stroke|ring|outline|divide|placeholder|caret|accent|appearance|list|break|whitespace|order|grow|shrink|basis|aspect|container|prose|line)-/i;
+
+function isSemanticClass(value) {
+  if (value.length <= 3) return false;
+  if (/^\d/.test(value)) return false;
+  if (TAILWIND_UTILITY_RE.test(value)) return false;
+  return true;
+}
+
 function extractComponentHint(selector) {
   if (!selector || selector === "N/A") return null;
-  const bemMatch = selector.match(/\.([\w-]+?)(?:__|--)/);
-  if (bemMatch) return bemMatch[1];
-  const classMatch = selector.match(/\.([\w-]+)/);
-  if (classMatch) return classMatch[1];
-  const idMatch = selector.match(/#([\w-]+)/);
-  if (idMatch) return idMatch[1];
+  // Strip attribute selector values to prevent false class matches (e.g. href$="facebook.com/")
+  const stripped = selector.replace(/\[[^\]]*\]/g, "[]");
+  // IDs are most semantic — check first
+  const idMatch = stripped.match(/#([\w-]+)/);
+  if (idMatch && idMatch[1].length > 3 && !/^\d/.test(idMatch[1])) return idMatch[1];
+  // Scan all classes in the full selector chain, return first non-utility class
+  const classes = [...stripped.matchAll(/\.([\w-]+)/g)].map((m) => m[1]);
+  for (const cls of classes) {
+    if (isSemanticClass(cls)) return cls;
+  }
   return null;
+}
+
+function derivePageHint(routePath) {
+  if (!routePath || routePath === "/") return "homepage";
+  const segment = routePath.replace(/^\//, "").split("/")[0];
+  if (segment === "homepage") return "homepage";
+  if (segment === "products") return "product-page";
+  // Strip trailing long alphanumeric slugs (e.g. account/login → account-login)
+  return routePath.replace(/^\//, "").replace(/\//g, "-").replace(/-[a-z0-9]{8,}(-[a-z0-9]+)*$/i, "") || segment;
 }
 
 /**
@@ -660,7 +683,7 @@ function buildFindings(inputPayload, cliArgs) {
           screenshot_path: v.screenshot_path || null,
           file_search_pattern: getFileSearchPattern(ctx.framework, codeLang),
           managed_by_library: getManagedByLibrary(v.id, ctx.uiLibraries),
-          component_hint: extractComponentHint(bestSelector),
+          component_hint: extractComponentHint(bestSelector) ?? derivePageHint(route.path),
           verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
           verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
         });
@@ -709,6 +732,7 @@ function buildFindings(inputPayload, cliArgs) {
         framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
         cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
         wcag_classification: "Best Practice",
+        component_hint: derivePageHint(route.path),
         verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule page-has-heading-one --max-routes 1`,
         verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule page-has-heading-one --max-routes 1`,
       });
@@ -753,6 +777,7 @@ function buildFindings(inputPayload, cliArgs) {
         framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
         cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
         wcag_classification: "Best Practice",
+        component_hint: derivePageHint(route.path),
         verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule landmark-one-main --max-routes 1`,
         verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule landmark-one-main --max-routes 1`,
       });
