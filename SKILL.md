@@ -17,7 +17,6 @@ Load these files on demand — never preload all at once.
 | Resource                          | Load when                                     | Path                                                             |
 | --------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
 | Report & evidence standards       | Step 3 — presenting findings · Step 6 item 1 — console summary | [references/report-standards.md](references/report-standards.md) |
-| Fix patterns by WCAG criterion    | Step 4 — proposing and applying fixes         | [references/fix-patterns.md](references/fix-patterns.md)         |
 | Source file patterns by framework | Step 4a — locating files to fix               | [references/source-patterns.md](references/source-patterns.md)   |
 | CLI flags reference               | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md)       |
 | Quality gates                     | Any phase boundary — verifying gate pass/fail | [references/quality-gates.md](references/quality-gates.md)       |
@@ -170,7 +169,7 @@ Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM orde
 
 If there are no structural findings to fix, skip directly to 4b.
 
-Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework. Load [references/fix-patterns.md](references/fix-patterns.md) to look up the correct fix pattern for each `rule_id`.
+Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework. Use each finding's remediation intelligence (`fix_description`, `fix_code`, framework notes, and evidence) as the source of truth for fixes.
 
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
