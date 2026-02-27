@@ -321,47 +321,34 @@ export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
 async function detectProjectContext(page) {
   const domSignals = STACK_CONFIG.frameworkDetection.domSignals;
 
-  const framework = await page.evaluate((signals) => {
+  const domFramework = await page.evaluate((signals) => {
     for (const entry of signals) {
       const s = entry.signals;
-      let match = false;
-
-      if (s.id && document.getElementById(s.id)) match = true;
-      if (!match && s.window && window[s.window]) match = true;
-      if (!match && s.selector && document.querySelector(s.selector))
-        match = true;
-      if (!match && s.selectorAlt && document.querySelector(s.selectorAlt))
-        match = true;
-      if (
-        !match &&
-        s.hrefContains &&
-        document.querySelector(`link[href*="${s.hrefContains}"]`)
-      )
-        match = true;
-      if (
-        !match &&
-        s.metaGenerator &&
-        document.querySelector(
-          `meta[name="generator"][content*="${s.metaGenerator}"]`,
-        )
-      )
-        match = true;
-
-      if (match) return entry.framework;
+      if (s.window && window[s.window]) return entry.framework;
+      if (s.scriptSrc && document.querySelector(`script[src*="${s.scriptSrc}"]`)) return entry.framework;
     }
     return null;
   }, domSignals);
 
   const uiLibraries = [];
+  let pkgFramework = null;
+  let fileFramework = null;
   try {
-    const projectDir = process.env.A11Y_PROJECT_DIR;
-    const pkgPath = projectDir ? path.join(projectDir, "package.json") : null;
-    if (pkgPath && fs.existsSync(pkgPath)) {
-      const deps = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+    const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
+    const pkgPath = path.join(projectDir, "package.json");
+    if (fs.existsSync(pkgPath)) {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
       const allDeps = Object.keys({
-        ...deps.dependencies,
-        ...deps.devDependencies,
+        ...(pkg.dependencies || {}),
+        ...(pkg.devDependencies || {}),
       });
+      const PKG_SIGNALS = STACK_CONFIG.frameworkDetection.packageSignals;
+      for (const [dep, fw] of PKG_SIGNALS) {
+        if (allDeps.some((d) => d === dep || d.startsWith(`${dep}/`))) {
+          pkgFramework = fw;
+          break;
+        }
+      }
       const LIB_SIGNALS = STACK_CONFIG.frameworkDetection.uiLibrarySignals;
       for (const [prefix, name] of LIB_SIGNALS) {
         if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
@@ -373,11 +360,28 @@ async function detectProjectContext(page) {
     // package.json not available — running against remote URL
   }
 
-  if (framework) log.info(`Detected framework: ${framework}`);
-  if (uiLibraries.length)
-    log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
+  if (!pkgFramework) {
+    const fileSignals = STACK_CONFIG.frameworkDetection.fileSignals || [];
+    try {
+      const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
+      for (const entry of fileSignals) {
+        if (entry.files.some((f) => fs.existsSync(path.join(projectDir, f)))) {
+          fileFramework = entry.framework;
+          break;
+        }
+      }
+    } catch { /* not a local project */ }
+  }
 
-  return { framework, uiLibraries };
+  const resolvedFramework = pkgFramework || fileFramework || domFramework;
+
+  if (resolvedFramework) {
+    const source = pkgFramework ? "(from package.json)" : fileFramework ? "(from file structure)" : "(from DOM)";
+    log.info(`Detected framework: ${resolvedFramework} ${source}`);
+  }
+  if (uiLibraries.length) log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
+
+  return { framework: resolvedFramework, uiLibraries };
 }
 
 /**

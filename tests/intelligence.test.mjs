@@ -33,8 +33,23 @@ const WCAG22_PROACTIVE = new Set([
 ]);
 
 const rules = intel.rules;
+const defaults = intel.defaults || {};
 const ruleIds = new Set(Object.keys(rules));
 let axeRules = null;
+
+function mergeUnique(a = [], b = []) {
+  return [...new Set([...(a || []), ...(b || [])])];
+}
+
+function resolveGuardrails(entry, shared) {
+  if (entry.guardrails) return entry.guardrails;
+  if (!entry.guardrails_overrides && !shared) return null;
+  return {
+    must: mergeUnique(shared?.must, entry.guardrails_overrides?.must),
+    must_not: mergeUnique(shared?.must_not, entry.guardrails_overrides?.must_not),
+    verify: mergeUnique(shared?.verify, entry.guardrails_overrides?.verify),
+  };
+}
 
 beforeAll(async () => {
   try {
@@ -70,6 +85,17 @@ describe("intelligence.json — schema", () => {
       it("has valid false_positive_risk", () => {
         expect(VALID_FP_RISK.has(rule.false_positive_risk)).toBe(true);
       });
+
+      if (rule.guardrails || rule.guardrails_overrides) {
+        it("has guardrails metadata", () => {
+          const resolved = resolveGuardrails(rule, null);
+          expect(resolved).not.toBeNull();
+          expect(typeof resolved).toBe("object");
+          expect(Array.isArray(resolved.must)).toBe(true);
+          expect(Array.isArray(resolved.must_not)).toBe(true);
+          expect(Array.isArray(resolved.verify)).toBe(true);
+        });
+      }
 
       if (rule.framework_notes) {
         it("framework_notes keys are valid", () => {
@@ -343,56 +369,3 @@ describe("manual-checks.json — schema", () => {
   }
 });
 
-describe("code_patterns", () => {
-  const patterns = intel.code_patterns;
-  const VALID_SEVERITIES = new Set(["critical", "high", "medium", "low"]);
-
-  it("code_patterns section exists and is non-empty", () => {
-    expect(patterns).toBeDefined();
-    expect(typeof patterns).toBe("object");
-    expect(Object.keys(patterns).length).toBeGreaterThan(0);
-  });
-
-  for (const [id, pattern] of Object.entries(patterns ?? {})) {
-    describe(`pattern: ${id}`, () => {
-      it("has a non-empty description", () => {
-        expect(pattern.description?.trim()).toBeTruthy();
-      });
-
-      it("has a detection.search regex string", () => {
-        expect(typeof pattern.detection?.search).toBe("string");
-        expect(pattern.detection.search.trim()).toBeTruthy();
-      });
-
-      it("has a detection.files glob string", () => {
-        expect(typeof pattern.detection?.files).toBe("string");
-        expect(pattern.detection.files.trim()).toBeTruthy();
-      });
-
-      it("has a fix.description", () => {
-        expect(pattern.fix?.description?.trim()).toBeTruthy();
-      });
-
-      it("has a fix.code snippet", () => {
-        expect(pattern.fix?.code?.trim()).toBeTruthy();
-      });
-
-      it("has a valid wcag criterion (e.g. 2.1.1)", () => {
-        expect(pattern.wcag).toMatch(/^\d+\.\d+\.\d+$/);
-      });
-
-      it("has a valid severity", () => {
-        expect(VALID_SEVERITIES.has(pattern.severity)).toBe(true);
-      });
-
-      it("has framework_notes with at least one known framework", () => {
-        expect(typeof pattern.framework_notes).toBe("object");
-        const keys = Object.keys(pattern.framework_notes);
-        expect(keys.length).toBeGreaterThan(0);
-        for (const key of keys) {
-          expect(VALID_FW_KEYS.has(key)).toBe(true);
-        }
-      });
-    });
-  }
-});

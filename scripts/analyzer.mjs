@@ -82,14 +82,26 @@ function makeFindingId(ruleId, url, selector) {
 
 /** @type {Object} */
 const RULES = INTELLIGENCE.rules || {};
-/** @type {Object} */
-const CODE_PATTERNS = INTELLIGENCE.code_patterns || {};
 /** @type {Object<string, string>} */
 const APG_PATTERNS = WCAG_REFERENCE.apgPatterns;
 /** @type {Object<string, string>} */
 const MDN = WCAG_REFERENCE.mdn || {};
 /** @type {Object<string, string>} */
 const WCAG_CRITERION_MAP = WCAG_REFERENCE.wcagCriterionMap || {};
+
+function mergeUnique(first = [], second = []) {
+  return [...new Set([...(first || []), ...(second || [])])];
+}
+
+function resolveGuardrails(target, shared) {
+  if (target?.guardrails) return target.guardrails;
+  if (!target?.guardrails_overrides && !shared) return null;
+  return {
+    must: mergeUnique(shared?.must, target?.guardrails_overrides?.must),
+    must_not: mergeUnique(shared?.must_not, target?.guardrails_overrides?.must_not),
+    verify: mergeUnique(shared?.verify, target?.guardrails_overrides?.verify),
+  };
+}
 
 /**
  * Detects the programming language of a code snippet for syntax highlighting.
@@ -106,11 +118,6 @@ function detectCodeLang(code) {
 }
 
 /**
- * Regulatory links for accessibility compliance standards.
- * @type {Object<string, string>}
- */
-const US_REGULATORY = COMPLIANCE_CONFIG.usRegulatory;
-
 /** @type {Object<string, string>} */
 const IMPACTED_USERS = WCAG_REFERENCE.impactedUsers || {};
 /** @type {Object<string, string>} */
@@ -586,8 +593,8 @@ function buildFindings(inputPayload, cliArgs) {
         const nodes = v.nodes || [];
         const selectors = nodes.map((n) => n.target.join(" ")).slice(0, 5);
         const bestSelector = selectors.reduce((best, s) => {
-          if (/#[\w-]+/.test(s)) return s;
           if (best && /#[\w-]+/.test(best)) return best;
+          if (/#[\w-]+/.test(s)) return s;
           const len = s.replace(/[^a-z0-9-]/gi, "").length;
           const bestLen = best ? best.replace(/[^a-z0-9-]/gi, "").length : 0;
           return len < bestLen ? s : best;
@@ -603,6 +610,7 @@ function buildFindings(inputPayload, cliArgs) {
 
         const ruleInfo = RULES[v.id] || {};
         const fixInfo = ruleInfo.fix || {};
+        const resolvedGuardrails = resolveGuardrails(ruleInfo, null);
 
         let recFix = apgUrl
           ? `Reference: ${apgUrl}`
@@ -624,16 +632,11 @@ function buildFindings(inputPayload, cliArgs) {
           url: route.url,
           selector: selectors.join(", "),
           impacted_users: getImpactedUsers(v.id, v.tags),
-          impact: v.description,
           primary_selector: bestSelector,
-          reproduction: [
-            `Open ${route.url} in a browser to observe the issue`,
-            `Search source files for \`${extractSearchHint(bestSelector)}\` to locate the component`,
-            `Confirm the violation: ${v.help}`,
-          ],
           actual:
             firstNode?.failureSummary || `Found ${nodes.length} instance(s).`,
           expected: getExpected(v.id),
+          category: ruleInfo.category ?? null,
           fix_description: fixInfo.description ?? null,
           fix_code: fixInfo.code ?? null,
           fix_code_lang: codeLang,
@@ -643,6 +646,7 @@ function buildFindings(inputPayload, cliArgs) {
           related_rules: Array.isArray(ruleInfo.related_rules)
             ? ruleInfo.related_rules
             : [],
+          guardrails: resolvedGuardrails,
           false_positive_risk: ruleInfo.false_positive_risk ?? null,
           fix_difficulty_notes: ruleInfo.fix_difficulty_notes ?? null,
           framework_notes: filterNotes(ruleInfo.framework_notes, ctx.framework),
@@ -658,6 +662,7 @@ function buildFindings(inputPayload, cliArgs) {
           managed_by_library: getManagedByLibrary(v.id, ctx.uiLibraries),
           component_hint: extractComponentHint(bestSelector),
           verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
+          verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
         });
       }
     }
@@ -673,6 +678,10 @@ function buildFindings(inputPayload, cliArgs) {
     ) {
       const _ruleInfo = RULES["page-has-heading-one"] || {};
       const _fixInfo = _ruleInfo.fix || {};
+      const _resolvedGuardrails = resolveGuardrails(
+        _ruleInfo,
+        null,
+      );
       findings.push({
         id: "",
         rule_id: "page-has-heading-one",
@@ -684,10 +693,9 @@ function buildFindings(inputPayload, cliArgs) {
         url: route.url,
         selector: "h1",
         impacted_users: getImpactedUsers("page-has-heading-one", []),
-        impact: "Heading hierarchy is broken.",
-        reproduction: ["Count h1 tags on page"],
         actual: `Found ${meta.h1Count} h1 tags.`,
         expected: "Exactly 1 h1 tag.",
+        category: _ruleInfo.category ?? null,
         fix_description: _fixInfo.description ?? null,
         fix_code: _fixInfo.code ?? null,
         fix_code_lang: detectCodeLang(_fixInfo.code),
@@ -695,11 +703,14 @@ function buildFindings(inputPayload, cliArgs) {
         mdn: MDN["page-has-heading-one"] ?? null,
         effort: null,
         related_rules: Array.isArray(_ruleInfo.related_rules) ? _ruleInfo.related_rules : [],
+        guardrails: _resolvedGuardrails,
         false_positive_risk: _ruleInfo.false_positive_risk ?? null,
         fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
         framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
         cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
         wcag_classification: "Best Practice",
+        verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule page-has-heading-one --max-routes 1`,
+        verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule page-has-heading-one --max-routes 1`,
       });
     }
 
@@ -711,6 +722,10 @@ function buildFindings(inputPayload, cliArgs) {
     ) {
       const _ruleInfo = RULES["landmark-one-main"] || {};
       const _fixInfo = _ruleInfo.fix || {};
+      const _resolvedGuardrails = resolveGuardrails(
+        _ruleInfo,
+        null,
+      );
       findings.push({
         id: "",
         rule_id: "landmark-one-main",
@@ -722,10 +737,9 @@ function buildFindings(inputPayload, cliArgs) {
         url: route.url,
         selector: "main",
         impacted_users: getImpactedUsers("landmark-one-main", []),
-        impact: "Landmark navigation is broken.",
-        reproduction: ["Count main tags on page"],
         actual: `Found ${meta.mainCount} main tags.`,
         expected: "Exactly 1 main tag.",
+        category: _ruleInfo.category ?? null,
         fix_description: _fixInfo.description ?? null,
         fix_code: _fixInfo.code ?? null,
         fix_code_lang: detectCodeLang(_fixInfo.code),
@@ -733,11 +747,14 @@ function buildFindings(inputPayload, cliArgs) {
         mdn: MDN["landmark-one-main"] ?? null,
         effort: null,
         related_rules: Array.isArray(_ruleInfo.related_rules) ? _ruleInfo.related_rules : [],
+        guardrails: _resolvedGuardrails,
         false_positive_risk: _ruleInfo.false_positive_risk ?? null,
         fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
         framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
         cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
         wcag_classification: "Best Practice",
+        verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule landmark-one-main --max-routes 1`,
+        verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule landmark-one-main --max-routes 1`,
       });
     }
   }
@@ -747,13 +764,11 @@ function buildFindings(inputPayload, cliArgs) {
       ...f,
       id: makeFindingId(f.rule_id || f.title, f.url, f.selector),
     })),
-    metadata: {
-      scanDate: new Date().toISOString(),
-      regulatory: US_REGULATORY,
-      checklist: "https://www.a11yproject.com/checklist/",
-      projectContext: ctx,
-      code_patterns: CODE_PATTERNS,
-    },
+      metadata: {
+        scanDate: new Date().toISOString(),
+        checklist: "https://www.a11yproject.com/checklist/",
+        projectContext: ctx,
+      },
   };
 }
 

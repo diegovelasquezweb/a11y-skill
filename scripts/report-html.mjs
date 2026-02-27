@@ -673,9 +673,7 @@ function main() {
     throw new Error(`Input findings file not found or invalid: ${args.input}`);
   }
 
-  const findings = normalizeFindings(inputPayload).filter(
-    (f) => f.wcagClassification !== "Best Practice" && f.wcagClassification !== "AAA",
-  );
+  const findings = normalizeFindings(inputPayload).filter((f) => f.wcagClassification !== "AAA");
 
   const screenshotsDir = getInternalPath("screenshots");
   for (const finding of findings) {

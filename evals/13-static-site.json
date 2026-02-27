@@ -7,7 +7,7 @@
   "expected_behavior": [
     "Completes the audit without requiring framework detection or package.json",
     "Does NOT assume a JS framework is present — framework_detected should be null or 'unknown'",
-    "Uses generic HTML fix patterns from references/fix-patterns.md, not React or framework-specific patterns",
+    "Uses generic HTML remediation guidance from findings intelligence, not React or framework-specific patterns",
     "Correctly proposes inline HTML fixes (adding alt attributes, label elements) not JSX or component syntax",
     "Loads references/source-patterns.md and correctly identifies .html files as the target for fixes",
     "Does NOT search for .tsx, .vue, or .liquid files when framework is undetected",

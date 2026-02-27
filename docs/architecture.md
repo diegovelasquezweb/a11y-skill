@@ -75,14 +75,14 @@ flowchart TD
 ### 2. The Analyzer (`analyzer.mjs`)
 
 - **Brain**: Consumes the raw scan results and enriches them using `assets/intelligence.json`.
-- **Fix Logic**: Generates the `fixCode`, `fixDescription`, `wcag_criterion_id`, and `framework_notes` for each finding.
+- **Fix Logic**: Generates the `fixCode`, `fixDescription`, and `framework_notes` for each finding.
 - **Precision**: Extracts the **Surgical Selector** (prioritizing ID > Short Path) and generates the "Search Hint" to help AI agents find the code in the source files.
 - **Fix Acceleration**: Uses the detected `projectContext` to generate per-finding:
   - `file_search_pattern` — framework-specific glob patterns (e.g., `app/**/*.tsx` for Next.js) so agents search the right directories.
   - `managed_by_library` — warns when an ARIA rule violation may be on a component managed by a UI library (Radix, Headless UI, etc.).
   - `component_hint` — extracts the likely component name from the CSS selector (e.g., `.product-card__title` → `product-card`) for batch fixing.
   - `verification_command` — a targeted re-scan command (`--routes` + `--only-rule`) for quick post-fix verification.
-- **Triage**: Maps axe-core impact levels to severity tiers (Critical / High / Medium / Low). Compliance score calculation happens downstream in `findings.mjs`.
+- **Triage**: Maps axe-core impact levels to severity tiers (Critical / Serious / Moderate / Minor). Compliance score calculation happens downstream in `findings.mjs`.
 
 ### 3. The Builder (`audit.mjs` orchestrator)
 

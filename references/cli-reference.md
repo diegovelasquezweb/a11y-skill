@@ -16,6 +16,9 @@ Run `node scripts/audit.mjs --help` for the full and up-to-date list. Common fla
 | `--color-scheme <val>` | `light` or `dark` | `light` |
 | `--headed` | Show browser window | headless |
 | `--only-rule <id>` | Check one specific rule | — |
+| `--wait-until <val>` | Page load strategy: `domcontentloaded`, `load`, `networkidle` | `domcontentloaded` |
+| `--wait-ms <num>` | Extra wait time after page load (ms) | `2000` |
+| `--timeout-ms <num>` | Network timeout (ms) — increase for slow servers | `30000` |
 
 ## Default Values Reference
 

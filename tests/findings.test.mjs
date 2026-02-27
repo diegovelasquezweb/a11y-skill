@@ -70,33 +70,44 @@ describe("findings logic", () => {
       expect(normalized[2].severity).toBe("Minor");
     });
 
-    it("passes through wcagCriterionId, falsePositiveRisk, fixDifficultyNotes, frameworkNotes", () => {
+    it("passes through falsePositiveRisk, fixDifficultyNotes, frameworkNotes, and guardrails metadata", () => {
       const raw = {
         findings: [
           {
             id: "A11Y-abc123",
             severity: "Serious",
             title: "Test",
-            wcag_criterion_id: "4.1.2",
             false_positive_risk: "medium",
             fix_difficulty_notes: "Check context before fixing.",
             framework_notes: { react: "Use aria-label prop." },
+            guardrails: {
+              must: ["Confirm selector and evidence match."],
+              must_not: ["Do not overwrite valid accessible names."],
+              verify: ["Re-run targeted rule scan."],
+            },
+            verification_command_fallback: "node scripts/audit.mjs --base-url http://localhost:3000",
           },
         ],
       };
       const [f] = normalizeFindings(raw);
-      expect(f.wcagCriterionId).toBe("4.1.2");
       expect(f.falsePositiveRisk).toBe("medium");
       expect(f.fixDifficultyNotes).toBe("Check context before fixing.");
       expect(f.frameworkNotes).toEqual({ react: "Use aria-label prop." });
+      expect(f.guardrails).toEqual({
+        must: ["Confirm selector and evidence match."],
+        must_not: ["Do not overwrite valid accessible names."],
+        verify: ["Re-run targeted rule scan."],
+      });
+      expect(f.verificationCommandFallback).toBe(
+        "node scripts/audit.mjs --base-url http://localhost:3000",
+      );
     });
 
-    it("defaults new fields to null when absent", () => {
+    it("defaults metadata fields to null when absent", () => {
       const raw = {
         findings: [{ id: "A11Y-xyz", severity: "Minor", title: "Test" }],
       };
       const [f] = normalizeFindings(raw);
-      expect(f.wcagCriterionId).toBeNull();
       expect(f.falsePositiveRisk).toBeNull();
       expect(f.fixDifficultyNotes).toBeNull();
       expect(f.frameworkNotes).toBeNull();

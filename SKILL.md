@@ -17,11 +17,12 @@ Load these files on demand — never preload all at once.
 | Resource                          | Load when                                     | Path                                                             |
 | --------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
 | Report & evidence standards       | Step 3 — presenting findings · Step 6 item 1 — console summary | [references/report-standards.md](references/report-standards.md) |
-| Fix patterns by WCAG criterion    | Step 4 — proposing and applying fixes         | [references/fix-patterns.md](references/fix-patterns.md)         |
 | Source file patterns by framework | Step 4a — locating files to fix               | [references/source-patterns.md](references/source-patterns.md)   |
 | CLI flags reference               | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md)       |
 | Quality gates                     | Any phase boundary — verifying gate pass/fail | [references/quality-gates.md](references/quality-gates.md)       |
 | Troubleshooting                   | Any script failure                            | [references/troubleshooting.md](references/troubleshooting.md)   |
+| Out of scope (manual testing)     | Step 6 item 7 — checklist export             | [references/out-of-scope.md](references/out-of-scope.md)         |
+| Source code patterns              | Step 4c — pattern grep + fix                 | [references/code-patterns.md](references/code-patterns.md)       |
 
 ## Constraints
 
@@ -146,13 +147,14 @@ Then summarize and present:
 
 `[QUESTION]` **How would you like to proceed?**
 
-1. **Fix by severity** — start with the most critical issues first
-2. **Other criteria** — tell me how you'd like to prioritize the fixes
-3. **Skip fixes** — don't fix anything right now
+1. **Fix by severity** — Critical first, then Serious → Moderate → Minor
+2. **Fix by category** — group by issue type (aria · forms · structure · color…)
+3. **Other criteria** — tell me how you'd like to prioritize the fixes
+4. **Skip fixes** — don't fix anything right now
 
-Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
+Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity**, **Fix by category**, or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes**: present the following message, then proceed to Step 6 immediately.
+If the user chooses **Skip fixes** (option 4): present the following message, then proceed to Step 6 immediately.
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
@@ -160,7 +162,13 @@ If the user chooses **Skip fixes**: present the following message, then proceed 
 
 ### Step 4 — Fix
 
-Work through each phase in order: **4a → 4b → 4c**. All three phases must run — never skip a phase because the user declined fixes in a previous one. If the user chose **Other criteria** in Step 3, follow their specified prioritization instead of the default severity order throughout this step.
+Work through each phase in order: **4a → 4b → 4c**. All three phases must run — never skip a phase because the user declined fixes in a previous one.
+
+- **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor across all categories.
+- **Fix by category**: group findings by their `Category` field from the remediation guide. Order groups by the highest severity present within each category. Within each group, still apply the 4a/4b boundary — structural fixes first, then style fixes (with the style approval gate). Present one category at a time.
+- **Other criteria**: follow the user's specified prioritization throughout.
+
+> **Category values:** `aria` · `text-alternatives` · `forms` · `keyboard` · `structure` · `semantics` · `name-role-value` · `tables` · `color` · `language` · `parsing` · `sensory`
 
 #### 4a. Structural fixes (Critical → Serious → Moderate → Minor)
 
@@ -170,7 +178,7 @@ Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM orde
 
 If there are no structural findings to fix, skip directly to 4b.
 
-Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework. Load [references/fix-patterns.md](references/fix-patterns.md) to look up the correct fix pattern for each `rule_id`.
+Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework. Use each finding's remediation intelligence (`fix_description`, `fix_code`, framework notes, and evidence) as the source of truth for fixes.
 
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
@@ -201,6 +209,8 @@ If **Looks good**: proceed to the next severity group, or to 4b if this was the 
 If there are no style-dependent findings (color-contrast, font-size, or spacing), skip directly to 4c.
 
 `[MESSAGE]` Structural fixes done. Now let me review color contrast, font sizes, and spacing — changes here will affect the visual appearance of your site.
+
+→ **Do not wait for input — continue immediately in the same response.**
 
 > **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
@@ -242,7 +252,9 @@ If **Looks good**: proceed to 4c. If **Something's wrong**: apply corrections, t
 
 `[MESSAGE]` Let me scan your source code for accessibility patterns that the browser scanner cannot detect at runtime.
 
-Process the "🔍 Source Code Pattern Audit" section from the remediation guide. Each entry has a `detection.search` regex and `detection.files` glob — use these to grep the project source:
+→ **Do not wait for input — continue immediately in the same response.**
+
+Load [references/code-patterns.md](references/code-patterns.md). Each entry has a `Search for` regex and `In files` glob — use these to grep the project source. Apply the framework note matching the detected stack:
 
 1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
 2. Classify confirmed matches into two groups:
@@ -362,7 +374,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**, filling in values from the remediation guide. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`.
 2. If all resolved, confirm the site passes WCAG 2.2 AA automated checks.
-3. **Passed Criteria**: present the criteria from the "Passed Criteria" section of the remediation guide as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification. Omit any "Requires manual testing" subsection and any "AAA criteria: Not in scope" line — both are redundant given the manual checklist delivered later.
+3. **Passed Criteria**: read `passedCriteria` from `.audit/a11y-findings.json` and present as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification.
 
    | Criterion | Name | Level |
    |-----------|------|-------|
@@ -417,6 +429,8 @@ If **No thanks**: skip to item 7.
 - [ ] **Motion & timing** — `prefers-reduced-motion` is respected; no content flashes >3×/sec; auto-playing content has a pause control.
 - [ ] **Forms & errors** — Error messages give specific correction guidance; financial/legal submissions have a confirmation step.
 
+→ **Do not wait for input — continue immediately in the same response.**
+
 Then ask:
 
 `[QUESTION]` **Would you like to export the manual testing checklist?**
@@ -424,7 +438,7 @@ Then ask:
 1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
 2. **No thanks**
 
-If **Yes**: present the "Out of Scope" section from the remediation guide as context, then if a save path was already established in item 5 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 4), ask:
+If **Yes**: load [references/out-of-scope.md](references/out-of-scope.md) and present it as context, then if a save path was already established in item 5 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 4), ask:
 
 `[QUESTION]` **Where should I save the checklist?**
 
@@ -444,6 +458,8 @@ Verify the file exists on disk. Attempt to open it with the appropriate system c
 8. Output the closing message — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely.
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
+
+→ **Do not wait for input — continue immediately in the same response.**
 
 9. After the closing message (or after item 6 if items 7 and 8 were skipped):
     - If no deliverable was generated this session — user declined reports (item 4) and either declined or was never offered the checklist (item 7 skipped): the workflow is complete — do not ask a follow-up question.
