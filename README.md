@@ -4,14 +4,14 @@ This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with
 
 ## Why this Skill?
 
-This skill transforms accessibility audits into actionable fix roadmaps. It runs a full WCAG 2.2 AA scan, identifies the exact code locations responsible for each violation, and guides the agent through fixes with framework-aware intelligence.
+This skill runs a structured accessibility audit and remediation workflow. It scans routes, produces classified findings with evidence, generates a remediation guide, applies fixes with explicit user approval gates, validates outcomes through mandatory re-audits, and generates reports.
 
 | Capability                  | With a11y                                                                                                              | Without                                                                                          |
 | :-------------------------- | :--------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
-| **WCAG 2.2 AA Coverage**    | ✅ Full multi-layer coverage of the WCAG 2.2 AA standard                                                             | ❌ Automated scans are limited to the rendered DOM and miss source-level violations                    |
-| **Fix Intelligence**        | ✅ Surgical fix blueprints with stack-aware patterns for your specific codebase                                        | ❌ Manual hunting through code with generic DOM feedback and no fix guidance                     |
-| **Workflow**                | ✅ Guided session from findings to applied fixes, with prioritization by severity or issue category                   | ❌ Unstructured prompting with inconsistent flow and unpredictable results                         |
-| **Token Efficiency**        | ✅ The agent reads a compact, structured report instead of raw page HTML                                               | ❌ Entire page HTML is fed into context on every scan                                             |
+| **WCAG 2.2 AA Checks**      | ✅ Automated WCAG 2.2 AA coverage with classified findings and evidence per issue                                     | ❌ Basic checks without standardized finding structure or remediation context                     |
+| **Fix Intelligence**        | ✅ Stack-aware remediation guidance tied to affected routes and components                                              | ❌ Manual code search from generic scanner output                                                 |
+| **Workflow Control**        | ✅ Structured flow with mandatory verification re-audit and explicit approval gates                                   | ❌ Ad-hoc fixes without controlled ordering or re-validation                                      |
+| **Token Efficiency**        | ✅ Uses structured artifacts from findings and remediation instead of raw page dumps                                    | ❌ Large raw HTML context and repeated manual interpretation                                      |
 
 ## Installation
 
