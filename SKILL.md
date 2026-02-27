@@ -455,9 +455,7 @@ Apply the file-open rule. **Then immediately continue to item 7 — do not wait 
 
 → **Do not wait for input — continue immediately in the same response.**
 
-8. After the closing message (or after item 5 if items 6 and 7 were skipped):
-    - If no deliverable was generated this session — user declined reports (item 3) and either declined or was never offered the checklist (item 6 skipped): the workflow is complete — do not ask a follow-up question.
-    - Otherwise, ask:
+8. After the closing message (or after item 5 if items 6 and 7 were skipped), always ask:
 
 `[QUESTION]` **Is there anything else I can help you with?**
 
