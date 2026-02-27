@@ -82,6 +82,16 @@ Do not modify `config/settings_schema.json` or theme settings during fixes.
 | Template parts | `wp-content/themes/<active-theme>/template-parts/**/*.php` |
 | Styles | `wp-content/themes/<active-theme>/**/*.css` |
 
+## Drupal (Twig)
+
+| Type | Search in |
+|------|-----------|
+| Templates | `web/themes/**/*.html.twig`, `themes/**/*.html.twig` |
+| Template parts | `web/themes/**/*.twig`, `themes/**/*.twig` |
+| Styles | `web/themes/**/*.css`, `themes/**/*.css` |
+
+After changes, clear the Drupal cache: `drush cr`. Never edit compiled or cached files under `web/sites/default/files/`.
+
 ## Design Tokens (Tailwind CSS)
 
 When fixing `color-contrast` or visual issues, check `package.json` for the Tailwind version:

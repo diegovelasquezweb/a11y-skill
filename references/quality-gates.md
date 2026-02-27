@@ -20,7 +20,7 @@ Mandatory pass/fail checks at each phase boundary. If a gate fails, stop and res
 
 ## Gate 3 — Findings integrity (before presenting Step 3)
 
-- [ ] Every finding has: `rule_id`, `severity`, and either a `wcag_criterion_id` or a `wcag_classification` label (Best Practice / AAA)
+- [ ] Every finding has: `rule_id`, `severity`, and a `wcag` label (e.g., "WCAG 2.1 AA") plus a `wcag_classification` value (`null` for standard AA findings, `"Best Practice"`, or `"AAA"`)
 - [ ] Overall Assessment (`Pass` / `Conditional Pass` / `Fail`) is present in the report header
 - [ ] Severity counts sum to total: `critical + serious + moderate + minor == total_wcag_findings` (WCAG AA-level only — excludes Best Practice and AAA findings) — if the sum does not match, flag the discrepancy explicitly before presenting
 
