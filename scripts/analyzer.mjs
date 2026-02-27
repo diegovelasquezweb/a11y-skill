@@ -29,6 +29,12 @@ const wcagReferencePath = path.join(__dirname, "../assets/wcag-reference.json");
 const complianceConfigPath = path.join(__dirname, "../assets/compliance-config.json");
 const stackConfigPath = path.join(__dirname, "../assets/stack-config.json");
 
+// Temporarily suppressed rules — remove a rule_id to re-enable it.
+const SUPPRESSED_RULES = [
+  "page-has-heading-one",
+  "landmark-one-main",
+];
+
 let INTELLIGENCE;
 let WCAG_REFERENCE;
 let COMPLIANCE_CONFIG;

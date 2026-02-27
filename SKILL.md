@@ -424,7 +424,19 @@ If **No thanks**: skip to item 6.
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
 
-5. After all questions are answered, **execute** the following commands — do not describe or summarize them, run them:
+5. After all questions are answered, if any findings were skipped during this session, ask before generating:
+
+   `[QUESTION]` **Some findings were skipped during this session. How should the report handle them?**
+
+   1. **Include skipped findings** — show the full picture, including issues that were not fixed
+   2. **Exclude skipped findings** — only include resolved and remaining actionable issues
+
+   If **Include skipped findings**: run reports normally (all findings in `.audit/a11y-findings.json`).
+   If **Exclude skipped findings**: pass `--exclude-ids <comma-separated list of skipped finding IDs>` to the report scripts.
+
+   If no findings were skipped, proceed directly to running the scripts.
+
+   **Execute** the following commands — do not describe or summarize them, run them:
 
    ```bash
    # HTML (run if HTML or Both was selected)
