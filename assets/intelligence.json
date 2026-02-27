@@ -2698,7 +2698,7 @@
         "svelte": "In Svelte, avoid nesting interactive elements (e.g., <button> inside <a>, <a> inside <button>). Svelte does not warn about nested interactives — verify manually. This commonly occurs when wrapping card components in links.",
         "astro": "In .astro files, nested interactive elements (links inside buttons, buttons inside links) render to static HTML. This is invalid HTML and confuses AT — restructure to avoid nesting."
       },
-      "fix_difficulty_notes": "The most common pattern causing this is a 'card' component where the entire card is wrapped in an <a> tag and a button (e.g., 'Add to cart', 'Save') is placed inside. The HTML spec forbids interactive content inside <a>. Solutions: (1) use the 'stretched link' CSS pattern to make the <a> visually cover the card without wrapping the button, or (2) use JavaScript to handle card-level clicks while keeping elements separate in the DOM.",
+      "fix_difficulty_notes": "The evidence shows the OUTER container — identify the nested focusable element first. Search the component for `tabIndex`, `href=`, `<button`, `<a `, or `role=\"button\"` inside the flagged selector. The most common pattern: a card wrapped in <a> containing a <button> — the HTML spec forbids interactive content inside <a>. Solutions: (1) stretched-link CSS pattern (position <a> with ::after overlay, keep button outside <a> in DOM order); (2) keep elements separate and handle card-level clicks via JS.",
       "guardrails_overrides": {
         "must": [
           "Validate role/attribute combinations against ARIA-in-HTML constraints before applying ARIA fixes."
@@ -3572,18 +3572,9 @@
       "fallback": "requires_manual_verification"
     },
     "rule_guardrails_shared": {
-      "must": [
-        "Confirm DOM evidence and source code point to the same element before editing.",
-        "Apply changes at the source component/template, never compiled output."
-      ],
-      "must_not": [
-        "Do not apply a fix when evidence is stale or selector-to-source mapping is ambiguous.",
-        "Do not ship placeholder or partial accessibility fixes."
-      ],
-      "verify": [
-        "Run the rule-specific verification command after patching.",
-        "Re-check keyboard navigation and screen-reader announcement on the affected element."
-      ]
+      "must": [],
+      "must_not": [],
+      "verify": []
     },
     "code_pattern_guardrails_shared": {
       "must": [

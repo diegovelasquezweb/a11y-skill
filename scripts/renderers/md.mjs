@@ -60,6 +60,26 @@ function buildGuardrails(framework) {
   return [frameworkRule, ...shared].join("\n");
 }
 
+/**
+ * Trims "Fix any of the following:" condition lists to maxAny items.
+ * "Fix all of the following:" sections are never trimmed (all conditions are required).
+ * @param {string} actual
+ * @param {number} maxAny
+ * @returns {string}
+ */
+function trimViolation(actual, maxAny = 3) {
+  if (!actual) return actual;
+  return actual.replace(
+    /Fix any of the following:\n((?:  [^\n]+\n?)+)/g,
+    (_, conditions) => {
+      const lines = conditions.split("\n").filter((l) => l.trim());
+      if (lines.length <= maxAny) return `Fix any of the following:\n${conditions}`;
+      const kept = lines.slice(0, maxAny).map((l) => `  ${l.trim()}`).join("\n");
+      return `Fix any of the following:\n${kept}\n  _(+${lines.length - maxAny} more conditions)_\n`;
+    },
+  );
+}
+
 function normalizeComponentHint(hint) {
   if (!hint || hint === "other") return "source-not-resolved";
   if (hint.length <= 3) return "source-not-resolved";
@@ -147,11 +167,14 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       if (f.totalInstances && f.totalInstances > shownCount) {
         evidenceLabel = `#### Evidence from DOM (showing ${shownCount} of ${f.totalInstances} instances)`;
       }
+      const seen = new Set();
       evidenceHtml = f.evidence
-        .map((n, i) =>
-          n.html ? `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\`` : "",
-        )
-        .filter(Boolean)
+        .filter((n) => {
+          if (!n.html || seen.has(n.html)) return false;
+          seen.add(n.html);
+          return true;
+        })
+        .map((n, i) => `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\``)
         .join("\n\n");
     })();
 
@@ -205,7 +228,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       : null;
 
     const managedBlock = f.managedByLibrary
-      ? `> ⚠️ **Managed Component Warning:** This project uses **${f.managedByLibrary}** — verify this element is not a library-managed component before applying ARIA fixes.`
+      ? `> ⚠️ **Managed Component Warning:** Check evidence HTML for vendor class names (e.g., \`swiper-*\`, \`radix-*\`, \`mantine-*\`) — if library-owned, fix via config/wrapper, not the generated DOM.`
       : null;
 
     const verifyBlock = f.verificationCommand
@@ -241,7 +264,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       ``,
       crossPageBlock ? `${crossPageBlock}\n` : null,
       managedBlock ? `${managedBlock}\n` : null,
-      `**Observed Violation:** ${f.actual}`,
+      `**Observed Violation:** ${trimViolation(f.actual)}`,
       searchPatternBlock ? `` : null,
       searchPatternBlock,
       ``,
@@ -346,7 +369,8 @@ ${buildGuardrails(framework)}
 
 ---
 
-${buildComponentMap()}${buildRecommendationsSection(metadata.recommendations)}
+${buildComponentMap()}
+${buildRecommendationsSection(metadata.recommendations)}
 ${blockers ? `## 🔴 Priority Fixes (Critical & Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
 ${deferred ? `\n## 🔵 Deferred Issues (Moderate & Minor)\n\n${deferred}` : ""}
 `
