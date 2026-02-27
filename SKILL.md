@@ -147,13 +147,14 @@ Then summarize and present:
 
 `[QUESTION]` **How would you like to proceed?**
 
-1. **Fix by severity** — start with the most critical issues first
-2. **Other criteria** — tell me how you'd like to prioritize the fixes
-3. **Skip fixes** — don't fix anything right now
+1. **Fix by severity** — Critical first, then Serious → Moderate → Minor
+2. **Fix by category** — group by issue type (aria · forms · structure · color…)
+3. **Other criteria** — tell me how you'd like to prioritize the fixes
+4. **Skip fixes** — don't fix anything right now
 
-Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
+Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity**, **Fix by category**, or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes**: present the following message, then proceed to Step 6 immediately.
+If the user chooses **Skip fixes** (option 4): present the following message, then proceed to Step 6 immediately.
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
@@ -161,7 +162,13 @@ If the user chooses **Skip fixes**: present the following message, then proceed 
 
 ### Step 4 — Fix
 
-Work through each phase in order: **4a → 4b → 4c**. All three phases must run — never skip a phase because the user declined fixes in a previous one. If the user chose **Other criteria** in Step 3, follow their specified prioritization instead of the default severity order throughout this step.
+Work through each phase in order: **4a → 4b → 4c**. All three phases must run — never skip a phase because the user declined fixes in a previous one.
+
+- **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor across all categories.
+- **Fix by category**: group findings by their `Category` field from the remediation guide. Order groups by the highest severity present within each category. Within each group, still apply the 4a/4b boundary — structural fixes first, then style fixes (with the style approval gate). Present one category at a time.
+- **Other criteria**: follow the user's specified prioritization throughout.
+
+> **Category values:** `aria` · `text-alternatives` · `forms` · `keyboard` · `structure` · `semantics` · `name-role-value` · `tables` · `color` · `language` · `parsing` · `sensory`
 
 #### 4a. Structural fixes (Critical → Serious → Moderate → Minor)
 

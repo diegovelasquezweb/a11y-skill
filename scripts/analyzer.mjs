@@ -636,6 +636,7 @@ function buildFindings(inputPayload, cliArgs) {
           actual:
             firstNode?.failureSummary || `Found ${nodes.length} instance(s).`,
           expected: getExpected(v.id),
+          category: ruleInfo.category ?? null,
           fix_description: fixInfo.description ?? null,
           fix_code: fixInfo.code ?? null,
           fix_code_lang: codeLang,
@@ -694,6 +695,7 @@ function buildFindings(inputPayload, cliArgs) {
         impacted_users: getImpactedUsers("page-has-heading-one", []),
         actual: `Found ${meta.h1Count} h1 tags.`,
         expected: "Exactly 1 h1 tag.",
+        category: _ruleInfo.category ?? null,
         fix_description: _fixInfo.description ?? null,
         fix_code: _fixInfo.code ?? null,
         fix_code_lang: detectCodeLang(_fixInfo.code),
@@ -737,6 +739,7 @@ function buildFindings(inputPayload, cliArgs) {
         impacted_users: getImpactedUsers("landmark-one-main", []),
         actual: `Found ${meta.mainCount} main tags.`,
         expected: "Exactly 1 main tag.",
+        category: _ruleInfo.category ?? null,
         fix_description: _fixInfo.description ?? null,
         fix_code: _fixInfo.code ?? null,
         fix_code_lang: detectCodeLang(_fixInfo.code),

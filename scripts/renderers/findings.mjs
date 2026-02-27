@@ -46,6 +46,7 @@ export function normalizeFindings(payload) {
     .map((item, index) => ({
       id: String(item.id ?? `A11Y-${String(index + 1).padStart(3, "0")}`),
       ruleId: String(item.rule_id ?? ""),
+      category: item.category ?? null,
       title: String(item.title ?? "Untitled finding"),
       severity: String(item.severity ?? "Unknown"),
       wcag: String(item.wcag ?? ""),

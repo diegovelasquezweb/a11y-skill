@@ -257,6 +257,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       f.wcagClassification === "Best Practice"
         ? `- **WCAG Criterion:** ${f.wcag} _(Best Practice — not a WCAG AA requirement)_`
         : `- **WCAG Criterion:** ${f.wcag}`,
+      f.category ? `- **Category:** ${f.category}` : null,
       ``,
       crossPageBlock ? `${crossPageBlock}\n` : null,
       managedBlock ? `${managedBlock}\n` : null,
