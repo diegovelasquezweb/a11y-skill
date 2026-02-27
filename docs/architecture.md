@@ -82,7 +82,7 @@ flowchart TD
   - `managed_by_library` — warns when an ARIA rule violation may be on a component managed by a UI library (Radix, Headless UI, etc.).
   - `component_hint` — extracts the likely component name from the CSS selector (e.g., `.product-card__title` → `product-card`) for batch fixing.
   - `verification_command` — a targeted re-scan command (`--routes` + `--only-rule`) for quick post-fix verification.
-- **Triage**: Maps axe-core impact levels to severity tiers (Critical / High / Medium / Low). Compliance score calculation happens downstream in `findings.mjs`.
+- **Triage**: Maps axe-core impact levels to severity tiers (Critical / Serious / Moderate / Minor). Compliance score calculation happens downstream in `findings.mjs`.
 
 ### 3. The Builder (`audit.mjs` orchestrator)
 

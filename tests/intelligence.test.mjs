@@ -345,7 +345,7 @@ describe("manual-checks.json — schema", () => {
 
 describe("code_patterns", () => {
   const patterns = intel.code_patterns;
-  const VALID_SEVERITIES = new Set(["critical", "high", "medium", "low"]);
+  const VALID_SEVERITIES = new Set(["Critical", "Serious", "Moderate", "Minor"]);
 
   it("code_patterns section exists and is non-empty", () => {
     expect(patterns).toBeDefined();

@@ -2745,7 +2745,7 @@
       },
       "wcag": "2.4.7",
       "level": "AA",
-      "severity": "high",
+      "severity": "Serious",
       "framework_notes": {
         "react": "Tailwind focus:outline-none is common — replace with focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500.",
         "vue": "Check scoped <style> blocks and global CSS. Tailwind/UnoCSS users replace focus:outline-none with focus-visible: variants.",
@@ -2767,7 +2767,7 @@
       },
       "wcag": "1.4.2",
       "level": "A",
-      "severity": "high",
+      "severity": "Serious",
       "framework_notes": {
         "react": "Remove the `autoPlay` prop (React uses camelCase). If required, add `muted` and `controls`: `<video autoPlay muted controls src={src} />`.",
         "vue": "Remove `autoplay` from the element. If required, add `muted controls`: `<video autoplay muted controls :src=\"src\" />`.",
@@ -2789,7 +2789,7 @@
       },
       "wcag": "1.3.4",
       "level": "AA",
-      "severity": "medium",
+      "severity": "Moderate",
       "framework_notes": {
         "react": "Remove `screen.orientation.lock()` calls from `useEffect` hooks. If a native app wrapper (Capacitor, Expo) sets orientation, configure it only for specific screens.",
         "vue": "Remove from `mounted()` hooks or composables. Check Capacitor/Cordova plugins that may enforce orientation globally.",
@@ -2811,7 +2811,7 @@
       },
       "wcag": "2.1.4",
       "level": "A",
-      "severity": "medium",
+      "severity": "Moderate",
       "framework_notes": {
         "react": "Remove the `accessKey` prop (React camelCase). For custom shortcuts, implement a `useKeyboardShortcut` hook using modifier keys (Alt+Shift+key).",
         "vue": "Remove `accesskey` from template elements. For custom shortcuts, use `@keydown` with modifier checks (e.g., `Alt+Shift`).",
