@@ -26,7 +26,7 @@ Mandatory pass/fail checks at each phase boundary. If a gate fails, stop and res
 
 **Fail action**: present findings as-is, note any missing fields or count mismatches explicitly. Never fabricate `rule_id`, WCAG criterion, or severity.
 
-## Gate 4 — Fix integrity (after each 4a / 4b / 4c batch)
+## Gate 4 — Fix integrity (after each 4a / 4b batch)
 
 - [ ] Files modified are only those listed in the proposed change set
 - [ ] Phase 4a changes contain no CSS property modifications (colors, fonts, spacing belong in 4b)
