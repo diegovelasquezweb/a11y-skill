@@ -17,11 +17,9 @@ Load these files on demand — never preload all at once.
 | Resource                          | Load when                                     | Path                                                             |
 | --------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
 | Report & evidence standards       | Step 3 — presenting findings · Step 6 item 1 — console summary | [references/report-standards.md](references/report-standards.md) |
-| Source file patterns by framework | Step 4a — locating files to fix               | [references/source-patterns.md](references/source-patterns.md)   |
 | CLI flags reference               | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md)       |
 | Quality gates                     | Any phase boundary — verifying gate pass/fail | [references/quality-gates.md](references/quality-gates.md)       |
 | Troubleshooting                   | Any script failure                            | [references/troubleshooting.md](references/troubleshooting.md)   |
-| Out of scope (manual testing · backend root cause) | Step 4 — finding has server-side evidence · Step 6 item 7 — checklist export | [references/out-of-scope.md](references/out-of-scope.md) |
 
 
 ## Constraints
@@ -193,7 +191,7 @@ Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM orde
 
 If there are no structural findings (axe or pattern) to fix, skip directly to 4b.
 
-Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework. For axe findings, use `fix_description`, `fix_code`, framework notes, and evidence as the source of truth. For pattern findings, use `file:line`, `match`, and `fix_description` from the "Source Code Pattern Findings" section of the report.
+Use the **Source File Locations** section of the remediation guide to locate source files by detected framework. For axe findings, use `fix_description`, `fix_code`, framework notes, and evidence as the source of truth. For pattern findings, use `file:line`, `match`, and `fix_description` from the "Source Code Pattern Findings" section of the report.
 
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
@@ -363,7 +361,7 @@ If **No thanks**: skip to item 6.
 1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
 2. **No thanks**
 
-If **Yes**: load [references/out-of-scope.md](references/out-of-scope.md) and present it as context, then if a save path was already established in item 4 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 3), ask:
+If **Yes**: if a save path was already established in item 4 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 3), ask:
 
 `[QUESTION]` **Where should I save the checklist?**
 

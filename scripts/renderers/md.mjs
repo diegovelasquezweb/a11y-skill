@@ -13,6 +13,11 @@ const GUARDRAILS = loadAssetJson(
   "assets/remediation/guardrails.json",
 );
 
+const SOURCE_BOUNDARIES = loadAssetJson(
+  ASSET_PATHS.remediation.sourceBoundaries,
+  "assets/remediation/source-boundaries.json",
+);
+
 
 /**
  * Resolves the active web framework or CMS platform to provide tailored guardrails.
@@ -42,6 +47,21 @@ function buildGuardrails(framework) {
     .filter(Boolean)
     .map((rule, index) => `${index + 1}. ${rule}`)
     .join("\n");
+}
+
+/**
+ * Renders the source file location table for the detected framework.
+ * @param {string} framework
+ * @returns {string}
+ */
+function buildSourceBoundariesSection(framework) {
+  const boundaries = SOURCE_BOUNDARIES?.[framework];
+  if (!boundaries) return "";
+  const rows = [];
+  if (boundaries.components) rows.push(`| Components | \`${boundaries.components}\` |`);
+  if (boundaries.styles) rows.push(`| Styles | \`${boundaries.styles}\` |`);
+  if (rows.length === 0) return "";
+  return `## Source File Locations\n\n| Type | Glob Pattern |\n|---|---|\n${rows.join("\n")}\n`;
 }
 
 function formatViolation(actual) {
@@ -492,6 +512,7 @@ ${rows.join("\n")}
 
   const incompleteSection = buildIncompleteSection(metadata.incomplete_findings);
   const patternSection = buildPatternSection(metadata.pattern_findings);
+  const sourceBoundariesSection = buildSourceBoundariesSection(framework);
 
   return (
       `# Accessibility Remediation Guide
@@ -511,6 +532,7 @@ ${rows.join("\n")}
 ${buildGuardrails(framework)}
 
 ---
+${sourceBoundariesSection ? `\n${sourceBoundariesSection}\n---` : ""}
 
 ${buildComponentMap()}
 ${buildRecommendationsSection(metadata.recommendations)}
