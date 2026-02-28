@@ -10,8 +10,8 @@ import { computeComplianceScore, scoreLabel, wcagOverallStatus } from "./finding
 import { escapeHtml } from "./utils.mjs";
 
 const COMPLIANCE_CONFIG = loadAssetJson(
-  ASSET_PATHS.scoring.complianceConfig,
-  "assets/scoring/compliance-config.json",
+  ASSET_PATHS.reporting.complianceConfig,
+  "assets/reporting/compliance-config.json",
 );
 
 /**

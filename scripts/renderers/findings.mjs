@@ -8,12 +8,12 @@
 import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
 
 const SCORING_CONFIG = loadAssetJson(
-  ASSET_PATHS.scoring.complianceConfig,
-  "assets/scoring/compliance-config.json",
+  ASSET_PATHS.reporting.complianceConfig,
+  "assets/reporting/compliance-config.json",
 );
 const RULE_METADATA = loadAssetJson(
-  ASSET_PATHS.scoring.wcagReference,
-  "assets/scoring/wcag-reference.json",
+  ASSET_PATHS.reporting.wcagReference,
+  "assets/reporting/wcag-reference.json",
 );
 
 /**

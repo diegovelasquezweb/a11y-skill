@@ -18,25 +18,23 @@ export const ASSET_PATHS = {
       "discovery",
       "stack-detection.json",
     ),
-    sourceBoundaries: path.join(
-      ASSET_ROOT,
-      "discovery",
-      "source-boundaries.json",
-    ),
   },
   remediation: {
     intelligence: path.join(ASSET_ROOT, "remediation", "intelligence.json"),
     guardrails: path.join(ASSET_ROOT, "remediation", "guardrails.json"),
-  },
-  scoring: {
-    wcagReference: path.join(ASSET_ROOT, "scoring", "wcag-reference.json"),
-    complianceConfig: path.join(
+    sourceBoundaries: path.join(
       ASSET_ROOT,
-      "scoring",
-      "compliance-config.json",
+      "remediation",
+      "source-boundaries.json",
     ),
   },
   reporting: {
+    wcagReference: path.join(ASSET_ROOT, "reporting", "wcag-reference.json"),
+    complianceConfig: path.join(
+      ASSET_ROOT,
+      "reporting",
+      "compliance-config.json",
+    ),
     manualChecks: path.join(ASSET_ROOT, "reporting", "manual-checks.json"),
   },
 };

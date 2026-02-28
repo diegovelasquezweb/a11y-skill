@@ -41,12 +41,12 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 | Asset                       | Role          | Key Data                                                                             |
 | :-------------------------- | :------------ | :----------------------------------------------------------------------------------- |
 | **`assets/discovery/stack-detection.json`** | Detection | Framework package detectors, platform structure detectors, and UI library package detectors. |
-| **`assets/discovery/source-boundaries.json`** | Source Discovery | Stack-specific editable source boundaries used to suggest safe search locations. |
 | **`assets/discovery/crawler-config.json`** | Crawl Rules | Blocked file extensions and pagination query hints used during route discovery. |
 | **`assets/remediation/intelligence.json`** | Fix Database | Category, resolution code, framework/CMS notes, guardrails, managed-library flags, and related rules for all 101 axe-core rules. |
 | **`assets/remediation/guardrails.json`** | Operating Rules | Shared and platform-specific instructions injected into the remediation guide. |
-| **`assets/scoring/wcag-reference.json`** | Rule Mapping | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags. |
-| **`assets/scoring/compliance-config.json`** | Risk Engine | Severity scoring, grade thresholds, effort multipliers, and jurisdictional data. |
+| **`assets/remediation/source-boundaries.json`** | Source Boundaries | Stack-specific editable source boundaries used to suggest safe search locations and ownership decisions. |
+| **`assets/reporting/wcag-reference.json`** | Rule Mapping | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags. |
+| **`assets/reporting/compliance-config.json`** | Risk Engine | Severity scoring, grade thresholds, effort multipliers, and jurisdictional data. |
 | **`assets/reporting/manual-checks.json`** | Verification | 41 manual audit criteria for WCAG 2.2 areas that automation cannot detect. |
 
 ---
@@ -127,9 +127,9 @@ flowchart LR
         AS1[discovery/crawler-config.json] -.-> C
         AS2[discovery/stack-detection.json] -.-> C
         AS3[remediation/intelligence.json] -.-> D
-        AS4[discovery/source-boundaries.json] -.-> D
+        AS4[remediation/source-boundaries.json] -.-> D
         AS5[remediation/guardrails.json] -.-> E
-        AS6[scoring/compliance-config.json] -.-> E
+        AS6[reporting/compliance-config.json] -.-> E
     end
 
     subgraph Knowledge ["Operational References"]

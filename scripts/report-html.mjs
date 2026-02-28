@@ -20,8 +20,8 @@ import {
 import { escapeHtml } from "./renderers/utils.mjs";
 
 const RULE_METADATA = loadAssetJson(
-  ASSET_PATHS.scoring.wcagReference,
-  "assets/scoring/wcag-reference.json",
+  ASSET_PATHS.reporting.wcagReference,
+  "assets/reporting/wcag-reference.json",
 );
 
 import {

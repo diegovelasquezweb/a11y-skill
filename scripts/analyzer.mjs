@@ -25,10 +25,10 @@ const intelligencePath = ASSET_PATHS.remediation.intelligence;
  * Path to the WCAG reference database: criterion maps, APG patterns, MDN links, personas.
  * @type {string}
  */
-const wcagReferencePath = ASSET_PATHS.scoring.wcagReference;
+const wcagReferencePath = ASSET_PATHS.reporting.wcagReference;
 
-const complianceConfigPath = ASSET_PATHS.scoring.complianceConfig;
-const sourceBoundariesPath = ASSET_PATHS.discovery.sourceBoundaries;
+const complianceConfigPath = ASSET_PATHS.reporting.complianceConfig;
+const sourceBoundariesPath = ASSET_PATHS.remediation.sourceBoundaries;
 const DISABLED_RULES = {
   "page-has-heading-one": true,
   "landmark-one-main": true,
@@ -46,17 +46,17 @@ INTELLIGENCE = loadAssetJson(
 
 WCAG_REFERENCE = loadAssetJson(
   wcagReferencePath,
-  "assets/scoring/wcag-reference.json",
+  "assets/reporting/wcag-reference.json",
 );
 
 COMPLIANCE_CONFIG = loadAssetJson(
   complianceConfigPath,
-  "assets/scoring/compliance-config.json",
+  "assets/reporting/compliance-config.json",
 );
 
 SOURCE_BOUNDARIES = loadAssetJson(
   sourceBoundariesPath,
-  "assets/discovery/source-boundaries.json",
+  "assets/remediation/source-boundaries.json",
 );
 
 /**

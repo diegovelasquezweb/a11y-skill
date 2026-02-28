@@ -22,7 +22,7 @@ describe("assets/intelligence.json schema", () => {
     );
     ruleMetadata = JSON.parse(
       fs.readFileSync(
-        path.join(__dirname, "../assets/scoring/wcag-reference.json"),
+        path.join(__dirname, "../assets/reporting/wcag-reference.json"),
         "utf-8",
       ),
     );
