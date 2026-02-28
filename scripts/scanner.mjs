@@ -9,18 +9,30 @@
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
 import { log, DEFAULTS, writeJson, getInternalPath } from "./utils.mjs";
+import { ASSET_PATHS, loadAssetJson } from "./assets.mjs";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const SCANNER_CONFIG = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../assets/scanner-config.json"), "utf-8"),
+const CRAWLER_CONFIG = loadAssetJson(
+  ASSET_PATHS.discovery.crawlerConfig,
+  "assets/discovery/crawler-config.json",
 );
-const STACK_CONFIG = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../assets/stack-config.json"), "utf-8"),
+const STACK_DETECTION = loadAssetJson(
+  ASSET_PATHS.discovery.stackDetection,
+  "assets/discovery/stack-detection.json",
 );
+const AXE_TAGS = [
+  "wcag2a",
+  "wcag2aa",
+  "wcag21a",
+  "wcag21aa",
+  "wcag22a",
+  "wcag22aa",
+  "best-practice",
+];
 
 /**
  * Prints the CLI usage instructions and available options to the console.
@@ -112,12 +124,12 @@ function parseArgs(argv) {
 }
 
 const BLOCKED_EXTENSIONS = new RegExp(
-  "\\.(" + SCANNER_CONFIG.blockedExtensions.join("|") + ")$",
+  "\\.(" + CRAWLER_CONFIG.blockedExtensions.join("|") + ")$",
   "i",
 );
 
 const PAGINATION_PARAMS = new RegExp(
-  "^(" + SCANNER_CONFIG.paginationParams.join("|") + ")$",
+  "^(" + CRAWLER_CONFIG.paginationParams.join("|") + ")$",
   "i",
 );
 
@@ -314,27 +326,17 @@ export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
 }
 
 /**
- * Detects the web framework and UI libraries used by analyzing the DOM and package.json (if available).
- * @param {import("playwright").Page} page - The Playwright page object.
- * @returns {Promise<Object>} An object containing detected framework and UI libraries.
+ * Detects the web framework and UI libraries used by analyzing package.json and file structure.
+ * @returns {Object} An object containing detected framework and UI libraries.
  */
-async function detectProjectContext(page) {
-  const domSignals = STACK_CONFIG.frameworkDetection.domSignals;
-
-  const domFramework = await page.evaluate((signals) => {
-    for (const entry of signals) {
-      const s = entry.signals;
-      if (s.window && window[s.window]) return entry.framework;
-      if (s.scriptSrc && document.querySelector(`script[src*="${s.scriptSrc}"]`)) return entry.framework;
-    }
-    return null;
-  }, domSignals);
-
+function detectProjectContext() {
   const uiLibraries = [];
   let pkgFramework = null;
   let fileFramework = null;
+
+  const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
+
   try {
-    const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
     const pkgPath = path.join(projectDir, "package.json");
     if (fs.existsSync(pkgPath)) {
       const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
@@ -342,41 +344,33 @@ async function detectProjectContext(page) {
         ...(pkg.dependencies || {}),
         ...(pkg.devDependencies || {}),
       });
-      const PKG_SIGNALS = STACK_CONFIG.frameworkDetection.packageSignals;
-      for (const [dep, fw] of PKG_SIGNALS) {
+      for (const [dep, fw] of STACK_DETECTION.frameworkPackageDetectors) {
         if (allDeps.some((d) => d === dep || d.startsWith(`${dep}/`))) {
           pkgFramework = fw;
           break;
         }
       }
-      const LIB_SIGNALS = STACK_CONFIG.frameworkDetection.uiLibrarySignals;
-      for (const [prefix, name] of LIB_SIGNALS) {
+      for (const [prefix, name] of STACK_DETECTION.uiLibraryPackageDetectors) {
         if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
           uiLibraries.push(name);
         }
       }
     }
-  } catch {
-    // package.json not available — running against remote URL
-  }
+  } catch { /* package.json unreadable */ }
 
   if (!pkgFramework) {
-    const fileSignals = STACK_CONFIG.frameworkDetection.fileSignals || [];
-    try {
-      const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
-      for (const entry of fileSignals) {
-        if (entry.files.some((f) => fs.existsSync(path.join(projectDir, f)))) {
-          fileFramework = entry.framework;
-          break;
-        }
+    for (const [fw, files] of STACK_DETECTION.platformStructureDetectors || []) {
+      if (files.some((f) => fs.existsSync(path.join(projectDir, f)))) {
+        fileFramework = fw;
+        break;
       }
-    } catch { /* not a local project */ }
+    }
   }
 
-  const resolvedFramework = pkgFramework || fileFramework || domFramework;
+  const resolvedFramework = pkgFramework || fileFramework;
 
   if (resolvedFramework) {
-    const source = pkgFramework ? "(from package.json)" : fileFramework ? "(from file structure)" : "(from DOM)";
+    const source = pkgFramework ? "(from package.json)" : "(from file structure)";
     log.info(`Detected framework: ${resolvedFramework} ${source}`);
   }
   if (uiLibraries.length) log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
@@ -424,7 +418,7 @@ async function analyzeRoute(
         log.info(`Targeted Audit: Only checking rule "${onlyRule}"`);
         builder.withRules([onlyRule]);
       } else {
-        builder.withTags(SCANNER_CONFIG.axeTags);
+        builder.withTags(AXE_TAGS);
       }
 
       if (Array.isArray(excludeSelectors)) {
@@ -443,8 +437,6 @@ async function analyzeRoute(
 
       const metadata = await page.evaluate(() => {
         return {
-          h1Count: document.querySelectorAll("h1").length,
-          mainCount: document.querySelectorAll('main, [role="main"]').length,
           title: document.title,
         };
       });
@@ -452,6 +444,7 @@ async function analyzeRoute(
       return {
         url: routeUrl,
         violations: axeResults.violations,
+        incomplete: axeResults.incomplete,
         passes: axeResults.passes.map((p) => p.id),
         metadata,
       };
@@ -515,7 +508,7 @@ async function main() {
       timeout: args.timeoutMs,
     });
 
-    projectContext = await detectProjectContext(page);
+    projectContext = detectProjectContext();
 
     const cliRoutes = parseRoutesArg(args.routes, origin);
 

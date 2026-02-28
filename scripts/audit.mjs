@@ -26,7 +26,7 @@ Targeting & Scope:
   --max-routes <num>      Max routes to discover and scan (default: 10).
   --crawl-depth <num>     How deep to follow links during discovery (1-3, default: 2).
   --routes <csv>          Custom list of paths to scan.
-  --project-dir <path>    Path to the audited project (for framework auto-detection).
+  --project-dir <path>    Path to the audited project (for stack auto-detection).
 
 Audit Intelligence:
   --target <text>         Compliance target label (default: "WCAG 2.2 AA").
@@ -37,7 +37,7 @@ Audit Intelligence:
 Execution & Emulation:
   --color-scheme <val>    Emulate color scheme: "light" or "dark".
   --wait-until <val>      Page load strategy: domcontentloaded|load|networkidle (default: domcontentloaded).
-  --framework <val>       Override auto-detected framework (react|vue|angular|svelte|astro|shopify|wordpress|drupal).
+  --framework <val>       Override auto-detected stack (nextjs|gatsby|react|nuxt|vue|angular|astro|svelte|shopify|wordpress|drupal).
   --viewport <WxH>        Viewport dimensions as WIDTHxHEIGHT (e.g., 375x812 for mobile).
   --headed                Run browser in visible mode (overrides headless).
   --with-reports          Generate HTML and PDF reports (requires --output).
@@ -133,7 +133,18 @@ async function main() {
   const routes = getArgValue("routes");
   const waitMs = getArgValue("wait-ms") || DEFAULTS.waitMs;
   const timeoutMs = getArgValue("timeout-ms") || DEFAULTS.timeoutMs;
-  const projectDir = getArgValue("project-dir");
+
+  const sessionFile = getInternalPath("a11y-session.json");
+  let projectDir = getArgValue("project-dir");
+  if (projectDir) {
+    fs.mkdirSync(path.dirname(sessionFile), { recursive: true });
+    fs.writeFileSync(sessionFile, JSON.stringify({ project_dir: path.resolve(projectDir) }), "utf-8");
+  } else if (fs.existsSync(sessionFile)) {
+    try {
+      const session = JSON.parse(fs.readFileSync(sessionFile, "utf-8"));
+      if (session.project_dir) projectDir = session.project_dir;
+    } catch { /* ignore malformed session file */ }
+  }
 
   const colorScheme = getArgValue("color-scheme");
   const target = getArgValue("target");
@@ -224,6 +235,11 @@ async function main() {
     if (ignoreFindings) analyzerArgs.push("--ignore-findings", ignoreFindings);
     if (framework) analyzerArgs.push("--framework", framework);
     await runScript("analyzer.mjs", analyzerArgs);
+
+    if (projectDir) {
+      const patternArgs = ["--project-dir", path.resolve(projectDir)];
+      await runScript("pattern-scanner.mjs", patternArgs);
+    }
 
     const mdOutput = getInternalPath("remediation.md");
     const mdArgs = ["--output", mdOutput, "--base-url", baseUrl];

@@ -111,6 +111,22 @@ describe("findings logic", () => {
       expect(f.falsePositiveRisk).toBeNull();
       expect(f.fixDifficultyNotes).toBeNull();
       expect(f.frameworkNotes).toBeNull();
+      expect(f.checkData).toBeNull();
+    });
+
+    it("passes through check_data as checkData", () => {
+      const raw = {
+        findings: [
+          {
+            id: "A11Y-cc1",
+            severity: "Serious",
+            title: "Low contrast",
+            check_data: { fgColor: "#999999", bgColor: "#ffffff", contrastRatio: 3.24, expectedContrastRatio: "4.5:1" },
+          },
+        ],
+      };
+      const [f] = normalizeFindings(raw);
+      expect(f.checkData).toMatchObject({ fgColor: "#999999", bgColor: "#ffffff", contrastRatio: 3.24 });
     });
 
     it("defaults relatedRules to [] when absent", () => {

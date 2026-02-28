@@ -7,9 +7,9 @@
  */
 
 import { log, readJson, writeJson, getInternalPath } from "./utils.mjs";
+import { ASSET_PATHS, loadAssetJson } from "./assets.mjs";
 import { createHash } from "node:crypto";
 import path from "node:path";
-import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -18,59 +18,48 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * Path to the core remediation intelligence database.
  * @type {string}
  */
-const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
+const intelligencePath = ASSET_PATHS.remediation.intelligence;
 
 /**
  * Path to the WCAG reference database: criterion maps, APG patterns, MDN links, personas.
  * @type {string}
  */
-const wcagReferencePath = path.join(__dirname, "../assets/wcag-reference.json");
+const wcagReferencePath = ASSET_PATHS.reporting.wcagReference;
 
-const complianceConfigPath = path.join(__dirname, "../assets/compliance-config.json");
-const stackConfigPath = path.join(__dirname, "../assets/stack-config.json");
-
-const DISABLED_RULES = {
-  "page-has-heading-one": true,
-  "landmark-one-main": true,
-};
+const complianceConfigPath = ASSET_PATHS.reporting.complianceConfig;
+const axeCheckMapsPath = ASSET_PATHS.remediation.axeCheckMaps;
+const sourceBoundariesPath = ASSET_PATHS.remediation.sourceBoundaries;
 
 let INTELLIGENCE;
 let WCAG_REFERENCE;
 let COMPLIANCE_CONFIG;
-let STACK_CONFIG;
-
+let AXE_CHECK_MAPS;
+let SOURCE_BOUNDARIES;
 // Initialize remediation and rule metadata assets.
-try {
-  INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid intelligence.json at ${intelligencePath} — run pnpm install to reinstall.`,
-  );
-}
+INTELLIGENCE = loadAssetJson(
+  intelligencePath,
+  "assets/remediation/intelligence.json",
+);
 
-try {
-  WCAG_REFERENCE = JSON.parse(fs.readFileSync(wcagReferencePath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid wcag-reference.json at ${wcagReferencePath} — run pnpm install to reinstall.`,
-  );
-}
+WCAG_REFERENCE = loadAssetJson(
+  wcagReferencePath,
+  "assets/reporting/wcag-reference.json",
+);
 
-try {
-  COMPLIANCE_CONFIG = JSON.parse(fs.readFileSync(complianceConfigPath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid compliance-config.json at ${complianceConfigPath} — run pnpm install to reinstall.`,
-  );
-}
+COMPLIANCE_CONFIG = loadAssetJson(
+  complianceConfigPath,
+  "assets/reporting/compliance-config.json",
+);
 
-try {
-  STACK_CONFIG = JSON.parse(fs.readFileSync(stackConfigPath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid stack-config.json at ${stackConfigPath} — run pnpm install to reinstall.`,
-  );
-}
+AXE_CHECK_MAPS = loadAssetJson(
+  axeCheckMapsPath,
+  "assets/remediation/axe-check-maps.json",
+);
+
+SOURCE_BOUNDARIES = loadAssetJson(
+  sourceBoundariesPath,
+  "assets/remediation/source-boundaries.json",
+);
 
 /**
  * Generates a stable unique ID for a finding based on the rule, URL, and selector.
@@ -157,7 +146,7 @@ function getExpected(ruleId) {
  * Used to help developers locate the source of an accessibility violation.
  * @type {Object<string, Object>}
  */
-const FRAMEWORK_GLOBS = STACK_CONFIG.frameworkGlobs || {};
+const FRAMEWORK_GLOBS = SOURCE_BOUNDARIES || {};
 
 /**
  * Rules with managed_by_libraries in intelligence.json — derived at load time.
@@ -169,17 +158,21 @@ const MANAGED_RULES = new Map(
     .map(([id, rule]) => [id, rule.managed_by_libraries]),
 );
 
-/**
- * Maps detected framework IDs to their respective keys in intelligence.json.
- * @type {Object<string, string>}
- */
-const FRAMEWORK_TO_INTEL_KEY = STACK_CONFIG.frameworkAliases?.intelKey || {};
+const FRAMEWORK_NOTE_ALIASES = {
+  nextjs: "react",
+  gatsby: "react",
+  nuxt: "vue",
+};
 
-/**
- * Maps detected framework/CMS IDs to their respective keys for CMS-specific notes.
- * @type {Object<string, string>}
- */
-const FRAMEWORK_TO_CMS_KEY = STACK_CONFIG.frameworkAliases?.cmsKey || {};
+function resolveFrameworkNotesKey(framework) {
+  if (!framework) return null;
+  return FRAMEWORK_NOTE_ALIASES[framework] || framework;
+}
+
+function resolveCmsNotesKey(framework) {
+  if (!framework) return null;
+  return framework;
+}
 
 /**
  * Filters the intelligence notes to only include those relevant to the detected framework.
@@ -189,9 +182,9 @@ const FRAMEWORK_TO_CMS_KEY = STACK_CONFIG.frameworkAliases?.cmsKey || {};
  */
 function filterNotes(notes, framework) {
   if (!notes || typeof notes !== "object") return null;
-  const intelKey = FRAMEWORK_TO_INTEL_KEY[framework];
+  const intelKey = resolveFrameworkNotesKey(framework);
   if (intelKey && notes[intelKey]) return { [intelKey]: notes[intelKey] };
-  const cmsKey = FRAMEWORK_TO_CMS_KEY[framework];
+  const cmsKey = resolveCmsNotesKey(framework);
   if (cmsKey && notes[cmsKey]) return { [cmsKey]: notes[cmsKey] };
   return null;
 }
@@ -363,6 +356,192 @@ export function extractSearchHint(selector) {
   return specific;
 }
 
+const FAILURE_MODE_MAP = AXE_CHECK_MAPS.failureModes || {};
+
+const RELATIONSHIP_HINT_MAP = AXE_CHECK_MAPS.relationshipHints || {};
+
+function normalizeFailureMessage(message) {
+  if (!message) return null;
+  return String(message).trim().replace(/\.$/, "");
+}
+
+function deriveRelationshipHint(checks = [], preferredChecks = []) {
+  const preferredOrder = Array.isArray(preferredChecks)
+    ? preferredChecks.filter(Boolean)
+    : [];
+  for (const checkId of preferredOrder) {
+    if (checks.some((check) => check?.id === checkId) && RELATIONSHIP_HINT_MAP[checkId]) {
+      return RELATIONSHIP_HINT_MAP[checkId];
+    }
+  }
+  for (const check of checks) {
+    if (check?.id && RELATIONSHIP_HINT_MAP[check.id]) {
+      return RELATIONSHIP_HINT_MAP[check.id];
+    }
+  }
+  return null;
+}
+
+/**
+ * Extracts a compact explanation of why axe flagged a node.
+ * @param {Object} node
+ * @param {{ preferredRelationshipChecks?: string[] }} [options]
+ * @returns {{ primaryFailureMode: string|null, relationshipHint: string|null, failureChecks: string[], relatedContext: string[] }}
+ */
+export function extractFailureInsights(node = {}, options = {}) {
+  const checks = ["any", "all", "none"]
+    .flatMap((bucket) => (Array.isArray(node[bucket]) ? node[bucket] : []))
+    .filter(Boolean);
+
+  if (checks.length === 0) {
+    return {
+      primaryFailureMode: null,
+      relationshipHint: null,
+      failureChecks: [],
+      relatedContext: [],
+      checkData: null,
+    };
+  }
+
+  const primaryCheckId = checks[0]?.id || null;
+  const primaryFailureMode = primaryCheckId
+    ? FAILURE_MODE_MAP[primaryCheckId] || primaryCheckId.replace(/-/g, "_")
+    : null;
+  const relationshipHint = deriveRelationshipHint(
+    checks,
+    options.preferredRelationshipChecks || [],
+  );
+
+  const failureChecks = [
+    ...new Set(
+      checks
+        .map((check) => normalizeFailureMessage(check.message))
+        .filter(Boolean),
+    ),
+  ];
+
+  const relatedContext = [
+    ...new Set(
+      checks
+        .flatMap((check) =>
+          Array.isArray(check.relatedNodes) ? check.relatedNodes : [],
+        )
+        .map((related) =>
+          normalizeFailureMessage(
+            related?.html ||
+              (Array.isArray(related?.target) ? related.target.join(" ") : null),
+          ),
+        )
+        .filter(Boolean),
+    ),
+  ];
+
+  const checkData = (() => {
+    const raw = checks[0]?.data ?? null;
+    if (raw === null || raw === undefined) return null;
+    if (typeof raw === "object" && "isIframe" in raw) return null;
+    return raw;
+  })();
+
+  return {
+    primaryFailureMode,
+    relationshipHint,
+    failureChecks,
+    relatedContext,
+    checkData,
+  };
+}
+
+function deriveSourceRoots(fileSearchPattern) {
+  if (!fileSearchPattern) return [];
+  return fileSearchPattern
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => entry.split("/**")[0].replace(/\*.*$/, "").replace(/\/$/, ""))
+    .filter(Boolean);
+}
+
+function findCrossOriginFrameHost(html, pageUrl) {
+  if (!html || !/<iframe\b/i.test(html)) return null;
+  const src = html.match(/<iframe\b[^>]*\bsrc=["']([^"']+)["']/i)?.[1];
+  if (!src) return null;
+  try {
+    const frameUrl = new URL(src, pageUrl);
+    const pageOrigin = new URL(pageUrl).origin;
+    return frameUrl.origin !== pageOrigin ? frameUrl.hostname : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Classifies whether a finding appears to belong to the primary editable source.
+ * @param {Object} input
+ * @param {string[]} [input.evidenceHtml=[]]
+ * @param {string} [input.selector=""]
+ * @param {string} [input.pageUrl=""]
+ * @param {string|null} [input.fileSearchPattern=null]
+ * @returns {{ status: "primary" | "outside_primary_source" | "unknown", reason: string, searchStrategy: string, primarySourceScope: string[] }}
+ */
+export function classifyFindingOwnership({
+  evidenceHtml = [],
+  selector = "",
+  pageUrl = "",
+  fileSearchPattern = null,
+} = {}) {
+  const primarySourceScope = deriveSourceRoots(fileSearchPattern);
+  const html = evidenceHtml.filter(Boolean).join(" ");
+  const selectorText = String(selector || "");
+
+  if (/wp-content\/plugins\//i.test(html)) {
+    return {
+      status: "outside_primary_source",
+      reason: "The captured DOM references a WordPress plugin asset path, not the primary source tree.",
+      searchStrategy: "verify_ownership_before_search",
+      primarySourceScope,
+    };
+  }
+
+  const crossOriginFrameHost = findCrossOriginFrameHost(html, pageUrl);
+  if (crossOriginFrameHost) {
+    return {
+      status: "outside_primary_source",
+      reason: `The element is rendered inside a cross-origin iframe from ${crossOriginFrameHost}.`,
+      searchStrategy: "verify_ownership_before_search",
+      primarySourceScope,
+    };
+  }
+
+  if (
+    /(^|[\s,>+~])iframe\b/i.test(selectorText) &&
+    /src=["']https?:\/\//i.test(html)
+  ) {
+    return {
+      status: "outside_primary_source",
+      reason: "The finding targets an externally sourced iframe, which is usually outside the primary source tree.",
+      searchStrategy: "verify_ownership_before_search",
+      primarySourceScope,
+    };
+  }
+
+  if (primarySourceScope.length === 0) {
+    return {
+      status: "unknown",
+      reason: "The primary editable source could not be resolved for this project context.",
+      searchStrategy: "verify_ownership_before_search",
+      primarySourceScope,
+    };
+  }
+
+  return {
+    status: "primary",
+    reason: `The finding should be addressed in the primary source tree (${primarySourceScope.join(", ")}).`,
+    searchStrategy: "direct_source_patch",
+    primarySourceScope,
+  };
+}
+
 /**
  * Checks whether a single finding is a confirmed false positive based on evidence HTML patterns.
  * Only covers cases where the violation is provably impossible given the axe evidence.
@@ -479,7 +658,7 @@ function computePassedCriteria(routes, wcagCriterionMap) {
 }
 
 /**
- * Computes out-of-scope information: errored routes and static manual/AAA criteria.
+ * Computes out-of-scope information: errored routes and AAA exclusion flag.
  * @param {Object[]} routes - Raw scan routes.
  * @returns {Object}
  */
@@ -490,24 +669,6 @@ function computeOutOfScope(routes) {
     .filter(Boolean);
   return {
     auth_blocked_routes: authBlockedRoutes,
-    manual_testing_required: [
-      "1.2.2 Captions (Prerecorded)",
-      "1.2.3 Audio Description or Media Alternative",
-      "1.2.4 Captions (Live)",
-      "1.2.5 Audio Description (Prerecorded)",
-      "1.3.3 Sensory Characteristics",
-      "1.4.1 Use of Color",
-      "2.1.1 Keyboard",
-      "2.1.2 No Keyboard Trap",
-      "2.3.1 Three Flashes or Below Threshold",
-      "2.4.3 Focus Order",
-      "2.4.7 Focus Visible",
-      "2.5.3 Label in Name",
-      "3.2.1 On Focus",
-      "3.2.2 On Input",
-      "3.3.3 Error Suggestion",
-      "3.3.4 Error Prevention",
-    ],
     aaa_excluded: true,
   };
 }
@@ -593,7 +754,7 @@ function computeTestingMethodology(payload) {
     pages_scanned: scanned,
     pages_errored: errored,
     framework_detected: payload.projectContext?.framework || "Not detected",
-    manual_testing: "Not performed — see Out of Scope section",
+    manual_testing: "Not performed (automated scan only)",
     assistive_tech_tested: "None (automated scan only)",
   };
 }
@@ -647,6 +808,16 @@ function buildFindings(inputPayload, cliArgs) {
             : "Fix the violation.";
 
         const codeLang = detectCodeLang(fixInfo.code);
+        const fileSearchPattern = getFileSearchPattern(ctx.framework, codeLang);
+        const ownership = classifyFindingOwnership({
+          evidenceHtml: nodes.map((n) => n.html || ""),
+          selector: bestSelector,
+          pageUrl: route.url,
+          fileSearchPattern,
+        });
+        const failureInsights = extractFailureInsights(firstNode, {
+          preferredRelationshipChecks: ruleInfo.preferred_relationship_checks || [],
+        });
 
         findings.push({
           id: "",
@@ -663,6 +834,10 @@ function buildFindings(inputPayload, cliArgs) {
           primary_selector: bestSelector,
           actual:
             firstNode?.failureSummary || `Found ${nodes.length} instance(s).`,
+          primary_failure_mode: failureInsights.primaryFailureMode,
+          relationship_hint: failureInsights.relationshipHint,
+          failure_checks: failureInsights.failureChecks,
+          related_context: failureInsights.relatedContext,
           expected: getExpected(v.id),
           category: ruleInfo.category ?? null,
           fix_description: fixInfo.description ?? null,
@@ -679,15 +854,22 @@ function buildFindings(inputPayload, cliArgs) {
           fix_difficulty_notes: ruleInfo.fix_difficulty_notes ?? null,
           framework_notes: filterNotes(ruleInfo.framework_notes, ctx.framework),
           cms_notes: filterNotes(ruleInfo.cms_notes, ctx.framework),
+          check_data: failureInsights.checkData,
           total_instances: nodes.length,
           evidence: nodes.slice(0, 3).map((n) => ({
             html: n.html,
             target: n.target,
             failureSummary: n.failureSummary,
+            ancestry: n.ancestry?.[0] ?? null,
           })),
           screenshot_path: v.screenshot_path || null,
-          file_search_pattern: getFileSearchPattern(ctx.framework, codeLang),
+          file_search_pattern:
+            ownership.status === "primary" ? fileSearchPattern : null,
           managed_by_library: getManagedByLibrary(v.id, ctx.uiLibraries),
+          ownership_status: ownership.status,
+          ownership_reason: ownership.reason,
+          primary_source_scope: ownership.primarySourceScope,
+          search_strategy: ownership.searchStrategy,
           component_hint: extractComponentHint(bestSelector) ?? derivePageHint(route.path),
           verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
           verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
@@ -695,100 +877,6 @@ function buildFindings(inputPayload, cliArgs) {
       }
     }
 
-    const axeRuleIds = (route.violations || []).map((v) => v.id);
-
-    const meta = route.metadata || {};
-    if (
-      !DISABLED_RULES["page-has-heading-one"] &&
-      !onlyRule &&
-      meta.h1Count !== undefined &&
-      meta.h1Count !== 1 &&
-      !axeRuleIds.includes("page-has-heading-one")
-    ) {
-      const _ruleInfo = RULES["page-has-heading-one"] || {};
-      const _fixInfo = _ruleInfo.fix || {};
-      const _resolvedGuardrails = resolveGuardrails(
-        _ruleInfo,
-        null,
-      );
-      findings.push({
-        id: "",
-        rule_id: "page-has-heading-one",
-        title: "Page must have exactly one h1",
-        severity: "Moderate",
-        wcag: "WCAG 2.1 A",
-        wcag_criterion_id: WCAG_CRITERION_MAP["page-has-heading-one"] ?? null,
-        area: route.path,
-        url: route.url,
-        selector: "h1",
-        impacted_users: getImpactedUsers("page-has-heading-one", []),
-        actual: `Found ${meta.h1Count} h1 tags.`,
-        expected: "Exactly 1 h1 tag.",
-        category: _ruleInfo.category ?? null,
-        fix_description: _fixInfo.description ?? null,
-        fix_code: _fixInfo.code ?? null,
-        fix_code_lang: detectCodeLang(_fixInfo.code),
-        recommended_fix: "Ensure one unique h1 per page.",
-        mdn: MDN["page-has-heading-one"] ?? null,
-        effort: null,
-        related_rules: Array.isArray(_ruleInfo.related_rules) ? _ruleInfo.related_rules : [],
-        guardrails: _resolvedGuardrails,
-        false_positive_risk: _ruleInfo.false_positive_risk ?? null,
-        fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
-        framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
-        cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
-        wcag_classification: "Best Practice",
-        component_hint: derivePageHint(route.path),
-        verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule page-has-heading-one --max-routes 1`,
-        verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule page-has-heading-one --max-routes 1`,
-      });
-    }
-
-    if (
-      !DISABLED_RULES["landmark-one-main"] &&
-      !onlyRule &&
-      meta.mainCount !== undefined &&
-      meta.mainCount !== 1 &&
-      !axeRuleIds.includes("landmark-one-main")
-    ) {
-      const _ruleInfo = RULES["landmark-one-main"] || {};
-      const _fixInfo = _ruleInfo.fix || {};
-      const _resolvedGuardrails = resolveGuardrails(
-        _ruleInfo,
-        null,
-      );
-      findings.push({
-        id: "",
-        rule_id: "landmark-one-main",
-        title: "Page must have exactly one main landmark",
-        severity: "Moderate",
-        wcag: "WCAG 2.1 A",
-        wcag_criterion_id: WCAG_CRITERION_MAP["landmark-one-main"] ?? null,
-        area: route.path,
-        url: route.url,
-        selector: "main",
-        impacted_users: getImpactedUsers("landmark-one-main", []),
-        actual: `Found ${meta.mainCount} main tags.`,
-        expected: "Exactly 1 main tag.",
-        category: _ruleInfo.category ?? null,
-        fix_description: _fixInfo.description ?? null,
-        fix_code: _fixInfo.code ?? null,
-        fix_code_lang: detectCodeLang(_fixInfo.code),
-        recommended_fix: "Ensure one main landmark per page.",
-        mdn: MDN["landmark-one-main"] ?? null,
-        effort: null,
-        related_rules: Array.isArray(_ruleInfo.related_rules) ? _ruleInfo.related_rules : [],
-        guardrails: _resolvedGuardrails,
-        false_positive_risk: _ruleInfo.false_positive_risk ?? null,
-        fix_difficulty_notes: _ruleInfo.fix_difficulty_notes ?? null,
-        framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
-        cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
-        wcag_classification: "Best Practice",
-        component_hint: derivePageHint(route.path),
-        verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule landmark-one-main --max-routes 1`,
-        verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule landmark-one-main --max-routes 1`,
-      });
-    }
   }
 
   return {
@@ -802,6 +890,51 @@ function buildFindings(inputPayload, cliArgs) {
         projectContext: ctx,
       },
   };
+}
+
+/**
+ * Collects and deduplicates incomplete (needs-review) violations from raw scan routes.
+ * @param {Object[]} routes
+ * @returns {Object[]}
+ */
+export function collectIncompleteFindings(routes) {
+  const groups = new Map();
+  for (const route of routes) {
+    for (const v of (route.incomplete || [])) {
+      const firstNode = v.nodes?.[0];
+      const message =
+        firstNode?.any?.[0]?.message ??
+        firstNode?.all?.[0]?.message ??
+        firstNode?.none?.[0]?.message ??
+        null;
+      const key = `${v.id}||${message ?? v.description ?? ""}`;
+      if (!groups.has(key)) {
+        const selector = Array.isArray(firstNode?.target)
+          ? firstNode.target.join(" ")
+          : "N/A";
+        groups.set(key, {
+          rule_id: v.id,
+          title: v.help,
+          description: v.description,
+          impact: v.impact ?? null,
+          selector,
+          message,
+          areas: new Set(),
+        });
+      }
+      groups.get(key).areas.add(route.path);
+    }
+  }
+  return [...groups.values()].map((g) => ({
+    rule_id: g.rule_id,
+    title: g.title,
+    description: g.description,
+    impact: g.impact,
+    selector: g.selector,
+    message: g.message,
+    pages_affected: g.areas.size,
+    areas: [...g.areas],
+  }));
 }
 
 /**
@@ -849,10 +982,14 @@ function main() {
   const outOfScope = computeOutOfScope(payload.routes || []);
   const recommendations = computeRecommendations(dedupedFindings);
   const testingMethodology = computeTestingMethodology(payload);
+  const incompleteFindings = collectIncompleteFindings(payload.routes || []);
+  if (incompleteFindings.length > 0)
+    log.info(`${incompleteFindings.length} incomplete finding(s) require manual review.`);
 
   writeJson(args.output, {
     ...result,
     findings: dedupedFindings,
+    incomplete_findings: incompleteFindings,
     metadata: {
       ...result.metadata,
       overallAssessment,

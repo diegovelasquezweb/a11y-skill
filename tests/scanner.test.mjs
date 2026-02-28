@@ -66,6 +66,14 @@ describe("normalizePath", () => {
     expect(normalizePath("/fonts/inter.woff2", ORIGIN)).toBe("");
   });
 
+  it("filters .avif images", () => {
+    expect(normalizePath("/images/hero.avif", ORIGIN)).toBe("");
+  });
+
+  it("filters .map source maps", () => {
+    expect(normalizePath("/assets/app.js.map", ORIGIN)).toBe("");
+  });
+
   it("does NOT filter paths that merely contain a blocked extension word", () => {
     expect(normalizePath("/blog/css-grid-tutorial", ORIGIN)).toBe(
       "/blog/css-grid-tutorial",
@@ -188,6 +196,18 @@ describe("discoverRoutes (BFS)", () => {
     expect(routes).toContain("/new-page");
     expect(routes).not.toContain("/products?page=2");
     expect(routes).not.toContain("/products?page=3");
+  });
+
+  it("skips WordPress-style paged duplicates across depths", async () => {
+    const page = createMockPage({
+      "/": ["/blog"],
+      "/blog": ["/blog?paged=2", "/blog?paged=3", "/contact"],
+    });
+    const routes = await discoverRoutes(page, ORIGIN, 10, 2);
+    expect(routes).toContain("/blog");
+    expect(routes).toContain("/contact");
+    expect(routes).not.toContain("/blog?paged=2");
+    expect(routes).not.toContain("/blog?paged=3");
   });
 
   it("filters external links found on deeper pages", async () => {

@@ -17,17 +17,16 @@ Load these files on demand — never preload all at once.
 | Resource                          | Load when                                     | Path                                                             |
 | --------------------------------- | --------------------------------------------- | ---------------------------------------------------------------- |
 | Report & evidence standards       | Step 3 — presenting findings · Step 6 item 1 — console summary | [references/report-standards.md](references/report-standards.md) |
-| Source file patterns by framework | Step 4a — locating files to fix               | [references/source-patterns.md](references/source-patterns.md)   |
 | CLI flags reference               | Before running audit — need non-default flags | [references/cli-reference.md](references/cli-reference.md)       |
 | Quality gates                     | Any phase boundary — verifying gate pass/fail | [references/quality-gates.md](references/quality-gates.md)       |
 | Troubleshooting                   | Any script failure                            | [references/troubleshooting.md](references/troubleshooting.md)   |
-| Out of scope (manual testing · backend root cause) | Step 4 — finding has server-side evidence · Step 6 item 7 — checklist export | [references/out-of-scope.md](references/out-of-scope.md) |
-| Source code patterns              | Step 4c — pattern grep + fix                 | [references/code-patterns.md](references/code-patterns.md)       |
+
 
 ## Constraints
 
 These rules apply at all times, independent of any workflow step.
 
+- **`remediation.md` is the fix map — do not go outside it.** All findings, fix instructions, source file locations, guardrails, and component map come from the remediation guide generated in Step 2. Never apply a fix or derive a solution from general WCAG knowledge — if it is not in the remediation guide, it is out of scope for this session.
 - Never install, remove, or initialize packages in the user's project. Only run `pnpm install` inside the skill directory.
 - All pipeline files (scan results, findings, remediation guide, screenshots) stay inside the skill directory — never in the user's project.
 - Visual reports (HTML/PDF) are only created in Step 6, after the user explicitly requests them. Never generate reports in any other step.
@@ -36,13 +35,13 @@ These rules apply at all times, independent of any workflow step.
 - Treat scripts as black boxes: run with `--help` to discover flags. Do not read script source — it consumes context budget for no benefit.
 - If `pnpm` is not available, use `npm` as fallback.
 - Never add, remove, or modify CLI flags (`--exclude-selectors`, `--timeout-ms`, `--wait-ms`, etc.) without the user explicitly requesting it.
-- Only modify frontend files (components, templates, stylesheets). Never propose fixes to server configuration, infrastructure, or backend files (e.g., `wp-config.php`, `.env`, `nginx.conf`). If the root cause of a finding lies outside the frontend, report it to the user without proposing a fix.
+- Only propose fixes inside the primary editable frontend source of truth. If a finding points to backend code, infrastructure, server configuration, plugins, compiled output, or any non-editable area, report it or ask the user before proceeding instead of proposing a direct fix.
 
 ## Communication Rules
 
 1. **Language** — always communicate in English, regardless of the language the user writes in.
 2. **Tone** — concise and technical. State findings, propose action, ask for a decision.
-3. **Internal steps** — never expose internal step labels, phase codes, or workflow reasoning to the user. This includes codes like "4b", phase names like "Step 4c" or "Source Code Pattern Audit", and internal logic like "not re-offering" or "user declined in 4b". Always describe outcomes in plain language only. **Never pre-announce a sequence of steps** ("first I'll do X, then Y, then Z") — execute immediately and let the output speak for itself.
+3. **Internal steps** — never expose internal step labels, phase codes, or workflow reasoning to the user. This includes codes like "4b", phase names like "Step 4b" or "structural fix phase", and internal logic like "not re-offering" or "user declined in 4b". Always describe outcomes in plain language only. **Never pre-announce a sequence of steps** ("first I'll do X, then Y, then Z") — execute immediately and let the output speak for itself.
 4. **Recovery** — if the user types `continue`, `resume`, or `where are we`, read the conversation history to determine the current state and resume from the next pending action. If the state cannot be determined, briefly summarize what was completed and ask where to continue from.
 5. **Message tags** — this playbook uses two tags to mark formatted messages:
    - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options. **Send one `[QUESTION]` per message. Never present two questions at once. Always wait for the user's answer before showing the next question.** Format: always output the question text on its own line, followed by each option as a numbered item on its own line — never inline, never collapsed to "Yes/No". A `[QUESTION]` is the only tag that ends the agent's turn and waits for user input.
@@ -60,7 +59,7 @@ Progress:
 - [ ] Step 1: Page discovery
 - [ ] Step 2: Run audit
 - [ ] Step 3: Present findings + request permission
-- [ ] Step 4: Fix (structural → style → code patterns)
+- [ ] Step 4: Fix (structural → style)
 - [ ] Step 5: Verification re-audit
 - [ ] Step 6: Deliver results
 ```
@@ -110,7 +109,7 @@ node scripts/audit.mjs --base-url <URL> --max-routes 999
 node scripts/audit.mjs --base-url <URL> --max-routes <N>
 ```
 
-For local projects with framework auto-detection, add `--project-dir <path>`. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
+Always pass `--project-dir <path>` for local projects. When provided, the source code pattern scanner runs automatically alongside axe — pattern findings appear in the "Source Code Pattern Findings" section of the remediation guide and are part of the unified fix flow. If you can identify the stack from the project files, also pass `--framework <value>` (nextjs|gatsby|react|nuxt|vue|angular|astro|svelte|shopify|wordpress|drupal) — explicit detection is more reliable than auto-detection. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
 
 After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user.
 
@@ -123,6 +122,12 @@ If the script fails, consult [references/troubleshooting.md](references/troubles
 Load [references/report-standards.md](references/report-standards.md) for finding field requirements and deliverable format.
 
 Read the remediation guide. The audit pipeline has already handled deduplication, false positive filtering, and computed the Overall Assessment — read these directly from the report.
+
+If a finding is marked with `ownership_status: outside_primary_source` or `ownership_status: unknown`, do not treat it as a normal direct patch. Flag it inline when presenting that specific issue:
+
+> ⚠ This issue may be outside the primary editable source. Confirm whether to ignore it or handle it outside the main remediation flow.
+
+Then ask the user: **Skip this finding or fix it anyway?** — 1. Skip · 2. Fix anyway. Do not ask this question globally before presenting findings.
 
 Apply your own judgment using this decision tree to override severity when the automated classification is inaccurate:
 
@@ -140,7 +145,7 @@ Apply consistently — same issue type = same severity across all findings.
 
 Then summarize and present:
 
-1. State the **Overall Assessment** from the report header. Follow with a count by severity (Critical → Serious → Moderate → Minor).
+1. State the **Overall Assessment** from the report header. Follow with a count by severity (Critical → Serious → Moderate → Minor). If source code pattern findings are present in the remediation guide, include them in the total — e.g. "N axe violations + M source patterns (P confirmed, Q potential)".
 2. Propose specific fixes from the remediation guide.
 3. Group by component or page area, explaining why each fix matters.
 4. Ask how to proceed:
@@ -148,13 +153,12 @@ Then summarize and present:
 `[QUESTION]` **How would you like to proceed?**
 
 1. **Fix by severity** — Critical first, then Serious → Moderate → Minor
-2. **Fix by category** — group by issue type (aria · forms · structure · color…)
-3. **Other criteria** — tell me how you'd like to prioritize the fixes
-4. **Skip fixes** — don't fix anything right now
+2. **Other criteria** — tell me how you'd like to prioritize the fixes
+3. **Skip fixes** — don't fix anything right now
 
-Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity**, **Fix by category**, or **Other criteria**, proceed immediately to Step 4.
+Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes** (option 4): present the following message, then ask the confirmation question below.
+If the user chooses **Skip fixes** (option 3): present the following message, then ask the confirmation question below.
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
@@ -163,38 +167,33 @@ If the user chooses **Skip fixes** (option 4): present the following message, th
 1. **Yes, skip** — proceed to the final summary without applying any fixes
 2. **No, let's fix them** — go back and apply the fixes
 
-If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: return to the `[QUESTION]` **How would you like to proceed?** and treat the answer as **Fix by severity**.
+If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: return to the `[QUESTION]` **How would you like to proceed?** and treat the answer as **Fix by severity** (option 1).
 
 **0 issues found** → proceed to Step 6 immediately. Note: automated tools cannot catch every barrier; recommend manual checks.
 
 ### Step 4 — Fix
 
-Work through each phase in order: **4a → 4b → 4c**. All three phases must run — never skip a phase because the user declined fixes in a previous one.
+Work through each phase in order: **4a → 4b**. Both phases must run — never skip a phase because the user declined fixes in the previous one.
 
-- **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor across all categories.
-- **Fix by category**: group findings by their `Category` field from the remediation guide. Order groups by the highest severity present within each category. Within each group, still apply the 4a/4b boundary — structural fixes first, then style fixes (with the style approval gate). Present one category at a time.
+Axe findings and source code pattern findings are treated as a **unified set**. Pattern findings tagged `type: structural` are handled in 4a alongside axe structural fixes. Pattern findings tagged `type: style` are handled in 4b alongside axe style fixes. For a pattern finding, fix in the source file at `file:line` using the `match` and `fix_description` from the report — not in the DOM.
+
+- **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor.
 - **Other criteria**: follow the user's specified prioritization throughout.
-
-> **Category values:** `aria` · `text-alternatives` · `forms` · `keyboard` · `structure` · `semantics` · `name-role-value` · `tables` · `color` · `language` · `parsing` · `sensory`
 
 #### 4a. Structural fixes (Critical → Serious → Moderate → Minor)
 
-Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM order, lang, heading hierarchy).
+Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM order, lang, heading hierarchy). Includes both axe structural findings and source code pattern findings tagged `type: structural`.
 
-> **Scope boundary**: 4a covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in 4b — regardless of their axe severity level. If a Critical or Serious finding involves a color or visual property, set it aside for 4b. Do not apply it here.
+> **Scope boundary**: 4a covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in 4b — regardless of severity. If a finding (axe or pattern) involves a color or visual property, set it aside for 4b. Do not apply it here.
 
-If there are no structural findings to fix, skip directly to 4b.
+If there are no structural findings (axe or pattern) to fix, skip directly to 4b.
 
-Load [references/source-patterns.md](references/source-patterns.md) to locate source files by detected framework. Use each finding's remediation intelligence (`fix_description`, `fix_code`, framework notes, and evidence) as the source of truth for fixes.
+Use the **Source File Locations** section of the remediation guide to locate source files by detected framework. For axe findings, use `fix_description`, `fix_code`, framework notes, and evidence as the source of truth. For pattern findings, use `file:line`, `match`, and `fix_description` from the "Source Code Pattern Findings" section of the report.
 
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
-Present one group at a time — list the findings and proposed changes, then ask. The `[QUESTION]` label depends on the active mode:
-
-- **Fix by severity**: `[QUESTION]` **Apply these [severity] fixes?**
-- **Fix by category**: `[QUESTION]` **Apply these [category] fixes?**
-- **Other criteria**: adapt the label to match the user's specified grouping.
+Present one group at a time — list the findings and proposed changes, then ask. Adapt the `[QUESTION]` label to the active mode (e.g. **Apply these Critical fixes?** for severity, or the user's chosen grouping for Other criteria).
 
 1. **Yes** — apply all proposed changes
 2. **Let me pick** — show me the full list, I'll choose by number
@@ -213,9 +212,9 @@ If **Yes** or after **Let me pick** completes: list the files and changes made, 
 
 If **Looks good**: proceed to the next group, or to 4b if this was the last. If **Something's wrong**: apply corrections, then proceed to the next group (or 4b if last).
 
-#### 4b. Style-dependent fixes (color-contrast, font-size, spacing)
+#### 4b. Style-dependent fixes (color-contrast, font-size, spacing, focus styles)
 
-If there are no style-dependent findings (color-contrast, font-size, or spacing), skip directly to 4c.
+Includes axe style findings (color-contrast, font-size, spacing) and source code pattern findings tagged `type: style` (e.g. suppressed focus outlines). If there are no style-dependent findings of either kind, skip directly to Step 5.
 
 > **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
@@ -240,7 +239,7 @@ Then ask:
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip style fixes
 
-If **No**: your very next action is the first tool call of 4c — reading `references/code-patterns.md`. Do not output any text, transition phrase, or acknowledgment before that tool call. 4c always runs regardless of what happened in 4b. Never skip to Step 5 from 4b.
+If **No**: proceed immediately to Step 5.
 
 If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these style changes?** prompt. Otherwise apply the selected changes, list files and exact values modified, then ask the verification question below.
 
@@ -251,103 +250,7 @@ If **Yes** or after **Let me pick** completes: list the files and exact values m
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
 
-If **Looks good**: your very next action is the first tool call of 4c — reading `references/code-patterns.md`. No text before it. If **Something's wrong**: apply corrections, then proceed to 4c the same way.
-
-#### 4c. Source code patterns
-
-`[QUESTION]` **Would you like me to scan your source code using an expert-curated pattern database to detect issues the automated browser scanner cannot find?**
-
-1. **Yes** — scan and fix any matches found
-2. **No** — skip to the verification re-audit
-
-If **No**: proceed immediately to Step 5.
-
-If **Yes**: read `references/code-patterns.md` as the first action — no text before that tool call. Output begins only after the scan is complete and results are ready to present.
-
-Each entry has a `Search for` regex and `In files` glob — use these to grep the project source. Apply the framework note matching the detected stack:
-
-1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
-2. Classify confirmed matches into two groups:
-   - **Structural** — fixes to HTML attributes, ARIA, JS APIs, or non-visual DOM changes
-   - **Style** — fixes that modify a CSS property value (`outline`, `color`, `background`, `font-size`, `pointer-events`, `visibility`, `opacity`, `display`, `border`, `box-shadow`, or any other visual property)
-
-If 0 matches were found in both groups, proceed automatically to Step 5. Open with: **"Scanned source code — no additional patterns found."**
-
-`[MESSAGE]` These findings were detected via source code analysis using an expert-curated pattern database. They are not part of the axe-core scan and will not appear in the visual report.
-
-**Structural patterns** — open with: **"Scanned source code — found [N] pattern(s) not detectable by the browser scanner."** Then present as a batch using this exact format:
-
-```
-Pattern: [pattern name]
-WCAG: [criterion] ([level A/AA]) · Severity: [severity]
-
-Findings:
-  1. `[file path]` · line [line] · [element tag / selector]
-     Before: [current code]
-     After:  [proposed code]
-  2. `[file path]` · line [line] · [element tag / selector]
-     Before: [current code]
-     After:  [proposed code]
-```
-
-Present each matched pattern as a separate block (one block per pattern name). Keep findings numbered within each block. After presenting all blocks, ask — **options are always 1/2/3 regardless of finding count**:
-
-`[QUESTION]` **I found [N] structural issue(s) in your source code that axe-core cannot detect at runtime — HTML attributes, ARIA, and JS APIs invisible to the browser scanner. Apply fixes?**
-
-1. **Yes, fix all** — apply all proposed changes
-2. **Let me pick** — show me the full list, I'll choose by number
-3. **Skip** — don't apply any of these fixes
-
-If **Let me pick**: present all matches as a numbered list. Ask the user to type the numbers (e.g. `1, 3` or `all`), or `back` to return. Apply selected fixes, list changes made, then ask the verification question below.
-
-If **Yes, fix all** or after **Let me pick** completes: list the files and changes made, then ask:
-
-`[QUESTION]` **Please verify visually — does everything look correct?**
-
-1. **Looks good**
-2. **Something's wrong** — tell me what to revert or adjust
-
-If **Looks good**: proceed to style patterns below (or Step 5 if none). If **Something's wrong**: apply corrections, then proceed.
-
-If **Skip**: mark structural as skipped. Proceed to style patterns (or Step 5 if none).
-
-**Style patterns** — show each match using this exact format before applying anything:
-
-> **Style-dependent protection — hard stop**: same rule as style-dependent fixes — **never apply before showing the exact proposed diff and receiving an explicit "yes".**
-
-```
-Pattern: [pattern name]
-WCAG: [criterion] ([level A/AA]) · Severity: [severity]
-
-Findings:
-  1. `[file path]` · line [line] · [element tag / selector]
-     Before: [current CSS value]
-     After:  [proposed CSS value]
-  2. `[file path]` · line [line] · [element tag / selector]
-     Before: [current CSS value]
-     After:  [proposed CSS value]
-```
-
-Then ask:
-
-`[QUESTION]` **I found [N] CSS pattern(s) in your source code that suppress or break accessible visual states — these are invisible to the browser scanner but affect real users. Apply fixes?**
-
-1. **Yes** — apply all proposed changes
-2. **Let me pick** — show me the full list, I'll choose by number
-3. **Skip** — don't apply any of these fixes
-
-If **Let me pick**: present all style pattern matches as a numbered list with their diffs. Apply selected, list changes, then ask the verification question below.
-
-If **Yes** or after **Let me pick** completes: list the files and exact values modified, then ask:
-
-`[QUESTION]` **Please verify visually — does everything look correct?**
-
-1. **Looks good**
-2. **Something's wrong** — tell me what to revert or adjust
-
 If **Looks good**: proceed to Step 5. If **Something's wrong**: apply corrections, then proceed to Step 5.
-
-**End of 4c:** Proceed directly to Step 5. Do not output any text, summary, or transition phrase — regardless of what happened in 4c. The very next action is running the audit script in Step 5.
 
 ### Step 5 — Verification re-audit (mandatory)
 
@@ -377,7 +280,7 @@ After the script completes, immediately parse ALL findings and present results �
      1. **Keep fixing** — address the remaining issues
      2. **Move on** — accept the remaining issues and proceed to the final summary
 
-  3. If **Keep fixing**: apply fixes following Step 4 procedures (4a → structural, 4b approval gate → style, 4c → source patterns). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
+  3. If **Keep fixing**: apply fixes following Step 4 procedures (4a → structural, 4b approval gate → style; pattern findings included in both phases). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
   4. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
@@ -424,19 +327,7 @@ If **No thanks**: skip to item 6.
 3. **Custom path** — tell me the exact folder path
 4. **Back** — change the report format
 
-5. After all questions are answered, if any findings were skipped during this session, ask before generating:
-
-   `[QUESTION]` **Some findings were skipped during this session. How should the report handle them?**
-
-   1. **Include skipped findings** — show the full picture, including issues that were not fixed
-   2. **Exclude skipped findings** — only include resolved and remaining actionable issues
-
-   If **Include skipped findings**: run reports normally (all findings in `.audit/a11y-findings.json`).
-   If **Exclude skipped findings**: pass `--exclude-ids <comma-separated list of skipped finding IDs>` to the report scripts.
-
-   If no findings were skipped, proceed directly to running the scripts.
-
-   **Execute** the following commands — do not describe or summarize them, run them:
+5. **Execute** the following commands — do not describe or summarize them, run them:
 
    ```bash
    # HTML (run if HTML or Both was selected)
@@ -463,7 +354,7 @@ If **No thanks**: skip to item 6.
 1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
 2. **No thanks**
 
-If **Yes**: load [references/out-of-scope.md](references/out-of-scope.md) and present it as context, then if a save path was already established in item 4 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 3), ask:
+If **Yes**: if a save path was already established in item 4 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 3), ask:
 
 `[QUESTION]` **Where should I save the checklist?**
 
@@ -484,7 +375,7 @@ Apply the file-open rule. **Then immediately continue to item 7 — do not wait 
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 
-`[QUESTION]` **Would you like to audit another site?**
+`[QUESTION]` **Is there anything else I can help you with?**
 
 1. **Yes** — start a new audit
 2. **No, goodbye**

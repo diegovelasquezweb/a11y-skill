@@ -35,7 +35,7 @@ Each `.json` file is a self-contained test case. There is no built-in runner —
 8.  **[05-script-failure.json](05-script-failure.json)**: Error recovery.
 
 **Framework & platform coverage:**
-9.  **[07-framework-detection.json](07-framework-detection.json)**: Platform-aware file search (Shopify).
+9.  **[07-stack-detection.json](07-stack-detection.json)**: Platform-aware file search (Shopify).
 10. **[08-managed-components.json](08-managed-components.json)**: UI library protection (Radix UI).
 11. **[11-spa-dynamic-routes.json](11-spa-dynamic-routes.json)**: SPA with client-side routing (Next.js).
 12. **[12-i18n-multilingual.json](12-i18n-multilingual.json)**: Multilingual site with locale-prefixed routes.

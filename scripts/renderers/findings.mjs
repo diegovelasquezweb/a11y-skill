@@ -5,17 +5,15 @@
  * across all report types (HTML, Markdown, PDF).
  */
 
-import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const SCORING_CONFIG = JSON.parse(
-  readFileSync(join(__dirname, "../../assets/compliance-config.json"), "utf-8"),
+const SCORING_CONFIG = loadAssetJson(
+  ASSET_PATHS.reporting.complianceConfig,
+  "assets/reporting/compliance-config.json",
 );
-const RULE_METADATA = JSON.parse(
-  readFileSync(join(__dirname, "../../assets/wcag-reference.json"), "utf-8"),
+const RULE_METADATA = loadAssetJson(
+  ASSET_PATHS.reporting.wcagReference,
+  "assets/reporting/wcag-reference.json",
 );
 
 /**
@@ -59,6 +57,10 @@ export function normalizeFindings(payload) {
         item.impacted_users ?? "Users relying on assistive technology",
       ),
       actual: String(item.actual ?? ""),
+      primaryFailureMode: item.primary_failure_mode ?? null,
+      relationshipHint: item.relationship_hint ?? null,
+      failureChecks: Array.isArray(item.failure_checks) ? item.failure_checks : [],
+      relatedContext: Array.isArray(item.related_context) ? item.related_context : [],
       expected: String(item.expected ?? ""),
       mdn: item.mdn ?? null,
       fixDescription: item.fix_description ?? null,
@@ -77,12 +79,19 @@ export function normalizeFindings(payload) {
       frameworkNotes: item.framework_notes ?? null,
       cmsNotes: item.cms_notes ?? null,
       fileSearchPattern: item.file_search_pattern ?? null,
+      ownershipStatus: item.ownership_status ?? "unknown",
+      ownershipReason: item.ownership_reason ?? null,
+      primarySourceScope: Array.isArray(item.primary_source_scope)
+        ? item.primary_source_scope
+        : [],
+      searchStrategy: item.search_strategy ?? "verify_ownership_before_search",
       managedByLibrary: item.managed_by_library ?? null,
       componentHint: item.component_hint ?? null,
       verificationCommand: item.verification_command ?? null,
       verificationCommandFallback: item.verification_command_fallback ?? null,
       pagesAffected: typeof item.pages_affected === "number" ? item.pages_affected : null,
       affectedUrls: Array.isArray(item.affected_urls) ? item.affected_urls : null,
+      checkData: item.check_data ?? null,
     }))
     .sort((a, b) => {
       const sa = SEVERITY_ORDER[a.severity] ?? 99;

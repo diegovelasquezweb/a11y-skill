@@ -72,8 +72,15 @@ function main() {
     throw new Error(`Input findings file not found or invalid: ${args.input}`);
   }
 
+  const patternInput = getInternalPath("a11y-pattern-findings.json");
+  const patternPayload = fs.existsSync(patternInput) ? readJson(patternInput) : null;
+
   const findings = normalizeFindings(inputPayload);
-  const md = buildMarkdownSummary(args, findings, inputPayload.metadata);
+  const md = buildMarkdownSummary(args, findings, {
+    ...inputPayload.metadata,
+    incomplete_findings: inputPayload.incomplete_findings,
+    pattern_findings: patternPayload,
+  });
 
   fs.mkdirSync(path.dirname(args.output), { recursive: true });
   fs.writeFileSync(args.output, md, "utf-8");

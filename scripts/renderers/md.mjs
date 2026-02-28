@@ -5,27 +5,18 @@
  * surgical selectors, and framework-specific guardrails.
  */
 
-import { readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
 import { buildSummary } from "./findings.mjs";
+import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const GUARDRAILS = loadAssetJson(
+  ASSET_PATHS.remediation.guardrails,
+  "assets/remediation/guardrails.json",
+);
 
-/**
- * Path to the manual check database asset.
- * @type {string}
- */
-const stackConfigPath = join(__dirname, "../../assets/stack-config.json");
-
-let STACK_CONFIG;
-try {
-  STACK_CONFIG = JSON.parse(readFileSync(stackConfigPath, "utf-8"));
-} catch {
-  throw new Error(
-    "Missing or invalid assets/stack-config.json — reinstall the skill.",
-  );
-}
+const SOURCE_BOUNDARIES = loadAssetJson(
+  ASSET_PATHS.remediation.sourceBoundaries,
+  "assets/remediation/source-boundaries.json",
+);
 
 
 /**
@@ -39,25 +30,38 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
   if (configFramework) return configFramework.toLowerCase();
   const detected = metadata.projectContext?.framework;
   if (detected) return detected;
-  const url = baseUrl.toLowerCase();
-  const urlSignals = STACK_CONFIG.frameworkDetection?.urlSignals || [];
-  for (const signal of urlSignals) {
-    if (url.includes(signal.pattern)) return signal.framework;
-  }
   return "generic";
 }
 
 /**
  * Constructs a set of guardrail instructions tailored to a specific framework.
  * @param {string} framework - The identified framework ID.
- * @returns {string} A bulleted list of framework-specific operating procedures.
+ * @returns {string} A numbered list of framework-specific operating procedures.
  */
 function buildGuardrails(framework) {
-  const guardrails = STACK_CONFIG.guardrails || {};
+  const guardrails = GUARDRAILS || {};
   const shared = guardrails.shared || [];
-  const frameworkRules = guardrails.framework || {};
-  const frameworkRule = frameworkRules[framework] ?? frameworkRules.generic;
-  return [frameworkRule, ...shared].join("\n");
+  const stackRules = guardrails.stack || {};
+  const frameworkRule = stackRules[framework] ?? stackRules.generic;
+  return [frameworkRule, ...shared]
+    .filter(Boolean)
+    .map((rule, index) => `${index + 1}. ${rule}`)
+    .join("\n");
+}
+
+/**
+ * Renders the source file location table for the detected framework.
+ * @param {string} framework
+ * @returns {string}
+ */
+function buildSourceBoundariesSection(framework) {
+  const boundaries = SOURCE_BOUNDARIES?.[framework];
+  if (!boundaries) return "";
+  const rows = [];
+  if (boundaries.components) rows.push(`| Components | \`${boundaries.components}\` |`);
+  if (boundaries.styles) rows.push(`| Styles | \`${boundaries.styles}\` |`);
+  if (rows.length === 0) return "";
+  return `## Source File Locations\n\n| Type | Glob Pattern |\n|---|---|\n${rows.join("\n")}\n`;
 }
 
 function formatViolation(actual) {
@@ -140,6 +144,90 @@ function buildRecommendationsSection(recommendations) {
 
 
 /**
+ * Builds the Potential Issues section from incomplete (needs-review) axe violations.
+ * @param {Object[]} incompleteFindings
+ * @returns {string}
+ */
+function buildIncompleteSection(incompleteFindings) {
+  if (!Array.isArray(incompleteFindings) || incompleteFindings.length === 0) return "";
+  const rows = incompleteFindings.map((f) => {
+    const msg = (f.message || f.description || "Needs manual review").replace(/\|/g, "\\|");
+    const areaCell = f.pages_affected > 1
+      ? `${f.pages_affected} pages`
+      : `\`${f.areas?.[0] ?? "?"}\``;
+    let actionableHint = "";
+    if (f.rule_id === "duplicate-id-aria" && f.message) {
+      const idMatch = f.message.match(/same id attribute[:\s]+(\S+?)\.?\s*$/i);
+      if (idMatch) actionableHint = ` — grep: \`id="${idMatch[1]}"\``;
+    }
+    return `| \`${f.rule_id}\` | ${f.impact ?? "?"} | ${areaCell} | ${msg}${actionableHint} |`;
+  });
+  return `## Potential Issues — Manual Review Required
+
+axe flagged these but could not auto-confirm them. Do not apply automated fixes — verify manually before acting.
+
+| Rule | Impact | Area | Axe Message |
+|---|---|---|---|
+${rows.join("\n")}
+`;
+}
+
+/**
+ * Builds the Source Code Pattern Findings section from pattern-scanner output.
+ * @param {Object|null} patternPayload - The a11y-pattern-findings.json payload.
+ * @returns {string}
+ */
+function buildPatternSection(patternPayload) {
+  if (!patternPayload || !Array.isArray(patternPayload.findings) || patternPayload.findings.length === 0) return "";
+
+  const { findings, project_dir } = patternPayload;
+  const confirmed = findings.filter((f) => f.status === "confirmed");
+  const potential = findings.filter((f) => f.status === "potential");
+
+  const badge = [
+    confirmed.length > 0 ? `${confirmed.length} confirmed` : null,
+    potential.length > 0 ? `${potential.length} potential` : null,
+  ].filter(Boolean).join(", ");
+
+  function patternFindingToMd(f) {
+    return [
+      `---`,
+      `### ${f.id} · ${f.severity} · ${f.title}`,
+      ``,
+      `- **File:** \`${f.file}:${f.line}\``,
+      `- **Status:** ${f.status}`,
+      `- **WCAG:** ${f.wcag}`,
+      `- **Type:** ${f.type}`,
+      ``,
+      `**Match:**`,
+      `\`\`\``,
+      f.match,
+      `\`\`\``,
+      f.context ? `` : null,
+      f.context ? `**Context:**\n\`\`\`\n${f.context}\n\`\`\`` : null,
+      f.fix_description ? `` : null,
+      f.fix_description ? `#### Recommended Fix\n${f.fix_description}` : null,
+    ].filter((line) => line !== null).join("\n");
+  }
+
+  const parts = [];
+  if (confirmed.length > 0) {
+    parts.push(`### Confirmed (${confirmed.length})\n\n${confirmed.map(patternFindingToMd).join("\n\n")}`);
+  }
+  if (potential.length > 0) {
+    parts.push(`### Potential — Verify Before Fixing (${potential.length})\n\n> These matches require manual verification. Inspect each match in the source file before applying any fix.\n\n${potential.map(patternFindingToMd).join("\n\n")}`);
+  }
+
+  return `## Source Code Pattern Findings
+
+These findings were detected via static source code analysis and are not visible to the browser scanner. Do not auto-fix — inspect each match in the source file first.
+
+**${badge}** — scanned \`${project_dir || "project"}\`
+
+${parts.join("\n\n")}`;
+}
+
+/**
  * Builds the full AI-optimized remediation guide in Markdown format.
  * Includes a summary table, guardrails, component map, and detailed issue lists.
  * @param {Object} args - The parsed CLI arguments.
@@ -191,7 +279,10 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         evidenceLabel = `#### Evidence from DOM (showing ${shownCount} of ${f.totalInstances} instances)`;
       }
       evidenceHtml = unique
-        .map((n, i) => `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\``)
+        .map((n, i) => {
+          const ancestryLine = n.ancestry ? `\n**DOM Path:** \`${n.ancestry}\`` : "";
+          return `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\`${ancestryLine}`;
+        })
         .join("\n\n");
     })();
 
@@ -232,6 +323,47 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       Array.isArray(f.relatedRules) && f.relatedRules.length > 0
         ? `**Fixing this also helps:**\n${f.relatedRules.map((r) => `- \`${r.id}\` — ${r.reason}`).join("\n")}`
         : null;
+    const engineReasonBlock =
+      f.primaryFailureMode ||
+      f.relationshipHint ||
+      (Array.isArray(f.failureChecks) && f.failureChecks.length > 0)
+        ? [
+            "#### Why Axe Flagged This",
+            f.primaryFailureMode
+              ? `- **Primary failure mode:** \`${f.primaryFailureMode}\``
+              : null,
+            f.relationshipHint
+              ? `- **Relationship hint:** \`${f.relationshipHint}\``
+              : null,
+            Array.isArray(f.failureChecks) && f.failureChecks.length > 0
+              ? `- **Detected checks:** ${f.failureChecks.join("; ")}`
+              : null,
+            Array.isArray(f.relatedContext) && f.relatedContext.length > 0
+              ? `- **Related context:** ${f.relatedContext
+                  .slice(0, 2)
+                  .map((entry) => `\`${entry}\``)
+                  .join(", ")}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join("\n")
+        : null;
+
+    const contrastDiagnosticsBlock = (() => {
+      if (!["color-contrast", "color-contrast-enhanced"].includes(f.ruleId)) return null;
+      const d = f.checkData;
+      if (!d || !d.fgColor) return null;
+      const ratio = d.contrastRatio ?? d.contrast ?? "?";
+      const expected = d.expectedContrastRatio ?? "4.5:1";
+      const rows = [
+        `| Foreground | \`${d.fgColor}\` |`,
+        `| Background | \`${d.bgColor ?? "unknown"}\` |`,
+        `| Measured ratio | **${ratio}:1** |`,
+        `| Required ratio | **${expected}** |`,
+        d.fontSize ? `| Font | ${d.fontSize} · ${d.fontWeight ?? "normal"} weight |` : null,
+      ].filter(Boolean).join("\n");
+      return `#### Contrast Diagnostics\n| Property | Value |\n|---|---|\n${rows}`;
+    })();
 
     const searchPatternBlock = f.fileSearchPattern
       ? `**Search in:** \`${f.fileSearchPattern}\``
@@ -240,6 +372,12 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     const managedBlock = f.managedByLibrary
       ? `> ⚠️ **Managed Component:** Controlled by \`${f.managedByLibrary}\` — fix via the library's prop API, not direct DOM attributes.`
       : null;
+    const ownershipBlock =
+      f.ownershipStatus === "outside_primary_source"
+        ? `> ⚠️ **Ownership Check Required:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue or handle it outside the primary source before editing.`
+        : f.ownershipStatus === "unknown"
+          ? `> ⚠️ **Ownership Unclear:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue until the editable source is confirmed.`
+          : null;
 
     const verifyBlock = f.verificationCommand
       ? `**Quick verify:** \`${f.verificationCommand}\`${f.verificationCommandFallback ? `\n**Fallback verify:** \`${f.verificationCommandFallback}\`` : ""}`
@@ -253,6 +391,8 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `- \`fix_priority\`: ${executionIndex.get(id) || "n/a"}`,
       `- \`action_type\`: ${inferActionType(f)}`,
       `- \`target_files_glob\`: ${f.fileSearchPattern ? `\`${f.fileSearchPattern}\`` : "`n/a`"}`,
+      `- \`ownership_status\`: ${f.ownershipStatus || "unknown"}`,
+      `- \`search_strategy\`: ${f.searchStrategy || "verify_ownership_before_search"}`,
       requiresManualVerification ? `- \`requires_manual_verification\`: true _(false positive risk: ${f.falsePositiveRisk})_` : `- \`requires_manual_verification\`: false`,
     ].join("\n");
 
@@ -285,8 +425,13 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       ``,
       crossPageBlock,
       managedBlock,
-      crossPageBlock || managedBlock ? `` : null,
+      ownershipBlock,
+      crossPageBlock || managedBlock || ownershipBlock ? `` : null,
       `**Observed Violation:** ${formatViolation(f.actual)}`,
+      contrastDiagnosticsBlock ? `` : null,
+      contrastDiagnosticsBlock,
+      engineReasonBlock ? `` : null,
+      engineReasonBlock,
       searchPatternBlock ? `` : null,
       searchPatternBlock,
       ``,
@@ -365,6 +510,10 @@ ${rows.join("\n")}
 `;
   }
 
+  const incompleteSection = buildIncompleteSection(metadata.incomplete_findings);
+  const patternSection = buildPatternSection(metadata.pattern_findings);
+  const sourceBoundariesSection = buildSourceBoundariesSection(framework);
+
   return (
       `# Accessibility Remediation Guide
 > **Base URL:** ${args.baseUrl || "N/A"}
@@ -383,12 +532,15 @@ ${rows.join("\n")}
 ${buildGuardrails(framework)}
 
 ---
+${sourceBoundariesSection ? `\n${sourceBoundariesSection}\n---` : ""}
 
 ${buildComponentMap()}
 ${buildRecommendationsSection(metadata.recommendations)}
 ${buildExecutionOrderSection()}
 ${blockers ? `## Priority Fixes (Critical and Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
 ${deferred ? `\n## Deferred Issues (Moderate and Minor)\n\n${deferred}` : ""}
+${incompleteSection ? `\n${incompleteSection}` : ""}
+${patternSection ? `\n${patternSection}` : ""}
 `
   .trimEnd() + "\n"
   );

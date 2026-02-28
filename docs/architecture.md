@@ -68,20 +68,21 @@ flowchart TD
 - **Compliance**: Injects `axe-core` 4.11.1 to run 104 accessibility rules (100% of axe-core WCAG A/AA + best-practice coverage).
 - **Discovery**: If the site has a `sitemap.xml`, all listed URLs are scanned. Otherwise, BFS multi-level crawl starting from `base-url`, configurable via `--crawl-depth` (1-3, default: 2), capped at `maxRoutes` (default: 10).
 - **Parallel Scanning**: Routes are scanned across 3 concurrent browser tabs for ~2-3x faster throughput.
-- **Smart Wait**: Uses `networkidle` signal instead of a fixed delay — proceeds as soon as the page is ready, with `waitMs` as the timeout ceiling.
-- **Project Context Detection**: Auto-detects the project's framework (Next.js, Nuxt, React, Vue, Angular, Astro, Svelte, Shopify, WordPress) from DOM signals, and UI component libraries (Radix, Headless UI, Chakra, Mantine, Material UI) from `package.json`.
+- **Smart Wait**: Uses the configured Playwright load strategy (`domcontentloaded` by default, configurable via `--wait-until`) plus `waitMs` as a post-load settle delay.
+- **Project Context Detection**: Auto-detects modern frameworks from `package.json`, detects structural platforms (Shopify, WordPress, Drupal) from project directories, and detects UI component libraries from `package.json`.
 - **Output**: Generates a raw `a11y-scan-results.json` containing every violation found in the DOM plus the detected `projectContext`.
 
 ### 2. The Analyzer (`analyzer.mjs`)
 
-- **Brain**: Consumes the raw scan results and enriches them using `assets/intelligence.json`.
-- **Fix Logic**: Generates the `fixCode`, `fixDescription`, and `framework_notes` for each finding.
+- **Brain**: Consumes the raw scan results and enriches them using `assets/remediation/intelligence.json`.
+- **Fix Logic**: Generates the `fixCode`, `fixDescription`, and the relevant stack-specific notes (`framework_notes` / `cms_notes`) for each finding.
 - **Precision**: Extracts the **Surgical Selector** (prioritizing ID > Short Path) and generates the "Search Hint" to help AI agents find the code in the source files.
 - **Fix Acceleration**: Uses the detected `projectContext` to generate per-finding:
-  - `file_search_pattern` — framework-specific glob patterns (e.g., `app/**/*.tsx` for Next.js) so agents search the right directories.
+  - `file_search_pattern` — stack-aware source boundary patterns (e.g., `app/**/*.tsx` for Next.js or `wp-content/themes/**/*.php` for WordPress) so agents search the right directories.
   - `managed_by_library` — warns when an ARIA rule violation may be on a component managed by a UI library (Radix, Headless UI, etc.).
   - `component_hint` — extracts the likely component name from the CSS selector (e.g., `.product-card__title` → `product-card`) for batch fixing.
   - `verification_command` — a targeted re-scan command (`--routes` + `--only-rule`) for quick post-fix verification.
+  - `ownership_status` / `search_strategy` — tells the agent whether the finding looks editable in the primary source of truth, outside that boundary, or still needs ownership confirmation before searching.
 - **Triage**: Maps axe-core impact levels to severity tiers (Critical / Serious / Moderate / Minor). Compliance score calculation happens downstream in `findings.mjs`.
 
 ### 3. The Builder (`audit.mjs` orchestrator)
@@ -95,10 +96,11 @@ flowchart TD
 The Markdown report is the primary interface between the audit engine and the AI agent fixing issues. It includes:
 
 - **Fixes by Component** table — groups findings by extracted component name so the agent can batch edits per file.
-- **Search in** — framework-specific glob patterns per finding, derived from the detected project context.
+- **Search in** — stack-aware source boundary patterns per finding, derived from the detected project context.
 - **Managed Component Warning** — alerts the agent when a finding's ARIA rule may be handled by a UI library.
 - **Quick verify** — a targeted re-scan command per finding for post-fix verification in seconds instead of minutes.
-- **Framework-aware guardrails** — uses the detected framework (not just URL heuristics) to generate project-specific instructions.
+- **Stack-aware guardrails** — uses the detected stack (not just generic defaults) to generate project-specific instructions.
+- **Ownership guidance** — warns when a finding appears outside the primary editable source or still needs confirmation before the agent searches for files.
 
 ## Data Flow Diagram
 

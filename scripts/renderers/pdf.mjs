@@ -5,16 +5,13 @@
  * remediation roadmap, and technical methodology for the PDF report.
  */
 
-import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
 import { computeComplianceScore, scoreLabel, wcagOverallStatus } from "./findings.mjs";
 import { escapeHtml } from "./utils.mjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const COMPLIANCE_CONFIG = JSON.parse(
-  readFileSync(join(__dirname, "../../assets/compliance-config.json"), "utf-8"),
+const COMPLIANCE_CONFIG = loadAssetJson(
+  ASSET_PATHS.reporting.complianceConfig,
+  "assets/reporting/compliance-config.json",
 );
 
 /**

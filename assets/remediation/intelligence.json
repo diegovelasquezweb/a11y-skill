@@ -332,6 +332,10 @@
     },
     "aria-dialog-name": {
       "category": "aria",
+      "preferred_relationship_checks": [
+        "aria-labelledby",
+        "aria-label"
+      ],
       "managed_by_libraries": [
         "radix",
         "headless-ui",
@@ -464,6 +468,11 @@
     },
     "aria-input-field-name": {
       "category": "aria",
+      "preferred_relationship_checks": [
+        "aria-labelledby",
+        "label",
+        "aria-label"
+      ],
       "fix": {
         "description": "Add an accessible name to ARIA input fields (role='textbox', role='searchbox', role='spinbutton', role='slider', role='combobox') via aria-label or aria-labelledby.",
         "code": "<!-- ARIA textbox with aria-labelledby: -->\n<span id=\"search-label\">Search</span>\n<div role=\"textbox\" contenteditable=\"true\"\n  aria-labelledby=\"search-label\"\n  aria-multiline=\"false\">\n</div>\n\n<!-- Prefer native input (simpler, better AT support): -->\n<label for=\"search\">Search</label>\n<input type=\"search\" id=\"search\">"
@@ -950,6 +959,13 @@
     },
     "aria-toggle-field-name": {
       "category": "aria",
+      "preferred_relationship_checks": [
+        "aria-labelledby",
+        "explicit-label",
+        "label",
+        "aria-label",
+        "implicit-label"
+      ],
       "managed_by_libraries": [
         "radix",
         "headless-ui",
@@ -1350,6 +1366,13 @@
     },
     "button-name": {
       "category": "name-role-value",
+      "preferred_relationship_checks": [
+        "aria-labelledby",
+        "aria-label",
+        "explicit-label",
+        "implicit-label",
+        "presentational-role"
+      ],
       "managed_by_libraries": [
         "radix",
         "headless-ui",
@@ -2307,6 +2330,12 @@
     },
     "input-button-name": {
       "category": "forms",
+      "preferred_relationship_checks": [
+        "aria-labelledby",
+        "aria-label",
+        "explicit-label",
+        "implicit-label"
+      ],
       "fix": {
         "description": "Add a value attribute or aria-label to every <input type='button'>, <input type='submit'>, and <input type='reset'>.",
         "code": "<!-- Input buttons use value as accessible name: -->\n<input type=\"submit\" value=\"Submit order\">\n<input type=\"reset\" value=\"Clear form\">\n<input type=\"button\" value=\"Load more results\">\n\n<!-- If value must stay empty for visual reasons, use aria-label: -->\n<input type=\"submit\" value=\"\" aria-label=\"Submit order\">"
@@ -2386,6 +2415,14 @@
     },
     "label": {
       "category": "forms",
+      "preferred_relationship_checks": [
+        "aria-labelledby",
+        "explicit-label",
+        "form-field-multiple-labels",
+        "label",
+        "aria-label",
+        "implicit-label"
+      ],
       "fix": {
         "description": "Associate every form input with a visible <label> element.",
         "code": "<label for=\"email\">Email address</label>\n<input id=\"email\" type=\"email\" name=\"email\">"
@@ -2936,6 +2973,12 @@
     },
     "link-name": {
       "category": "name-role-value",
+      "preferred_relationship_checks": [
+        "aria-labelledby",
+        "aria-label",
+        "has-visible-text",
+        "presentational-role"
+      ],
       "managed_by_libraries": [
         "radix",
         "react-aria",
@@ -3601,6 +3644,14 @@
     },
     "select-name": {
       "category": "forms",
+      "preferred_relationship_checks": [
+        "aria-labelledby",
+        "explicit-label",
+        "label",
+        "select-name",
+        "aria-label",
+        "implicit-label"
+      ],
       "fix": {
         "description": "Associate every <select> element with a visible <label>.",
         "code": "<label for=\"country\">Country</label>\n<select id=\"country\" name=\"country\">\n  <option value=\"us\">United States</option>\n</select>"
