@@ -221,6 +221,12 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     const managedBlock = f.managedByLibrary
       ? `> ⚠️ **Managed Component:** Controlled by \`${f.managedByLibrary}\` — fix via the library's prop API, not direct DOM attributes.`
       : null;
+    const ownershipBlock =
+      f.ownershipStatus === "outside_primary_source"
+        ? `> ⚠️ **Ownership Check Required:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue or handle it outside the primary source before editing.`
+        : f.ownershipStatus === "unknown"
+          ? `> ⚠️ **Ownership Unclear:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue until the editable source is confirmed.`
+          : null;
 
     const verifyBlock = f.verificationCommand
       ? `**Quick verify:** \`${f.verificationCommand}\`${f.verificationCommandFallback ? `\n**Fallback verify:** \`${f.verificationCommandFallback}\`` : ""}`
@@ -234,6 +240,8 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `- \`fix_priority\`: ${executionIndex.get(id) || "n/a"}`,
       `- \`action_type\`: ${inferActionType(f)}`,
       `- \`target_files_glob\`: ${f.fileSearchPattern ? `\`${f.fileSearchPattern}\`` : "`n/a`"}`,
+      `- \`ownership_status\`: ${f.ownershipStatus || "unknown"}`,
+      `- \`search_strategy\`: ${f.searchStrategy || "verify_ownership_before_search"}`,
       requiresManualVerification ? `- \`requires_manual_verification\`: true _(false positive risk: ${f.falsePositiveRisk})_` : `- \`requires_manual_verification\`: false`,
     ].join("\n");
 
@@ -266,7 +274,8 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       ``,
       crossPageBlock,
       managedBlock,
-      crossPageBlock || managedBlock ? `` : null,
+      ownershipBlock,
+      crossPageBlock || managedBlock || ownershipBlock ? `` : null,
       `**Observed Violation:** ${formatViolation(f.actual)}`,
       searchPatternBlock ? `` : null,
       searchPatternBlock,

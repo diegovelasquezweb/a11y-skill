@@ -1,13 +1,8 @@
 {
   "fileSignals": [
-    ["nextjs",    ["next.config.js", "next.config.mjs", "next.config.ts"]],
-    ["nuxt",      ["nuxt.config.ts", "nuxt.config.js"]],
-    ["astro",     ["astro.config.mjs", "astro.config.ts", "astro.config.js"]],
-    ["angular",   ["angular.json"]],
-    ["svelte",    ["svelte.config.js", "svelte.config.ts"]],
-    ["gatsby",    ["gatsby-config.js", "gatsby-config.ts", "gatsby-config.mjs"]],
-    ["wordpress", ["wp-config.php", "wp-content"]],
-    ["drupal",    ["core/lib/Drupal.php", "sites/default/settings.php"]]
+    ["wordpress", ["wp-content/themes"]],
+    ["drupal", ["web/themes", "themes"]],
+    ["shopify", ["sections", "snippets", "layout", "templates"]]
   ],
   "uiLibrarySignals": [
     ["@radix-ui", "radix"],

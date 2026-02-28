@@ -5,6 +5,7 @@ import path from "node:path";
 import {
   detectImplicitRole,
   extractSearchHint,
+  classifyFindingOwnership,
 } from "../scripts/analyzer.mjs";
 
 describe("assets/intelligence.json schema", () => {
@@ -185,5 +186,60 @@ describe("extractSearchHint", () => {
     expect(extractSearchHint('[aria-label="Close"]')).toBe(
       '[aria-label="Close"]',
     );
+  });
+});
+
+describe("classifyFindingOwnership", () => {
+  it("marks WordPress plugin markup as outside the primary source", () => {
+    const result = classifyFindingOwnership({
+      evidenceHtml: [
+        '<div class="wcc-popup-overflow" data-script="/wp-content/plugins/webtoffee-cookie-consent/lite/frontend/js/script.min.js"></div>',
+      ],
+      selector: ".wcc-popup-overflow",
+      pageUrl: "https://example.com",
+      fileSearchPattern: "wp-content/themes/**/*.php",
+    });
+
+    expect(result.status).toBe("outside_primary_source");
+    expect(result.searchStrategy).toBe("verify_ownership_before_search");
+  });
+
+  it("marks cross-origin iframes as outside the primary source", () => {
+    const result = classifyFindingOwnership({
+      evidenceHtml: [
+        '<iframe src="https://widgets.example.net/chat" title="Support chat"></iframe>',
+      ],
+      selector: "iframe",
+      pageUrl: "https://example.com/support",
+      fileSearchPattern: "src/**/*.tsx",
+    });
+
+    expect(result.status).toBe("outside_primary_source");
+    expect(result.reason).toContain("cross-origin iframe");
+  });
+
+  it("marks findings as unknown when the editable source cannot be resolved", () => {
+    const result = classifyFindingOwnership({
+      evidenceHtml: ["<button>Submit</button>"],
+      selector: "button",
+      pageUrl: "https://example.com",
+      fileSearchPattern: null,
+    });
+
+    expect(result.status).toBe("unknown");
+    expect(result.searchStrategy).toBe("verify_ownership_before_search");
+  });
+
+  it("marks findings as primary when a source boundary is known and no outside signal is present", () => {
+    const result = classifyFindingOwnership({
+      evidenceHtml: ['<button class="cta">Buy now</button>'],
+      selector: ".cta",
+      pageUrl: "https://example.com",
+      fileSearchPattern: "src/**/*.tsx, components/**/*.tsx",
+    });
+
+    expect(result.status).toBe("primary");
+    expect(result.primarySourceScope).toEqual(["src", "components"]);
+    expect(result.searchStrategy).toBe("direct_source_patch");
   });
 });

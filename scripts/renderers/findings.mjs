@@ -75,6 +75,12 @@ export function normalizeFindings(payload) {
       frameworkNotes: item.framework_notes ?? null,
       cmsNotes: item.cms_notes ?? null,
       fileSearchPattern: item.file_search_pattern ?? null,
+      ownershipStatus: item.ownership_status ?? "unknown",
+      ownershipReason: item.ownership_reason ?? null,
+      primarySourceScope: Array.isArray(item.primary_source_scope)
+        ? item.primary_source_scope
+        : [],
+      searchStrategy: item.search_strategy ?? "verify_ownership_before_search",
       managedByLibrary: item.managed_by_library ?? null,
       componentHint: item.component_hint ?? null,
       verificationCommand: item.verification_command ?? null,

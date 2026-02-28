@@ -124,6 +124,12 @@ Load [references/report-standards.md](references/report-standards.md) for findin
 
 Read the remediation guide. The audit pipeline has already handled deduplication, false positive filtering, and computed the Overall Assessment — read these directly from the report.
 
+If a finding is marked with `ownership_status: outside_primary_source` or `ownership_status: unknown`, do not treat it as a normal direct patch. Flag it inline when presenting that specific issue:
+
+> ⚠ This issue may be outside the primary editable source. Confirm whether to ignore it or handle it outside the main remediation flow.
+
+Then ask the user: **Skip this finding or fix it anyway?** — 1. Skip · 2. Fix anyway. Do not ask this question globally before presenting findings.
+
 Apply your own judgment using this decision tree to override severity when the automated classification is inaccurate:
 
 ```

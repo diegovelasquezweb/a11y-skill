@@ -359,6 +359,96 @@ export function extractSearchHint(selector) {
   return specific;
 }
 
+function deriveSourceRoots(fileSearchPattern) {
+  if (!fileSearchPattern) return [];
+  return fileSearchPattern
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => entry.split("/**")[0].replace(/\*.*$/, "").replace(/\/$/, ""))
+    .filter(Boolean);
+}
+
+function findCrossOriginFrameHost(html, pageUrl) {
+  if (!html || !/<iframe\b/i.test(html)) return null;
+  const src = html.match(/<iframe\b[^>]*\bsrc=["']([^"']+)["']/i)?.[1];
+  if (!src) return null;
+  try {
+    const frameUrl = new URL(src, pageUrl);
+    const pageOrigin = new URL(pageUrl).origin;
+    return frameUrl.origin !== pageOrigin ? frameUrl.hostname : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Classifies whether a finding appears to belong to the primary editable source.
+ * @param {Object} input
+ * @param {string[]} [input.evidenceHtml=[]]
+ * @param {string} [input.selector=""]
+ * @param {string} [input.pageUrl=""]
+ * @param {string|null} [input.fileSearchPattern=null]
+ * @returns {{ status: "primary" | "outside_primary_source" | "unknown", reason: string, searchStrategy: string, primarySourceScope: string[] }}
+ */
+export function classifyFindingOwnership({
+  evidenceHtml = [],
+  selector = "",
+  pageUrl = "",
+  fileSearchPattern = null,
+} = {}) {
+  const primarySourceScope = deriveSourceRoots(fileSearchPattern);
+  const html = evidenceHtml.filter(Boolean).join(" ");
+  const selectorText = String(selector || "");
+
+  if (/wp-content\/plugins\//i.test(html)) {
+    return {
+      status: "outside_primary_source",
+      reason: "The captured DOM references a WordPress plugin asset path, not the primary source tree.",
+      searchStrategy: "verify_ownership_before_search",
+      primarySourceScope,
+    };
+  }
+
+  const crossOriginFrameHost = findCrossOriginFrameHost(html, pageUrl);
+  if (crossOriginFrameHost) {
+    return {
+      status: "outside_primary_source",
+      reason: `The element is rendered inside a cross-origin iframe from ${crossOriginFrameHost}.`,
+      searchStrategy: "verify_ownership_before_search",
+      primarySourceScope,
+    };
+  }
+
+  if (
+    /(^|[\s,>+~])iframe\b/i.test(selectorText) &&
+    /src=["']https?:\/\//i.test(html)
+  ) {
+    return {
+      status: "outside_primary_source",
+      reason: "The finding targets an externally sourced iframe, which is usually outside the primary source tree.",
+      searchStrategy: "verify_ownership_before_search",
+      primarySourceScope,
+    };
+  }
+
+  if (primarySourceScope.length === 0) {
+    return {
+      status: "unknown",
+      reason: "The primary editable source could not be resolved for this project context.",
+      searchStrategy: "verify_ownership_before_search",
+      primarySourceScope,
+    };
+  }
+
+  return {
+    status: "primary",
+    reason: `The finding should be addressed in the primary source tree (${primarySourceScope.join(", ")}).`,
+    searchStrategy: "direct_source_patch",
+    primarySourceScope,
+  };
+}
+
 /**
  * Checks whether a single finding is a confirmed false positive based on evidence HTML patterns.
  * Only covers cases where the violation is provably impossible given the axe evidence.
@@ -643,6 +733,13 @@ function buildFindings(inputPayload, cliArgs) {
             : "Fix the violation.";
 
         const codeLang = detectCodeLang(fixInfo.code);
+        const fileSearchPattern = getFileSearchPattern(ctx.framework, codeLang);
+        const ownership = classifyFindingOwnership({
+          evidenceHtml: nodes.map((n) => n.html || ""),
+          selector: bestSelector,
+          pageUrl: route.url,
+          fileSearchPattern,
+        });
 
         findings.push({
           id: "",
@@ -682,8 +779,13 @@ function buildFindings(inputPayload, cliArgs) {
             failureSummary: n.failureSummary,
           })),
           screenshot_path: v.screenshot_path || null,
-          file_search_pattern: getFileSearchPattern(ctx.framework, codeLang),
+          file_search_pattern:
+            ownership.status === "primary" ? fileSearchPattern : null,
           managed_by_library: getManagedByLibrary(v.id, ctx.uiLibraries),
+          ownership_status: ownership.status,
+          ownership_reason: ownership.reason,
+          primary_source_scope: ownership.primarySourceScope,
+          search_strategy: ownership.searchStrategy,
           component_hint: extractComponentHint(bestSelector) ?? derivePageHint(route.path),
           verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
           verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule ${v.id} --max-routes 1`,
@@ -707,6 +809,16 @@ function buildFindings(inputPayload, cliArgs) {
         _ruleInfo,
         null,
       );
+      const _fileSearchPattern = getFileSearchPattern(
+        ctx.framework,
+        detectCodeLang(_fixInfo.code),
+      );
+      const _ownership = classifyFindingOwnership({
+        evidenceHtml: [],
+        selector: "h1",
+        pageUrl: route.url,
+        fileSearchPattern: _fileSearchPattern,
+      });
       findings.push({
         id: "",
         rule_id: "page-has-heading-one",
@@ -734,6 +846,12 @@ function buildFindings(inputPayload, cliArgs) {
         framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
         cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
         wcag_classification: "Best Practice",
+        file_search_pattern:
+          _ownership.status === "primary" ? _fileSearchPattern : null,
+        ownership_status: _ownership.status,
+        ownership_reason: _ownership.reason,
+        primary_source_scope: _ownership.primarySourceScope,
+        search_strategy: _ownership.searchStrategy,
         component_hint: derivePageHint(route.path),
         verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule page-has-heading-one --max-routes 1`,
         verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule page-has-heading-one --max-routes 1`,
@@ -753,6 +871,16 @@ function buildFindings(inputPayload, cliArgs) {
         _ruleInfo,
         null,
       );
+      const _fileSearchPattern = getFileSearchPattern(
+        ctx.framework,
+        detectCodeLang(_fixInfo.code),
+      );
+      const _ownership = classifyFindingOwnership({
+        evidenceHtml: [],
+        selector: "main",
+        pageUrl: route.url,
+        fileSearchPattern: _fileSearchPattern,
+      });
       findings.push({
         id: "",
         rule_id: "landmark-one-main",
@@ -780,6 +908,12 @@ function buildFindings(inputPayload, cliArgs) {
         framework_notes: filterNotes(_ruleInfo.framework_notes, ctx.framework),
         cms_notes: filterNotes(_ruleInfo.cms_notes, ctx.framework),
         wcag_classification: "Best Practice",
+        file_search_pattern:
+          _ownership.status === "primary" ? _fileSearchPattern : null,
+        ownership_status: _ownership.status,
+        ownership_reason: _ownership.reason,
+        primary_source_scope: _ownership.primarySourceScope,
+        search_strategy: _ownership.searchStrategy,
         component_hint: derivePageHint(route.path),
         verification_command: `pnpm a11y --base-url ${route.url} --routes ${route.path} --only-rule landmark-one-main --max-routes 1`,
         verification_command_fallback: `node scripts/audit.mjs --base-url ${route.url} --routes ${route.path} --only-rule landmark-one-main --max-routes 1`,
