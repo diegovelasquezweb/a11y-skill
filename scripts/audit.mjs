@@ -26,7 +26,7 @@ Targeting & Scope:
   --max-routes <num>      Max routes to discover and scan (default: 10).
   --crawl-depth <num>     How deep to follow links during discovery (1-3, default: 2).
   --routes <csv>          Custom list of paths to scan.
-  --project-dir <path>    Path to the audited project (for framework auto-detection).
+  --project-dir <path>    Path to the audited project (for stack auto-detection).
 
 Audit Intelligence:
   --target <text>         Compliance target label (default: "WCAG 2.2 AA").
@@ -37,7 +37,7 @@ Audit Intelligence:
 Execution & Emulation:
   --color-scheme <val>    Emulate color scheme: "light" or "dark".
   --wait-until <val>      Page load strategy: domcontentloaded|load|networkidle (default: domcontentloaded).
-  --framework <val>       Override auto-detected framework (react|vue|angular|svelte|astro|shopify|wordpress|drupal).
+  --framework <val>       Override auto-detected stack (nextjs|gatsby|react|nuxt|vue|angular|astro|svelte|shopify|wordpress|drupal).
   --viewport <WxH>        Viewport dimensions as WIDTHxHEIGHT (e.g., 375x812 for mobile).
   --headed                Run browser in visible mode (overrides headless).
   --with-reports          Generate HTML and PDF reports (requires --output).

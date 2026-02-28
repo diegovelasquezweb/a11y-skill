@@ -110,7 +110,7 @@ node scripts/audit.mjs --base-url <URL> --max-routes 999
 node scripts/audit.mjs --base-url <URL> --max-routes <N>
 ```
 
-For local projects with framework auto-detection, add `--project-dir <path>`. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
+Always pass `--project-dir <path>` for local projects. If you can identify the stack from the project files, also pass `--framework <value>` (nextjs|gatsby|react|nuxt|vue|angular|astro|svelte|shopify|wordpress|drupal) — explicit detection is more reliable than auto-detection. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
 
 After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user.
 

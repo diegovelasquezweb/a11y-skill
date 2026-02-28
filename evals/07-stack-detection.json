@@ -1,6 +1,6 @@
 {
-  "id": "07-framework-detection",
-  "title": "Framework-specific path detection",
+  "id": "07-stack-detection",
+  "title": "Stack-specific path detection",
   "skills": [
     "a11y"
   ],

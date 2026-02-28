@@ -20,9 +20,9 @@ const SCANNER_CONFIG = loadAssetJson(
   ASSET_PATHS.discovery.scannerConfig,
   "assets/discovery/scanner-config.json",
 );
-const FRAMEWORK_DETECTION = loadAssetJson(
-  ASSET_PATHS.discovery.frameworkDetection,
-  "assets/discovery/framework-detection.json",
+const STACK_DETECTION = loadAssetJson(
+  ASSET_PATHS.discovery.stackDetection,
+  "assets/discovery/stack-detection.json",
 );
 
 /**
@@ -317,27 +317,17 @@ export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
 }
 
 /**
- * Detects the web framework and UI libraries used by analyzing the DOM and package.json (if available).
- * @param {import("playwright").Page} page - The Playwright page object.
- * @returns {Promise<Object>} An object containing detected framework and UI libraries.
+ * Detects the web framework and UI libraries used by analyzing package.json and file structure.
+ * @returns {Object} An object containing detected framework and UI libraries.
  */
-async function detectProjectContext(page) {
-  const domSignals = FRAMEWORK_DETECTION.domSignals;
-
-  const domFramework = await page.evaluate((signals) => {
-    for (const entry of signals) {
-      const s = entry.signals;
-      if (s.window && window[s.window]) return entry.framework;
-      if (s.scriptSrc && document.querySelector(`script[src*="${s.scriptSrc}"]`)) return entry.framework;
-    }
-    return null;
-  }, domSignals);
-
+function detectProjectContext() {
   const uiLibraries = [];
   let pkgFramework = null;
   let fileFramework = null;
+
+  const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
+
   try {
-    const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
     const pkgPath = path.join(projectDir, "package.json");
     if (fs.existsSync(pkgPath)) {
       const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
@@ -345,41 +335,33 @@ async function detectProjectContext(page) {
         ...(pkg.dependencies || {}),
         ...(pkg.devDependencies || {}),
       });
-      const PKG_SIGNALS = FRAMEWORK_DETECTION.packageSignals;
-      for (const [dep, fw] of PKG_SIGNALS) {
+      for (const [dep, fw] of STACK_DETECTION.packageSignals) {
         if (allDeps.some((d) => d === dep || d.startsWith(`${dep}/`))) {
           pkgFramework = fw;
           break;
         }
       }
-      const LIB_SIGNALS = FRAMEWORK_DETECTION.uiLibrarySignals;
-      for (const [prefix, name] of LIB_SIGNALS) {
+      for (const [prefix, name] of STACK_DETECTION.uiLibrarySignals) {
         if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
           uiLibraries.push(name);
         }
       }
     }
-  } catch {
-    // package.json not available — running against remote URL
-  }
+  } catch { /* package.json unreadable */ }
 
   if (!pkgFramework) {
-    const fileSignals = FRAMEWORK_DETECTION.fileSignals || [];
-    try {
-      const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
-      for (const entry of fileSignals) {
-        if (entry.files.some((f) => fs.existsSync(path.join(projectDir, f)))) {
-          fileFramework = entry.framework;
-          break;
-        }
+    for (const [fw, files] of STACK_DETECTION.fileSignals || []) {
+      if (files.some((f) => fs.existsSync(path.join(projectDir, f)))) {
+        fileFramework = fw;
+        break;
       }
-    } catch { /* not a local project */ }
+    }
   }
 
-  const resolvedFramework = pkgFramework || fileFramework || domFramework;
+  const resolvedFramework = pkgFramework || fileFramework;
 
   if (resolvedFramework) {
-    const source = pkgFramework ? "(from package.json)" : fileFramework ? "(from file structure)" : "(from DOM)";
+    const source = pkgFramework ? "(from package.json)" : "(from file structure)";
     log.info(`Detected framework: ${resolvedFramework} ${source}`);
   }
   if (uiLibraries.length) log.info(`Detected UI libraries: ${uiLibraries.join(", ")}`);
@@ -518,7 +500,7 @@ async function main() {
       timeout: args.timeoutMs,
     });
 
-    projectContext = await detectProjectContext(page);
+    projectContext = detectProjectContext();
 
     const cliRoutes = parseRoutesArg(args.routes, origin);
 

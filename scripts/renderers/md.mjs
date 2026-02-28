@@ -8,10 +8,6 @@
 import { buildSummary } from "./findings.mjs";
 import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
 
-const FRAMEWORK_DETECTION = loadAssetJson(
-  ASSET_PATHS.discovery.frameworkDetection,
-  "assets/discovery/framework-detection.json",
-);
 const GUARDRAILS = loadAssetJson(
   ASSET_PATHS.remediation.guardrails,
   "assets/remediation/guardrails.json",
@@ -29,11 +25,6 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
   if (configFramework) return configFramework.toLowerCase();
   const detected = metadata.projectContext?.framework;
   if (detected) return detected;
-  const url = baseUrl.toLowerCase();
-  const urlSignals = FRAMEWORK_DETECTION?.urlSignals || [];
-  for (const signal of urlSignals) {
-    if (url.includes(signal.pattern)) return signal.framework;
-  }
   return "generic";
 }
 

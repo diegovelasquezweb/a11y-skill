@@ -40,7 +40,7 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 
 | Asset                       | Role          | Key Data                                                                             |
 | :-------------------------- | :------------ | :----------------------------------------------------------------------------------- |
-| **`assets/discovery/framework-detection.json`** | Detection | DOM signals, file signals, package signals, UI library signals, and URL fallbacks for framework/CMS inference. |
+| **`assets/discovery/stack-detection.json`** | Detection | File signals and package signals for framework and CMS/platform inference. |
 | **`assets/discovery/source-globs.json`** | Source Discovery | Framework-specific component/style globs used to suggest source search locations. |
 | **`assets/discovery/scanner-config.json`** | Filter Engine | Blocked file extensions, excluded external domains, and robots.txt settings. |
 | **`assets/remediation/intelligence.json`** | Fix Database | Category, resolution code, framework/CMS notes, guardrails, managed-library flags, and related rules for all 101 axe-core rules. |
@@ -126,7 +126,7 @@ flowchart LR
 
     subgraph Data ["Intelligence Assets"]
         AS1[discovery/scanner-config.json] -.-> C
-        AS2[discovery/framework-detection.json] -.-> C
+        AS2[discovery/stack-detection.json] -.-> C
         AS3[remediation/intelligence.json] -.-> D
         AS4[discovery/source-globs.json] -.-> D
         AS5[remediation/platform-aliases.json] -.-> D
