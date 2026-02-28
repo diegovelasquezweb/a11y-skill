@@ -42,7 +42,7 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 | :-------------------------- | :------------ | :----------------------------------------------------------------------------------- |
 | **`assets/discovery/stack-detection.json`** | Detection | File signals and package signals for framework and CMS/platform inference. |
 | **`assets/discovery/source-globs.json`** | Source Discovery | Framework-specific component/style globs used to suggest source search locations. |
-| **`assets/discovery/scanner-config.json`** | Filter Engine | Blocked file extensions, excluded external domains, and robots.txt settings. |
+| **`assets/discovery/crawler-config.json`** | Crawl Rules | Blocked file extensions and pagination query hints used during route discovery. |
 | **`assets/remediation/intelligence.json`** | Fix Database | Category, resolution code, framework/CMS notes, guardrails, managed-library flags, and related rules for all 101 axe-core rules. |
 | **`assets/remediation/platform-aliases.json`** | Mapping Layer | Framework-to-note aliases that normalize detected stacks before remediation filtering. |
 | **`assets/remediation/guardrails.json`** | Operating Rules | Shared and platform-specific instructions injected into the remediation guide. |
@@ -125,7 +125,7 @@ flowchart LR
     end
 
     subgraph Data ["Intelligence Assets"]
-        AS1[discovery/scanner-config.json] -.-> C
+        AS1[discovery/crawler-config.json] -.-> C
         AS2[discovery/stack-detection.json] -.-> C
         AS3[remediation/intelligence.json] -.-> D
         AS4[discovery/source-globs.json] -.-> D

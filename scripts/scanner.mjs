@@ -16,14 +16,23 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const SCANNER_CONFIG = loadAssetJson(
-  ASSET_PATHS.discovery.scannerConfig,
-  "assets/discovery/scanner-config.json",
+const CRAWLER_CONFIG = loadAssetJson(
+  ASSET_PATHS.discovery.crawlerConfig,
+  "assets/discovery/crawler-config.json",
 );
 const STACK_DETECTION = loadAssetJson(
   ASSET_PATHS.discovery.stackDetection,
   "assets/discovery/stack-detection.json",
 );
+const AXE_TAGS = [
+  "wcag2a",
+  "wcag2aa",
+  "wcag21a",
+  "wcag21aa",
+  "wcag22a",
+  "wcag22aa",
+  "best-practice",
+];
 
 /**
  * Prints the CLI usage instructions and available options to the console.
@@ -115,12 +124,12 @@ function parseArgs(argv) {
 }
 
 const BLOCKED_EXTENSIONS = new RegExp(
-  "\\.(" + SCANNER_CONFIG.blockedExtensions.join("|") + ")$",
+  "\\.(" + CRAWLER_CONFIG.blockedExtensions.join("|") + ")$",
   "i",
 );
 
 const PAGINATION_PARAMS = new RegExp(
-  "^(" + SCANNER_CONFIG.paginationParams.join("|") + ")$",
+  "^(" + CRAWLER_CONFIG.paginationParams.join("|") + ")$",
   "i",
 );
 
@@ -409,7 +418,7 @@ async function analyzeRoute(
         log.info(`Targeted Audit: Only checking rule "${onlyRule}"`);
         builder.withRules([onlyRule]);
       } else {
-        builder.withTags(SCANNER_CONFIG.axeTags);
+        builder.withTags(AXE_TAGS);
       }
 
       if (Array.isArray(excludeSelectors)) {

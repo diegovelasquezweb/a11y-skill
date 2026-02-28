@@ -12,7 +12,7 @@ const ASSET_ROOT = path.join(__dirname, "..", "assets");
 
 export const ASSET_PATHS = {
   discovery: {
-    scannerConfig: path.join(ASSET_ROOT, "discovery", "scanner-config.json"),
+    crawlerConfig: path.join(ASSET_ROOT, "discovery", "crawler-config.json"),
     stackDetection: path.join(
       ASSET_ROOT,
       "discovery",

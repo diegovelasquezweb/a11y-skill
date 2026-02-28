@@ -7,9 +7,5 @@
   ],
   "paginationParams": [
     "page", "paged", "p", "pg", "offset", "cursor", "start", "from", "skip", "limit", "per_page"
-  ],
-  "axeTags": [
-    "wcag2a", "wcag2aa", "wcag21a", "wcag21aa",
-    "wcag22a", "wcag22aa", "best-practice"
   ]
 }
