@@ -6,7 +6,7 @@
  */
 
 import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, relative, extname } from "node:path";
+import { join, relative, extname, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { log, writeJson, getInternalPath } from "./utils.mjs";
@@ -16,7 +16,16 @@ const SKIP_DIRS = new Set([
   "node_modules", ".git", "dist", "build", ".next", ".nuxt",
   ".cache", "coverage", ".audit", "out", ".turbo", ".svelte-kit",
   ".vercel", ".netlify", "public", "static",
+  // WordPress core — never editable
+  "wp-includes", "wp-admin",
 ]);
+
+const SKIP_FILE_PATTERN = /\.min\.(js|css)$/i;
+
+const SOURCE_BOUNDARIES = loadAssetJson(
+  ASSET_PATHS.remediation.sourceBoundaries,
+  "assets/remediation/source-boundaries.json",
+);
 
 function printUsage() {
   log.info(`Usage:
@@ -38,6 +47,7 @@ function parseArgs(argv) {
 
   const args = {
     projectDir: null,
+    framework: null,
     output: getInternalPath("a11y-pattern-findings.json"),
     onlyPattern: null,
   };
@@ -47,6 +57,7 @@ function parseArgs(argv) {
     const value = argv[i + 1];
     if (!key.startsWith("--") || value === undefined) continue;
     if (key === "--project-dir") args.projectDir = value;
+    if (key === "--framework") args.framework = value;
     if (key === "--output") args.output = value;
     if (key === "--only-pattern") args.onlyPattern = value;
     i++;
@@ -89,11 +100,39 @@ function walkFiles(dir, extensions, results = []) {
     if (entry.isDirectory()) {
       if (SKIP_DIRS.has(entry.name) || entry.name.startsWith(".")) continue;
       walkFiles(join(dir, entry.name), extensions, results);
-    } else if (entry.isFile() && extensions.has(extname(entry.name))) {
+    } else if (entry.isFile() && extensions.has(extname(entry.name)) && !SKIP_FILE_PATTERN.test(entry.name)) {
       results.push(join(dir, entry.name));
     }
   }
   return results;
+}
+
+/**
+ * Resolves the directories to scan based on framework source boundaries.
+ * Falls back to the full project dir if no boundaries are defined.
+ * @param {string|null} framework
+ * @param {string} projectDir
+ * @returns {string[]}
+ */
+function resolveScanDirs(framework, projectDir) {
+  const boundaries = framework ? SOURCE_BOUNDARIES?.[framework] : null;
+  if (!boundaries) return [projectDir];
+
+  const allGlobs = [boundaries.components, boundaries.styles]
+    .filter(Boolean)
+    .flatMap((g) => g.split(",").map((s) => s.trim()));
+
+  const prefixes = new Set();
+  for (const glob of allGlobs) {
+    const prefix = glob.split(/[*?{]/)[0].replace(/\/$/, "");
+    if (prefix) prefixes.add(prefix);
+  }
+
+  const dirs = [...prefixes]
+    .map((p) => resolve(projectDir, p))
+    .filter((d) => { try { return statSync(d).isDirectory(); } catch { return false; } });
+
+  return dirs.length > 0 ? dirs : [projectDir];
 }
 
 /**
@@ -131,13 +170,14 @@ export function isConfirmedByContext(pattern, lines, lineIndex) {
 /**
  * Scans all files matching a pattern's globs for regex matches.
  * @param {Object} pattern
- * @param {string} projectDir
+ * @param {string} scanDir - Directory to walk (may be a sub-directory of projectDir).
+ * @param {string} [projectDir] - Root used for relative file paths (defaults to scanDir).
  * @returns {Object[]}
  */
-export function scanPattern(pattern, projectDir) {
+export function scanPattern(pattern, scanDir, projectDir = scanDir) {
   const findings = [];
   const extensions = parseExtensions(pattern.globs);
-  const files = walkFiles(projectDir, extensions);
+  const files = walkFiles(scanDir, extensions);
   const regex = new RegExp(pattern.regex, "gi");
 
   for (const file of files) {
@@ -209,12 +249,19 @@ function main() {
     process.exit(0);
   }
 
+  const scanDirs = resolveScanDirs(args.framework, args.projectDir);
   log.info(`Scanning source code at: ${args.projectDir}`);
+  if (scanDirs.length > 1 || scanDirs[0] !== args.projectDir) {
+    log.info(`  Scoped to: ${scanDirs.map((d) => relative(args.projectDir, d)).join(", ")}`);
+  }
   log.info(`Running ${activePatterns.length} pattern(s)...`);
 
   const allFindings = [];
   for (const pattern of activePatterns) {
-    const findings = scanPattern(pattern, args.projectDir);
+    const findings = [];
+    for (const scanDir of scanDirs) {
+      findings.push(...scanPattern(pattern, scanDir, args.projectDir));
+    }
     if (findings.length > 0) {
       log.info(`  ${pattern.id}: ${findings.length} match(es)`);
     }
