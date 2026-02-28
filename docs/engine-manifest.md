@@ -40,8 +40,8 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 
 | Asset                       | Role          | Key Data                                                                             |
 | :-------------------------- | :------------ | :----------------------------------------------------------------------------------- |
-| **`assets/discovery/stack-detection.json`** | Detection | File signals and package signals for framework and CMS/platform inference. |
-| **`assets/discovery/source-globs.json`** | Source Discovery | Framework-specific component/style globs used to suggest source search locations. |
+| **`assets/discovery/stack-detection.json`** | Detection | Framework package detectors, platform structure detectors, and UI library package detectors. |
+| **`assets/discovery/source-boundaries.json`** | Source Discovery | Stack-specific editable source boundaries used to suggest safe search locations. |
 | **`assets/discovery/crawler-config.json`** | Crawl Rules | Blocked file extensions and pagination query hints used during route discovery. |
 | **`assets/remediation/intelligence.json`** | Fix Database | Category, resolution code, framework/CMS notes, guardrails, managed-library flags, and related rules for all 101 axe-core rules. |
 | **`assets/remediation/platform-aliases.json`** | Mapping Layer | Framework-to-note aliases that normalize detected stacks before remediation filtering. |
@@ -128,7 +128,7 @@ flowchart LR
         AS1[discovery/crawler-config.json] -.-> C
         AS2[discovery/stack-detection.json] -.-> C
         AS3[remediation/intelligence.json] -.-> D
-        AS4[discovery/source-globs.json] -.-> D
+        AS4[discovery/source-boundaries.json] -.-> D
         AS5[remediation/platform-aliases.json] -.-> D
         AS6[remediation/guardrails.json] -.-> E
         AS7[scoring/compliance-config.json] -.-> E

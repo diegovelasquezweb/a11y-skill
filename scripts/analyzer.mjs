@@ -28,7 +28,7 @@ const intelligencePath = ASSET_PATHS.remediation.intelligence;
 const wcagReferencePath = ASSET_PATHS.scoring.wcagReference;
 
 const complianceConfigPath = ASSET_PATHS.scoring.complianceConfig;
-const sourceGlobsPath = ASSET_PATHS.discovery.sourceGlobs;
+const sourceBoundariesPath = ASSET_PATHS.discovery.sourceBoundaries;
 const platformAliasesPath = ASSET_PATHS.remediation.platformAliases;
 
 const DISABLED_RULES = {
@@ -39,7 +39,7 @@ const DISABLED_RULES = {
 let INTELLIGENCE;
 let WCAG_REFERENCE;
 let COMPLIANCE_CONFIG;
-let SOURCE_GLOBS;
+let SOURCE_BOUNDARIES;
 let PLATFORM_ALIASES;
 
 // Initialize remediation and rule metadata assets.
@@ -58,9 +58,9 @@ COMPLIANCE_CONFIG = loadAssetJson(
   "assets/scoring/compliance-config.json",
 );
 
-SOURCE_GLOBS = loadAssetJson(
-  sourceGlobsPath,
-  "assets/discovery/source-globs.json",
+SOURCE_BOUNDARIES = loadAssetJson(
+  sourceBoundariesPath,
+  "assets/discovery/source-boundaries.json",
 );
 
 PLATFORM_ALIASES = loadAssetJson(
@@ -153,7 +153,7 @@ function getExpected(ruleId) {
  * Used to help developers locate the source of an accessibility violation.
  * @type {Object<string, Object>}
  */
-const FRAMEWORK_GLOBS = SOURCE_GLOBS || {};
+const FRAMEWORK_GLOBS = SOURCE_BOUNDARIES || {};
 
 /**
  * Rules with managed_by_libraries in intelligence.json — derived at load time.

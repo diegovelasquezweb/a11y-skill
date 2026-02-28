@@ -344,13 +344,13 @@ function detectProjectContext() {
         ...(pkg.dependencies || {}),
         ...(pkg.devDependencies || {}),
       });
-      for (const [dep, fw] of STACK_DETECTION.packageSignals) {
+      for (const [dep, fw] of STACK_DETECTION.frameworkPackageDetectors) {
         if (allDeps.some((d) => d === dep || d.startsWith(`${dep}/`))) {
           pkgFramework = fw;
           break;
         }
       }
-      for (const [prefix, name] of STACK_DETECTION.uiLibrarySignals) {
+      for (const [prefix, name] of STACK_DETECTION.uiLibraryPackageDetectors) {
         if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
           uiLibraries.push(name);
         }
@@ -359,7 +359,7 @@ function detectProjectContext() {
   } catch { /* package.json unreadable */ }
 
   if (!pkgFramework) {
-    for (const [fw, files] of STACK_DETECTION.fileSignals || []) {
+    for (const [fw, files] of STACK_DETECTION.platformStructureDetectors || []) {
       if (files.some((f) => fs.existsSync(path.join(projectDir, f)))) {
         fileFramework = fw;
         break;

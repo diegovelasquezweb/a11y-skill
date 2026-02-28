@@ -1,10 +1,10 @@
 {
-  "fileSignals": [
+  "platformStructureDetectors": [
     ["wordpress", ["wp-content/themes"]],
     ["drupal", ["web/themes", "themes"]],
     ["shopify", ["sections", "snippets", "layout", "templates"]]
   ],
-  "uiLibrarySignals": [
+  "uiLibraryPackageDetectors": [
     ["@radix-ui", "radix"],
     ["@headlessui", "headless-ui"],
     ["@chakra-ui", "chakra"],
@@ -18,7 +18,7 @@
     ["vuetify", "vuetify"],
     ["swiper", "swiper"]
   ],
-  "packageSignals": [
+  "frameworkPackageDetectors": [
     ["next", "nextjs"],
     ["gatsby", "gatsby"],
     ["nuxt", "nuxt"],

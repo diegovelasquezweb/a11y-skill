@@ -18,7 +18,11 @@ export const ASSET_PATHS = {
       "discovery",
       "stack-detection.json",
     ),
-    sourceGlobs: path.join(ASSET_ROOT, "discovery", "source-globs.json"),
+    sourceBoundaries: path.join(
+      ASSET_ROOT,
+      "discovery",
+      "source-boundaries.json",
+    ),
   },
   remediation: {
     intelligence: path.join(ASSET_ROOT, "remediation", "intelligence.json"),
