@@ -124,6 +124,27 @@ function buildRecommendationsSection(recommendations) {
 
 
 /**
+ * Builds the Potential Issues section from incomplete (needs-review) axe violations.
+ * @param {Object[]} incompleteFindings
+ * @returns {string}
+ */
+function buildIncompleteSection(incompleteFindings) {
+  if (!Array.isArray(incompleteFindings) || incompleteFindings.length === 0) return "";
+  const rows = incompleteFindings.map((f) => {
+    const msg = (f.message || f.description || "Needs manual review").replace(/\|/g, "\\|");
+    return `| \`${f.rule_id}\` | ${f.impact ?? "?"} | \`${f.area}\` | ${msg} |`;
+  });
+  return `## Potential Issues — Manual Review Required
+
+axe flagged these but could not auto-confirm them. Do not apply automated fixes — verify manually before acting.
+
+| Rule | Impact | Area | Axe Message |
+|---|---|---|---|
+${rows.join("\n")}
+`;
+}
+
+/**
  * Builds the full AI-optimized remediation guide in Markdown format.
  * Includes a summary table, guardrails, component map, and detailed issue lists.
  * @param {Object} args - The parsed CLI arguments.
@@ -175,7 +196,10 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         evidenceLabel = `#### Evidence from DOM (showing ${shownCount} of ${f.totalInstances} instances)`;
       }
       evidenceHtml = unique
-        .map((n, i) => `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\``)
+        .map((n, i) => {
+          const ancestryLine = n.ancestry ? `\n**DOM Path:** \`${n.ancestry}\`` : "";
+          return `**Instance ${i + 1}**:\n\`\`\`html\n${n.html}\n\`\`\`${ancestryLine}`;
+        })
         .join("\n\n");
     })();
 
@@ -217,11 +241,16 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
         ? `**Fixing this also helps:**\n${f.relatedRules.map((r) => `- \`${r.id}\` — ${r.reason}`).join("\n")}`
         : null;
     const engineReasonBlock =
-      f.primaryFailureMode || (Array.isArray(f.failureChecks) && f.failureChecks.length > 0)
+      f.primaryFailureMode ||
+      f.relationshipHint ||
+      (Array.isArray(f.failureChecks) && f.failureChecks.length > 0)
         ? [
             "#### Why Axe Flagged This",
             f.primaryFailureMode
               ? `- **Primary failure mode:** \`${f.primaryFailureMode}\``
+              : null,
+            f.relationshipHint
+              ? `- **Relationship hint:** \`${f.relationshipHint}\``
               : null,
             Array.isArray(f.failureChecks) && f.failureChecks.length > 0
               ? `- **Detected checks:** ${f.failureChecks.join("; ")}`
@@ -236,6 +265,35 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
             .filter(Boolean)
             .join("\n")
         : null;
+
+    const contrastDiagnosticsBlock = (() => {
+      if (!["color-contrast", "color-contrast-enhanced"].includes(f.ruleId)) return null;
+      const d = f.checkData;
+      if (!d || !d.fgColor) return null;
+      const ratio = d.contrastRatio ?? d.contrast ?? "?";
+      const expected = d.expectedContrastRatio ?? "4.5:1";
+      const rows = [
+        `| Foreground | \`${d.fgColor}\` |`,
+        `| Background | \`${d.bgColor ?? "unknown"}\` |`,
+        `| Measured ratio | **${ratio}:1** |`,
+        `| Required ratio | **${expected}** |`,
+        d.fontSize ? `| Font | ${d.fontSize} · ${d.fontWeight ?? "normal"} weight |` : null,
+      ].filter(Boolean).join("\n");
+      return `#### Contrast Diagnostics\n| Property | Value |\n|---|---|\n${rows}`;
+    })();
+
+    const checkDiagnosticsBlock = (() => {
+      const d = f.checkData;
+      if (!d) return null;
+      if (f.ruleId === "meta-viewport" && typeof d === "string") {
+        return `#### Viewport Constraint Detected\n- **Failing attribute value:** \`${d}\`\n- Remove or replace with \`user-scalable=yes\` (or omit the property entirely)`;
+      }
+      if (f.ruleId === "list" && typeof d === "object" && d.values) {
+        const tag = String(d.values).trim();
+        return `#### Invalid Child Element\n- **Element found:** \`<${tag}>\` directly inside \`<ul>\`/\`<ol>\`\n- Only \`<li>\` elements are permitted as direct children`;
+      }
+      return null;
+    })();
 
     const searchPatternBlock = f.fileSearchPattern
       ? `**Search in:** \`${f.fileSearchPattern}\``
@@ -300,6 +358,10 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       ownershipBlock,
       crossPageBlock || managedBlock || ownershipBlock ? `` : null,
       `**Observed Violation:** ${formatViolation(f.actual)}`,
+      contrastDiagnosticsBlock ? `` : null,
+      contrastDiagnosticsBlock,
+      checkDiagnosticsBlock ? `` : null,
+      checkDiagnosticsBlock,
       engineReasonBlock ? `` : null,
       engineReasonBlock,
       searchPatternBlock ? `` : null,
@@ -380,6 +442,8 @@ ${rows.join("\n")}
 `;
   }
 
+  const incompleteSection = buildIncompleteSection(metadata.incomplete_findings);
+
   return (
       `# Accessibility Remediation Guide
 > **Base URL:** ${args.baseUrl || "N/A"}
@@ -404,6 +468,7 @@ ${buildRecommendationsSection(metadata.recommendations)}
 ${buildExecutionOrderSection()}
 ${blockers ? `## Priority Fixes (Critical and Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
 ${deferred ? `\n## Deferred Issues (Moderate and Minor)\n\n${deferred}` : ""}
+${incompleteSection ? `\n${incompleteSection}` : ""}
 `
   .trimEnd() + "\n"
   );

@@ -58,6 +58,7 @@ export function normalizeFindings(payload) {
       ),
       actual: String(item.actual ?? ""),
       primaryFailureMode: item.primary_failure_mode ?? null,
+      relationshipHint: item.relationship_hint ?? null,
       failureChecks: Array.isArray(item.failure_checks) ? item.failure_checks : [],
       relatedContext: Array.isArray(item.related_context) ? item.related_context : [],
       expected: String(item.expected ?? ""),
@@ -90,6 +91,7 @@ export function normalizeFindings(payload) {
       verificationCommandFallback: item.verification_command_fallback ?? null,
       pagesAffected: typeof item.pages_affected === "number" ? item.pages_affected : null,
       affectedUrls: Array.isArray(item.affected_urls) ? item.affected_urls : null,
+      checkData: item.check_data ?? null,
     }))
     .sort((a, b) => {
       const sa = SEVERITY_ORDER[a.severity] ?? 99;

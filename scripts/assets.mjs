@@ -21,6 +21,11 @@ export const ASSET_PATHS = {
   },
   remediation: {
     intelligence: path.join(ASSET_ROOT, "remediation", "intelligence.json"),
+    axeCheckMaps: path.join(
+      ASSET_ROOT,
+      "remediation",
+      "axe-check-maps.json",
+    ),
     guardrails: path.join(ASSET_ROOT, "remediation", "guardrails.json"),
     sourceBoundaries: path.join(
       ASSET_ROOT,

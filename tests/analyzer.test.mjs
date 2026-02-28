@@ -266,6 +266,7 @@ describe("extractFailureInsights", () => {
     });
 
     expect(result.primaryFailureMode).toBe("missing_visible_text");
+    expect(result.relationshipHint).toBe("control_has_no_accessible_name_source");
     expect(result.failureChecks).toEqual([
       "Element does not have inner text that is visible to screen readers",
       "aria-label attribute does not exist or is empty",
@@ -287,8 +288,93 @@ describe("extractFailureInsights", () => {
     });
 
     expect(result.primaryFailureMode).toBe("missing_accessible_label");
+    expect(result.relationshipHint).toBe("label_not_associated_with_control");
     expect(result.relatedContext).toEqual([
       '<label for="email">Email</label>',
     ]);
+  });
+
+  it("extracts check.data from the primary failing check", () => {
+    const result = extractFailureInsights({
+      any: [
+        {
+          id: "color-contrast",
+          message: "Element has insufficient color contrast of 3.24",
+          data: {
+            fgColor: "#999999",
+            bgColor: "#ffffff",
+            contrastRatio: 3.24,
+            fontSize: "14.0pt (18.67px)",
+            fontWeight: "normal",
+            expectedContrastRatio: "4.5:1",
+          },
+          relatedNodes: [],
+        },
+      ],
+      all: [],
+      none: [],
+    });
+
+    expect(result.checkData).toMatchObject({
+      fgColor: "#999999",
+      bgColor: "#ffffff",
+      contrastRatio: 3.24,
+    });
+    expect(result.relationshipHint).toBeNull();
+  });
+
+  it("returns null checkData when check has no data field", () => {
+    const result = extractFailureInsights({
+      any: [{ id: "button-has-visible-text", message: "No visible text", relatedNodes: [] }],
+      all: [],
+      none: [],
+    });
+
+    expect(result.checkData).toBeNull();
+    expect(result.relationshipHint).toBeNull();
+  });
+
+  it("prefers aria relationship hints when aria references are the failing source", () => {
+    const result = extractFailureInsights({
+      any: [
+        {
+          id: "aria-labelledby",
+          message:
+            "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty.",
+          relatedNodes: [{ html: '<span id="missing-label"></span>' }],
+        },
+      ],
+      all: [],
+      none: [],
+    });
+
+    expect(result.primaryFailureMode).toBe("missing_or_invalid_aria_labelledby");
+    expect(result.relationshipHint).toBe(
+      "aria_labelledby_references_missing_or_invalid_target",
+    );
+    expect(result.relatedContext).toEqual(['<span id="missing-label"></span>']);
+  });
+
+  it("prefers explicit label relationships over wrapped-label hints when both are present", () => {
+    const result = extractFailureInsights({
+      any: [
+        {
+          id: "implicit-label",
+          message: "Element does not have an implicit (wrapped) <label>",
+          relatedNodes: [],
+        },
+        {
+          id: "explicit-label",
+          message: "Element does not have an explicit <label>",
+          relatedNodes: [{ html: '<label for="country">Country</label>' }],
+        },
+      ],
+      all: [],
+      none: [],
+    });
+
+    expect(result.primaryFailureMode).toBe("missing_accessible_label");
+    expect(result.relationshipHint).toBe("label_not_associated_with_control");
+    expect(result.relatedContext).toEqual(['<label for="country">Country</label>']);
   });
 });

@@ -28,6 +28,7 @@ const intelligencePath = ASSET_PATHS.remediation.intelligence;
 const wcagReferencePath = ASSET_PATHS.reporting.wcagReference;
 
 const complianceConfigPath = ASSET_PATHS.reporting.complianceConfig;
+const axeCheckMapsPath = ASSET_PATHS.remediation.axeCheckMaps;
 const sourceBoundariesPath = ASSET_PATHS.remediation.sourceBoundaries;
 const DISABLED_RULES = {
   "page-has-heading-one": true,
@@ -37,6 +38,7 @@ const DISABLED_RULES = {
 let INTELLIGENCE;
 let WCAG_REFERENCE;
 let COMPLIANCE_CONFIG;
+let AXE_CHECK_MAPS;
 let SOURCE_BOUNDARIES;
 // Initialize remediation and rule metadata assets.
 INTELLIGENCE = loadAssetJson(
@@ -52,6 +54,11 @@ WCAG_REFERENCE = loadAssetJson(
 COMPLIANCE_CONFIG = loadAssetJson(
   complianceConfigPath,
   "assets/reporting/compliance-config.json",
+);
+
+AXE_CHECK_MAPS = loadAssetJson(
+  axeCheckMapsPath,
+  "assets/remediation/axe-check-maps.json",
 );
 
 SOURCE_BOUNDARIES = loadAssetJson(
@@ -354,35 +361,39 @@ export function extractSearchHint(selector) {
   return specific;
 }
 
-const FAILURE_MODE_MAP = {
-  "button-has-visible-text": "missing_visible_text",
-  "has-visible-text": "missing_visible_text",
-  "aria-label": "missing_aria_label",
-  "aria-labelledby": "missing_or_invalid_aria_labelledby",
-  "explicit-label": "missing_accessible_label",
-  "implicit-label": "missing_accessible_label",
-  "color-contrast-enhanced": "insufficient_color_contrast",
-  "color-contrast": "insufficient_color_contrast",
-  "form-field-multiple-labels": "conflicting_label_association",
-  label: "missing_accessible_label",
-  "select-name": "missing_select_name",
-  "presentational-role": "missing_accessible_name",
-  "only-listitems": "invalid_list_structure",
-  listitem: "orphaned_list_item",
-  "heading-order": "invalid_heading_order",
-  "meta-viewport": "zoom_disabled",
-  region: "content_outside_landmarks",
-};
+const FAILURE_MODE_MAP = AXE_CHECK_MAPS.failureModes || {};
+
+const RELATIONSHIP_HINT_MAP = AXE_CHECK_MAPS.relationshipHints || {};
+
+const RELATIONSHIP_HINT_PRIORITY = [
+  "aria-labelledby",
+  "explicit-label",
+  "form-field-multiple-labels",
+  "label",
+  "select-name",
+  "aria-label",
+  "implicit-label",
+  "presentational-role",
+];
 
 function normalizeFailureMessage(message) {
   if (!message) return null;
   return String(message).trim().replace(/\.$/, "");
 }
 
+function deriveRelationshipHint(checks = []) {
+  for (const checkId of RELATIONSHIP_HINT_PRIORITY) {
+    if (checks.some((check) => check?.id === checkId)) {
+      return RELATIONSHIP_HINT_MAP[checkId];
+    }
+  }
+  return null;
+}
+
 /**
  * Extracts a compact explanation of why axe flagged a node.
  * @param {Object} node
- * @returns {{ primaryFailureMode: string|null, failureChecks: string[], relatedContext: string[] }}
+ * @returns {{ primaryFailureMode: string|null, relationshipHint: string|null, failureChecks: string[], relatedContext: string[] }}
  */
 export function extractFailureInsights(node = {}) {
   const checks = ["any", "all", "none"]
@@ -392,8 +403,10 @@ export function extractFailureInsights(node = {}) {
   if (checks.length === 0) {
     return {
       primaryFailureMode: null,
+      relationshipHint: null,
       failureChecks: [],
       relatedContext: [],
+      checkData: null,
     };
   }
 
@@ -401,6 +414,7 @@ export function extractFailureInsights(node = {}) {
   const primaryFailureMode = primaryCheckId
     ? FAILURE_MODE_MAP[primaryCheckId] || primaryCheckId.replace(/-/g, "_")
     : null;
+  const relationshipHint = deriveRelationshipHint(checks);
 
   const failureChecks = [
     ...new Set(
@@ -426,10 +440,14 @@ export function extractFailureInsights(node = {}) {
     ),
   ];
 
+  const checkData = checks[0]?.data ?? null;
+
   return {
     primaryFailureMode,
+    relationshipHint,
     failureChecks,
     relatedContext,
+    checkData,
   };
 }
 
@@ -832,6 +850,7 @@ function buildFindings(inputPayload, cliArgs) {
           actual:
             firstNode?.failureSummary || `Found ${nodes.length} instance(s).`,
           primary_failure_mode: failureInsights.primaryFailureMode,
+          relationship_hint: failureInsights.relationshipHint,
           failure_checks: failureInsights.failureChecks,
           related_context: failureInsights.relatedContext,
           expected: getExpected(v.id),
@@ -850,11 +869,13 @@ function buildFindings(inputPayload, cliArgs) {
           fix_difficulty_notes: ruleInfo.fix_difficulty_notes ?? null,
           framework_notes: filterNotes(ruleInfo.framework_notes, ctx.framework),
           cms_notes: filterNotes(ruleInfo.cms_notes, ctx.framework),
+          check_data: failureInsights.checkData,
           total_instances: nodes.length,
           evidence: nodes.slice(0, 3).map((n) => ({
             html: n.html,
             target: n.target,
             failureSummary: n.failureSummary,
+            ancestry: n.ancestry?.[0] ?? null,
           })),
           screenshot_path: v.screenshot_path || null,
           file_search_pattern:
@@ -910,6 +931,7 @@ function buildFindings(inputPayload, cliArgs) {
         impacted_users: getImpactedUsers("page-has-heading-one", []),
         actual: `Found ${meta.h1Count} h1 tags.`,
         primary_failure_mode: "invalid_heading_count",
+        relationship_hint: null,
         failure_checks: [`Expected exactly 1 h1, found ${meta.h1Count}`],
         related_context: [],
         expected: "Exactly 1 h1 tag.",
@@ -975,6 +997,7 @@ function buildFindings(inputPayload, cliArgs) {
         impacted_users: getImpactedUsers("landmark-one-main", []),
         actual: `Found ${meta.mainCount} main tags.`,
         primary_failure_mode: "invalid_main_landmark_count",
+        relationship_hint: null,
         failure_checks: [`Expected exactly 1 main landmark, found ${meta.mainCount}`],
         related_context: [],
         expected: "Exactly 1 main tag.",
@@ -1016,6 +1039,43 @@ function buildFindings(inputPayload, cliArgs) {
         projectContext: ctx,
       },
   };
+}
+
+/**
+ * Collects and deduplicates incomplete (needs-review) violations from raw scan routes.
+ * @param {Object[]} routes
+ * @returns {Object[]}
+ */
+function collectIncompleteFindings(routes) {
+  const seen = new Set();
+  const result = [];
+  for (const route of routes) {
+    for (const v of (route.incomplete || [])) {
+      const key = `${v.id}||${route.path}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const firstNode = v.nodes?.[0];
+      const selector = Array.isArray(firstNode?.target)
+        ? firstNode.target.join(" ")
+        : "N/A";
+      const message =
+        firstNode?.any?.[0]?.message ??
+        firstNode?.all?.[0]?.message ??
+        firstNode?.none?.[0]?.message ??
+        null;
+      result.push({
+        rule_id: v.id,
+        title: v.help,
+        description: v.description,
+        impact: v.impact ?? null,
+        area: route.path,
+        url: route.url,
+        selector,
+        message,
+      });
+    }
+  }
+  return result;
 }
 
 /**
@@ -1063,10 +1123,14 @@ function main() {
   const outOfScope = computeOutOfScope(payload.routes || []);
   const recommendations = computeRecommendations(dedupedFindings);
   const testingMethodology = computeTestingMethodology(payload);
+  const incompleteFindings = collectIncompleteFindings(payload.routes || []);
+  if (incompleteFindings.length > 0)
+    log.info(`${incompleteFindings.length} incomplete finding(s) require manual review.`);
 
   writeJson(args.output, {
     ...result,
     findings: dedupedFindings,
+    incomplete_findings: incompleteFindings,
     metadata: {
       ...result.metadata,
       overallAssessment,

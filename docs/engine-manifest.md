@@ -43,6 +43,7 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 | **`assets/discovery/stack-detection.json`** | Detection | Framework package detectors, platform structure detectors, and UI library package detectors. |
 | **`assets/discovery/crawler-config.json`** | Crawl Rules | Blocked file extensions and pagination query hints used during route discovery. |
 | **`assets/remediation/intelligence.json`** | Fix Database | Category, resolution code, framework/CMS notes, guardrails, managed-library flags, and related rules for all 101 axe-core rules. |
+| **`assets/remediation/axe-check-maps.json`** | Axe Interpretation | Maps internal axe check IDs to normalized failure modes and relationship hints used to enrich `Why Axe Flagged This`. |
 | **`assets/remediation/guardrails.json`** | Operating Rules | Shared and platform-specific instructions injected into the remediation guide. |
 | **`assets/remediation/source-boundaries.json`** | Source Boundaries | Stack-specific editable source boundaries used to suggest safe search locations and ownership decisions. |
 | **`assets/reporting/wcag-reference.json`** | Rule Mapping | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags. |

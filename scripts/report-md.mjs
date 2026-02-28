@@ -73,7 +73,10 @@ function main() {
   }
 
   const findings = normalizeFindings(inputPayload);
-  const md = buildMarkdownSummary(args, findings, inputPayload.metadata);
+  const md = buildMarkdownSummary(args, findings, {
+    ...inputPayload.metadata,
+    incomplete_findings: inputPayload.incomplete_findings,
+  });
 
   fs.mkdirSync(path.dirname(args.output), { recursive: true });
   fs.writeFileSync(args.output, md, "utf-8");
