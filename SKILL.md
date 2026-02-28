@@ -178,7 +178,7 @@ If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: retu
 Work through each phase in order: **4a → 4b → 4c**. All three phases must run — never skip a phase because the user declined fixes in a previous one.
 
 - **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor across all categories.
-- **Fix by category**: group findings by their `Category` field from the remediation guide. Order groups by the highest severity present within each category. Within each group, still apply the 4a/4b boundary — structural fixes first, then style fixes (with the style approval gate). Present one category at a time.
+- **Fix by category**: group findings by their `Category` field from the remediation guide. Order groups alphabetically by category name. Within each group, still apply the 4a/4b boundary — structural fixes first, then style fixes (with the style approval gate). Present one category at a time.
 - **Other criteria**: follow the user's specified prioritization throughout.
 
 > **Category values:** `aria` · `text-alternatives` · `forms` · `keyboard` · `structure` · `semantics` · `name-role-value` · `tables` · `color` · `language` · `parsing` · `sensory`

@@ -30,10 +30,6 @@ const wcagReferencePath = ASSET_PATHS.reporting.wcagReference;
 const complianceConfigPath = ASSET_PATHS.reporting.complianceConfig;
 const axeCheckMapsPath = ASSET_PATHS.remediation.axeCheckMaps;
 const sourceBoundariesPath = ASSET_PATHS.remediation.sourceBoundaries;
-const DISABLED_RULES = {
-  "page-has-heading-one": true,
-  "landmark-one-main": true,
-};
 
 let INTELLIGENCE;
 let WCAG_REFERENCE;
@@ -663,7 +659,7 @@ function computePassedCriteria(routes, wcagCriterionMap) {
 }
 
 /**
- * Computes out-of-scope information: errored routes and static manual/AAA criteria.
+ * Computes out-of-scope information: errored routes and AAA exclusion flag.
  * @param {Object[]} routes - Raw scan routes.
  * @returns {Object}
  */
@@ -674,24 +670,6 @@ function computeOutOfScope(routes) {
     .filter(Boolean);
   return {
     auth_blocked_routes: authBlockedRoutes,
-    manual_testing_required: [
-      "1.2.2 Captions (Prerecorded)",
-      "1.2.3 Audio Description or Media Alternative",
-      "1.2.4 Captions (Live)",
-      "1.2.5 Audio Description (Prerecorded)",
-      "1.3.3 Sensory Characteristics",
-      "1.4.1 Use of Color",
-      "2.1.1 Keyboard",
-      "2.1.2 No Keyboard Trap",
-      "2.3.1 Three Flashes or Below Threshold",
-      "2.4.3 Focus Order",
-      "2.4.7 Focus Visible",
-      "2.5.3 Label in Name",
-      "3.2.1 On Focus",
-      "3.2.2 On Input",
-      "3.3.3 Error Suggestion",
-      "3.3.4 Error Prevention",
-    ],
     aaa_excluded: true,
   };
 }
@@ -777,7 +755,7 @@ function computeTestingMethodology(payload) {
     pages_scanned: scanned,
     pages_errored: errored,
     framework_detected: payload.projectContext?.framework || "Not detected",
-    manual_testing: "Not performed — see Out of Scope section",
+    manual_testing: "Not performed (automated scan only)",
     assistive_tech_tested: "None (automated scan only)",
   };
 }

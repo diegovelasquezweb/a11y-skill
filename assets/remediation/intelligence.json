@@ -2330,6 +2330,12 @@
     },
     "input-button-name": {
       "category": "forms",
+      "preferred_relationship_checks": [
+        "aria-labelledby",
+        "aria-label",
+        "explicit-label",
+        "implicit-label"
+      ],
       "fix": {
         "description": "Add a value attribute or aria-label to every <input type='button'>, <input type='submit'>, and <input type='reset'>.",
         "code": "<!-- Input buttons use value as accessible name: -->\n<input type=\"submit\" value=\"Submit order\">\n<input type=\"reset\" value=\"Clear form\">\n<input type=\"button\" value=\"Load more results\">\n\n<!-- If value must stay empty for visual reasons, use aria-label: -->\n<input type=\"submit\" value=\"\" aria-label=\"Submit order\">"
@@ -2967,6 +2973,12 @@
     },
     "link-name": {
       "category": "name-role-value",
+      "preferred_relationship_checks": [
+        "aria-labelledby",
+        "aria-label",
+        "has-visible-text",
+        "presentational-role"
+      ],
       "managed_by_libraries": [
         "radix",
         "react-aria",

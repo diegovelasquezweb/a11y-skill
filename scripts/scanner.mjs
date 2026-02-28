@@ -437,8 +437,6 @@ async function analyzeRoute(
 
       const metadata = await page.evaluate(() => {
         return {
-          h1Count: document.querySelectorAll("h1").length,
-          mainCount: document.querySelectorAll('main, [role="main"]').length,
           title: document.title,
         };
       });
