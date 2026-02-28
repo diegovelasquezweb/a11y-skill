@@ -8,9 +8,9 @@
 import { buildSummary } from "./findings.mjs";
 import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
 
-const GUARDRAILS = loadAssetJson(
-  ASSET_PATHS.remediation.guardrails,
-  "assets/remediation/guardrails.json",
+const GLOBAL_INTELLIGENCE = loadAssetJson(
+  ASSET_PATHS.remediation.globalIntelligence,
+  "assets/remediation/global-remediation-intelligence.json",
 );
 
 
@@ -31,14 +31,17 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
 /**
  * Constructs a set of guardrail instructions tailored to a specific framework.
  * @param {string} framework - The identified framework ID.
- * @returns {string} A bulleted list of framework-specific operating procedures.
+ * @returns {string} A numbered list of framework-specific operating procedures.
  */
 function buildGuardrails(framework) {
-  const guardrails = GUARDRAILS || {};
+  const guardrails = GLOBAL_INTELLIGENCE || {};
   const shared = guardrails.shared || [];
   const frameworkRules = guardrails.framework || {};
   const frameworkRule = frameworkRules[framework] ?? frameworkRules.generic;
-  return [frameworkRule, ...shared].join("\n");
+  return [frameworkRule, ...shared]
+    .filter(Boolean)
+    .map((rule, index) => `${index + 1}. ${rule}`)
+    .join("\n");
 }
 
 function formatViolation(actual) {

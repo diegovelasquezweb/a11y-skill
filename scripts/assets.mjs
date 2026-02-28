@@ -26,7 +26,11 @@ export const ASSET_PATHS = {
   },
   remediation: {
     intelligence: path.join(ASSET_ROOT, "remediation", "intelligence.json"),
-    guardrails: path.join(ASSET_ROOT, "remediation", "guardrails.json"),
+    globalIntelligence: path.join(
+      ASSET_ROOT,
+      "remediation",
+      "global-remediation-intelligence.json",
+    ),
   },
   scoring: {
     wcagReference: path.join(ASSET_ROOT, "scoring", "wcag-reference.json"),
