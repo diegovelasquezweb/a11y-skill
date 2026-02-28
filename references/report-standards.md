@@ -20,12 +20,13 @@ Each finding must include:
 
 1. WCAG criterion and level.
 2. Affected route path and component/selector.
-3. Reproduction steps and actual vs expected behavior.
-4. Impacted users.
-5. Severity (Critical, Serious, Moderate, Minor).
-6. Recommended fix.
-7. QA retest notes.
-8. Concrete proof (DOM snippet, log, or tool output). Screenshot only if it clearly demonstrates the exact issue.
+3. Category (aria · text-alternatives · forms · keyboard · structure · semantics · name-role-value · tables · color · language · parsing · sensory).
+4. Reproduction steps and actual vs expected behavior.
+5. Impacted users.
+6. Severity (Critical, Serious, Moderate, Minor).
+7. Recommended fix.
+8. QA retest notes.
+9. Concrete proof (DOM snippet, log, or tool output). Screenshot only if it clearly demonstrates the exact issue.
 
 ## Cross-Page Finding Fields
 
@@ -45,6 +46,7 @@ Present each finding using this exact field order. Do not omit or reorder fields
 ### [A11Y-xxxxxx] <short title>
 
 - **Severity**: Critical | Serious | Moderate | Minor
+- **Category**: <aria | text-alternatives | forms | keyboard | structure | semantics | name-role-value | tables | color | language | parsing | sensory>
 - **WCAG**: <criterion ID> — <criterion name> (Level A | AA)
 - **Route**: <path>
 - **Selector**: <CSS selector or component name>
@@ -63,6 +65,7 @@ Present each finding using this exact field order. Do not omit or reorder fields
 ### [A11Y-4f2a1b] Image missing alternative text
 
 - **Severity**: Serious
+- **Category**: text-alternatives
 - **WCAG**: 1.1.1 — Non-text Content (Level A)
 - **Route**: /products
 - **Selector**: img.hero-image

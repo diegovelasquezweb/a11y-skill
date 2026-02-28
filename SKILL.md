@@ -26,6 +26,7 @@ Load these files on demand — never preload all at once.
 
 These rules apply at all times, independent of any workflow step.
 
+- **`remediation.md` is the fix map — do not go outside it.** All findings, fix instructions, source file locations, guardrails, and component map come from the remediation guide generated in Step 2. Never apply a fix or derive a solution from general WCAG knowledge — if it is not in the remediation guide, it is out of scope for this session.
 - Never install, remove, or initialize packages in the user's project. Only run `pnpm install` inside the skill directory.
 - All pipeline files (scan results, findings, remediation guide, screenshots) stay inside the skill directory — never in the user's project.
 - Visual reports (HTML/PDF) are only created in Step 6, after the user explicitly requests them. Never generate reports in any other step.
@@ -152,13 +153,12 @@ Then summarize and present:
 `[QUESTION]` **How would you like to proceed?**
 
 1. **Fix by severity** — Critical first, then Serious → Moderate → Minor
-2. **Fix by category** — group by issue type (aria · forms · structure · color…)
-3. **Other criteria** — tell me how you'd like to prioritize the fixes
-4. **Skip fixes** — don't fix anything right now
+2. **Other criteria** — tell me how you'd like to prioritize the fixes
+3. **Skip fixes** — don't fix anything right now
 
-Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity**, **Fix by category**, or **Other criteria**, proceed immediately to Step 4.
+Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes** (option 4): present the following message, then ask the confirmation question below.
+If the user chooses **Skip fixes** (option 3): present the following message, then ask the confirmation question below.
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
@@ -167,7 +167,7 @@ If the user chooses **Skip fixes** (option 4): present the following message, th
 1. **Yes, skip** — proceed to the final summary without applying any fixes
 2. **No, let's fix them** — go back and apply the fixes
 
-If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: return to the `[QUESTION]` **How would you like to proceed?** and treat the answer as **Fix by severity**.
+If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: return to the `[QUESTION]` **How would you like to proceed?** and treat the answer as **Fix by severity** (option 1).
 
 **0 issues found** → proceed to Step 6 immediately. Note: automated tools cannot catch every barrier; recommend manual checks.
 
@@ -177,11 +177,8 @@ Work through each phase in order: **4a → 4b**. Both phases must run — never 
 
 Axe findings and source code pattern findings are treated as a **unified set**. Pattern findings tagged `type: structural` are handled in 4a alongside axe structural fixes. Pattern findings tagged `type: style` are handled in 4b alongside axe style fixes. For a pattern finding, fix in the source file at `file:line` using the `match` and `fix_description` from the report — not in the DOM.
 
-- **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor across all categories.
-- **Fix by category**: group findings by their `Category` field from the remediation guide. Order groups alphabetically by category name. Within each group, still apply the 4a/4b boundary — structural fixes first, then style fixes (with the style approval gate). Present one category at a time.
+- **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor.
 - **Other criteria**: follow the user's specified prioritization throughout.
-
-> **Category values:** `aria` · `text-alternatives` · `forms` · `keyboard` · `structure` · `semantics` · `name-role-value` · `tables` · `color` · `language` · `parsing` · `sensory`
 
 #### 4a. Structural fixes (Critical → Serious → Moderate → Minor)
 
@@ -196,11 +193,7 @@ Use the **Source File Locations** section of the remediation guide to locate sou
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
-Present one group at a time — list the findings and proposed changes, then ask. The `[QUESTION]` label depends on the active mode:
-
-- **Fix by severity**: `[QUESTION]` **Apply these [severity] fixes?**
-- **Fix by category**: `[QUESTION]` **Apply these [category] fixes?**
-- **Other criteria**: adapt the label to match the user's specified grouping.
+Present one group at a time — list the findings and proposed changes, then ask. Adapt the `[QUESTION]` label to the active mode (e.g. **Apply these Critical fixes?** for severity, or the user's chosen grouping for Other criteria).
 
 1. **Yes** — apply all proposed changes
 2. **Let me pick** — show me the full list, I'll choose by number
