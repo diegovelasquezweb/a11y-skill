@@ -446,6 +446,7 @@ async function analyzeRoute(
       return {
         url: routeUrl,
         violations: axeResults.violations,
+        incomplete: axeResults.incomplete,
         passes: axeResults.passes.map((p) => p.id),
         metadata,
       };

@@ -354,6 +354,85 @@ export function extractSearchHint(selector) {
   return specific;
 }
 
+const FAILURE_MODE_MAP = {
+  "button-has-visible-text": "missing_visible_text",
+  "has-visible-text": "missing_visible_text",
+  "aria-label": "missing_aria_label",
+  "aria-labelledby": "missing_or_invalid_aria_labelledby",
+  "explicit-label": "missing_accessible_label",
+  "implicit-label": "missing_accessible_label",
+  "color-contrast-enhanced": "insufficient_color_contrast",
+  "color-contrast": "insufficient_color_contrast",
+  "form-field-multiple-labels": "conflicting_label_association",
+  label: "missing_accessible_label",
+  "select-name": "missing_select_name",
+  "presentational-role": "missing_accessible_name",
+  "only-listitems": "invalid_list_structure",
+  listitem: "orphaned_list_item",
+  "heading-order": "invalid_heading_order",
+  "meta-viewport": "zoom_disabled",
+  region: "content_outside_landmarks",
+};
+
+function normalizeFailureMessage(message) {
+  if (!message) return null;
+  return String(message).trim().replace(/\.$/, "");
+}
+
+/**
+ * Extracts a compact explanation of why axe flagged a node.
+ * @param {Object} node
+ * @returns {{ primaryFailureMode: string|null, failureChecks: string[], relatedContext: string[] }}
+ */
+export function extractFailureInsights(node = {}) {
+  const checks = ["any", "all", "none"]
+    .flatMap((bucket) => (Array.isArray(node[bucket]) ? node[bucket] : []))
+    .filter(Boolean);
+
+  if (checks.length === 0) {
+    return {
+      primaryFailureMode: null,
+      failureChecks: [],
+      relatedContext: [],
+    };
+  }
+
+  const primaryCheckId = checks[0]?.id || null;
+  const primaryFailureMode = primaryCheckId
+    ? FAILURE_MODE_MAP[primaryCheckId] || primaryCheckId.replace(/-/g, "_")
+    : null;
+
+  const failureChecks = [
+    ...new Set(
+      checks
+        .map((check) => normalizeFailureMessage(check.message))
+        .filter(Boolean),
+    ),
+  ];
+
+  const relatedContext = [
+    ...new Set(
+      checks
+        .flatMap((check) =>
+          Array.isArray(check.relatedNodes) ? check.relatedNodes : [],
+        )
+        .map((related) =>
+          normalizeFailureMessage(
+            related?.html ||
+              (Array.isArray(related?.target) ? related.target.join(" ") : null),
+          ),
+        )
+        .filter(Boolean),
+    ),
+  ];
+
+  return {
+    primaryFailureMode,
+    failureChecks,
+    relatedContext,
+  };
+}
+
 function deriveSourceRoots(fileSearchPattern) {
   if (!fileSearchPattern) return [];
   return fileSearchPattern
@@ -735,6 +814,7 @@ function buildFindings(inputPayload, cliArgs) {
           pageUrl: route.url,
           fileSearchPattern,
         });
+        const failureInsights = extractFailureInsights(firstNode);
 
         findings.push({
           id: "",
@@ -751,6 +831,9 @@ function buildFindings(inputPayload, cliArgs) {
           primary_selector: bestSelector,
           actual:
             firstNode?.failureSummary || `Found ${nodes.length} instance(s).`,
+          primary_failure_mode: failureInsights.primaryFailureMode,
+          failure_checks: failureInsights.failureChecks,
+          related_context: failureInsights.relatedContext,
           expected: getExpected(v.id),
           category: ruleInfo.category ?? null,
           fix_description: fixInfo.description ?? null,
@@ -826,6 +909,9 @@ function buildFindings(inputPayload, cliArgs) {
         selector: "h1",
         impacted_users: getImpactedUsers("page-has-heading-one", []),
         actual: `Found ${meta.h1Count} h1 tags.`,
+        primary_failure_mode: "invalid_heading_count",
+        failure_checks: [`Expected exactly 1 h1, found ${meta.h1Count}`],
+        related_context: [],
         expected: "Exactly 1 h1 tag.",
         category: _ruleInfo.category ?? null,
         fix_description: _fixInfo.description ?? null,
@@ -888,6 +974,9 @@ function buildFindings(inputPayload, cliArgs) {
         selector: "main",
         impacted_users: getImpactedUsers("landmark-one-main", []),
         actual: `Found ${meta.mainCount} main tags.`,
+        primary_failure_mode: "invalid_main_landmark_count",
+        failure_checks: [`Expected exactly 1 main landmark, found ${meta.mainCount}`],
+        related_context: [],
         expected: "Exactly 1 main tag.",
         category: _ruleInfo.category ?? null,
         fix_description: _fixInfo.description ?? null,

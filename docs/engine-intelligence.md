@@ -14,7 +14,7 @@ The "Intelligence" of the a11y skill revolves around **Autonomous Remediation**.
 
 ## The Intelligence Database (`assets/remediation/intelligence.json`)
 
-The skill ships with a curated knowledge base that map common accessibility violations to specific remediation patterns for modern frameworks (**Shopify**, **React**, **Next.js**, **Vue**, **Angular**).
+The skill ships with a curated knowledge base that maps common accessibility violations to specific remediation patterns for the supported remediation stacks, including modern frameworks (**React**, **Next.js**, **Vue**, **Angular**, **Astro**, **Svelte**) and structural platforms (**Shopify**, **WordPress**, **Drupal**).
 
 ### Core Intelligence Fields
 

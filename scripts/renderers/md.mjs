@@ -216,6 +216,26 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       Array.isArray(f.relatedRules) && f.relatedRules.length > 0
         ? `**Fixing this also helps:**\n${f.relatedRules.map((r) => `- \`${r.id}\` — ${r.reason}`).join("\n")}`
         : null;
+    const engineReasonBlock =
+      f.primaryFailureMode || (Array.isArray(f.failureChecks) && f.failureChecks.length > 0)
+        ? [
+            "#### Why Axe Flagged This",
+            f.primaryFailureMode
+              ? `- **Primary failure mode:** \`${f.primaryFailureMode}\``
+              : null,
+            Array.isArray(f.failureChecks) && f.failureChecks.length > 0
+              ? `- **Detected checks:** ${f.failureChecks.join("; ")}`
+              : null,
+            Array.isArray(f.relatedContext) && f.relatedContext.length > 0
+              ? `- **Related context:** ${f.relatedContext
+                  .slice(0, 2)
+                  .map((entry) => `\`${entry}\``)
+                  .join(", ")}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join("\n")
+        : null;
 
     const searchPatternBlock = f.fileSearchPattern
       ? `**Search in:** \`${f.fileSearchPattern}\``
@@ -280,6 +300,8 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       ownershipBlock,
       crossPageBlock || managedBlock || ownershipBlock ? `` : null,
       `**Observed Violation:** ${formatViolation(f.actual)}`,
+      engineReasonBlock ? `` : null,
+      engineReasonBlock,
       searchPatternBlock ? `` : null,
       searchPatternBlock,
       ``,

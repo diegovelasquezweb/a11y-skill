@@ -6,6 +6,7 @@ import {
   detectImplicitRole,
   extractSearchHint,
   classifyFindingOwnership,
+  extractFailureInsights,
 } from "../scripts/analyzer.mjs";
 
 describe("assets/intelligence.json schema", () => {
@@ -241,5 +242,53 @@ describe("classifyFindingOwnership", () => {
     expect(result.status).toBe("primary");
     expect(result.primarySourceScope).toEqual(["src", "components"]);
     expect(result.searchStrategy).toBe("direct_source_patch");
+  });
+});
+
+describe("extractFailureInsights", () => {
+  it("extracts a primary failure mode and deduplicated checks from axe node checks", () => {
+    const result = extractFailureInsights({
+      any: [
+        {
+          id: "button-has-visible-text",
+          message:
+            "Element does not have inner text that is visible to screen readers.",
+          relatedNodes: [],
+        },
+        {
+          id: "aria-label",
+          message: "aria-label attribute does not exist or is empty.",
+          relatedNodes: [],
+        },
+      ],
+      all: [],
+      none: [],
+    });
+
+    expect(result.primaryFailureMode).toBe("missing_visible_text");
+    expect(result.failureChecks).toEqual([
+      "Element does not have inner text that is visible to screen readers",
+      "aria-label attribute does not exist or is empty",
+    ]);
+    expect(result.relatedContext).toEqual([]);
+  });
+
+  it("includes related context when axe provides related nodes", () => {
+    const result = extractFailureInsights({
+      any: [
+        {
+          id: "explicit-label",
+          message: "Element does not have an explicit <label>",
+          relatedNodes: [{ html: '<label for="email">Email</label>' }],
+        },
+      ],
+      all: [],
+      none: [],
+    });
+
+    expect(result.primaryFailureMode).toBe("missing_accessible_label");
+    expect(result.relatedContext).toEqual([
+      '<label for="email">Email</label>',
+    ]);
   });
 });
