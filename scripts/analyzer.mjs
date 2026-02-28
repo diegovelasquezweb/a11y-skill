@@ -29,8 +29,6 @@ const wcagReferencePath = ASSET_PATHS.scoring.wcagReference;
 
 const complianceConfigPath = ASSET_PATHS.scoring.complianceConfig;
 const sourceBoundariesPath = ASSET_PATHS.discovery.sourceBoundaries;
-const platformAliasesPath = ASSET_PATHS.remediation.platformAliases;
-
 const DISABLED_RULES = {
   "page-has-heading-one": true,
   "landmark-one-main": true,
@@ -40,8 +38,6 @@ let INTELLIGENCE;
 let WCAG_REFERENCE;
 let COMPLIANCE_CONFIG;
 let SOURCE_BOUNDARIES;
-let PLATFORM_ALIASES;
-
 // Initialize remediation and rule metadata assets.
 INTELLIGENCE = loadAssetJson(
   intelligencePath,
@@ -61,11 +57,6 @@ COMPLIANCE_CONFIG = loadAssetJson(
 SOURCE_BOUNDARIES = loadAssetJson(
   sourceBoundariesPath,
   "assets/discovery/source-boundaries.json",
-);
-
-PLATFORM_ALIASES = loadAssetJson(
-  platformAliasesPath,
-  "assets/remediation/platform-aliases.json",
 );
 
 /**
@@ -165,17 +156,21 @@ const MANAGED_RULES = new Map(
     .map(([id, rule]) => [id, rule.managed_by_libraries]),
 );
 
-/**
- * Maps detected framework IDs to their respective keys in intelligence.json.
- * @type {Object<string, string>}
- */
-const FRAMEWORK_TO_INTEL_KEY = PLATFORM_ALIASES?.intelKey || {};
+const FRAMEWORK_NOTE_ALIASES = {
+  nextjs: "react",
+  gatsby: "react",
+  nuxt: "vue",
+};
 
-/**
- * Maps detected framework/CMS IDs to their respective keys for CMS-specific notes.
- * @type {Object<string, string>}
- */
-const FRAMEWORK_TO_CMS_KEY = PLATFORM_ALIASES?.cmsKey || {};
+function resolveFrameworkNotesKey(framework) {
+  if (!framework) return null;
+  return FRAMEWORK_NOTE_ALIASES[framework] || framework;
+}
+
+function resolveCmsNotesKey(framework) {
+  if (!framework) return null;
+  return framework;
+}
 
 /**
  * Filters the intelligence notes to only include those relevant to the detected framework.
@@ -185,9 +180,9 @@ const FRAMEWORK_TO_CMS_KEY = PLATFORM_ALIASES?.cmsKey || {};
  */
 function filterNotes(notes, framework) {
   if (!notes || typeof notes !== "object") return null;
-  const intelKey = FRAMEWORK_TO_INTEL_KEY[framework];
+  const intelKey = resolveFrameworkNotesKey(framework);
   if (intelKey && notes[intelKey]) return { [intelKey]: notes[intelKey] };
-  const cmsKey = FRAMEWORK_TO_CMS_KEY[framework];
+  const cmsKey = resolveCmsNotesKey(framework);
   if (cmsKey && notes[cmsKey]) return { [cmsKey]: notes[cmsKey] };
   return null;
 }

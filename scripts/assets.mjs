@@ -26,11 +26,6 @@ export const ASSET_PATHS = {
   },
   remediation: {
     intelligence: path.join(ASSET_ROOT, "remediation", "intelligence.json"),
-    platformAliases: path.join(
-      ASSET_ROOT,
-      "remediation",
-      "platform-aliases.json",
-    ),
     guardrails: path.join(ASSET_ROOT, "remediation", "guardrails.json"),
   },
   scoring: {
