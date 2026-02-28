@@ -7,6 +7,7 @@
  */
 
 import { log, readJson, writeJson, getInternalPath } from "./utils.mjs";
+import { ASSET_PATHS, loadAssetJson } from "./assets.mjs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import fs from "node:fs";
@@ -18,32 +19,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * Path to the core remediation intelligence database.
  * @type {string}
  */
-const intelligencePath = path.join(
-  __dirname,
-  "../assets/remediation/intelligence.json",
-);
+const intelligencePath = ASSET_PATHS.remediation.intelligence;
 
 /**
  * Path to the WCAG reference database: criterion maps, APG patterns, MDN links, personas.
  * @type {string}
  */
-const wcagReferencePath = path.join(
-  __dirname,
-  "../assets/scoring/wcag-reference.json",
-);
+const wcagReferencePath = ASSET_PATHS.scoring.wcagReference;
 
-const complianceConfigPath = path.join(
-  __dirname,
-  "../assets/scoring/compliance-config.json",
-);
-const sourceGlobsPath = path.join(
-  __dirname,
-  "../assets/discovery/source-globs.json",
-);
-const platformAliasesPath = path.join(
-  __dirname,
-  "../assets/remediation/platform-aliases.json",
-);
+const complianceConfigPath = ASSET_PATHS.scoring.complianceConfig;
+const sourceGlobsPath = ASSET_PATHS.discovery.sourceGlobs;
+const platformAliasesPath = ASSET_PATHS.remediation.platformAliases;
 
 const DISABLED_RULES = {
   "page-has-heading-one": true,
@@ -57,45 +43,30 @@ let SOURCE_GLOBS;
 let PLATFORM_ALIASES;
 
 // Initialize remediation and rule metadata assets.
-try {
-  INTELLIGENCE = JSON.parse(fs.readFileSync(intelligencePath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid intelligence.json at ${intelligencePath} — run pnpm install to reinstall.`,
-  );
-}
+INTELLIGENCE = loadAssetJson(
+  intelligencePath,
+  "assets/remediation/intelligence.json",
+);
 
-try {
-  WCAG_REFERENCE = JSON.parse(fs.readFileSync(wcagReferencePath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid wcag-reference.json at ${wcagReferencePath} — run pnpm install to reinstall.`,
-  );
-}
+WCAG_REFERENCE = loadAssetJson(
+  wcagReferencePath,
+  "assets/scoring/wcag-reference.json",
+);
 
-try {
-  COMPLIANCE_CONFIG = JSON.parse(fs.readFileSync(complianceConfigPath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid compliance-config.json at ${complianceConfigPath} — run pnpm install to reinstall.`,
-  );
-}
+COMPLIANCE_CONFIG = loadAssetJson(
+  complianceConfigPath,
+  "assets/scoring/compliance-config.json",
+);
 
-try {
-  SOURCE_GLOBS = JSON.parse(fs.readFileSync(sourceGlobsPath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid source-globs.json at ${sourceGlobsPath} — run pnpm install to reinstall.`,
-  );
-}
+SOURCE_GLOBS = loadAssetJson(
+  sourceGlobsPath,
+  "assets/discovery/source-globs.json",
+);
 
-try {
-  PLATFORM_ALIASES = JSON.parse(fs.readFileSync(platformAliasesPath, "utf-8"));
-} catch {
-  throw new Error(
-    `Missing or invalid platform-aliases.json at ${platformAliasesPath} — run pnpm install to reinstall.`,
-  );
-}
+PLATFORM_ALIASES = loadAssetJson(
+  platformAliasesPath,
+  "assets/remediation/platform-aliases.json",
+);
 
 /**
  * Generates a stable unique ID for a finding based on the rule, URL, and selector.

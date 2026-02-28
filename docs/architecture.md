@@ -74,7 +74,7 @@ flowchart TD
 
 ### 2. The Analyzer (`analyzer.mjs`)
 
-- **Brain**: Consumes the raw scan results and enriches them using `assets/intelligence.json`.
+- **Brain**: Consumes the raw scan results and enriches them using `assets/remediation/intelligence.json`.
 - **Fix Logic**: Generates the `fixCode`, `fixDescription`, and `framework_notes` for each finding.
 - **Precision**: Extracts the **Surgical Selector** (prioritizing ID > Short Path) and generates the "Search Hint" to help AI agents find the code in the source files.
 - **Fix Acceleration**: Uses the detected `projectContext` to generate per-finding:

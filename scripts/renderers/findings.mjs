@@ -5,23 +5,15 @@
  * across all report types (HTML, Markdown, PDF).
  */
 
-import { readFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-const SCORING_CONFIG = JSON.parse(
-  readFileSync(
-    join(__dirname, "../../assets/scoring/compliance-config.json"),
-    "utf-8",
-  ),
+const SCORING_CONFIG = loadAssetJson(
+  ASSET_PATHS.scoring.complianceConfig,
+  "assets/scoring/compliance-config.json",
 );
-const RULE_METADATA = JSON.parse(
-  readFileSync(
-    join(__dirname, "../../assets/scoring/wcag-reference.json"),
-    "utf-8",
-  ),
+const RULE_METADATA = loadAssetJson(
+  ASSET_PATHS.scoring.wcagReference,
+  "assets/scoring/wcag-reference.json",
 );
 
 /**

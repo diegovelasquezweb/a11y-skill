@@ -6,13 +6,13 @@
 
 ## Table of Contents
 
-- [The Intelligence Database](#the-intelligence-database-assetsintelligencejson)
+- [The Intelligence Database](#the-intelligence-database-assetsremediationintelligencejson)
 - [Surgical Patch Generation](#surgical-patch-generation)
-- [Manual Checks](#manual-checks-assetsmanual-checksjson)
+- [Manual Checks](#manual-checks-assetsreportingmanual-checksjson)
 
 The "Intelligence" of the a11y skill revolves around **Autonomous Remediation**. It transforms a diagnostic finding into an actionable code patch.
 
-## The Intelligence Database (`assets/intelligence.json`)
+## The Intelligence Database (`assets/remediation/intelligence.json`)
 
 The skill ships with a curated knowledge base that map common accessibility violations to specific remediation patterns for modern frameworks (**Shopify**, **React**, **Next.js**, **Vue**, **Angular**).
 
@@ -25,7 +25,7 @@ For every rule (e.g., `aria-dialog-name`), the engine provides a roadmap for the
 - **`fix.code`**: A surgical code snippet. The agent should treat this as a structural template for the patch, adapting it to the specific variable names and context of the source file.
 - **`framework_notes`**: Platform-specific logic for **React**, **Vue**, **Angular**, **Svelte**, and **Astro**. The analyzer filters this to the detected framework before writing it to the remediation guide — the agent only ever sees the one relevant note.
 - **`managed_by_libraries`**: A list of UI libraries (e.g., `radix`, `chakra`, `headless-ui`) that manage this ARIA concern automatically. The scanner detects which libraries the project uses at runtime; the analyzer cross-references that list against `managed_by_libraries`. If there is a match, a **Managed Component Warning** appears in the remediation guide — the agent does not perform this detection manually.
-- **`guardrails_overrides`**: Rule-specific MUST / MUST_NOT / VERIFY instructions that override or extend the global guardrails in `stack-config.json`. Present only for rules with a meaningful false-positive risk or a specific constraint the agent must enforce (e.g., "do not remove `outline: none` if a `:focus-visible` replacement already exists").
+- **`guardrails_overrides`**: Rule-specific MUST / MUST_NOT / VERIFY instructions that override or extend the global guardrails in `assets/remediation/guardrails.json`. Present only for rules with a meaningful false-positive risk or a specific constraint the agent must enforce (e.g., "do not remove `outline: none` if a `:focus-visible` replacement already exists").
 - **`cms_notes`**: Environment-specific constraints for **Shopify**, **WordPress**, and **Drupal**. The analyzer filters this to the detected CMS before writing it to the remediation guide — the agent only sees the note for the active platform.
 - **`false_positive_risk`**: Confidence level (`low` / `medium` / `high`). If `high`, the agent must prioritize manual verification and look for existing patterns that might satisfy the rule in a non-standard way.
 - **`fix_difficulty_notes`**: Edge cases and caveats. The agent must read this to avoid "blind fixing" (e.g., knowing that a missing label might be an intentional design trade-off requiring a different ARIA approach).
@@ -60,7 +60,7 @@ flowchart LR
     subgraph Analysis["Intelligence Pipeline"]
         direction LR
         Surgical["<b>Surgical Identification</b><br/>(ID > Short Path)"]
-        Match["<b>Knowledge Lookup</b><br/>(intelligence.json)"]
+        Match["<b>Knowledge Lookup</b><br/>(remediation/intelligence.json)"]
         Evidence["<b>Evidence Capture</b><br/>(outerHTML)"]
 
         Surgical --> Match --> Evidence
@@ -88,9 +88,9 @@ If an image is found missing alt text, the Agent does not just "add an alt". It 
     - **Related Checks**: Agent notices `related_rules` includes `image-redundant-alt`. It verifies that there is no "Product Image" text immediately below the image to avoid duplicate announcements.
 4.  **Remediation**: The Agent proposes a patch that uses the correct Liquid filter for Shopify while adhering to React's JSX syntax, ensuring the fix is both accessible and platform-compatible.
 
-## Manual Checks (`assets/manual-checks.json`)
+## Manual Checks (`assets/reporting/manual-checks.json`)
 
-axe-core is an automated tool — it cannot verify criteria that require human judgment or live assistive technology interaction. The skill ships a second knowledge base, `assets/manual-checks.json`, with **41 checks** covering WCAG 2.2 A/AA criteria and screen reader behavior that automation cannot assess.
+axe-core is an automated tool — it cannot verify criteria that require human judgment or live assistive technology interaction. The skill ships a second knowledge base, `assets/reporting/manual-checks.json`, with **41 checks** covering WCAG 2.2 A/AA criteria and screen reader behavior that automation cannot assess.
 
 These checks are delivered as a standalone **`checklist.html`** file — a testing companion generated alongside every audit report.
 
@@ -131,7 +131,7 @@ These checks are delivered as a standalone **`checklist.html`** file — a testi
 
 ### How to add a new manual check
 
-Add an entry to `assets/manual-checks.json`. No code changes required — `report-checklist.mjs` reads the file at build time and injects all checks into `checklist.html` automatically.
+Add an entry to `assets/reporting/manual-checks.json`. No code changes required — `report-checklist.mjs` reads the file at build time and injects all checks into `checklist.html` automatically.
 
 ## Reference Links
 

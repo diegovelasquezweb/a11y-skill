@@ -22,7 +22,7 @@ The core engine is a three-stage pipeline designed for **Autonomous Remediation*
 ### Rendering Engine
 
 - **`scripts/report-html.mjs`**: Generates the interactive audit dashboard.
-- **`scripts/report-checklist.mjs`**: Generates the standalone manual testing checklist (`checklist.html`). Reads `manual-checks.json` directly — no scan input required.
+- **`scripts/report-checklist.mjs`**: Generates the standalone manual testing checklist (`checklist.html`). Reads `assets/reporting/manual-checks.json` directly — no scan input required.
 - **`scripts/report-md.mjs`**: Creates the `remediation.md` guide used by AI agents.
 - **`scripts/report-pdf.mjs`**: Produces formal executive summaries.
 - **`scripts/renderers/`**: Modular rendering logic (`html.mjs`, `md.mjs`, `pdf.mjs`), core data normalization (`findings.mjs`), and shared rendering utilities (`utils.mjs`).
@@ -40,12 +40,15 @@ These JSON assets define the "IQ" of the skill. They are read by the **Analyzer*
 
 | Asset                       | Role          | Key Data                                                                             |
 | :-------------------------- | :------------ | :----------------------------------------------------------------------------------- |
-| **`intelligence.json`**     | Fix Database  | Category, resolution code, framework/CMS notes, guardrails, managed-library flags, and related rules for all 101 axe-core rules. |
-| **`wcag-reference.json`**   | Rule Mapping  | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags.      |
-| **`manual-checks.json`**    | Verification  | 41 manual audit criteria for WCAG 2.2 areas that automation cannot detect.           |
-| **`compliance-config.json`**| Risk Engine   | Severity scoring, grade thresholds, effort multipliers, and jurisdictional data.     |
-| **`stack-config.json`**     | Environment   | DOM signals, file-search globs, framework aliases, and agent fix guardrails.         |
-| **`scanner-config.json`**   | Filter Engine | Blocked file extensions, excluded external domains, and robots.txt settings.         |
+| **`assets/discovery/framework-detection.json`** | Detection | DOM signals, file signals, package signals, UI library signals, and URL fallbacks for framework/CMS inference. |
+| **`assets/discovery/source-globs.json`** | Source Discovery | Framework-specific component/style globs used to suggest source search locations. |
+| **`assets/discovery/scanner-config.json`** | Filter Engine | Blocked file extensions, excluded external domains, and robots.txt settings. |
+| **`assets/remediation/intelligence.json`** | Fix Database | Category, resolution code, framework/CMS notes, guardrails, managed-library flags, and related rules for all 101 axe-core rules. |
+| **`assets/remediation/platform-aliases.json`** | Mapping Layer | Framework-to-note aliases that normalize detected stacks before remediation filtering. |
+| **`assets/remediation/guardrails.json`** | Operating Rules | Shared and platform-specific instructions injected into the remediation guide. |
+| **`assets/scoring/wcag-reference.json`** | Rule Mapping | WCAG criterion links, APG pattern IDs, MDN references, and persona impact tags. |
+| **`assets/scoring/compliance-config.json`** | Risk Engine | Severity scoring, grade thresholds, effort multipliers, and jurisdictional data. |
+| **`assets/reporting/manual-checks.json`** | Verification | 41 manual audit criteria for WCAG 2.2 areas that automation cannot detect. |
 
 ---
 
@@ -122,10 +125,13 @@ flowchart LR
     end
 
     subgraph Data ["Intelligence Assets"]
-        AS1[scanner-config.json] -.-> C
-        AS2[intelligence.json] -.-> D
-        AS3[stack-config.json] -.-> D
-        AS4[compliance-config.json] -.-> E
+        AS1[discovery/scanner-config.json] -.-> C
+        AS2[discovery/framework-detection.json] -.-> C
+        AS3[remediation/intelligence.json] -.-> D
+        AS4[discovery/source-globs.json] -.-> D
+        AS5[remediation/platform-aliases.json] -.-> D
+        AS6[remediation/guardrails.json] -.-> E
+        AS7[scoring/compliance-config.json] -.-> E
     end
 
     subgraph Knowledge ["Operational References"]
@@ -142,5 +148,5 @@ flowchart LR
 
     class A playbook;
     class B,C,D,E core;
-    class AS1,AS2,AS3,AS4 storage;
+    class AS1,AS2,AS3,AS4,AS5,AS6,AS7 storage;
 ```

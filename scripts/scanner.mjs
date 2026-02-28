@@ -9,23 +9,20 @@
 import { chromium } from "playwright";
 import AxeBuilder from "@axe-core/playwright";
 import { log, DEFAULTS, writeJson, getInternalPath } from "./utils.mjs";
+import { ASSET_PATHS, loadAssetJson } from "./assets.mjs";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const SCANNER_CONFIG = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, "../assets/discovery/scanner-config.json"),
-    "utf-8",
-  ),
+const SCANNER_CONFIG = loadAssetJson(
+  ASSET_PATHS.discovery.scannerConfig,
+  "assets/discovery/scanner-config.json",
 );
-const FRAMEWORK_DETECTION = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, "../assets/discovery/framework-detection.json"),
-    "utf-8",
-  ),
+const FRAMEWORK_DETECTION = loadAssetJson(
+  ASSET_PATHS.discovery.frameworkDetection,
+  "assets/discovery/framework-detection.json",
 );
 
 /**

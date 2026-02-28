@@ -5,35 +5,14 @@
  * and technical evidence blocks for the final HTML report.
  */
 
-import { readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
 import { SEVERITY_ORDER } from "./findings.mjs";
 import { escapeHtml, formatMultiline, linkify } from "./utils.mjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-/**
- * Path to the manual verification checks database.
- * @type {string}
- */
-const manualChecksPath = join(
-  __dirname,
-  "../../assets/reporting/manual-checks.json",
+const MANUAL_CHECKS = loadAssetJson(
+  ASSET_PATHS.reporting.manualChecks,
+  "assets/reporting/manual-checks.json",
 );
-
-/**
- * List of manual accessibility checks loaded from the assets.
- * @type {Object[]}
- */
-let MANUAL_CHECKS;
-try {
-  MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
-} catch {
-  throw new Error(
-    "Missing or invalid assets/reporting/manual-checks.json — reinstall the skill.",
-  );
-}
 
 /**
  * Renders technical evidence (HTML snippets and failure summaries) for the dashboard.

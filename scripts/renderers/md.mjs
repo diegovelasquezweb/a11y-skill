@@ -5,42 +5,17 @@
  * surgical selectors, and framework-specific guardrails.
  */
 
-import { readFileSync } from "fs";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
 import { buildSummary } from "./findings.mjs";
+import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-/**
- * Paths to the discovery and remediation assets used for framework inference and guide guardrails.
- * @type {string}
- */
-const frameworkDetectionPath = join(
-  __dirname,
-  "../../assets/discovery/framework-detection.json",
+const FRAMEWORK_DETECTION = loadAssetJson(
+  ASSET_PATHS.discovery.frameworkDetection,
+  "assets/discovery/framework-detection.json",
 );
-const guardrailsPath = join(
-  __dirname,
-  "../../assets/remediation/guardrails.json",
+const GUARDRAILS = loadAssetJson(
+  ASSET_PATHS.remediation.guardrails,
+  "assets/remediation/guardrails.json",
 );
-
-let FRAMEWORK_DETECTION;
-let GUARDRAILS;
-try {
-  FRAMEWORK_DETECTION = JSON.parse(readFileSync(frameworkDetectionPath, "utf-8"));
-} catch {
-  throw new Error(
-    "Missing or invalid assets/discovery/framework-detection.json — reinstall the skill.",
-  );
-}
-try {
-  GUARDRAILS = JSON.parse(readFileSync(guardrailsPath, "utf-8"));
-} catch {
-  throw new Error(
-    "Missing or invalid assets/remediation/guardrails.json — reinstall the skill.",
-  );
-}
 
 
 /**

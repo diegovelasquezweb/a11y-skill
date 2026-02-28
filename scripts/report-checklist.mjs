@@ -6,18 +6,14 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { log, getInternalPath } from "./utils.mjs";
+import { ASSET_PATHS, loadAssetJson } from "./assets.mjs";
 import { buildManualCheckCard } from "./renderers/html.mjs";
 import { escapeHtml } from "./renderers/utils.mjs";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const MANUAL_CHECKS = JSON.parse(
-  fs.readFileSync(
-    path.join(__dirname, "../assets/reporting/manual-checks.json"),
-    "utf-8",
-  ),
+const MANUAL_CHECKS = loadAssetJson(
+  ASSET_PATHS.reporting.manualChecks,
+  "assets/reporting/manual-checks.json",
 );
 
 const TOTAL = MANUAL_CHECKS.length;
