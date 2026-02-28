@@ -18,16 +18,32 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * Path to the core remediation intelligence database.
  * @type {string}
  */
-const intelligencePath = path.join(__dirname, "../assets/intelligence.json");
+const intelligencePath = path.join(
+  __dirname,
+  "../assets/remediation/intelligence.json",
+);
 
 /**
  * Path to the WCAG reference database: criterion maps, APG patterns, MDN links, personas.
  * @type {string}
  */
-const wcagReferencePath = path.join(__dirname, "../assets/wcag-reference.json");
+const wcagReferencePath = path.join(
+  __dirname,
+  "../assets/scoring/wcag-reference.json",
+);
 
-const complianceConfigPath = path.join(__dirname, "../assets/compliance-config.json");
-const stackConfigPath = path.join(__dirname, "../assets/stack-config.json");
+const complianceConfigPath = path.join(
+  __dirname,
+  "../assets/scoring/compliance-config.json",
+);
+const sourceGlobsPath = path.join(
+  __dirname,
+  "../assets/discovery/source-globs.json",
+);
+const platformAliasesPath = path.join(
+  __dirname,
+  "../assets/remediation/platform-aliases.json",
+);
 
 const DISABLED_RULES = {
   "page-has-heading-one": true,
@@ -37,7 +53,8 @@ const DISABLED_RULES = {
 let INTELLIGENCE;
 let WCAG_REFERENCE;
 let COMPLIANCE_CONFIG;
-let STACK_CONFIG;
+let SOURCE_GLOBS;
+let PLATFORM_ALIASES;
 
 // Initialize remediation and rule metadata assets.
 try {
@@ -65,10 +82,18 @@ try {
 }
 
 try {
-  STACK_CONFIG = JSON.parse(fs.readFileSync(stackConfigPath, "utf-8"));
+  SOURCE_GLOBS = JSON.parse(fs.readFileSync(sourceGlobsPath, "utf-8"));
 } catch {
   throw new Error(
-    `Missing or invalid stack-config.json at ${stackConfigPath} — run pnpm install to reinstall.`,
+    `Missing or invalid source-globs.json at ${sourceGlobsPath} — run pnpm install to reinstall.`,
+  );
+}
+
+try {
+  PLATFORM_ALIASES = JSON.parse(fs.readFileSync(platformAliasesPath, "utf-8"));
+} catch {
+  throw new Error(
+    `Missing or invalid platform-aliases.json at ${platformAliasesPath} — run pnpm install to reinstall.`,
   );
 }
 
@@ -157,7 +182,7 @@ function getExpected(ruleId) {
  * Used to help developers locate the source of an accessibility violation.
  * @type {Object<string, Object>}
  */
-const FRAMEWORK_GLOBS = STACK_CONFIG.frameworkGlobs || {};
+const FRAMEWORK_GLOBS = SOURCE_GLOBS || {};
 
 /**
  * Rules with managed_by_libraries in intelligence.json — derived at load time.
@@ -173,13 +198,13 @@ const MANAGED_RULES = new Map(
  * Maps detected framework IDs to their respective keys in intelligence.json.
  * @type {Object<string, string>}
  */
-const FRAMEWORK_TO_INTEL_KEY = STACK_CONFIG.frameworkAliases?.intelKey || {};
+const FRAMEWORK_TO_INTEL_KEY = PLATFORM_ALIASES?.intelKey || {};
 
 /**
  * Maps detected framework/CMS IDs to their respective keys for CMS-specific notes.
  * @type {Object<string, string>}
  */
-const FRAMEWORK_TO_CMS_KEY = STACK_CONFIG.frameworkAliases?.cmsKey || {};
+const FRAMEWORK_TO_CMS_KEY = PLATFORM_ALIASES?.cmsKey || {};
 
 /**
  * Filters the intelligence notes to only include those relevant to the detected framework.

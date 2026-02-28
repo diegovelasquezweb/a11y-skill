@@ -1,0 +1,17 @@
+{
+  "intelKey": {
+    "nextjs": "react",
+    "gatsby": "react",
+    "nuxt": "vue",
+    "react": "react",
+    "vue": "vue",
+    "angular": "angular",
+    "astro": "astro",
+    "svelte": "svelte"
+  },
+  "cmsKey": {
+    "shopify": "shopify",
+    "wordpress": "wordpress",
+    "drupal": "drupal"
+  }
+}

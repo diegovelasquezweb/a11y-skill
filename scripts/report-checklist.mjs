@@ -1,7 +1,7 @@
 /**
  * @file report-checklist.mjs
  * @description Generates a standalone manual accessibility testing checklist.
- * Does not depend on scan results — reads directly from assets/manual-checks.json.
+ * Does not depend on scan results — reads directly from assets/reporting/manual-checks.json.
  */
 
 import fs from "node:fs";
@@ -15,7 +15,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const MANUAL_CHECKS = JSON.parse(
   fs.readFileSync(
-    path.join(__dirname, "../assets/manual-checks.json"),
+    path.join(__dirname, "../assets/reporting/manual-checks.json"),
     "utf-8",
   ),
 );

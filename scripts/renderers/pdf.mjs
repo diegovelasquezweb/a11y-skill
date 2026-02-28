@@ -14,7 +14,10 @@ import { escapeHtml } from "./utils.mjs";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const COMPLIANCE_CONFIG = JSON.parse(
-  readFileSync(join(__dirname, "../../assets/compliance-config.json"), "utf-8"),
+  readFileSync(
+    join(__dirname, "../../assets/scoring/compliance-config.json"),
+    "utf-8",
+  ),
 );
 
 /**

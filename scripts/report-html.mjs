@@ -21,7 +21,10 @@ import { escapeHtml } from "./renderers/utils.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const RULE_METADATA = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../assets/wcag-reference.json"), "utf-8"),
+  fs.readFileSync(
+    path.join(__dirname, "../assets/scoring/wcag-reference.json"),
+    "utf-8",
+  ),
 );
 
 import {

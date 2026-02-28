@@ -17,7 +17,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  * Path to the manual verification checks database.
  * @type {string}
  */
-const manualChecksPath = join(__dirname, "../../assets/manual-checks.json");
+const manualChecksPath = join(
+  __dirname,
+  "../../assets/reporting/manual-checks.json",
+);
 
 /**
  * List of manual accessibility checks loaded from the assets.
@@ -28,7 +31,7 @@ try {
   MANUAL_CHECKS = JSON.parse(readFileSync(manualChecksPath, "utf-8"));
 } catch {
   throw new Error(
-    "Missing or invalid assets/manual-checks.json — reinstall the skill.",
+    "Missing or invalid assets/reporting/manual-checks.json — reinstall the skill.",
   );
 }
 

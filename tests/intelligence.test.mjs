@@ -5,11 +5,14 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const intel = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../assets/intelligence.json"), "utf-8"),
+  fs.readFileSync(
+    path.join(__dirname, "../assets/remediation/intelligence.json"),
+    "utf-8",
+  ),
 );
 const ruleMetadata = JSON.parse(
   fs.readFileSync(
-    path.join(__dirname, "../assets/wcag-reference.json"),
+    path.join(__dirname, "../assets/scoring/wcag-reference.json"),
     "utf-8",
   ),
 );
@@ -290,7 +293,7 @@ describe("wcag-reference.json — WCAG criterion mapping", () => {
 // ── 7. manual-checks.json schema ──────────────────────────────────────────
 const manualChecks = JSON.parse(
   fs.readFileSync(
-    path.join(__dirname, "../assets/manual-checks.json"),
+    path.join(__dirname, "../assets/reporting/manual-checks.json"),
     "utf-8",
   ),
 );
@@ -368,4 +371,3 @@ describe("manual-checks.json — schema", () => {
     });
   }
 });
-

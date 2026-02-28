@@ -15,13 +15,13 @@ describe("assets/intelligence.json schema", () => {
     const __dirname = path.dirname(fileURLToPath(import.meta.url));
     intelligence = JSON.parse(
       fs.readFileSync(
-        path.join(__dirname, "../assets/intelligence.json"),
+        path.join(__dirname, "../assets/remediation/intelligence.json"),
         "utf-8",
       ),
     );
     ruleMetadata = JSON.parse(
       fs.readFileSync(
-        path.join(__dirname, "../assets/wcag-reference.json"),
+        path.join(__dirname, "../assets/scoring/wcag-reference.json"),
         "utf-8",
       ),
     );

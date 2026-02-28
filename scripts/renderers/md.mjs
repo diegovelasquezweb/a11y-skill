@@ -13,17 +13,32 @@ import { buildSummary } from "./findings.mjs";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /**
- * Path to the manual check database asset.
+ * Paths to the discovery and remediation assets used for framework inference and guide guardrails.
  * @type {string}
  */
-const stackConfigPath = join(__dirname, "../../assets/stack-config.json");
+const frameworkDetectionPath = join(
+  __dirname,
+  "../../assets/discovery/framework-detection.json",
+);
+const guardrailsPath = join(
+  __dirname,
+  "../../assets/remediation/guardrails.json",
+);
 
-let STACK_CONFIG;
+let FRAMEWORK_DETECTION;
+let GUARDRAILS;
 try {
-  STACK_CONFIG = JSON.parse(readFileSync(stackConfigPath, "utf-8"));
+  FRAMEWORK_DETECTION = JSON.parse(readFileSync(frameworkDetectionPath, "utf-8"));
 } catch {
   throw new Error(
-    "Missing or invalid assets/stack-config.json — reinstall the skill.",
+    "Missing or invalid assets/discovery/framework-detection.json — reinstall the skill.",
+  );
+}
+try {
+  GUARDRAILS = JSON.parse(readFileSync(guardrailsPath, "utf-8"));
+} catch {
+  throw new Error(
+    "Missing or invalid assets/remediation/guardrails.json — reinstall the skill.",
   );
 }
 
@@ -40,7 +55,7 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
   const detected = metadata.projectContext?.framework;
   if (detected) return detected;
   const url = baseUrl.toLowerCase();
-  const urlSignals = STACK_CONFIG.frameworkDetection?.urlSignals || [];
+  const urlSignals = FRAMEWORK_DETECTION?.urlSignals || [];
   for (const signal of urlSignals) {
     if (url.includes(signal.pattern)) return signal.framework;
   }
@@ -53,7 +68,7 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
  * @returns {string} A bulleted list of framework-specific operating procedures.
  */
 function buildGuardrails(framework) {
-  const guardrails = STACK_CONFIG.guardrails || {};
+  const guardrails = GUARDRAILS || {};
   const shared = guardrails.shared || [];
   const frameworkRules = guardrails.framework || {};
   const frameworkRule = frameworkRules[framework] ?? frameworkRules.generic;

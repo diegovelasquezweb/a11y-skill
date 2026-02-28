@@ -16,10 +16,16 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const SCANNER_CONFIG = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../assets/scanner-config.json"), "utf-8"),
+  fs.readFileSync(
+    path.join(__dirname, "../assets/discovery/scanner-config.json"),
+    "utf-8",
+  ),
 );
-const STACK_CONFIG = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../assets/stack-config.json"), "utf-8"),
+const FRAMEWORK_DETECTION = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, "../assets/discovery/framework-detection.json"),
+    "utf-8",
+  ),
 );
 
 /**
@@ -319,7 +325,7 @@ export async function discoverRoutes(page, baseUrl, maxRoutes, crawlDepth = 2) {
  * @returns {Promise<Object>} An object containing detected framework and UI libraries.
  */
 async function detectProjectContext(page) {
-  const domSignals = STACK_CONFIG.frameworkDetection.domSignals;
+  const domSignals = FRAMEWORK_DETECTION.domSignals;
 
   const domFramework = await page.evaluate((signals) => {
     for (const entry of signals) {
@@ -342,14 +348,14 @@ async function detectProjectContext(page) {
         ...(pkg.dependencies || {}),
         ...(pkg.devDependencies || {}),
       });
-      const PKG_SIGNALS = STACK_CONFIG.frameworkDetection.packageSignals;
+      const PKG_SIGNALS = FRAMEWORK_DETECTION.packageSignals;
       for (const [dep, fw] of PKG_SIGNALS) {
         if (allDeps.some((d) => d === dep || d.startsWith(`${dep}/`))) {
           pkgFramework = fw;
           break;
         }
       }
-      const LIB_SIGNALS = STACK_CONFIG.frameworkDetection.uiLibrarySignals;
+      const LIB_SIGNALS = FRAMEWORK_DETECTION.uiLibrarySignals;
       for (const [prefix, name] of LIB_SIGNALS) {
         if (allDeps.some((d) => d === prefix || d.startsWith(`${prefix}/`))) {
           uiLibraries.push(name);
@@ -361,7 +367,7 @@ async function detectProjectContext(page) {
   }
 
   if (!pkgFramework) {
-    const fileSignals = STACK_CONFIG.frameworkDetection.fileSignals || [];
+    const fileSignals = FRAMEWORK_DETECTION.fileSignals || [];
     try {
       const projectDir = process.env.A11Y_PROJECT_DIR || process.cwd();
       for (const entry of fileSignals) {
