@@ -61,7 +61,7 @@ function parseArgs(argv) {
  * @param {string[]} globs
  * @returns {Set<string>}
  */
-function parseExtensions(globs) {
+export function parseExtensions(globs) {
   const exts = new Set();
   for (const glob of globs) {
     const match = glob.trim().match(/\*\.(\w+)$/);
@@ -103,7 +103,7 @@ function walkFiles(dir, extensions, results = []) {
  * @param {number} line
  * @returns {string}
  */
-function makeFindingId(patternId, file, line) {
+export function makeFindingId(patternId, file, line) {
   const key = `${patternId}||${file}||${line}`;
   return `PAT-${createHash("sha256").update(key).digest("hex").slice(0, 6)}`;
 }
@@ -116,7 +116,7 @@ function makeFindingId(patternId, file, line) {
  * @param {number} lineIndex
  * @returns {boolean}
  */
-function isConfirmedByContext(pattern, lines, lineIndex) {
+export function isConfirmedByContext(pattern, lines, lineIndex) {
   if (!pattern.requires_manual_verification || !pattern.context_reject_regex) return true;
 
   const window = pattern.context_window || 5;
@@ -134,7 +134,7 @@ function isConfirmedByContext(pattern, lines, lineIndex) {
  * @param {string} projectDir
  * @returns {Object[]}
  */
-function scanPattern(pattern, projectDir) {
+export function scanPattern(pattern, projectDir) {
   const findings = [];
   const extensions = parseExtensions(pattern.globs);
   const files = walkFiles(projectDir, extensions);

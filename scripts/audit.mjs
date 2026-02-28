@@ -133,7 +133,18 @@ async function main() {
   const routes = getArgValue("routes");
   const waitMs = getArgValue("wait-ms") || DEFAULTS.waitMs;
   const timeoutMs = getArgValue("timeout-ms") || DEFAULTS.timeoutMs;
-  const projectDir = getArgValue("project-dir");
+
+  const sessionFile = getInternalPath("a11y-session.json");
+  let projectDir = getArgValue("project-dir");
+  if (projectDir) {
+    fs.mkdirSync(path.dirname(sessionFile), { recursive: true });
+    fs.writeFileSync(sessionFile, JSON.stringify({ project_dir: path.resolve(projectDir) }), "utf-8");
+  } else if (fs.existsSync(sessionFile)) {
+    try {
+      const session = JSON.parse(fs.readFileSync(sessionFile, "utf-8"));
+      if (session.project_dir) projectDir = session.project_dir;
+    } catch { /* ignore malformed session file */ }
+  }
 
   const colorScheme = getArgValue("color-scheme");
   const target = getArgValue("target");
