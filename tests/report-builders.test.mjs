@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { normalizeFindings } from "../scripts/renderers/findings.mjs";
+import { buildMarkdownSummary } from "../scripts/renderers/md.mjs";
 import {
   buildIssueCard,
   buildPageGroupedSection,
@@ -121,5 +122,143 @@ describe("PDF Report Builder Components", () => {
     const html = buildPdfIssueSummaryTable([]);
     expect(html).toContain("No accessibility violations");
     expect(html).not.toContain("<tbody>");
+  });
+});
+
+describe("Markdown Renderer — check.data diagnostic blocks", () => {
+  const args = { baseUrl: "http://example.com/" };
+
+  function md(rawFindings, metadata = {}) {
+    const findings = normalizeFindings({ findings: rawFindings });
+    return buildMarkdownSummary(args, findings, metadata);
+  }
+
+  it("renders Contrast Diagnostics table for color-contrast findings with check_data", () => {
+    const out = md([{
+      id: "A11Y-cc1",
+      rule_id: "color-contrast",
+      severity: "Serious",
+      wcag: "WCAG 2.1 AA",
+      actual: "Contrast too low",
+      check_data: { fgColor: "#999999", bgColor: "#ffffff", contrastRatio: 3.24, expectedContrastRatio: "4.5:1", fontSize: "14pt", fontWeight: "normal" },
+    }]);
+    expect(out).toContain("#### Contrast Diagnostics");
+    expect(out).toContain("`#999999`");
+    expect(out).toContain("`#ffffff`");
+    expect(out).toContain("**3.24:1**");
+    expect(out).toContain("**4.5:1**");
+  });
+
+  it("does not render Contrast Diagnostics when check_data is absent for color-contrast", () => {
+    const out = md([{
+      id: "A11Y-cc2",
+      rule_id: "color-contrast",
+      severity: "Serious",
+      actual: "Contrast too low",
+    }]);
+    expect(out).not.toContain("#### Contrast Diagnostics");
+  });
+
+  it("renders Viewport Constraint block for meta-viewport with string check_data", () => {
+    const out = md([{
+      id: "A11Y-mv1",
+      rule_id: "meta-viewport",
+      severity: "Moderate",
+      actual: "user-scalable=no disables zooming",
+      check_data: "user-scalable=no",
+    }]);
+    expect(out).toContain("#### Viewport Constraint Detected");
+    expect(out).toContain("`user-scalable=no`");
+    expect(out).toContain("user-scalable=yes");
+  });
+
+  it("renders Invalid Child Element block for list with {values} check_data", () => {
+    const out = md([{
+      id: "A11Y-li1",
+      rule_id: "list",
+      severity: "Moderate",
+      actual: "Invalid child in list",
+      check_data: { values: "div" },
+    }]);
+    expect(out).toContain("#### Invalid Child Element");
+    expect(out).toContain("`<div>`");
+    expect(out).toContain("`<li>`");
+  });
+
+  it("does not render check.data blocks for rules without a handler", () => {
+    const out = md([{
+      id: "A11Y-bn1",
+      rule_id: "button-name",
+      severity: "Critical",
+      actual: "No accessible name",
+      check_data: { messageKey: "noAttr" },
+    }]);
+    expect(out).not.toContain("#### Contrast Diagnostics");
+    expect(out).not.toContain("#### Viewport Constraint");
+    expect(out).not.toContain("#### Invalid Child Element");
+  });
+});
+
+describe("Markdown Renderer — incomplete findings section", () => {
+  const args = { baseUrl: "http://example.com/" };
+
+  it("renders the Potential Issues section when incomplete_findings exist", () => {
+    const findings = normalizeFindings({ findings: [] });
+    const metadata = {
+      incomplete_findings: [
+        { rule_id: "color-contrast", impact: "serious", pages_affected: 10, areas: ["/"], message: "Background cannot be determined" },
+      ],
+    };
+    const out = buildMarkdownSummary(args, findings, metadata);
+    expect(out).toContain("## Potential Issues — Manual Review Required");
+    expect(out).toContain("`color-contrast`");
+    expect(out).toContain("10 pages");
+    expect(out).toContain("Background cannot be determined");
+  });
+
+  it("shows page count for cross-page incomplete findings", () => {
+    const findings = normalizeFindings({ findings: [] });
+    const metadata = {
+      incomplete_findings: [
+        { rule_id: "color-contrast", impact: "serious", pages_affected: 5, areas: ["/", "/about", "/contact", "/shop", "/blog"], message: "Some message" },
+      ],
+    };
+    const out = buildMarkdownSummary(args, findings, metadata);
+    expect(out).toContain("5 pages");
+    expect(out).not.toContain("`/about`");
+  });
+
+  it("shows area path for single-page incomplete findings", () => {
+    const findings = normalizeFindings({ findings: [] });
+    const metadata = {
+      incomplete_findings: [
+        { rule_id: "video-caption", impact: "critical", pages_affected: 1, areas: ["/"], message: "Check captions" },
+      ],
+    };
+    const out = buildMarkdownSummary(args, findings, metadata);
+    expect(out).toContain("`/`");
+  });
+
+  it("appends grep hint for duplicate-id-aria with extractable ID", () => {
+    const findings = normalizeFindings({ findings: [] });
+    const metadata = {
+      incomplete_findings: [
+        {
+          rule_id: "duplicate-id-aria",
+          impact: "critical",
+          pages_affected: 3,
+          areas: ["/products"],
+          message: "Document has multiple elements referenced with ARIA with the same id attribute: input_1_22",
+        },
+      ],
+    };
+    const out = buildMarkdownSummary(args, findings, metadata);
+    expect(out).toContain('grep: `id="input_1_22"`');
+  });
+
+  it("omits the section when incomplete_findings is empty or absent", () => {
+    const findings = normalizeFindings({ findings: [] });
+    expect(buildMarkdownSummary(args, findings, {})).not.toContain("Potential Issues");
+    expect(buildMarkdownSummary(args, findings, { incomplete_findings: [] })).not.toContain("Potential Issues");
   });
 });

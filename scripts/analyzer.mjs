@@ -365,26 +365,23 @@ const FAILURE_MODE_MAP = AXE_CHECK_MAPS.failureModes || {};
 
 const RELATIONSHIP_HINT_MAP = AXE_CHECK_MAPS.relationshipHints || {};
 
-const RELATIONSHIP_HINT_PRIORITY = [
-  "aria-labelledby",
-  "explicit-label",
-  "form-field-multiple-labels",
-  "label",
-  "select-name",
-  "aria-label",
-  "implicit-label",
-  "presentational-role",
-];
-
 function normalizeFailureMessage(message) {
   if (!message) return null;
   return String(message).trim().replace(/\.$/, "");
 }
 
-function deriveRelationshipHint(checks = []) {
-  for (const checkId of RELATIONSHIP_HINT_PRIORITY) {
-    if (checks.some((check) => check?.id === checkId)) {
+function deriveRelationshipHint(checks = [], preferredChecks = []) {
+  const preferredOrder = Array.isArray(preferredChecks)
+    ? preferredChecks.filter(Boolean)
+    : [];
+  for (const checkId of preferredOrder) {
+    if (checks.some((check) => check?.id === checkId) && RELATIONSHIP_HINT_MAP[checkId]) {
       return RELATIONSHIP_HINT_MAP[checkId];
+    }
+  }
+  for (const check of checks) {
+    if (check?.id && RELATIONSHIP_HINT_MAP[check.id]) {
+      return RELATIONSHIP_HINT_MAP[check.id];
     }
   }
   return null;
@@ -393,9 +390,10 @@ function deriveRelationshipHint(checks = []) {
 /**
  * Extracts a compact explanation of why axe flagged a node.
  * @param {Object} node
+ * @param {{ preferredRelationshipChecks?: string[] }} [options]
  * @returns {{ primaryFailureMode: string|null, relationshipHint: string|null, failureChecks: string[], relatedContext: string[] }}
  */
-export function extractFailureInsights(node = {}) {
+export function extractFailureInsights(node = {}, options = {}) {
   const checks = ["any", "all", "none"]
     .flatMap((bucket) => (Array.isArray(node[bucket]) ? node[bucket] : []))
     .filter(Boolean);
@@ -414,7 +412,10 @@ export function extractFailureInsights(node = {}) {
   const primaryFailureMode = primaryCheckId
     ? FAILURE_MODE_MAP[primaryCheckId] || primaryCheckId.replace(/-/g, "_")
     : null;
-  const relationshipHint = deriveRelationshipHint(checks);
+  const relationshipHint = deriveRelationshipHint(
+    checks,
+    options.preferredRelationshipChecks || [],
+  );
 
   const failureChecks = [
     ...new Set(
@@ -440,7 +441,12 @@ export function extractFailureInsights(node = {}) {
     ),
   ];
 
-  const checkData = checks[0]?.data ?? null;
+  const checkData = (() => {
+    const raw = checks[0]?.data ?? null;
+    if (raw === null || raw === undefined) return null;
+    if (typeof raw === "object" && "isIframe" in raw) return null;
+    return raw;
+  })();
 
   return {
     primaryFailureMode,
@@ -832,7 +838,9 @@ function buildFindings(inputPayload, cliArgs) {
           pageUrl: route.url,
           fileSearchPattern,
         });
-        const failureInsights = extractFailureInsights(firstNode);
+        const failureInsights = extractFailureInsights(firstNode, {
+          preferredRelationshipChecks: ruleInfo.preferred_relationship_checks || [],
+        });
 
         findings.push({
           id: "",
@@ -1046,36 +1054,44 @@ function buildFindings(inputPayload, cliArgs) {
  * @param {Object[]} routes
  * @returns {Object[]}
  */
-function collectIncompleteFindings(routes) {
-  const seen = new Set();
-  const result = [];
+export function collectIncompleteFindings(routes) {
+  const groups = new Map();
   for (const route of routes) {
     for (const v of (route.incomplete || [])) {
-      const key = `${v.id}||${route.path}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
       const firstNode = v.nodes?.[0];
-      const selector = Array.isArray(firstNode?.target)
-        ? firstNode.target.join(" ")
-        : "N/A";
       const message =
         firstNode?.any?.[0]?.message ??
         firstNode?.all?.[0]?.message ??
         firstNode?.none?.[0]?.message ??
         null;
-      result.push({
-        rule_id: v.id,
-        title: v.help,
-        description: v.description,
-        impact: v.impact ?? null,
-        area: route.path,
-        url: route.url,
-        selector,
-        message,
-      });
+      const key = `${v.id}||${message ?? v.description ?? ""}`;
+      if (!groups.has(key)) {
+        const selector = Array.isArray(firstNode?.target)
+          ? firstNode.target.join(" ")
+          : "N/A";
+        groups.set(key, {
+          rule_id: v.id,
+          title: v.help,
+          description: v.description,
+          impact: v.impact ?? null,
+          selector,
+          message,
+          areas: new Set(),
+        });
+      }
+      groups.get(key).areas.add(route.path);
     }
   }
-  return result;
+  return [...groups.values()].map((g) => ({
+    rule_id: g.rule_id,
+    title: g.title,
+    description: g.description,
+    impact: g.impact,
+    selector: g.selector,
+    message: g.message,
+    pages_affected: g.areas.size,
+    areas: [...g.areas],
+  }));
 }
 
 /**

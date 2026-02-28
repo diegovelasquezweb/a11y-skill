@@ -7,6 +7,7 @@ import {
   extractSearchHint,
   classifyFindingOwnership,
   extractFailureInsights,
+  collectIncompleteFindings,
 } from "../scripts/analyzer.mjs";
 
 describe("assets/intelligence.json schema", () => {
@@ -247,23 +248,28 @@ describe("classifyFindingOwnership", () => {
 
 describe("extractFailureInsights", () => {
   it("extracts a primary failure mode and deduplicated checks from axe node checks", () => {
-    const result = extractFailureInsights({
-      any: [
-        {
-          id: "button-has-visible-text",
-          message:
-            "Element does not have inner text that is visible to screen readers.",
-          relatedNodes: [],
-        },
-        {
-          id: "aria-label",
-          message: "aria-label attribute does not exist or is empty.",
-          relatedNodes: [],
-        },
-      ],
-      all: [],
-      none: [],
-    });
+    const result = extractFailureInsights(
+      {
+        any: [
+          {
+            id: "button-has-visible-text",
+            message:
+              "Element does not have inner text that is visible to screen readers.",
+            relatedNodes: [],
+          },
+          {
+            id: "aria-label",
+            message: "aria-label attribute does not exist or is empty.",
+            relatedNodes: [],
+          },
+        ],
+        all: [],
+        none: [],
+      },
+      {
+        preferredRelationshipChecks: ["aria-label"],
+      },
+    );
 
     expect(result.primaryFailureMode).toBe("missing_visible_text");
     expect(result.relationshipHint).toBe("control_has_no_accessible_name_source");
@@ -275,17 +281,22 @@ describe("extractFailureInsights", () => {
   });
 
   it("includes related context when axe provides related nodes", () => {
-    const result = extractFailureInsights({
-      any: [
-        {
-          id: "explicit-label",
-          message: "Element does not have an explicit <label>",
-          relatedNodes: [{ html: '<label for="email">Email</label>' }],
-        },
-      ],
-      all: [],
-      none: [],
-    });
+    const result = extractFailureInsights(
+      {
+        any: [
+          {
+            id: "explicit-label",
+            message: "Element does not have an explicit <label>",
+            relatedNodes: [{ html: '<label for="email">Email</label>' }],
+          },
+        ],
+        all: [],
+        none: [],
+      },
+      {
+        preferredRelationshipChecks: ["explicit-label"],
+      },
+    );
 
     expect(result.primaryFailureMode).toBe("missing_accessible_label");
     expect(result.relationshipHint).toBe("label_not_associated_with_control");
@@ -335,18 +346,23 @@ describe("extractFailureInsights", () => {
   });
 
   it("prefers aria relationship hints when aria references are the failing source", () => {
-    const result = extractFailureInsights({
-      any: [
-        {
-          id: "aria-labelledby",
-          message:
-            "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty.",
-          relatedNodes: [{ html: '<span id="missing-label"></span>' }],
-        },
-      ],
-      all: [],
-      none: [],
-    });
+    const result = extractFailureInsights(
+      {
+        any: [
+          {
+            id: "aria-labelledby",
+            message:
+              "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty.",
+            relatedNodes: [{ html: '<span id="missing-label"></span>' }],
+          },
+        ],
+        all: [],
+        none: [],
+      },
+      {
+        preferredRelationshipChecks: ["aria-labelledby", "aria-label"],
+      },
+    );
 
     expect(result.primaryFailureMode).toBe("missing_or_invalid_aria_labelledby");
     expect(result.relationshipHint).toBe(
@@ -356,25 +372,152 @@ describe("extractFailureInsights", () => {
   });
 
   it("prefers explicit label relationships over wrapped-label hints when both are present", () => {
+    const result = extractFailureInsights(
+      {
+        any: [
+          {
+            id: "implicit-label",
+            message: "Element does not have an implicit (wrapped) <label>",
+            relatedNodes: [],
+          },
+          {
+            id: "explicit-label",
+            message: "Element does not have an explicit <label>",
+            relatedNodes: [{ html: '<label for="country">Country</label>' }],
+          },
+        ],
+        all: [],
+        none: [],
+      },
+      {
+        preferredRelationshipChecks: ["explicit-label", "implicit-label"],
+      },
+    );
+
+    expect(result.primaryFailureMode).toBe("missing_accessible_label");
+    expect(result.relationshipHint).toBe("label_not_associated_with_control");
+    expect(result.relatedContext).toEqual(['<label for="country">Country</label>']);
+  });
+
+  it("filters out {isIframe: false} check.data as non-actionable", () => {
     const result = extractFailureInsights({
       any: [
         {
-          id: "implicit-label",
-          message: "Element does not have an implicit (wrapped) <label>",
+          id: "region",
+          message: "Some content is not contained in a landmark region",
+          data: { isIframe: false },
           relatedNodes: [],
-        },
-        {
-          id: "explicit-label",
-          message: "Element does not have an explicit <label>",
-          relatedNodes: [{ html: '<label for="country">Country</label>' }],
         },
       ],
       all: [],
       none: [],
     });
+    expect(result.checkData).toBeNull();
+  });
 
-    expect(result.primaryFailureMode).toBe("missing_accessible_label");
-    expect(result.relationshipHint).toBe("label_not_associated_with_control");
-    expect(result.relatedContext).toEqual(['<label for="country">Country</label>']);
+  it("filters out {isIframe: true} check.data as non-actionable", () => {
+    const result = extractFailureInsights({
+      any: [
+        {
+          id: "region",
+          message: "Some content is not contained in a landmark region",
+          data: { isIframe: true },
+          relatedNodes: [],
+        },
+      ],
+      all: [],
+      none: [],
+    });
+    expect(result.checkData).toBeNull();
+  });
+});
+
+describe("collectIncompleteFindings", () => {
+  it("deduplicates violations with the same rule and message across pages", () => {
+    const routes = [
+      {
+        path: "/",
+        url: "http://example.com/",
+        incomplete: [
+          {
+            id: "color-contrast",
+            help: "Color contrast",
+            description: "Ensures contrast...",
+            impact: "serious",
+            nodes: [{ any: [{ message: "Background cannot be determined" }], all: [], none: [], target: ["p"] }],
+          },
+        ],
+      },
+      {
+        path: "/about",
+        url: "http://example.com/about",
+        incomplete: [
+          {
+            id: "color-contrast",
+            help: "Color contrast",
+            description: "Ensures contrast...",
+            impact: "serious",
+            nodes: [{ any: [{ message: "Background cannot be determined" }], all: [], none: [], target: ["p"] }],
+          },
+        ],
+      },
+    ];
+    const result = collectIncompleteFindings(routes);
+    expect(result).toHaveLength(1);
+    expect(result[0].pages_affected).toBe(2);
+    expect(result[0].areas).toEqual(["/", "/about"]);
+  });
+
+  it("keeps violations with the same rule but different messages as separate entries", () => {
+    const routes = [
+      {
+        path: "/",
+        url: "http://example.com/",
+        incomplete: [
+          {
+            id: "color-contrast",
+            help: "CC",
+            description: "",
+            impact: "serious",
+            nodes: [{ any: [{ message: "Message A" }], all: [], none: [], target: ["p"] }],
+          },
+          {
+            id: "color-contrast",
+            help: "CC",
+            description: "",
+            impact: "serious",
+            nodes: [{ any: [{ message: "Message B" }], all: [], none: [], target: ["div"] }],
+          },
+        ],
+      },
+    ];
+    const result = collectIncompleteFindings(routes);
+    expect(result).toHaveLength(2);
+  });
+
+  it("returns empty array when routes have no incomplete violations", () => {
+    const routes = [{ path: "/", url: "http://example.com/", incomplete: [] }];
+    expect(collectIncompleteFindings(routes)).toEqual([]);
+  });
+
+  it("sets pages_affected to 1 for single-page violations", () => {
+    const routes = [
+      {
+        path: "/",
+        url: "http://example.com/",
+        incomplete: [
+          {
+            id: "video-caption",
+            help: "Videos must have captions",
+            description: "",
+            impact: "critical",
+            nodes: [{ any: [{ message: "Check that captions are available" }], all: [], none: [], target: ["video"] }],
+          },
+        ],
+      },
+    ];
+    const result = collectIncompleteFindings(routes);
+    expect(result[0].pages_affected).toBe(1);
+    expect(result[0].areas).toEqual(["/"]);
   });
 });

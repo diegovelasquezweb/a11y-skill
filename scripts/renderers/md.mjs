@@ -132,7 +132,15 @@ function buildIncompleteSection(incompleteFindings) {
   if (!Array.isArray(incompleteFindings) || incompleteFindings.length === 0) return "";
   const rows = incompleteFindings.map((f) => {
     const msg = (f.message || f.description || "Needs manual review").replace(/\|/g, "\\|");
-    return `| \`${f.rule_id}\` | ${f.impact ?? "?"} | \`${f.area}\` | ${msg} |`;
+    const areaCell = f.pages_affected > 1
+      ? `${f.pages_affected} pages`
+      : `\`${f.areas?.[0] ?? "?"}\``;
+    let actionableHint = "";
+    if (f.rule_id === "duplicate-id-aria" && f.message) {
+      const idMatch = f.message.match(/same id attribute[:\s]+(\S+?)\.?\s*$/i);
+      if (idMatch) actionableHint = ` — grep: \`id="${idMatch[1]}"\``;
+    }
+    return `| \`${f.rule_id}\` | ${f.impact ?? "?"} | ${areaCell} | ${msg}${actionableHint} |`;
   });
   return `## Potential Issues — Manual Review Required
 
