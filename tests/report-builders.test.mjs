@@ -159,32 +159,6 @@ describe("Markdown Renderer — check.data diagnostic blocks", () => {
     expect(out).not.toContain("#### Contrast Diagnostics");
   });
 
-  it("renders Viewport Constraint block for meta-viewport with string check_data", () => {
-    const out = md([{
-      id: "A11Y-mv1",
-      rule_id: "meta-viewport",
-      severity: "Moderate",
-      actual: "user-scalable=no disables zooming",
-      check_data: "user-scalable=no",
-    }]);
-    expect(out).toContain("#### Viewport Constraint Detected");
-    expect(out).toContain("`user-scalable=no`");
-    expect(out).toContain("user-scalable=yes");
-  });
-
-  it("renders Invalid Child Element block for list with {values} check_data", () => {
-    const out = md([{
-      id: "A11Y-li1",
-      rule_id: "list",
-      severity: "Moderate",
-      actual: "Invalid child in list",
-      check_data: { values: "div" },
-    }]);
-    expect(out).toContain("#### Invalid Child Element");
-    expect(out).toContain("`<div>`");
-    expect(out).toContain("`<li>`");
-  });
-
   it("does not render check.data blocks for rules without a handler", () => {
     const out = md([{
       id: "A11Y-bn1",

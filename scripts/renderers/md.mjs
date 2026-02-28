@@ -290,19 +290,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       return `#### Contrast Diagnostics\n| Property | Value |\n|---|---|\n${rows}`;
     })();
 
-    const checkDiagnosticsBlock = (() => {
-      const d = f.checkData;
-      if (!d) return null;
-      if (f.ruleId === "meta-viewport" && typeof d === "string") {
-        return `#### Viewport Constraint Detected\n- **Failing attribute value:** \`${d}\`\n- Remove or replace with \`user-scalable=yes\` (or omit the property entirely)`;
-      }
-      if (f.ruleId === "list" && typeof d === "object" && d.values) {
-        const tag = String(d.values).trim();
-        return `#### Invalid Child Element\n- **Element found:** \`<${tag}>\` directly inside \`<ul>\`/\`<ol>\`\n- Only \`<li>\` elements are permitted as direct children`;
-      }
-      return null;
-    })();
-
     const searchPatternBlock = f.fileSearchPattern
       ? `**Search in:** \`${f.fileSearchPattern}\``
       : null;
@@ -368,8 +355,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `**Observed Violation:** ${formatViolation(f.actual)}`,
       contrastDiagnosticsBlock ? `` : null,
       contrastDiagnosticsBlock,
-      checkDiagnosticsBlock ? `` : null,
-      checkDiagnosticsBlock,
       engineReasonBlock ? `` : null,
       engineReasonBlock,
       searchPatternBlock ? `` : null,

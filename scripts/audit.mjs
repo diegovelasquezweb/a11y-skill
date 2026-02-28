@@ -225,6 +225,11 @@ async function main() {
     if (framework) analyzerArgs.push("--framework", framework);
     await runScript("analyzer.mjs", analyzerArgs);
 
+    if (projectDir) {
+      const patternArgs = ["--project-dir", path.resolve(projectDir)];
+      await runScript("pattern-scanner.mjs", patternArgs);
+    }
+
     const mdOutput = getInternalPath("remediation.md");
     const mdArgs = ["--output", mdOutput, "--base-url", baseUrl];
     if (target) mdArgs.push("--target", target);

@@ -32,6 +32,7 @@ export const ASSET_PATHS = {
       "remediation",
       "source-boundaries.json",
     ),
+    codePatterns: path.join(ASSET_ROOT, "remediation", "code-patterns.json"),
   },
   reporting: {
     wcagReference: path.join(ASSET_ROOT, "reporting", "wcag-reference.json"),
