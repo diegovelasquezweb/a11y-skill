@@ -246,7 +246,7 @@ Then ask:
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip style fixes
 
-If **No**: your very next action is the first tool call of 4c — reading `references/code-patterns.md`. Do not output any text, transition phrase, or acknowledgment before that tool call. 4c always runs regardless of what happened in 4b. Never skip to Step 5 from 4b.
+If **No**: your very next action is the first action of 4c. Do not output any text, transition phrase, or acknowledgment before that action. 4c always runs regardless of what happened in 4b. Never skip to Step 5 from 4b.
 
 If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these style changes?** prompt. Otherwise apply the selected changes, list files and exact values modified, then ask the verification question below.
 
@@ -257,29 +257,30 @@ If **Yes** or after **Let me pick** completes: list the files and exact values m
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
 
-If **Looks good**: your very next action is the first tool call of 4c — reading `references/code-patterns.md`. No text before it. If **Something's wrong**: apply corrections, then proceed to 4c the same way.
+If **Looks good**: your very next action is the first action of 4c — no text before it. If **Something's wrong**: apply corrections, then proceed to 4c the same way.
 
 #### 4c. Source code patterns
 
-`[QUESTION]` **Would you like me to scan your source code using an expert-curated pattern database to detect issues the automated browser scanner cannot find?**
+Check whether the remediation guide contains a **"Source Code Pattern Findings"** section (present when `--project-dir` was provided at scan time).
 
-1. **Yes** — scan and fix any matches found
-2. **No** — skip to the verification re-audit
+**If the section exists:** findings have already been collected by the automated scanner — skip to [PRESENT FINDINGS] below.
+
+**If no such section exists:**
+
+`[QUESTION]` **Would you like me to scan your source code for issues the browser scanner cannot detect?**
+
+1. **Yes** — provide the path to your project source root
+2. **No** — skip to Step 5
 
 If **No**: proceed immediately to Step 5.
 
-If **Yes**: read `references/code-patterns.md` as the first action — no text before that tool call. Output begins only after the scan is complete and results are ready to present.
+If **Yes**: run `node scripts/pattern-scanner.mjs --project-dir <provided-path>`, then re-read the updated remediation guide before continuing.
 
-Each entry has a `Search for` regex and `In files` glob — use these to grep the project source. Apply the framework note matching the detected stack:
+**[PRESENT FINDINGS]:** Classify the findings from the "Source Code Pattern Findings" section into two groups:
+- **Structural** — fixes to HTML attributes, ARIA, JS APIs, or non-visual DOM changes
+- **Style** — fixes that modify a CSS property value (`outline`, `color`, `background`, `font-size`, `pointer-events`, `visibility`, `opacity`, `display`, `border`, `box-shadow`, or any other visual property)
 
-1. For each pattern, search the project source using the provided regex and file globs. Skip patterns with no matches.
-2. Classify confirmed matches into two groups:
-   - **Structural** — fixes to HTML attributes, ARIA, JS APIs, or non-visual DOM changes
-   - **Style** — fixes that modify a CSS property value (`outline`, `color`, `background`, `font-size`, `pointer-events`, `visibility`, `opacity`, `display`, `border`, `box-shadow`, or any other visual property)
-
-If 0 matches were found in both groups, proceed automatically to Step 5. Open with: **"Scanned source code — no additional patterns found."**
-
-`[MESSAGE]` These findings were detected via source code analysis using an expert-curated pattern database. They are not part of the axe-core scan and will not appear in the visual report.
+If 0 findings in both groups: proceed to Step 5. Open with: **"Scanned source code — no additional patterns found."**
 
 **Structural patterns** — open with: **"Scanned source code — found [N] pattern(s) not detectable by the browser scanner."** Then present as a batch using this exact format:
 

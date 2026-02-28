@@ -153,6 +153,61 @@ ${rows.join("\n")}
 }
 
 /**
+ * Builds the Source Code Pattern Findings section from pattern-scanner output.
+ * @param {Object|null} patternPayload - The a11y-pattern-findings.json payload.
+ * @returns {string}
+ */
+function buildPatternSection(patternPayload) {
+  if (!patternPayload || !Array.isArray(patternPayload.findings) || patternPayload.findings.length === 0) return "";
+
+  const { findings, project_dir } = patternPayload;
+  const confirmed = findings.filter((f) => f.status === "confirmed");
+  const potential = findings.filter((f) => f.status === "potential");
+
+  const badge = [
+    confirmed.length > 0 ? `${confirmed.length} confirmed` : null,
+    potential.length > 0 ? `${potential.length} potential` : null,
+  ].filter(Boolean).join(", ");
+
+  function patternFindingToMd(f) {
+    return [
+      `---`,
+      `### ${f.id} · ${f.severity} · ${f.title}`,
+      ``,
+      `- **File:** \`${f.file}:${f.line}\``,
+      `- **Status:** ${f.status}`,
+      `- **WCAG:** ${f.wcag}`,
+      `- **Type:** ${f.type}`,
+      ``,
+      `**Match:**`,
+      `\`\`\``,
+      f.match,
+      `\`\`\``,
+      f.context ? `` : null,
+      f.context ? `**Context:**\n\`\`\`\n${f.context}\n\`\`\`` : null,
+      f.fix_description ? `` : null,
+      f.fix_description ? `#### Recommended Fix\n${f.fix_description}` : null,
+    ].filter((line) => line !== null).join("\n");
+  }
+
+  const parts = [];
+  if (confirmed.length > 0) {
+    parts.push(`### Confirmed (${confirmed.length})\n\n${confirmed.map(patternFindingToMd).join("\n\n")}`);
+  }
+  if (potential.length > 0) {
+    parts.push(`### Potential — Verify Before Fixing (${potential.length})\n\n> These matches require manual verification. Inspect each match in the source file before applying any fix.\n\n${potential.map(patternFindingToMd).join("\n\n")}`);
+  }
+
+  return `## Source Code Pattern Findings
+
+These findings were detected via static source code analysis and are not visible to the browser scanner. Do not auto-fix — inspect each match in the source file first.
+
+**${badge}** — scanned \`${project_dir || "project"}\`
+
+${parts.join("\n\n")}`;
+}
+
+/**
  * Builds the full AI-optimized remediation guide in Markdown format.
  * Includes a summary table, guardrails, component map, and detailed issue lists.
  * @param {Object} args - The parsed CLI arguments.
@@ -436,6 +491,7 @@ ${rows.join("\n")}
   }
 
   const incompleteSection = buildIncompleteSection(metadata.incomplete_findings);
+  const patternSection = buildPatternSection(metadata.pattern_findings);
 
   return (
       `# Accessibility Remediation Guide
@@ -462,6 +518,7 @@ ${buildExecutionOrderSection()}
 ${blockers ? `## Priority Fixes (Critical and Serious)\n\n${blockers}` : "## Priority Fixes\n\nNo critical or serious severity issues found."}
 ${deferred ? `\n## Deferred Issues (Moderate and Minor)\n\n${deferred}` : ""}
 ${incompleteSection ? `\n${incompleteSection}` : ""}
+${patternSection ? `\n${patternSection}` : ""}
 `
   .trimEnd() + "\n"
   );

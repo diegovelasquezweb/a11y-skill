@@ -173,6 +173,7 @@ function scanPattern(pattern, projectDir) {
         wcag_criterion: pattern.wcag_criterion,
         wcag_level: pattern.wcag_level,
         type: pattern.type,
+        fix_description: pattern.fix_description ?? null,
         status: confirmed ? "confirmed" : "potential",
         file: relFile,
         line: i + 1,
