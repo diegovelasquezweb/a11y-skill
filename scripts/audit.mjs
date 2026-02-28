@@ -238,6 +238,14 @@ async function main() {
 
     if (projectDir) {
       const patternArgs = ["--project-dir", path.resolve(projectDir)];
+      let resolvedFramework = framework;
+      if (!resolvedFramework) {
+        try {
+          const findings = JSON.parse(fs.readFileSync(getInternalPath("a11y-findings.json"), "utf-8"));
+          resolvedFramework = findings?.metadata?.projectContext?.framework ?? null;
+        } catch { /* ignore */ }
+      }
+      if (resolvedFramework) patternArgs.push("--framework", resolvedFramework);
       await runScript("pattern-scanner.mjs", patternArgs);
     }
 
