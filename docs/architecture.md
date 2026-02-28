@@ -68,8 +68,8 @@ flowchart TD
 - **Compliance**: Injects `axe-core` 4.11.1 to run 104 accessibility rules (100% of axe-core WCAG A/AA + best-practice coverage).
 - **Discovery**: If the site has a `sitemap.xml`, all listed URLs are scanned. Otherwise, BFS multi-level crawl starting from `base-url`, configurable via `--crawl-depth` (1-3, default: 2), capped at `maxRoutes` (default: 10).
 - **Parallel Scanning**: Routes are scanned across 3 concurrent browser tabs for ~2-3x faster throughput.
-- **Smart Wait**: Uses `networkidle` signal instead of a fixed delay — proceeds as soon as the page is ready, with `waitMs` as the timeout ceiling.
-- **Project Context Detection**: Auto-detects the project's framework (Next.js, Nuxt, React, Vue, Angular, Astro, Svelte, Shopify, WordPress) from DOM signals, and UI component libraries (Radix, Headless UI, Chakra, Mantine, Material UI) from `package.json`.
+- **Smart Wait**: Uses the configured Playwright load strategy (`domcontentloaded` by default, configurable via `--wait-until`) plus `waitMs` as a post-load settle delay.
+- **Project Context Detection**: Auto-detects modern frameworks from `package.json`, detects structural platforms (Shopify, WordPress, Drupal) from project directories, and detects UI component libraries from `package.json`.
 - **Output**: Generates a raw `a11y-scan-results.json` containing every violation found in the DOM plus the detected `projectContext`.
 
 ### 2. The Analyzer (`analyzer.mjs`)

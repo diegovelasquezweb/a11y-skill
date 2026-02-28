@@ -16,7 +16,7 @@ The a11y skill maintains a robust test suite to ensure the **Audit Engine** rema
 ## Overview
 
 - **Framework**: [Vitest](https://vitest.dev/)
-- **Total Tests**: 946
+- **Total Tests**: 953
 - **Command**: `pnpm test`
 
 ## Test Categories
@@ -38,7 +38,7 @@ The core of our "Fix-First" promise.
 
 - **Implicit ARIA**: Maps ~18 native HTML elements to their ARIA roles (e.g., `<button>` → `button`, `<nav>` → `navigation`, `<h1>`–`<h6>` → `heading`).
 - **Surgical Selectors**: Ensures that complex CSS paths are simplified into useful "Search Hints" (prefers ID > Class > Tag).
-- **Intelligence Schema**: Validates that `assets/remediation/intelligence.json` has all required top-level keys (`axeVersion`, `wcagCriterionMap`, `rules`, `apgPatterns`, etc.) and that `wcagCriterionMap` covers every rule defined in `rules`.
+- **Intelligence Schema**: Validates that `assets/remediation/intelligence.json` exposes the expected rule metadata and that `assets/reporting/wcag-reference.json` provides `wcagCriterionMap`, `apgPatterns`, and related reference maps covering every rule defined in `rules`.
 
 ### 3. Compliance & Scoring (`findings.test.mjs`)
 
