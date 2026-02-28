@@ -8,9 +8,9 @@
 import { buildSummary } from "./findings.mjs";
 import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
 
-const GLOBAL_INTELLIGENCE = loadAssetJson(
-  ASSET_PATHS.remediation.globalIntelligence,
-  "assets/remediation/global-remediation-intelligence.json",
+const GUARDRAILS = loadAssetJson(
+  ASSET_PATHS.remediation.guardrails,
+  "assets/remediation/guardrails.json",
 );
 
 
@@ -34,10 +34,10 @@ function resolveFramework(metadata = {}, baseUrl = "", configFramework = null) {
  * @returns {string} A numbered list of framework-specific operating procedures.
  */
 function buildGuardrails(framework) {
-  const guardrails = GLOBAL_INTELLIGENCE || {};
+  const guardrails = GUARDRAILS || {};
   const shared = guardrails.shared || [];
-  const frameworkRules = guardrails.framework || {};
-  const frameworkRule = frameworkRules[framework] ?? frameworkRules.generic;
+  const stackRules = guardrails.stack || {};
+  const frameworkRule = stackRules[framework] ?? stackRules.generic;
   return [frameworkRule, ...shared]
     .filter(Boolean)
     .map((rule, index) => `${index + 1}. ${rule}`)

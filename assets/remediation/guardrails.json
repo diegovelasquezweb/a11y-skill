@@ -5,7 +5,7 @@
     "**Verification**: After applying a fix, explain *why* it resolves the WCAG criterion mentioned.",
     "**No Placeholders**: Do not add \"todo\" comments. Provide the complete code fix."
   ],
-  "framework": {
+  "stack": {
     "react": "**React Project**: Edit `.tsx`/`.jsx` files in `src/`. **NEVER** edit `dist/`, `build/`, or `.cache/`. Source of Truth: fix at the component, not the compiled output.",
     "nextjs": "**Next.js Project**: Edit `.tsx`/`.jsx` files in `app/`, `pages/`, or `components/`. **NEVER** edit `.next/` or `out/`. Source of Truth: fix at the component or page.",
     "gatsby": "**Gatsby Project**: Edit `.tsx`/`.jsx` in `src/pages/` or `src/components/`. **NEVER** edit `public/` or `.cache/`. Source of Truth: fix at the component.",

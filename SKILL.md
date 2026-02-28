@@ -36,7 +36,7 @@ These rules apply at all times, independent of any workflow step.
 - Treat scripts as black boxes: run with `--help` to discover flags. Do not read script source — it consumes context budget for no benefit.
 - If `pnpm` is not available, use `npm` as fallback.
 - Never add, remove, or modify CLI flags (`--exclude-selectors`, `--timeout-ms`, `--wait-ms`, etc.) without the user explicitly requesting it.
-- Only modify frontend files (components, templates, stylesheets). Never propose fixes to server configuration, infrastructure, or backend files (e.g., `wp-config.php`, `.env`, `nginx.conf`). If the root cause of a finding lies outside the frontend, report it to the user without proposing a fix.
+- Only propose fixes inside the primary editable frontend source of truth. If a finding points to backend code, infrastructure, server configuration, plugins, compiled output, or any non-editable area, report it or ask the user before proceeding instead of proposing a direct fix.
 
 ## Communication Rules
 
