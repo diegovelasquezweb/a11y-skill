@@ -781,13 +781,21 @@ function buildFindings(inputPayload, cliArgs) {
       for (const v of route.violations) {
         const nodes = v.nodes || [];
         const selectors = nodes.map((n) => n.target.join(" ")).slice(0, 5);
-        const bestSelector = selectors.reduce((best, s) => {
-          if (best && /#[\w-]+/.test(best)) return best;
-          if (/#[\w-]+/.test(s)) return s;
-          const len = s.replace(/[^a-z0-9-]/gi, "").length;
-          const bestLen = best ? best.replace(/[^a-z0-9-]/gi, "").length : 0;
-          return len < bestLen ? s : best;
-        }, selectors[0] || "N/A");
+        const scoreSelectorSpecificity = (s) => {
+          if (!s || s === "N/A") return -1;
+          let score = 0;
+          if (/#[\w-]+/.test(s)) score += 100;
+          if (/\[data-[\w-]+/.test(s)) score += 80;
+          if (/\[aria-[\w-]+/.test(s)) score += 60;
+          if (/\[(name|role|type)=/.test(s)) score += 40;
+          const tailwindPattern = /(^|\s|\.)(sm:|md:|lg:|xl:|2xl:|focus:|hover:|active:|disabled:|group-|peer-|\w+-\d+|[pmwh][xytblr]?-|text-(xs|sm|base|lg|xl|\d)|bg-|border-|rounded|shadow|opacity-|flex-?|grid-?|items-|justify-|gap-|space-|z-\d|leading-|tracking-|font-|w-|h-|min-|max-|top-|right-|bottom-|left-|translate-|rotate-|scale-|skew-)/;
+          if (tailwindPattern.test(s)) score -= 40;
+          score -= s.length * 0.1;
+          return score;
+        };
+        const bestSelector = selectors.reduce((best, s) =>
+          scoreSelectorSpecificity(s) > scoreSelectorSpecificity(best) ? s : best,
+        selectors[0] || "N/A");
         const firstNode = nodes[0];
         const explicitRole =
           firstNode?.html?.match(/role=["']([^"']+)["']/)?.[1] ?? null;

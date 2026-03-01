@@ -1509,7 +1509,7 @@
         "drupal": "Olivero (Drupal's default theme) ships with WCAG 2.1 AA contrast. Custom themes should use CSS custom properties for colors and validate pairs in the color scheme configuration. Check sub-theme overrides in the .theme file."
       },
       "fix_difficulty_notes": [
-        "⚠️ Each instance in Evidence from DOM is an INDEPENDENT element — fix every instance separately, not just the Surgical Selector.",
+        "⚠️ Each instance in Evidence from DOM is an INDEPENDENT element — fix every instance separately.",
         "False positives are common on text rendered over gradient backgrounds, images, or when color is set dynamically via JavaScript or CSS variables resolved at runtime.",
         "axe-core samples a single point of the background — text on gradients may appear to fail even when contrast is sufficient.",
         "Verify each flagged instance visually using the browser DevTools color picker before fixing."

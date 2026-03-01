@@ -95,7 +95,7 @@ If the user mentions "sitemap" at any point, use it directly (Data-first rule) �
 2. **All reachable pages** — comprehensive, may take several minutes on large sites
 3. **Custom** — tell me the exact number
 
-If Custom: ask in plain text — "How many pages?" — and wait for a number. Do not show a new [QUESTION] with options. Store the number and proceed to Step 2.
+If Custom: the user selected the option, not provided a number yet. Ask in plain text — "How many pages?" — and wait for a number. **Never use the option number (3) as the page count.** Store the number and proceed to Step 2.
 
 Store the user's choice. Proceed to Step 2.
 
@@ -285,11 +285,13 @@ After the script completes, immediately parse ALL findings and present results �
 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
 
-     1. **Keep fixing** — address the remaining issues
-     2. **Move on** — accept the remaining issues and proceed to the final summary
+     1. **Keep fixing** — address all remaining issues
+     2. **Let me pick** — show me the list, I'll choose which to fix
+     3. **Move on** — accept the remaining issues and proceed to the final summary
 
   3. If **Keep fixing**: apply fixes following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate; pattern findings included in both passes). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
-  4. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
+  4. If **Let me pick**: present all remaining issues as a numbered list. Ask the user to type the numbers they want fixed (e.g. `1, 3` or `all`), or type `back` to return. Apply only the selected fixes following Step 4 procedures, then run the audit script again and return to step 1 of this sequence.
+  5. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 

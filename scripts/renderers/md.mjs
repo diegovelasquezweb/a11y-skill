@@ -83,16 +83,6 @@ const PRIORITY_BY_SEVERITY = {
   Minor: 4,
 };
 
-function inferActionType(finding) {
-  if ((finding.fixCodeLang || "").toLowerCase() === "css") return "style";
-  if ((finding.fixCodeLang || "").toLowerCase() === "jsx") return "component";
-  const category = String(finding.category || "").toLowerCase();
-  if (["color", "keyboard"].includes(category)) return "interaction";
-  if (["aria", "name-role-value", "semantics", "structure"].includes(category))
-    return "markup";
-  return "general";
-}
-
 
 /**
  * Builds the Recommendations section with single-point-fix opportunities and systemic patterns.
@@ -406,31 +396,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       Array.isArray(f.relatedRules) && f.relatedRules.length > 0
         ? `**Fixing this also helps:**\n${f.relatedRules.map((r) => `- \`${r.id}\` — ${r.reason}`).join("\n")}`
         : null;
-    const engineReasonBlock =
-      f.primaryFailureMode ||
-      f.relationshipHint ||
-      (Array.isArray(f.failureChecks) && f.failureChecks.length > 0)
-        ? [
-            "#### Why Axe Flagged This",
-            f.primaryFailureMode
-              ? `- **Primary failure mode:** \`${f.primaryFailureMode}\``
-              : null,
-            f.relationshipHint
-              ? `- **Relationship hint:** \`${f.relationshipHint}\``
-              : null,
-            Array.isArray(f.failureChecks) && f.failureChecks.length > 0
-              ? `- **Detected checks:** ${f.failureChecks.join("; ")}`
-              : null,
-            Array.isArray(f.relatedContext) && f.relatedContext.length > 0
-              ? `- **Related context:** ${f.relatedContext
-                  .slice(0, 2)
-                  .map((entry) => `\`${entry}\``)
-                  .join(", ")}`
-              : null,
-          ]
-            .filter(Boolean)
-            .join("\n")
-        : null;
 
     const contrastDiagnosticsBlock = (() => {
       if (!["color-contrast", "color-contrast-enhanced"].includes(f.ruleId)) return null;
@@ -447,10 +412,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       ].filter(Boolean).join("\n");
       return `#### Contrast Diagnostics\n| Property | Value |\n|---|---|\n${rows}`;
     })();
-
-    const searchPatternBlock = f.fileSearchPattern
-      ? `**Search in:** \`${f.fileSearchPattern}\``
-      : null;
 
     const managedBlock = f.managedByLibrary
       ? `> ⚠️ **Managed Component:** Controlled by \`${f.managedByLibrary}\` — fix via the library's prop API, not direct DOM attributes.`
@@ -469,15 +430,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     const id = f.id || f.ruleId;
     const requiresManualVerification = f.falsePositiveRisk && f.falsePositiveRisk !== "low";
 
-    const executionMeta = [
-      `**Execution Metadata**`,
-      `- \`fix_priority\`: ${executionIndex.get(id) || "n/a"}`,
-      `- \`action_type\`: ${inferActionType(f)}`,
-      `- \`target_files_glob\`: ${f.fileSearchPattern ? `\`${f.fileSearchPattern}\`` : "`n/a`"}`,
-      `- \`ownership_status\`: ${f.ownershipStatus || "unknown"}`,
-      `- \`search_strategy\`: ${f.searchStrategy || "verify_ownership_before_search"}`,
-      requiresManualVerification ? `- \`requires_manual_verification\`: true _(false positive risk: ${f.falsePositiveRisk})_` : `- \`requires_manual_verification\`: false`,
-    ].join("\n");
 
     const guardrailsBlock =
       f.guardrails && typeof f.guardrails === "object"
@@ -498,8 +450,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `---`,
       `### ID: ${id} · ${f.severity} · \`${f.title}\``,
       ``,
-      `- **Target Area:** \`${f.area}\``,
-      `- **Surgical Selector:** \`${f.primarySelector || f.selector}\``,
       f.wcagClassification === "Best Practice"
         ? `- **WCAG Criterion:** ${f.wcag} _(Best Practice — not a WCAG AA requirement)_`
         : `- **WCAG Criterion:** ${f.wcag}`,
@@ -513,12 +463,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `**Observed Violation:** ${formatViolation(f.actual)}`,
       contrastDiagnosticsBlock ? `` : null,
       contrastDiagnosticsBlock,
-      engineReasonBlock ? `` : null,
-      engineReasonBlock,
-      searchPatternBlock ? `` : null,
-      searchPatternBlock,
-      ``,
-      executionMeta,
       ``,
       fixBlock,
       guardrailsBlock ? `` : null,

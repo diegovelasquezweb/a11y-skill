@@ -1,6 +1,6 @@
 {
   "shared": [
-    "**Surgical Selection**: Use the **Surgical Selector** and **Evidence from DOM** to verify you are editing the correct element. Accessibility fixes are context-sensitive.",
+    "**Element Verification**: Use the **Evidence from DOM** HTML to verify you are editing the correct element before applying any fix. Accessibility fixes are context-sensitive.",
     "**Global Component Check**: If an issue repeats across multiple pages, it is likely inside a Global Component (e.g., `Header.tsx`, `Button.vue`). Fix it once at the source.",
     "**Verification**: After applying a fix, explain *why* it resolves the WCAG criterion mentioned.",
     "**No Placeholders**: Do not add \"todo\" comments. Provide the complete code fix.",
