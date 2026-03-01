@@ -65,7 +65,8 @@ function buildSourceBoundariesSection(framework) {
 }
 
 function formatViolation(actual) {
-  return actual || "";
+  if (!actual) return "";
+  return actual.replace(/^Fix any of the following:\s*/i, "").trim();
 }
 
 function normalizeComponentHint(hint) {
@@ -93,6 +94,7 @@ function buildRecommendationsSection(recommendations) {
   if (!recommendations) return "";
   const { single_point_fixes = [], systemic_patterns = [] } = recommendations;
   if (single_point_fixes.length === 0 && systemic_patterns.length === 0) return "";
+  if (single_point_fixes.length === 1 && systemic_patterns.length === 0) return "";
 
   const parts = [];
 
@@ -268,7 +270,6 @@ function buildPatternSection(patternPayload) {
       `### ${f.id} · ${f.severity} · ${f.title}`,
       ``,
       `- **File:** \`${f.file}:${f.line}\``,
-      `- **Status:** ${f.status}`,
       `- **WCAG:** ${f.wcag}`,
       `- **Type:** ${f.type}`,
       ``,
@@ -424,7 +425,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
           : null;
 
     const verifyBlock = f.verificationCommand
-      ? `**Quick verify:** \`${f.verificationCommand}\`${f.verificationCommandFallback ? `\n**Fallback verify:** \`${f.verificationCommandFallback}\`` : ""}`
+      ? `**Quick verify:** \`${f.verificationCommand}\``
       : null;
 
     const id = f.id || f.ruleId;
