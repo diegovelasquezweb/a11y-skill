@@ -155,7 +155,7 @@ Apply consistently — same issue type = same severity across all findings.
 
 Then summarize and present:
 
-1. State the **Overall Assessment** from the report header. Then state the **full scan total** — this number must include every finding from the scan: all axe violations (all severities) plus all source patterns. Never show only Critical/Serious as the headline count. Format: "N axe violations (X Critical, Y Serious, Z Moderate, W Minor) + T source pattern types (M locations: P confirmed, Q potential) — N+M total." This total is the baseline used to compute the delta in Step 5.
+1. State the **Overall Assessment** from the report header. Then state the **full scan total** — all axe violations across all severities. Never show only Critical/Serious as the headline count. Format: "N findings (X Critical, Y Serious, Z Moderate, W Minor)." This total is the baseline used to compute the delta in Step 5.
 2. Propose specific fixes from the remediation guide.
 3. Group by component or page area, explaining why each fix matters.
 4. Ask how to proceed:
@@ -185,20 +185,18 @@ If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: retu
 
 Run structural fixes first, then style fixes. Both must run — never skip one because the user declined fixes in the other.
 
-Axe findings and source code pattern findings are treated as a **unified set**. Pattern findings tagged `type: structural` are handled in the structural pass alongside axe structural fixes. Pattern findings tagged `type: style` are handled in the style pass alongside axe style fixes. For a pattern finding, fix in the source file at `file:line` using the `match` and `fix_description` from the report — not in the DOM.
-
 - **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor.
 - **Other criteria**: follow the user's specified prioritization throughout.
 
 #### Structural fixes (Critical → Serious → Moderate → Minor)
 
-Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM order, lang, heading hierarchy). Includes both axe structural findings and source code pattern findings tagged `type: structural`.
+Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM order, lang, heading hierarchy).
 
-> **Scope boundary**: covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in the style pass — regardless of severity. If a finding (axe or pattern) involves a color or visual property, set it aside for the style pass. Do not apply it here.
+> **Scope boundary**: covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in the style pass — regardless of severity. If a finding involves a color or visual property, set it aside for the style pass. Do not apply it here.
 
-If there are no structural findings (axe or pattern) to fix, skip directly to the style pass.
+If there are no structural findings to fix, skip directly to the style pass.
 
-Use the **Source File Locations** section of the remediation guide to locate source files by detected framework. For axe findings, use `fix_description`, `fix_code`, framework notes, and evidence as the source of truth. For pattern findings, use `file:line`, `match`, and `fix_description` from the "Source Code Pattern Findings" section of the report.
+Use the **Source File Locations** section of the remediation guide to locate source files by detected framework. Use `fix_description`, `fix_code`, framework notes, and evidence as the source of truth.
 
 - Use glob patterns and the "Fixes by Component" table from the remediation guide (if present) to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
@@ -220,7 +218,7 @@ If **Looks good**: proceed to the next group or style pass. If **Something's wro
 
 #### Style fixes (color contrast, font size, spacing, focus styles)
 
-Includes axe style findings (color-contrast, font-size, spacing) and source code pattern findings tagged `type: style` (e.g. suppressed focus outlines). If there are no style-dependent findings of either kind, skip directly to Step 5.
+Includes color-contrast, font-size, spacing, and focus style findings. If there are no style findings, skip directly to Step 5.
 
 > **Hard stop before any style change**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
@@ -276,7 +274,7 @@ After the script completes, immediately parse ALL findings and present results �
 - **All clear (0 issues)** → proceed to Step 6.
 - **Issues found (any kind)** → follow this sequence:
 
-  1. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. In all re-audit cycles, `{resolved}` is always **Step 2 original total minus current remaining** — cumulative, never reset to a previous cycle's count. If `{new} > 0`, append inline: *"New issues are expected after fixing parent violations — axe-core evaluates child elements for the first time once the parent is resolved. Net improvement: {resolved − new} issues eliminated since the initial scan."* Immediately after the delta line, append a one-line breakdown of what `{remaining}` contains — e.g. *"Includes: 8 axe violations (8 Serious) + 14 Moderate (not addressed) + 42 source patterns."* This prevents the user from being confused when the remaining count includes issues that were intentionally skipped or not in scope for this session. **All counts (Total, Resolved, Remaining) must be derived strictly from scan data — axe WCAG A/AA violations plus source code pattern findings. Do not apply your own classification or filter findings using your own judgment about what is or is not a WCAG requirement. If the scanner did not produce it, it does not count.** Then present all remaining findings grouped by severity: Critical first, then Serious → Moderate → Minor. For each finding show: severity label, rule name, affected route, and a one-line description of what needs to be fixed.
+  1. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. In all re-audit cycles, `{resolved}` is always **Step 2 original total minus current remaining** — cumulative, never reset to a previous cycle's count. If `{new} > 0`, append inline: *"New issues are expected after fixing parent violations — axe-core evaluates child elements for the first time once the parent is resolved. Net improvement: {resolved − new} issues eliminated since the initial scan."* Immediately after the delta line, append a one-line breakdown of what `{remaining}` contains — e.g. *"Includes: 8 Serious + 14 Moderate (not addressed)."* This prevents the user from being confused when the remaining count includes issues that were intentionally skipped or not in scope for this session. **All counts must be derived strictly from axe scan data. Do not apply your own classification or filter findings using your own judgment. If the scanner did not produce it, it does not count.** Then present all remaining findings grouped by severity: Critical first, then Serious → Moderate → Minor. For each finding show: severity label, rule name, affected route, and a one-line description of what needs to be fixed.
   2. **Always ask immediately after presenting findings** — never stop or pause here, even if all remaining issues were previously declined:
 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
@@ -285,7 +283,7 @@ After the script completes, immediately parse ALL findings and present results �
      2. **Let me pick** — show me the list, I'll choose which to fix
      3. **Move on** — accept the remaining issues and proceed to the final summary
 
-  3. If **Keep fixing**: apply fixes following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate; pattern findings included in both passes). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
+  3. If **Keep fixing**: apply fixes following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
   4. If **Let me pick**: present all remaining issues as a numbered list. Ask the user to type the numbers they want fixed (e.g. `1, 3` or `all`), or type `back` to return. Apply only the selected fixes following Step 4 procedures, then run the audit script again and return to step 1 of this sequence.
   5. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
 
