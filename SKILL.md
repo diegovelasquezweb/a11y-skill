@@ -119,7 +119,7 @@ node scripts/audit.mjs --base-url <URL> --max-routes 1
 node scripts/audit.mjs --base-url <URL> --max-routes <N>  # 999 = all
 ```
 
-Always pass `--project-dir <path>` for local projects. When provided, the source code pattern scanner runs automatically alongside axe — pattern findings appear in the "Source Code Pattern Findings" section of the remediation guide and are part of the unified fix flow. If you can identify the stack from the project files, also pass `--framework <value>` (nextjs|gatsby|react|nuxt|vue|angular|astro|svelte|shopify|wordpress|drupal) — explicit detection is more reliable than auto-detection. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
+Always pass `--project-dir <path>` for local projects. Always include `--skip-patterns` — source code pattern scanning is offered separately in Step 6. If you can identify the stack from the project files, also pass `--framework <value>` (nextjs|gatsby|react|nuxt|vue|angular|astro|svelte|shopify|wordpress|drupal) — explicit detection is more reliable than auto-detection. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
 
 After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user.
 
@@ -295,7 +295,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 ### Step 6 — Deliver results
 
-**All items in this step are mandatory and must execute in order (1 → 7). Never stop after the summary — complete the full step.**
+**All items in this step are mandatory and must execute in order (1 → 8). Never stop after the summary — complete the full step.**
 
 > **File-open rule** — applies to all generated files in this step: verify the file exists on disk before reporting success. Attempt to open with `open` (macOS), `xdg-open` (Linux), or `start` (Windows) only when a GUI session is available. In headless/sandbox environments or if auto-open fails, share the absolute path so the user can open it manually.
 
@@ -372,7 +372,24 @@ node scripts/reports/builders/checklist.mjs --output <path>/checklist.html --bas
 
 Apply the file-open rule. **Then immediately continue to item 7 — do not wait for user input.**
 
-7. Output the closing message and follow-up question in the same response. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip the `[MESSAGE]` and go directly to the `[QUESTION]`.
+7. If `--project-dir` was provided, ask:
+
+`[QUESTION]` **Scan source code patterns?**
+
+The source scanner checks your **entire codebase** for issues axe-core cannot detect at runtime — suppressed focus outlines, autoplay attributes, missing `prefers-reduced-motion` queries, and more. Note: it always scans all project files, not just the pages audited.
+
+1. **Yes** — run source code pattern scan
+2. **No thanks** — skip
+
+If **Yes**, run in order:
+```bash
+node scripts/engine/source-scanner.mjs --project-dir <path> [--framework <val>]
+node scripts/engine/analyzer.mjs
+node scripts/reports/builders/md.mjs --output <REMEDIATION_PATH> --base-url <URL>
+```
+Then present any new findings from the "Source Code Pattern Findings" section of the updated remediation guide. Apply the file-open rule if reports were already generated (re-run them to include source patterns). **Then immediately continue to item 8 — do not wait for user input.**
+
+8. Output the closing message and follow-up question in the same response. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip the `[MESSAGE]` and go directly to the `[QUESTION]`.
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 

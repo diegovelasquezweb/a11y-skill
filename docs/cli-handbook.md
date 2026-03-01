@@ -60,6 +60,7 @@ Flags used to control the _browser_ and _output_.
 | `--viewport`     | `<WxH>`                               | (none)             | Viewport dimensions (e.g., `375x812` for mobile, `1440x900` for desktop).      |
 | `--with-reports` | (No arg)                              | `false`            | Generate HTML and PDF reports alongside the audit. Requires `--output <path>`.  |
 | `--skip-reports` | (No arg)                              | `true`             | Omit HTML and PDF report generation (default behavior).                         |
+| `--skip-patterns`| (No arg)                              | `false`            | Skip source code pattern scanning even if `--project-dir` is set. Use when you want DOM-only results without the project-wide static analysis. |
 
 ## Advanced Patterns
 
