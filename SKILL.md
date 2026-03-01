@@ -164,11 +164,12 @@ Then summarize and present:
 
 1. **Fix by severity** — Critical first, then Serious → Moderate → Minor
 2. **Other criteria** — tell me how you'd like to prioritize the fixes
-3. **Skip fixes** — don't fix anything right now
+3. **Yolo** — apply all fixes without confirmation gates, re-audit automatically, repeat until clean or 3 cycles
+4. **Skip fixes** — don't fix anything right now
 
-Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
+Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity**, **Other criteria**, or **Yolo**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes** (option 3): present the following message, then ask the confirmation question below.
+If the user chooses **Skip fixes** (option 4): present the following message, then ask the confirmation question below.
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
@@ -187,6 +188,15 @@ Run structural fixes first, then style fixes. Both must run — never skip one b
 
 - **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor.
 - **Other criteria**: follow the user's specified prioritization throughout.
+- **Yolo**: apply every fix — structural and style — without any confirmation gate or visual verification question. Do not present diffs or ask for approval. After all fixes are applied, immediately run the re-audit (Step 5) with `--affected-only`. If findings remain, repeat the fix+re-audit loop automatically up to 3 cycles total, then proceed to Step 6. The hard stop rule for style changes does not apply in yolo mode.
+
+  **Before entering yolo mode**, run `git status --porcelain` in `--project-dir`. If there are uncommitted changes, warn the user: *"Yolo mode applies style changes without review. You have uncommitted changes — if something goes wrong, reverting will be harder. Commit or stash first, or confirm you want to continue."* Ask:
+
+  `[QUESTION]` **Uncommitted changes detected. Continue anyway?**
+  1. **Yes, continue** — proceed with yolo
+  2. **Let me commit first** — pause here
+
+  If the working tree is clean, enter yolo mode immediately without any message.
 
 #### Structural fixes (Critical → Serious → Moderate → Minor)
 
