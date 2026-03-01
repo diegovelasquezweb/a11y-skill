@@ -3403,7 +3403,7 @@
     "page-has-heading-one": {
       "category": "semantics",
       "fix": {
-        "description": "Add exactly one <h1> as the primary page heading.",
+        "description": "Search for an `<h1>` in the frontend source files first. If found, fix it there. If no `<h1>` exists in the source — because content is authored in a CMS, database, or backend — mark this finding as **Out of scope — content is not managed in frontend source** and do not propose a code fix. Report it to the user instead.",
         "code": "<h1>Wireless Noise-Cancelling Headphones</h1>"
       },
       "false_positive_risk": "low",
