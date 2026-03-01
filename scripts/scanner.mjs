@@ -31,7 +31,6 @@ const AXE_TAGS = [
   "wcag21aa",
   "wcag22a",
   "wcag22aa",
-  "best-practice",
 ];
 
 /**

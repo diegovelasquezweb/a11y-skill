@@ -315,7 +315,9 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     args.baseUrl,
     args.framework ?? null,
   );
-  const wcagFindings = findings.filter((f) => f.wcagClassification !== "AAA");
+  const wcagFindings = findings.filter(
+    (f) => f.wcagClassification !== "AAA" && f.wcagClassification !== "Best Practice",
+  );
   const totals = buildSummary(wcagFindings);
   const orderedFindings = [...wcagFindings].sort((a, b) => {
     const pa = PRIORITY_BY_SEVERITY[a.severity] ?? 99;
@@ -451,9 +453,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `---`,
       `### ID: ${id} · ${f.severity} · \`${f.title}\``,
       ``,
-      f.wcagClassification === "Best Practice"
-        ? `- **WCAG Criterion:** ${f.wcag} _(Best Practice — not a WCAG AA requirement)_`
-        : `- **WCAG Criterion:** ${f.wcag}`,
+      `- **WCAG Criterion:** ${f.wcag}`,
       f.category ? `- **Category:** ${f.category}` : null,
       requiresManualVerification ? `- **False Positive Risk:** ${f.falsePositiveRisk} — verify before applying` : null,
       ``,
@@ -544,7 +544,7 @@ ${rows.join("\n")}
   const sourceBoundariesSection = buildSourceBoundariesSection(framework);
 
   return (
-      `# Accessibility Remediation Guide
+      `# Accessibility Remediation Guide — WCAG 2.2 AA
 > **Base URL:** ${args.baseUrl || "N/A"}
 
 | Severity | Count |
