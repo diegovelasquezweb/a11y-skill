@@ -132,7 +132,11 @@ function resolveScanDirs(framework, projectDir) {
     .map((p) => resolve(projectDir, p))
     .filter((d) => { try { return statSync(d).isDirectory(); } catch { return false; } });
 
-  return dirs.length > 0 ? dirs : [projectDir];
+  const deduped = dirs.filter((d) =>
+    !dirs.some((other) => other !== d && d.startsWith(other + "/"))
+  );
+
+  return deduped.length > 0 ? deduped : [projectDir];
 }
 
 /**

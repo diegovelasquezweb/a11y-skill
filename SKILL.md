@@ -27,7 +27,7 @@ Load these files on demand — never preload all at once.
 These rules apply at all times, independent of any workflow step.
 
 - **`remediation.md` is the fix map — do not go outside it.** All findings, fix instructions, source file locations, guardrails, and component map come from the remediation guide generated in Step 2. Never apply a fix or derive a solution from general WCAG knowledge — if it is not in the remediation guide, it is out of scope for this session.
-- Never install, remove, or initialize packages in the user's project. Only run `pnpm install` inside the skill directory.
+- Never install, remove, or initialize packages in the user's project. The audit script handles dependency installation automatically on first run — do not run `pnpm install` manually before running scripts.
 - All pipeline files (scan results, findings, remediation guide, screenshots) stay inside the skill directory — never in the user's project.
 - Visual reports (HTML/PDF) are only created in Step 6, after the user explicitly requests them. Never generate reports in any other step.
 - Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
@@ -41,7 +41,7 @@ These rules apply at all times, independent of any workflow step.
 
 1. **Language** — always communicate in English, regardless of the language the user writes in.
 2. **Tone** — concise and technical. State findings, propose action, ask for a decision.
-3. **Internal steps** — never expose internal step labels, phase codes, or workflow reasoning to the user. This includes codes like "4b", phase names like "Step 4b" or "structural fix phase", and internal logic like "not re-offering" or "user declined in 4b". Always describe outcomes in plain language only. **Never pre-announce a sequence of steps** ("first I'll do X, then Y, then Z") — execute immediately and let the output speak for itself.
+3. **Internal steps** — never expose internal step labels, phase codes, or workflow reasoning to the user. This includes codes like "4b", phase names like "Step 4b" or "structural fix phase", transition phrases like "Moving to Phase 4b" or "Now entering the style fix phase", and internal logic like "not re-offering" or "user declined in 4b". Always describe outcomes in plain language only. **Never pre-announce a sequence of steps** ("first I'll do X, then Y, then Z") — execute immediately and let the output speak for itself. Example of what NOT to say: "Moving to Phase 4b (style fixes)." Say instead: "Structural fixes done — reviewing color contrast and focus styles."
 4. **Recovery** — if the user types `continue`, `resume`, or `where are we`, read the conversation history to determine the current state and resume from the next pending action. If the state cannot be determined, briefly summarize what was completed and ask where to continue from.
 5. **Message tags** — this playbook uses two tags to mark formatted messages:
    - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options. **Send one `[QUESTION]` per message. Never present two questions at once. Always wait for the user's answer before showing the next question.** Format: always output the question text on its own line, followed by each option as a numbered item on its own line — never inline, never collapsed to "Yes/No". A `[QUESTION]` is the only tag that ends the agent's turn and waits for user input.
