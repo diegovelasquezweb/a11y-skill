@@ -367,7 +367,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
 
     const crossPageBlock =
       f.pagesAffected && f.pagesAffected > 1
-        ? `> ℹ️ **Cross-page:** Found on ${f.pagesAffected} pages — ${(f.affectedUrls || []).join(", ")}`
+        ? `> **Cross-page:** Found on ${f.pagesAffected} pages — ${(f.affectedUrls || []).join(", ")}`
         : null;
 
     const difficultyBlock = f.fixDifficultyNotes
@@ -414,13 +414,13 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
     })();
 
     const managedBlock = f.managedByLibrary
-      ? `> ⚠️ **Managed Component:** Controlled by \`${f.managedByLibrary}\` — fix via the library's prop API, not direct DOM attributes.`
+      ? `> **Managed Component:** Controlled by \`${f.managedByLibrary}\` — fix via the library's prop API, not direct DOM attributes.`
       : null;
     const ownershipBlock =
       f.ownershipStatus === "outside_primary_source"
-        ? `> ⚠️ **Ownership Check Required:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue or handle it outside the primary source before editing.`
+        ? `> **Ownership Check Required:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue or handle it outside the primary source before editing.`
         : f.ownershipStatus === "unknown"
-          ? `> ⚠️ **Ownership Unclear:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue until the editable source is confirmed.`
+          ? `> **Ownership Unclear:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue until the editable source is confirmed.`
           : null;
 
     const verifyBlock = f.verificationCommand
