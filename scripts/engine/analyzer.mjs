@@ -6,8 +6,8 @@
  * to generate a structured audit overview.
  */
 
-import { log, readJson, writeJson, getInternalPath } from "./utils.mjs";
-import { ASSET_PATHS, loadAssetJson } from "./assets.mjs";
+import { log, readJson, writeJson, getInternalPath } from "../core/utils.mjs";
+import { ASSET_PATHS, loadAssetJson } from "../core/asset-loader.mjs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -35,7 +35,6 @@ let WCAG_REFERENCE;
 let COMPLIANCE_CONFIG;
 let AXE_CHECK_MAPS;
 let SOURCE_BOUNDARIES;
-// Initialize remediation and rule metadata assets.
 INTELLIGENCE = loadAssetJson(
   intelligencePath,
   "assets/remediation/intelligence.json",
@@ -74,13 +73,9 @@ function makeFindingId(ruleId, url, selector) {
   return `A11Y-${createHash("sha256").update(key).digest("hex").slice(0, 6)}`;
 }
 
-/** @type {Object} */
 const RULES = INTELLIGENCE.rules || {};
-/** @type {Object<string, string>} */
 const APG_PATTERNS = WCAG_REFERENCE.apgPatterns;
-/** @type {Object<string, string>} */
 const MDN = WCAG_REFERENCE.mdn || {};
-/** @type {Object<string, string>} */
 const WCAG_CRITERION_MAP = WCAG_REFERENCE.wcagCriterionMap || {};
 
 function mergeUnique(first = [], second = []) {
@@ -111,10 +106,7 @@ function detectCodeLang(code) {
   return "html";
 }
 
-/**
-/** @type {Object<string, string>} */
 const IMPACTED_USERS = WCAG_REFERENCE.impactedUsers || {};
-/** @type {Object<string, string>} */
 const EXPECTED = WCAG_REFERENCE.expected || {};
 
 /**
@@ -741,7 +733,7 @@ function computeRecommendations(findings) {
 
 /**
  * Auto-generates testing methodology metadata from the raw scan payload.
- * @param {Object} payload - Raw scan payload from scanner.mjs.
+ * @param {Object} payload - Raw scan payload from dom-scanner.mjs.
  * @returns {Object}
  */
 function computeTestingMethodology(payload) {
@@ -762,7 +754,7 @@ function computeTestingMethodology(payload) {
 /**
  * Processes scan results into a high-level auditing findings object.
  * Enriches findings with intelligence metadata, framework notes, and fix recommendations.
- * @param {Object} inputPayload - The raw JSON payload from scanner.mjs.
+ * @param {Object} inputPayload - The raw JSON payload from dom-scanner.mjs.
  * @param {Object} cliArgs - Arguments passed to the analyzer.
  * @returns {Object} A structured object containing findings and metadata.
  */

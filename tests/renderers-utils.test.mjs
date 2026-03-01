@@ -3,7 +3,7 @@ import {
   escapeHtml,
   formatMultiline,
   linkify,
-} from "../scripts/renderers/utils.mjs";
+} from "../scripts/reports/renderers/utils.mjs";
 
 describe("renderers/utils HTML utilities", () => {
   describe("escapeHtml", () => {

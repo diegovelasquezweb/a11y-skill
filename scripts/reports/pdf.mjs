@@ -8,7 +8,7 @@
 import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
-import { readJson, log, getInternalPath, DEFAULTS } from "./utils.mjs";
+import { readJson, log, getInternalPath, DEFAULTS } from "../core/utils.mjs";
 import {
   normalizeFindings,
   buildSummary,
@@ -253,7 +253,6 @@ async function main() {
   }
 }
 
-// Execute the PDF report generator.
 main().catch((error) => {
   log.error(`Unhandled PDF Generation Error: ${error.message}`);
   process.exit(1);

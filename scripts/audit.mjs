@@ -9,7 +9,7 @@ import { spawn, execSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
-import { log, DEFAULTS, SKILL_ROOT, getInternalPath } from "./utils.mjs";
+import { log, DEFAULTS, SKILL_ROOT, getInternalPath } from "./core/utils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -198,7 +198,7 @@ async function main() {
       log.success("Dependencies ready.");
     }
 
-    await runScript("toolchain.mjs");
+    await runScript("core/toolchain.mjs");
 
     const screenshotsDir = getInternalPath("screenshots");
     fs.rmSync(screenshotsDir, { recursive: true, force: true });
@@ -229,12 +229,12 @@ async function main() {
       scanArgs.push("--viewport", `${viewport.width}x${viewport.height}`);
     }
 
-    await runScript("scanner.mjs", scanArgs, childEnv);
+    await runScript("engine/dom-scanner.mjs", scanArgs, childEnv);
 
     const analyzerArgs = [];
     if (ignoreFindings) analyzerArgs.push("--ignore-findings", ignoreFindings);
     if (framework) analyzerArgs.push("--framework", framework);
-    await runScript("analyzer.mjs", analyzerArgs);
+    await runScript("engine/analyzer.mjs", analyzerArgs);
 
     if (projectDir) {
       const patternArgs = ["--project-dir", path.resolve(projectDir)];
@@ -246,7 +246,7 @@ async function main() {
         } catch { /* ignore */ }
       }
       if (resolvedFramework) patternArgs.push("--framework", resolvedFramework);
-      await runScript("pattern-scanner.mjs", patternArgs);
+      await runScript("engine/source-scanner.mjs", patternArgs);
     }
 
     const mdOutput = getInternalPath("remediation.md");
@@ -254,7 +254,7 @@ async function main() {
     if (target) mdArgs.push("--target", target);
 
     if (skipReports) {
-      await runScript("report-md.mjs", mdArgs);
+      await runScript("reports/md.mjs", mdArgs);
     } else {
       const output = getArgValue("output");
       if (!output) {
@@ -278,10 +278,10 @@ async function main() {
       const checklistArgs = ["--output", checklistOutput, "--base-url", baseUrl];
 
       await Promise.all([
-        runScript("report-html.mjs", buildArgs),
-        runScript("report-checklist.mjs", checklistArgs),
-        runScript("report-md.mjs", mdArgs),
-        runScript("report-pdf.mjs", pdfArgs),
+        runScript("reports/html.mjs", buildArgs),
+        runScript("reports/checklist.mjs", checklistArgs),
+        runScript("reports/md.mjs", mdArgs),
+        runScript("reports/pdf.mjs", pdfArgs),
       ]);
 
       console.log(`REPORT_PATH=${absoluteOutputPath}`);
@@ -295,7 +295,6 @@ async function main() {
   }
 }
 
-// Initialize the audit execution pipeline.
 main().catch((error) => {
   log.error(`Critical Audit Failure: ${error.message}`);
   process.exit(1);

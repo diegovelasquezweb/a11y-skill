@@ -5,7 +5,7 @@
  * backlog or README-style remediation roadmap.
  */
 
-import { readJson, log, getInternalPath, DEFAULTS } from "./utils.mjs";
+import { readJson, log, getInternalPath, DEFAULTS } from "../core/utils.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { normalizeFindings } from "./renderers/findings.mjs";
@@ -88,7 +88,6 @@ function main() {
   log.success(`Remediation guide written to ${args.output}`);
 }
 
-// Execute the Markdown remediation guide generator.
 try {
   main();
 } catch (error) {

@@ -71,7 +71,7 @@ flowchart TD
 
 ## Internal Component Roles
 
-### 1. The Scanner (`scanner.mjs`)
+### 1. The Scanner (`dom-scanner.mjs`)
 
 - **Engine**: Uses Playwright to emulate a real user environment (Light/Dark mode, Viewport).
 - **Compliance**: Injects `axe-core` 4.11.1 to run WCAG 2.2 A/AA rules across all discovered routes.
@@ -81,7 +81,7 @@ flowchart TD
 - **Project Context Detection**: Auto-detects modern frameworks from `package.json`, detects structural platforms (Shopify, WordPress, Drupal) from project directories, and detects UI component libraries from `package.json`.
 - **Output**: Generates a raw `a11y-scan-results.json` containing every violation found in the DOM plus the detected `projectContext`.
 
-### 2. The Pattern Scanner (`pattern-scanner.mjs`)
+### 2. The Pattern Scanner (`source-scanner.mjs`)
 
 - **Purpose**: Detects accessibility issues that axe-core cannot find via DOM inspection — such as suppressed focus outlines, placeholder-only form labels, or missing skip links in source code.
 - **Input**: Requires `--project-dir` pointing to the project source. If not provided, this stage is skipped.

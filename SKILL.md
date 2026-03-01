@@ -332,10 +332,10 @@ If **No thanks**: skip to item 6.
 
    ```bash
    # HTML (run if HTML or Both was selected)
-   node scripts/report-html.mjs --output <path>/report.html --base-url <URL>
+   node scripts/reports/html.mjs --output <path>/report.html --base-url <URL>
 
    # PDF (run if PDF or Both was selected)
-   node scripts/report-pdf.mjs --output <path>/report.pdf --base-url <URL>
+   node scripts/reports/pdf.mjs --output <path>/report.pdf --base-url <URL>
    ```
 
    Apply the file-open rule to each generated file. **Then immediately continue to item 6 — do not wait for user input.**
@@ -367,7 +367,7 @@ If **Yes**: if a save path was already established in item 4 above, reuse it sil
 Then:
 
 ```bash
-node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
+node scripts/reports/checklist.mjs --output <path>/checklist.html --base-url <URL>
 ```
 
 Apply the file-open rule. **Then immediately continue to item 7 — do not wait for user input.**

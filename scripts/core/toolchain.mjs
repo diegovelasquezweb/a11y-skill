@@ -96,7 +96,6 @@ async function main() {
   }
 }
 
-// Perform toolchain validation.
 main().catch((error) => {
   log.error(`Toolchain Check Failure: ${error.message}`);
   process.exit(1);

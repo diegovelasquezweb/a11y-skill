@@ -5,8 +5,8 @@
  * a premium design system with persona-based impact analysis.
  */
 
-import { log, readJson, getInternalPath, DEFAULTS } from "./utils.mjs";
-import { ASSET_PATHS, loadAssetJson } from "./assets.mjs";
+import { log, readJson, getInternalPath, DEFAULTS } from "../core/utils.mjs";
+import { ASSET_PATHS, loadAssetJson } from "../core/asset-loader.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -758,7 +758,6 @@ function main() {
   log.success(`HTML report written to ${args.output}`);
 }
 
-// Start the audit report generation pipeline.
 try {
   main();
 } catch (error) {

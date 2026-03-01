@@ -8,7 +8,7 @@ import {
   classifyFindingOwnership,
   extractFailureInsights,
   collectIncompleteFindings,
-} from "../scripts/analyzer.mjs";
+} from "../scripts/engine/analyzer.mjs";
 
 describe("assets/intelligence.json schema", () => {
   let intelligence;

@@ -5,7 +5,7 @@
  * across all report types (HTML, Markdown, PDF).
  */
 
-import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
+import { ASSET_PATHS, loadAssetJson } from "../../core/asset-loader.mjs";
 
 const SCORING_CONFIG = loadAssetJson(
   ASSET_PATHS.reporting.complianceConfig,

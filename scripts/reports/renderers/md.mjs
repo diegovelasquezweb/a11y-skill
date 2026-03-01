@@ -6,7 +6,7 @@
  */
 
 import { buildSummary } from "./findings.mjs";
-import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
+import { ASSET_PATHS, loadAssetJson } from "../../core/asset-loader.mjs";
 
 const GUARDRAILS = loadAssetJson(
   ASSET_PATHS.remediation.guardrails,

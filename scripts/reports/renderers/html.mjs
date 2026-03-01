@@ -5,7 +5,7 @@
  * and technical evidence blocks for the final HTML report.
  */
 
-import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
+import { ASSET_PATHS, loadAssetJson } from "../../core/asset-loader.mjs";
 import { SEVERITY_ORDER } from "./findings.mjs";
 import { escapeHtml, formatMultiline, linkify } from "./utils.mjs";
 

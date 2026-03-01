@@ -1,5 +1,5 @@
 /**
- * @file pattern-scanner.mjs
+ * @file source-scanner.mjs
  * @description Source code pattern scanner for accessibility issues not detectable by axe-core.
  * Runs regex-based patterns from code-patterns.json against the project source tree
  * and outputs structured findings compatible with the a11y pipeline.
@@ -9,14 +9,13 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, extname, resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { log, writeJson, getInternalPath } from "./utils.mjs";
-import { ASSET_PATHS, loadAssetJson } from "./assets.mjs";
+import { log, writeJson, getInternalPath } from "../core/utils.mjs";
+import { ASSET_PATHS, loadAssetJson } from "../core/asset-loader.mjs";
 
 const SKIP_DIRS = new Set([
   "node_modules", ".git", "dist", "build", ".next", ".nuxt",
   ".cache", "coverage", ".audit", "out", ".turbo", ".svelte-kit",
   ".vercel", ".netlify", "public", "static",
-  // WordPress core — never editable
   "wp-includes", "wp-admin",
 ]);
 
@@ -29,7 +28,7 @@ const SOURCE_BOUNDARIES = loadAssetJson(
 
 function printUsage() {
   log.info(`Usage:
-  node pattern-scanner.mjs --project-dir <path> [options]
+  node scripts/engine/source-scanner.mjs --project-dir <path> [options]
 
 Options:
   --project-dir <path>    Path to the project source root to scan (required)

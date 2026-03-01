@@ -1,17 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { normalizeFindings } from "../scripts/renderers/findings.mjs";
-import { buildMarkdownSummary } from "../scripts/renderers/md.mjs";
+import { normalizeFindings } from "../scripts/reports/renderers/findings.mjs";
+import { buildMarkdownSummary } from "../scripts/reports/renderers/md.mjs";
 import {
   buildIssueCard,
   buildPageGroupedSection,
-} from "../scripts/renderers/html.mjs";
+} from "../scripts/reports/renderers/html.mjs";
 import {
   scoreMetrics,
   buildPdfRiskSection,
   buildPdfRemediationRoadmap,
   buildPdfCoverPage,
   buildPdfIssueSummaryTable,
-} from "../scripts/renderers/pdf.mjs";
+} from "../scripts/reports/renderers/pdf.mjs";
 
 describe("HTML Report Builder Components", () => {
   const rawFinding = {
