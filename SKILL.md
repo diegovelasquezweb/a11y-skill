@@ -82,7 +82,11 @@ Once the user provides a URL, normalize it before passing to `--base-url`:
 - `mysite.com` → `https://mysite.com`
 - Full URLs → use as-is.
 
-Once the URL is confirmed, silently fetch `<URL>/sitemap.xml`:
+Once the URL is confirmed, check if it contains a non-root path (any path other than `/` or empty — e.g. `/contact`, `/about`, `/products/shoes`):
+
+- **Non-root path present** — treat as a 1-page audit automatically. Use the full URL as `--base-url` with `--max-routes 1`. Skip the scope question and proceed to Step 2.
+
+If the URL is root-only, silently fetch `<URL>/sitemap.xml`:
 
 - **Found** — inform the user ("Found a sitemap with N pages — using it for the audit") and proceed to Step 2. No question needed.
 - **Not found** — proceed silently to the scope question below. Do not mention the sitemap attempt.
@@ -91,11 +95,12 @@ If the user mentions "sitemap" at any point, use it directly (Data-first rule) �
 
 `[QUESTION]` **How many pages should I crawl?**
 
-1. **10 pages** — covers main page types, fast
-2. **All reachable pages** — comprehensive, may take several minutes on large sites
-3. **Custom** — tell me the exact number
+1. **1 page** — audit a single specific URL (fastest)
+2. **10 pages** — covers main page types, fast
+3. **All reachable pages** — comprehensive, may take several minutes on large sites
+4. **Custom** — tell me the exact number
 
-If Custom: the user selected the option, not provided a number yet. Ask in plain text — "How many pages?" — and wait for a number. **Never use the option number (3) as the page count.** Store the number and proceed to Step 2.
+If option 1: if the user has not yet specified a path, ask in plain text — "Which path? (e.g. `/`, `/contact`, `/about`)" — and wait for the answer. Then use `--base-url <URL>/<path> --max-routes 1`. If Custom: ask in plain text — "How many pages?" — and wait for a number. **Never use the option number (4) as the page count.** Store the number and proceed to Step 2.
 
 Store the user's choice. Proceed to Step 2.
 
@@ -106,6 +111,9 @@ Run the audit with the discovery settings from Step 1:
 ```bash
 # Default (sitemap or 10-page crawl — omit --max-routes)
 node scripts/audit.mjs --base-url <URL>
+
+# Single page
+node scripts/audit.mjs --base-url <URL> --max-routes 1
 
 # All pages or custom count
 node scripts/audit.mjs --base-url <URL> --max-routes <N>  # 999 = all
