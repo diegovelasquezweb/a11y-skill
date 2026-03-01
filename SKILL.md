@@ -192,7 +192,7 @@ If there are no structural findings (axe or pattern) to fix, skip directly to th
 
 Use the **Source File Locations** section of the remediation guide to locate source files by detected framework. For axe findings, use `fix_description`, `fix_code`, framework notes, and evidence as the source of truth. For pattern findings, use `file:line`, `match`, and `fix_description` from the "Source Code Pattern Findings" section of the report.
 
-- Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
+- Use glob patterns and the "Fixes by Component" table from the remediation guide (if present) to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
 Present one group at a time — list the findings and proposed changes, then ask. Adapt the `[QUESTION]` label to the active mode (e.g. **Apply these Critical fixes?**).

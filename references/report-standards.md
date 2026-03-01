@@ -16,7 +16,7 @@ Present each finding using this exact field order. Do not omit or reorder fields
 - **Category**: <aria | text-alternatives | forms | keyboard | structure | semantics | name-role-value | tables | color | language | parsing | sensory>
 - **WCAG**: <criterion ID> — <criterion name> (Level A | AA)
 - **Route**: <path>
-- **Selector**: <CSS selector or component name>
+- **Evidence**: <DOM snippet from Evidence from DOM — use to locate the element in source>
 - **Impact**: <one sentence — which users are affected and how>
 - **Reproduction**: <numbered steps>
 - **Actual**: <what happens>

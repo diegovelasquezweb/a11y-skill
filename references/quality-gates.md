@@ -13,16 +13,16 @@ Mandatory pass/fail checks at each phase boundary. If a gate fails, stop and res
 ## Gate 2 — Post-audit (before Step 3)
 
 - [ ] `REMEDIATION_PATH` parsed from script output, or `.audit/remediation.md` fallback used
-- [ ] `pages_scanned > 0` in report metadata — at least one route was audited
+- [ ] At least one page section (`## [PAGE]`) appears in the remediation guide — confirms routes were scanned
 - [ ] Report file exists on disk and is readable
 
-**Fail action**: if `pages_scanned = 0`, stop — do not present empty findings. Consult [troubleshooting.md](troubleshooting.md).
+**Fail action**: if no page sections found, stop — do not present empty findings. Consult [troubleshooting.md](troubleshooting.md).
 
 ## Gate 3 — Findings integrity (before presenting Step 3)
 
-- [ ] Every finding has: `rule_id`, `severity`, and a `wcag` label (e.g., "WCAG 2.1 AA") plus a `wcag_classification` value (`null` for standard AA findings, `"Best Practice"`, or `"AAA"`)
-- [ ] Overall Assessment (`Pass` / `Conditional Pass` / `Fail`) is present in the report header
-- [ ] Severity counts sum to total: `critical + serious + moderate + minor == total_wcag_findings` (WCAG AA-level only — excludes Best Practice and AAA findings) — if the sum does not match, flag the discrepancy explicitly before presenting
+- [ ] Every finding has a severity, a WCAG Criterion label (e.g., "WCAG 2.1 AA"), and a category — Best Practice findings are marked `_(Best Practice — not a WCAG AA requirement)_` inline
+- [ ] Overall Assessment is derived from the severity table: `Pass` = 0 findings, `Conditional Pass` = only Moderate/Minor remain, `Fail` = any Critical or Serious present
+- [ ] Severity counts in the summary table are consistent — if counts look off, flag the discrepancy before presenting
 
 **Fail action**: present findings as-is, note any missing fields or count mismatches explicitly. Never fabricate `rule_id`, WCAG criterion, or severity.
 
