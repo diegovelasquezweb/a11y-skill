@@ -36,6 +36,14 @@ These rules apply at all times, independent of any workflow step.
 - If `pnpm` is not available, use `npm` as fallback.
 - Never add, remove, or modify CLI flags (`--exclude-selectors`, `--timeout-ms`, `--wait-ms`, etc.) without the user explicitly requesting it.
 - Only propose fixes inside the primary editable frontend source of truth. If a finding points to backend code, infrastructure, server configuration, plugins, compiled output, or any non-editable area, report it or ask the user before proceeding instead of proposing a direct fix.
+- **Never create a new file without explicit approval.** If a fix requires creating a file rather than editing an existing one, show the full proposed file content and ask:
+
+  `[QUESTION]` **This fix requires creating `[path]` — proceed?**
+
+  1. **Yes** — create the file
+  2. **No** — skip this fix
+
+  Wait for the answer before creating anything.
 
 ## Communication Rules
 
