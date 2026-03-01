@@ -352,9 +352,26 @@ If **Yes**, run in order:
 node scripts/engine/source-scanner.mjs --project-dir <path> [--framework <val>]
 node scripts/reports/builders/md.mjs --output <REMEDIATION_PATH> --base-url <URL>
 ```
-Then present any new findings from the "Source Code Pattern Findings" section of the updated remediation guide. **Then immediately continue to item 7 — do not wait for user input.**
+Then present any new findings from the "Source Code Pattern Findings" section of the updated remediation guide, grouped by severity. For each pattern group show: severity label, pattern name, number of affected files, and the recommended fix.
 
-7. Output the manual testing reminder and checklist offer in the same response — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 8.
+If findings were found, ask:
+
+`[QUESTION]` **Source scan found [N] pattern type(s) across [M] locations. Would you like to fix them?**
+
+1. **Fix all** — apply fixes to all pattern findings
+2. **Let me pick** — show me the list, I'll choose which to fix
+3. **Skip** — move on without fixing
+
+If **Fix all** or **Let me pick**: apply code fixes following the guidance in [references/fix-patterns.md](references/fix-patterns.md). Structural changes (e.g. adding `aria-label`, removing `focus:outline-none`) apply silently. After all fixes are applied, re-run the source scanner to verify:
+```bash
+node scripts/engine/source-scanner.mjs --project-dir <path> [--framework <val>]
+node scripts/reports/builders/md.mjs --output <REMEDIATION_PATH> --base-url <URL>
+```
+Present a brief delta: patterns resolved vs remaining. Then continue to item 7.
+
+If **Skip** or no findings: continue to item 7 immediately.
+
+7. Output the manual testing reminder and checklist offer in the same response — **only if at least one fix was applied during this session** (axe fixes in Step 4 or source pattern fixes in item 6). If the user skipped all fixes in Step 3, declined every sub-phase in Step 4, and skipped source patterns, skip this item entirely and proceed to item 8.
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
