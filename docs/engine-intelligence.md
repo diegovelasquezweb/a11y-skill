@@ -131,7 +131,7 @@ These checks are delivered as a standalone **`checklist.html`** file — a testi
 
 ### How to add a new manual check
 
-Add an entry to `assets/reporting/manual-checks.json`. No code changes required — `scripts/reports/checklist.mjs` reads the file at build time and injects all checks into `checklist.html` automatically.
+Add an entry to `assets/reporting/manual-checks.json`. No code changes required — `scripts/reports/builders/checklist.mjs` reads the file at build time and injects all checks into `checklist.html` automatically.
 
 ## Reference Links
 

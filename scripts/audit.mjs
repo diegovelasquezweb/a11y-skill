@@ -254,7 +254,7 @@ async function main() {
     if (target) mdArgs.push("--target", target);
 
     if (skipReports) {
-      await runScript("reports/md.mjs", mdArgs);
+      await runScript("reports/builders/md.mjs", mdArgs);
     } else {
       const output = getArgValue("output");
       if (!output) {
@@ -278,10 +278,10 @@ async function main() {
       const checklistArgs = ["--output", checklistOutput, "--base-url", baseUrl];
 
       await Promise.all([
-        runScript("reports/html.mjs", buildArgs),
-        runScript("reports/checklist.mjs", checklistArgs),
-        runScript("reports/md.mjs", mdArgs),
-        runScript("reports/pdf.mjs", pdfArgs),
+        runScript("reports/builders/html.mjs", buildArgs),
+        runScript("reports/builders/checklist.mjs", checklistArgs),
+        runScript("reports/builders/md.mjs", mdArgs),
+        runScript("reports/builders/pdf.mjs", pdfArgs),
       ]);
 
       console.log(`REPORT_PATH=${absoluteOutputPath}`);

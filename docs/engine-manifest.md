@@ -22,10 +22,10 @@ The core engine is a multi-stage pipeline. For deep-dives into execution flow, s
 
 ### Rendering Engine
 
-- **`scripts/reports/html.mjs`**: Generates the interactive audit dashboard.
-- **`scripts/reports/checklist.mjs`**: Generates the standalone manual testing checklist (`checklist.html`). Reads `assets/reporting/manual-checks.json` directly — no scan input required.
-- **`scripts/reports/md.mjs`**: Creates the `remediation.md` guide used by AI agents.
-- **`scripts/reports/pdf.mjs`**: Produces the WCAG 2.2 AA Compliance Report.
+- **`scripts/reports/builders/html.mjs`**: Generates the interactive audit dashboard.
+- **`scripts/reports/builders/checklist.mjs`**: Generates the standalone manual testing checklist (`checklist.html`). Reads `assets/reporting/manual-checks.json` directly — no scan input required.
+- **`scripts/reports/builders/md.mjs`**: Creates the `remediation.md` guide used by AI agents.
+- **`scripts/reports/builders/pdf.mjs`**: Produces the WCAG 2.2 AA Compliance Report.
 - **`scripts/reports/renderers/`**: Modular rendering logic (`html.mjs`, `md.mjs`, `pdf.mjs`), core data normalization (`findings.mjs`), and shared rendering utilities (`utils.mjs`).
 
 ### Infrastructure
@@ -101,8 +101,8 @@ flowchart TD
     F10["scripts/audit.mjs<br/>(same flags as Step 2)"] -.executes.-> S5
     F11["references/quality-gates.md<br/>Gate 5 (delta: resolved/remaining/new)"] -.used in.-> S5
     F12[".audit/a11y-findings.json<br/>passedCriteria"] -.read in.-> S6
-    F13["scripts/reports/html.mjs / scripts/reports/pdf.mjs<br/>(optional, user requested)"] -.optional outputs.-> S6
-    F14["scripts/reports/checklist.mjs + references/out-of-scope.md<br/>(optional manual checklist)"] -.optional outputs.-> S6
+    F13["scripts/reports/builders/html.mjs / scripts/reports/builders/pdf.mjs<br/>(optional, user requested)"] -.optional outputs.-> S6
+    F14["scripts/reports/builders/checklist.mjs + references/out-of-scope.md<br/>(optional manual checklist)"] -.optional outputs.-> S6
 
     classDef step fill:#3b5cd9,color:#fff,stroke:#1e308a;
     classDef file fill:#f1f5f9,color:#0f172a,stroke:#cbd5e1,stroke-dasharray: 5 5;
