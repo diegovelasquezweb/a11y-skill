@@ -100,7 +100,7 @@ If the user mentions "sitemap" at any point, use it directly (Data-first rule) �
 3. **All reachable pages** — comprehensive, may take several minutes on large sites
 4. **Custom** — tell me the exact number
 
-If option 1: if the user has not yet specified a path, ask in plain text — "Which page? Type the path without the leading slash (e.g. `contact`, `about`) — or press Enter for the homepage." — and wait for the answer. If the user types nothing or "home", use the base URL as-is. Otherwise append the path: `--base-url <URL>/<path> --max-routes 1`. If Custom: ask in plain text — "How many pages?" — and wait for a number. **Never use the option number (4) as the page count.** Store the number and proceed to Step 2.
+If option 1: if the user has not yet specified a path, ask in plain text — "Which page? Type `home` for the root, or a path like `about` or `contact`." — and wait for the answer. If the user types "home" or the homepage URL, use `--base-url <URL> --max-routes 1`. Otherwise append the path: `--base-url <URL>/<path> --max-routes 1`. After the scan, if 0 routes were scanned or navigation failed for that URL, warn the user: "The page `/<path>` could not be reached — it may not exist. Please confirm the path and I'll re-run." Do not proceed to findings until confirmed. If Custom: ask in plain text — "How many pages?" — and wait for a number. **Never use the option number (4) as the page count.** Store the number and proceed to Step 2.
 
 Store the user's choice. Proceed to Step 2.
 

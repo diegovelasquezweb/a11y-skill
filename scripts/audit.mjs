@@ -42,6 +42,7 @@ Execution & Emulation:
   --headed                Run browser in visible mode (overrides headless).
   --with-reports          Generate HTML and PDF reports (requires --output).
   --skip-reports          Omit HTML and PDF report generation (default).
+  --skip-patterns         Skip source code pattern scanning even if --project-dir is set.
   --wait-ms <num>         Time to wait after page load (default: 2000).
   --timeout-ms <num>      Network timeout (default: 30000).
   -h, --help              Show this help.
@@ -152,6 +153,7 @@ async function main() {
 
   const onlyRule = getArgValue("only-rule");
   const skipReports = argv.includes("--skip-reports") || !argv.includes("--with-reports");
+  const skipPatterns = argv.includes("--skip-patterns");
   const ignoreFindings = getArgValue("ignore-findings");
   const excludeSelectors = getArgValue("exclude-selectors");
 
@@ -236,7 +238,7 @@ async function main() {
     if (framework) analyzerArgs.push("--framework", framework);
     await runScript("engine/analyzer.mjs", analyzerArgs);
 
-    if (projectDir) {
+    if (projectDir && !skipPatterns) {
       const patternArgs = ["--project-dir", path.resolve(projectDir)];
       let resolvedFramework = framework;
       if (!resolvedFramework) {
