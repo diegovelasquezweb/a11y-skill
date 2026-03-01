@@ -7,7 +7,7 @@
     "a11y": "node scripts/audit.mjs",
     "test": "vitest run",
     "postinstall": "npx playwright install chromium",
-    "sync": "rsync -av --delete --exclude='.git/' --exclude='.github/' --exclude='.audit/' . ~/.claude/skills/a11y/ && rsync -av --delete --exclude='.git/' --exclude='.github/' --exclude='.audit/' . ~/.gemini/skills/a11y/"
+    "sync": "[ -d ~/.claude/skills/a11y ] && rsync -av --delete --exclude='.git/' --exclude='.github/' --exclude='.audit/' . ~/.claude/skills/a11y/ ; [ -d ~/.gemini/skills/a11y ] && rsync -av --delete --exclude='.git/' --exclude='.github/' --exclude='.audit/' . ~/.gemini/skills/a11y/ ; [ -d ~/.gemini/antigravity/skills/a11y ] && rsync -av --delete --exclude='.git/' --exclude='.github/' --exclude='.audit/' . ~/.gemini/antigravity/skills/a11y/ ; [ -d ~/.cursor/skills/a11y ] && rsync -av --delete --exclude='.git/' --exclude='.github/' --exclude='.audit/' . ~/.cursor/skills/a11y/ ; [ -d ~/.codex/skills/a11y ] && rsync -av --delete --exclude='.git/' --exclude='.github/' --exclude='.audit/' . ~/.codex/skills/a11y/ ; [ -d ~/.codeium/windsurf/skills/a11y ] && rsync -av --delete --exclude='.git/' --exclude='.github/' --exclude='.audit/' . ~/.codeium/windsurf/skills/a11y/ ; true"
   },
   "dependencies": {
     "playwright": "^1.58.2",
