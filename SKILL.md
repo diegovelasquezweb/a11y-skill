@@ -310,10 +310,10 @@ If **No thanks**: skip to item 6.
 
    If **Yes**, wait for that answer, then ask which format in a new message:
 
-   `[QUESTION]` **Which format?**
+   `[QUESTION]` **Which report?**
 
-   1. **HTML Dashboard** — interactive web report with compliance score
-   2. **PDF Executive Summary** — formal document for stakeholders
+   1. **WCAG 2.2 AA Audit Dashboard** — interactive HTML with full findings, severity filters, and fix guidance
+   2. **WCAG 2.2 AA Compliance Report** — formal PDF for stakeholders, clients, and legal review
    3. **Both**
    4. **Back** — change your report preference
 
