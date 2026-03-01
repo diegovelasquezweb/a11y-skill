@@ -8,7 +8,7 @@ This manifest serves as the **Single Source of Truth** for the a11y skill's tech
 
 ## 1. Logic Inventory (Scripts)
 
-The core engine is a three-stage pipeline designed for **Autonomous Remediation**. For deep-dives into execution flow, see [Architecture](architecture.md).
+The core engine is a multi-stage pipeline. For deep-dives into execution flow, see [Architecture](architecture.md).
 
 ### The Orchestrator
 
@@ -16,15 +16,16 @@ The core engine is a three-stage pipeline designed for **Autonomous Remediation*
 
 ### Core Engine
 
-- **`scripts/scanner.mjs`**: The "Eyes". Powered by Playwright and Axe-core. Handles browser emulation, route discovery (Crawling/Sitemap), and parallel DOM analysis.
-- **`scripts/analyzer.mjs`**: The "Brain". Consumes raw results and enriches them with intelligence data to generate surgical fix roadmaps.
+- **`scripts/scanner.mjs`**: The "Eyes". Powered by Playwright and axe-core. Handles browser emulation, route discovery (Crawling/Sitemap), and parallel DOM analysis.
+- **`scripts/pattern-scanner.mjs`**: Static source code scanner. Detects WCAG issues axe-core cannot find at runtime by matching regex patterns against project source files.
+- **`scripts/analyzer.mjs`**: The "Brain". Consumes raw results and enriches them with intelligence data to generate fix roadmaps.
 
 ### Rendering Engine
 
 - **`scripts/report-html.mjs`**: Generates the interactive audit dashboard.
 - **`scripts/report-checklist.mjs`**: Generates the standalone manual testing checklist (`checklist.html`). Reads `assets/reporting/manual-checks.json` directly — no scan input required.
 - **`scripts/report-md.mjs`**: Creates the `remediation.md` guide used by AI agents.
-- **`scripts/report-pdf.mjs`**: Produces formal executive summaries.
+- **`scripts/report-pdf.mjs`**: Produces the WCAG 2.2 AA Compliance Report.
 - **`scripts/renderers/`**: Modular rendering logic (`html.mjs`, `md.mjs`, `pdf.mjs`), core data normalization (`findings.mjs`), and shared rendering utilities (`utils.mjs`).
 
 ### Infrastructure
@@ -61,7 +62,7 @@ These Markdown guides define the **Operational Standards** that the AI Agent fol
 | **`cli-reference.md`**    | Targeted Audit command guide (flags, viewports, theme emulation).                |
 | **`report-standards.md`** | Internal standards for finding fields, deliverable order, and file storage.      |
 | **`source-patterns.md`**  | Framework-specific source file patterns (Next.js, Shopify Liquid, Drupal, etc.) used to locate files during fixing. |
-| **`code-patterns.md`**    | Four regex patterns for source-only issues axe-core cannot detect at runtime (focus suppression, autoplay, orientation lock, accesskey). |
+| **`code-patterns.md`**    | Regex patterns for source-only WCAG issues axe-core cannot detect at runtime (focus suppression, placeholder-only labels, autoplay, orientation lock, accesskey). |
 | **`quality-gates.md`**    | Pass/fail criteria for each pipeline phase — used to verify gate transitions.    |
 | **`out-of-scope.md`**     | WCAG 2.2 AA criteria that require human testing; drives the manual checklist export. |
 | **`troubleshooting.md`**  | Self-correction guide for network timeouts, auth errors, and toolchain failures. |
@@ -120,7 +121,8 @@ flowchart LR
 
     subgraph Engine ["Logic Core"]
         B --> C[scanner.mjs]
-        C --> D[analyzer.mjs]
+        C --> PS[pattern-scanner.mjs]
+        PS --> D[analyzer.mjs]
         D --> E[Builders]
     end
 
@@ -146,6 +148,6 @@ flowchart LR
     classDef storage fill:#f1f5f9,stroke:#cbd5e1,stroke-dasharray: 5 5;
 
     class A playbook;
-    class B,C,D,E core;
+    class B,C,PS,D,E core;
     class AS1,AS2,AS3,AS4,AS5,AS6,AS7 storage;
 ```
