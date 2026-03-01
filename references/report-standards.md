@@ -1,42 +1,9 @@
 # Report & Evidence Standards
 
-## Contents
-
-- [Conventions](#conventions)
-- [Required Finding Fields](#required-finding-fields)
-- [Cross-Page Finding Fields](#cross-page-finding-fields)
-- [Finding Template](#finding-template)
-- [Console Summary Template](#console-summary-template)
-- [Deliverable Order](#deliverable-order)
-- [File Output](#file-output)
-
 ## Conventions
 
 - Use route paths (`/`, `/products`) as primary locations — local URLs go under `Test Environment`.
-
-## Required Finding Fields
-
-Each finding must include:
-
-1. WCAG criterion and level.
-2. Affected route path and component/selector.
-3. Category (aria · text-alternatives · forms · keyboard · structure · semantics · name-role-value · tables · color · language · parsing · sensory).
-4. Reproduction steps and actual vs expected behavior.
-5. Impacted users.
-6. Severity (Critical, Serious, Moderate, Minor).
-7. Recommended fix.
-8. QA retest notes.
-9. Concrete proof (DOM snippet, log, or tool output). Screenshot only if it clearly demonstrates the exact issue.
-
-## Cross-Page Finding Fields
-
-When a finding is deduplicated across multiple routes, two additional fields are included:
-
-- `pages_affected` — number of distinct routes where the same pattern was detected.
-- `affected_urls` — array of route URLs where the finding appears.
-
-These fields are set automatically by the analyzer pipeline. Present them in the finding detail when `pages_affected > 1`:
-> ℹ️ Found on `{pages_affected}` pages — same pattern detected across: `{affected_urls}`
+- When a finding appears on multiple pages, present: `Found on {pages_affected} pages — {affected_urls}`
 
 ## Finding Template
 
@@ -49,7 +16,7 @@ Present each finding using this exact field order. Do not omit or reorder fields
 - **Category**: <aria | text-alternatives | forms | keyboard | structure | semantics | name-role-value | tables | color | language | parsing | sensory>
 - **WCAG**: <criterion ID> — <criterion name> (Level A | AA)
 - **Route**: <path>
-- **Selector**: <CSS selector or component name>
+- **Evidence**: <DOM snippet from Evidence from DOM — use to locate the element in source>
 - **Impact**: <one sentence — which users are affected and how>
 - **Reproduction**: <numbered steps>
 - **Actual**: <what happens>
@@ -59,24 +26,6 @@ Present each finding using this exact field order. Do not omit or reorder fields
 - **Proof**: <DOM snippet, tool output, or screenshot reference>
 ```
 
-**Example:**
-
-```
-### [A11Y-4f2a1b] Image missing alternative text
-
-- **Severity**: Serious
-- **Category**: text-alternatives
-- **WCAG**: 1.1.1 — Non-text Content (Level A)
-- **Route**: /products
-- **Selector**: img.hero-image
-- **Impact**: Screen reader users receive no information about the image content.
-- **Reproduction**: 1. Navigate to /products. 2. Inspect the hero image with a screen reader.
-- **Actual**: Image announced as "image" with no description.
-- **Expected**: Image announced with a meaningful description of its content.
-- **Fix**: Add `alt="<descriptive text>"` to `<img class="hero-image">`.
-- **Retest**: Screen reader announces the alt text; axe-core `image-alt` rule passes.
-- **Proof**: `<img src="/hero.jpg" class="hero-image">` — alt attribute absent.
-```
 
 ## Console Summary Template
 

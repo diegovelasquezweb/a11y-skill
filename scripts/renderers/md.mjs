@@ -65,7 +65,8 @@ function buildSourceBoundariesSection(framework) {
 }
 
 function formatViolation(actual) {
-  return actual || "";
+  if (!actual) return "";
+  return actual.replace(/^Fix any of the following:\s*/i, "").trim();
 }
 
 function normalizeComponentHint(hint) {
@@ -83,16 +84,6 @@ const PRIORITY_BY_SEVERITY = {
   Minor: 4,
 };
 
-function inferActionType(finding) {
-  if ((finding.fixCodeLang || "").toLowerCase() === "css") return "style";
-  if ((finding.fixCodeLang || "").toLowerCase() === "jsx") return "component";
-  const category = String(finding.category || "").toLowerCase();
-  if (["color", "keyboard"].includes(category)) return "interaction";
-  if (["aria", "name-role-value", "semantics", "structure"].includes(category))
-    return "markup";
-  return "general";
-}
-
 
 /**
  * Builds the Recommendations section with single-point-fix opportunities and systemic patterns.
@@ -103,6 +94,7 @@ function buildRecommendationsSection(recommendations) {
   if (!recommendations) return "";
   const { single_point_fixes = [], systemic_patterns = [] } = recommendations;
   if (single_point_fixes.length === 0 && systemic_patterns.length === 0) return "";
+  if (single_point_fixes.length === 1 && systemic_patterns.length === 0) return "";
 
   const parts = [];
 
@@ -278,7 +270,6 @@ function buildPatternSection(patternPayload) {
       `### ${f.id} · ${f.severity} · ${f.title}`,
       ``,
       `- **File:** \`${f.file}:${f.line}\``,
-      `- **Status:** ${f.status}`,
       `- **WCAG:** ${f.wcag}`,
       `- **Type:** ${f.type}`,
       ``,
@@ -377,7 +368,7 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
 
     const crossPageBlock =
       f.pagesAffected && f.pagesAffected > 1
-        ? `> ℹ️ **Cross-page:** Found on ${f.pagesAffected} pages — ${(f.affectedUrls || []).join(", ")}`
+        ? `> **Cross-page:** Found on ${f.pagesAffected} pages — ${(f.affectedUrls || []).join(", ")}`
         : null;
 
     const difficultyBlock = f.fixDifficultyNotes
@@ -406,31 +397,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       Array.isArray(f.relatedRules) && f.relatedRules.length > 0
         ? `**Fixing this also helps:**\n${f.relatedRules.map((r) => `- \`${r.id}\` — ${r.reason}`).join("\n")}`
         : null;
-    const engineReasonBlock =
-      f.primaryFailureMode ||
-      f.relationshipHint ||
-      (Array.isArray(f.failureChecks) && f.failureChecks.length > 0)
-        ? [
-            "#### Why Axe Flagged This",
-            f.primaryFailureMode
-              ? `- **Primary failure mode:** \`${f.primaryFailureMode}\``
-              : null,
-            f.relationshipHint
-              ? `- **Relationship hint:** \`${f.relationshipHint}\``
-              : null,
-            Array.isArray(f.failureChecks) && f.failureChecks.length > 0
-              ? `- **Detected checks:** ${f.failureChecks.join("; ")}`
-              : null,
-            Array.isArray(f.relatedContext) && f.relatedContext.length > 0
-              ? `- **Related context:** ${f.relatedContext
-                  .slice(0, 2)
-                  .map((entry) => `\`${entry}\``)
-                  .join(", ")}`
-              : null,
-          ]
-            .filter(Boolean)
-            .join("\n")
-        : null;
 
     const contrastDiagnosticsBlock = (() => {
       if (!["color-contrast", "color-contrast-enhanced"].includes(f.ruleId)) return null;
@@ -448,36 +414,23 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       return `#### Contrast Diagnostics\n| Property | Value |\n|---|---|\n${rows}`;
     })();
 
-    const searchPatternBlock = f.fileSearchPattern
-      ? `**Search in:** \`${f.fileSearchPattern}\``
-      : null;
-
     const managedBlock = f.managedByLibrary
-      ? `> ⚠️ **Managed Component:** Controlled by \`${f.managedByLibrary}\` — fix via the library's prop API, not direct DOM attributes.`
+      ? `> **Managed Component:** Controlled by \`${f.managedByLibrary}\` — fix via the library's prop API, not direct DOM attributes.`
       : null;
     const ownershipBlock =
       f.ownershipStatus === "outside_primary_source"
-        ? `> ⚠️ **Ownership Check Required:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue or handle it outside the primary source before editing.`
+        ? `> **Ownership Check Required:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue or handle it outside the primary source before editing.`
         : f.ownershipStatus === "unknown"
-          ? `> ⚠️ **Ownership Unclear:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue until the editable source is confirmed.`
+          ? `> **Ownership Unclear:** ${f.ownershipReason}\n> Ask the user whether to ignore this issue until the editable source is confirmed.`
           : null;
 
     const verifyBlock = f.verificationCommand
-      ? `**Quick verify:** \`${f.verificationCommand}\`${f.verificationCommandFallback ? `\n**Fallback verify:** \`${f.verificationCommandFallback}\`` : ""}`
+      ? `**Quick verify:** \`${f.verificationCommand}\``
       : null;
 
     const id = f.id || f.ruleId;
     const requiresManualVerification = f.falsePositiveRisk && f.falsePositiveRisk !== "low";
 
-    const executionMeta = [
-      `**Execution Metadata**`,
-      `- \`fix_priority\`: ${executionIndex.get(id) || "n/a"}`,
-      `- \`action_type\`: ${inferActionType(f)}`,
-      `- \`target_files_glob\`: ${f.fileSearchPattern ? `\`${f.fileSearchPattern}\`` : "`n/a`"}`,
-      `- \`ownership_status\`: ${f.ownershipStatus || "unknown"}`,
-      `- \`search_strategy\`: ${f.searchStrategy || "verify_ownership_before_search"}`,
-      requiresManualVerification ? `- \`requires_manual_verification\`: true _(false positive risk: ${f.falsePositiveRisk})_` : `- \`requires_manual_verification\`: false`,
-    ].join("\n");
 
     const guardrailsBlock =
       f.guardrails && typeof f.guardrails === "object"
@@ -498,8 +451,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `---`,
       `### ID: ${id} · ${f.severity} · \`${f.title}\``,
       ``,
-      `- **Target Area:** \`${f.area}\``,
-      `- **Surgical Selector:** \`${f.primarySelector || f.selector}\``,
       f.wcagClassification === "Best Practice"
         ? `- **WCAG Criterion:** ${f.wcag} _(Best Practice — not a WCAG AA requirement)_`
         : `- **WCAG Criterion:** ${f.wcag}`,
@@ -513,12 +464,6 @@ export function buildMarkdownSummary(args, findings, metadata = {}) {
       `**Observed Violation:** ${formatViolation(f.actual)}`,
       contrastDiagnosticsBlock ? `` : null,
       contrastDiagnosticsBlock,
-      engineReasonBlock ? `` : null,
-      engineReasonBlock,
-      searchPatternBlock ? `` : null,
-      searchPatternBlock,
-      ``,
-      executionMeta,
       ``,
       fixBlock,
       guardrailsBlock ? `` : null,

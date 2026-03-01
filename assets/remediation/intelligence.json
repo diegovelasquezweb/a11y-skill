@@ -1509,7 +1509,7 @@
         "drupal": "Olivero (Drupal's default theme) ships with WCAG 2.1 AA contrast. Custom themes should use CSS custom properties for colors and validate pairs in the color scheme configuration. Check sub-theme overrides in the .theme file."
       },
       "fix_difficulty_notes": [
-        "⚠️ Each instance in Evidence from DOM is an INDEPENDENT element — fix every instance separately, not just the Surgical Selector.",
+        "Each instance in Evidence from DOM is an INDEPENDENT element — fix every instance separately.",
         "False positives are common on text rendered over gradient backgrounds, images, or when color is set dynamically via JavaScript or CSS variables resolved at runtime.",
         "axe-core samples a single point of the background — text on gradients may appear to fail even when contrast is sufficient.",
         "Verify each flagged instance visually using the browser DevTools color picker before fixing."
@@ -3251,7 +3251,7 @@
       "fix_difficulty_notes": [
         "The evidence shows the OUTER container — identify the nested focusable element first. Search the component for `tabIndex`, `href=`, `<button`, `<a `, or `role=\"button\"` inside the flagged selector.",
         "Most common pattern: a card wrapped in `<a>` containing a `<button>` — the HTML spec forbids interactive content inside `<a>`. Solutions: (1) stretched-link CSS pattern (position `<a>` with `::after` overlay, keep button outside `<a>` in DOM order); (2) keep elements separate and handle card-level clicks via JS.",
-        "⚠️ COMPOUND CASE — link-as-button co-occurring: if the nested `<a>` calls `e.preventDefault()` and runs a JS action, two violations are stacked.",
+        "COMPOUND CASE — link-as-button co-occurring: if the nested `<a>` calls `e.preventDefault()` and runs a JS action, two violations are stacked.",
         "Remove only the invalid ARIA attributes from the container (`role`, `aria-selected`); preserve ALL `onClick`/`onKeyDown` handlers that contain non-ARIA conditional logic (drag state, position offsets, gesture thresholds, business flags).",
         "Fix the link separately: if it never navigates, convert to `<button type=\"button\">`; if it sometimes navigates, keep `<a href>` and remove `e.preventDefault()`. Never delete a handler because the ARIA around it was wrong."
       ],

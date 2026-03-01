@@ -5,7 +5,7 @@ compatibility: Requires Node.js 18+, pnpm (npm as fallback), and internet access
 license: MIT
 metadata:
   author: diegovelasquezweb
-  version: "0.10.0"
+  version: "0.11.0"
 ---
 
 # Web Accessibility Audit — Agent Playbook
@@ -95,7 +95,7 @@ If the user mentions "sitemap" at any point, use it directly (Data-first rule) �
 2. **All reachable pages** — comprehensive, may take several minutes on large sites
 3. **Custom** — tell me the exact number
 
-If Custom: ask in plain text — "How many pages?" — and wait for a number. Do not show a new [QUESTION] with options. Store the number and proceed to Step 2.
+If Custom: the user selected the option, not provided a number yet. Ask in plain text — "How many pages?" — and wait for a number. **Never use the option number (3) as the page count.** Store the number and proceed to Step 2.
 
 Store the user's choice. Proceed to Step 2.
 
@@ -104,17 +104,11 @@ Store the user's choice. Proceed to Step 2.
 Run the audit with the discovery settings from Step 1:
 
 ```bash
-# Sitemap detected or user mentioned sitemap
+# Default (sitemap or 10-page crawl — omit --max-routes)
 node scripts/audit.mjs --base-url <URL>
 
-# Crawler — 10 pages (default, omit flag)
-node scripts/audit.mjs --base-url <URL>
-
-# Crawler — all reachable pages
-node scripts/audit.mjs --base-url <URL> --max-routes 999
-
-# Crawler — custom count
-node scripts/audit.mjs --base-url <URL> --max-routes <N>
+# All pages or custom count
+node scripts/audit.mjs --base-url <URL> --max-routes <N>  # 999 = all
 ```
 
 Always pass `--project-dir <path>` for local projects. When provided, the source code pattern scanner runs automatically alongside axe — pattern findings appear in the "Source Code Pattern Findings" section of the remediation guide and are part of the unified fix flow. If you can identify the stack from the project files, also pass `--framework <value>` (nextjs|gatsby|react|nuxt|vue|angular|astro|svelte|shopify|wordpress|drupal) — explicit detection is more reliable than auto-detection. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
@@ -198,27 +192,23 @@ If there are no structural findings (axe or pattern) to fix, skip directly to th
 
 Use the **Source File Locations** section of the remediation guide to locate source files by detected framework. For axe findings, use `fix_description`, `fix_code`, framework notes, and evidence as the source of truth. For pattern findings, use `file:line`, `match`, and `fix_description` from the "Source Code Pattern Findings" section of the report.
 
-- Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
+- Use glob patterns and the "Fixes by Component" table from the remediation guide (if present) to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
-Present one group at a time — list the findings and proposed changes, then ask. Adapt the `[QUESTION]` label to the active mode (e.g. **Apply these Critical fixes?** for severity, or the user's chosen grouping for Other criteria).
+Present one group at a time — list the findings and proposed changes, then ask. Adapt the `[QUESTION]` label to the active mode (e.g. **Apply these Critical fixes?**).
 
 1. **Yes** — apply all proposed changes
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip this group
 
-If **No**: skip to the next group (or the style pass if this was the last).
-
-If **Let me pick**: present all fixes as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the group question. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
-
-If **Yes** or after **Let me pick** completes: list the files and changes made, then ask:
+If **No**: skip to the next group (or the style pass if this was the last). If **Let me pick**: present fixes as a numbered list, ask for numbers (e.g. `1, 3` or `all`) or `back` to return. Apply selected fixes, list changes made. If **Yes** or after **Let me pick** completes: list files changed, then ask:
 
 `[QUESTION]` **Please verify visually — does everything look correct?**
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
 
-If **Looks good**: proceed to the next group, or to the style pass if this was the last. If **Something's wrong**: apply corrections, then proceed to the next group (or the style pass if last).
+If **Looks good**: proceed to the next group or style pass. If **Something's wrong**: apply corrections, then proceed.
 
 #### Style fixes (color contrast, font size, spacing, focus styles)
 
@@ -247,13 +237,9 @@ Then ask:
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip style fixes
 
-If **No**: proceed immediately to Step 5.
+If **No**: proceed to Step 5. If **Let me pick**: present changes as a numbered list with diffs, ask for numbers or `back`. If **Yes** or after **Let me pick** completes: list files and exact values modified, then ask:
 
-If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these style changes?** prompt. Otherwise apply the selected changes, list files and exact values modified, then ask the verification question below.
-
-If **Yes** or after **Let me pick** completes: list the files and exact values modified, then ask:
-
-`[QUESTION]` **I've applied the style changes. Please verify visually — does everything look correct?**
+`[QUESTION]` **Please verify visually — does everything look correct?**
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
@@ -285,11 +271,13 @@ After the script completes, immediately parse ALL findings and present results �
 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
 
-     1. **Keep fixing** — address the remaining issues
-     2. **Move on** — accept the remaining issues and proceed to the final summary
+     1. **Keep fixing** — address all remaining issues
+     2. **Let me pick** — show me the list, I'll choose which to fix
+     3. **Move on** — accept the remaining issues and proceed to the final summary
 
   3. If **Keep fixing**: apply fixes following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate; pattern findings included in both passes). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
-  4. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
+  4. If **Let me pick**: present all remaining issues as a numbered list. Ask the user to type the numbers they want fixed (e.g. `1, 3` or `all`), or type `back` to return. Apply only the selected fixes following Step 4 procedures, then run the audit script again and return to step 1 of this sequence.
+  5. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
 
