@@ -37,7 +37,7 @@ Validates that the crawler is smart and safe.
 The core of our "Fix-First" promise.
 
 - **Implicit ARIA**: Maps ~18 native HTML elements to their ARIA roles (e.g., `<button>` → `button`, `<nav>` → `navigation`, `<h1>`–`<h6>` → `heading`).
-- **Surgical Selectors**: Ensures that complex CSS paths are simplified into useful "Search Hints" (prefers ID > Class > Tag).
+- **Selector Extraction**: Ensures that complex CSS paths are simplified into useful "Search Hints" (prefers ID > Class > Tag).
 - **Intelligence Schema**: Validates that `assets/remediation/intelligence.json` exposes the expected rule metadata and that `assets/reporting/wcag-reference.json` provides `wcagCriterionMap`, `apgPatterns`, and related reference maps covering every rule defined in `rules`.
 
 ### 3. Compliance & Scoring (`findings.test.mjs`)

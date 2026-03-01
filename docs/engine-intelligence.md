@@ -7,10 +7,10 @@
 ## Table of Contents
 
 - [The Intelligence Database](#the-intelligence-database-assetsremediationintelligencejson)
-- [Surgical Patch Generation](#surgical-patch-generation)
+- [Patch Generation](#patch-generation)
 - [Manual Checks](#manual-checks-assetsreportingmanual-checksjson)
 
-The "Intelligence" of the a11y skill revolves around **Autonomous Remediation**. It transforms a diagnostic finding into an actionable code patch.
+The "Intelligence" of the a11y skill transforms a diagnostic finding into an actionable code patch.
 
 ## The Intelligence Database (`assets/remediation/intelligence.json`)
 
@@ -31,13 +31,13 @@ For every rule (e.g., `aria-dialog-name`), the engine provides a roadmap for the
 - **`fix_difficulty_notes`**: Edge cases and caveats. The agent must read this to avoid "blind fixing" (e.g., knowing that a missing label might be an intentional design trade-off requiring a different ARIA approach).
 - **`related_rules`**: Linked rule IDs with reciprocal references. If the agent is fixing a rule, it should proactively check if related rules are also failing to ensure the affected component is fully remediated in one pass. All relationships are bidirectional — if A links to B, B links back to A.
 
-## Surgical Patch Generation
+## Patch Generation
 
-When a violation is found, the Analyzer does more than just report it — it provides the exact intelligence needed to locate the issue in the codebase with surgical precision.
+When a violation is found, the Analyzer does more than just report it — it provides the exact intelligence needed to locate the issue in the codebase.
 
-### 1. The Surgical Selector
+### 1. Selector Extraction
 
-The engine processes raw DOM selectors from the scanner into a **Surgical Selector** using a "best candidate" heuristic:
+The engine processes raw DOM selectors from the scanner using a "best candidate" heuristic:
 
 - **ID Priority**: If an element has an `id`, it is used as the primary selector. IDs are the most stable point of entry for code remediation.
 - **Direct vs Verbose**: In the absence of an ID, the engine simplifies complex CSS paths into the shortest possible direct selector (e.g., `div > p` instead of `html > body > main > div > div > p`) to reduce fragility.
@@ -59,7 +59,7 @@ flowchart LR
 
     subgraph Analysis["Intelligence Pipeline"]
         direction LR
-        Surgical["<b>Surgical Identification</b><br/>(ID > Short Path)"]
+        Surgical["<b>Selector Extraction</b><br/>(ID > Short Path)"]
         Match["<b>Knowledge Lookup</b><br/>(remediation/intelligence.json)"]
         Evidence["<b>Evidence Capture</b><br/>(outerHTML)"]
 
@@ -81,7 +81,7 @@ flowchart LR
 If an image is found missing alt text, the Agent does not just "add an alt". It follows the intelligence data to determine the context:
 
 1.  **Scanner Detection**: `ruleId: image-alt`.
-2.  **Surgical ID**: Agent finds `<img class="product-shot">` inside `Hero.tsx`.
+2.  **Selector**: Agent finds `<img class="product-shot">` inside `Hero.tsx`.
 3.  **Intelligence Lookup**:
     - **Framework Filter**: Project is **Shopify + React**. Agent ignores Vue/Angular notes and reads the **Shopify CMS Note**: _"add a fallback: alt='{{ image.alt | default: product.title }}'"_.
     - **Difficulty Audit**: Agent reads `fix_difficulty_notes` and realizes it must check if the image is decorative. It sees the image is used as a background texture and decides to use `alt=""` instead of a description.

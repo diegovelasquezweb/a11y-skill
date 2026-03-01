@@ -10,7 +10,7 @@
 - [Internal Component Roles](#internal-component-roles)
 - [Data Flow Diagram](#data-flow-diagram)
 
-The a11y skill operates as a three-stage pipeline designed for **Autonomous Remediation**. It transforms a URL into a surgical roadmap of code fixes, prioritizing action over passive reporting.
+The a11y skill operates as a three-stage pipeline. It transforms a URL into an actionable remediation roadmap, prioritizing structured findings and targeted fix guidance over passive reporting.
 
 ## High-Level Pipeline
 
@@ -26,11 +26,19 @@ flowchart TD
         B --> B1 & B2 & B3
     end
 
+    subgraph P1B ["Phase 1b: Static Scan"]
+        direction TB
+        E["<b>2. Pattern Scanner</b><br/>(Source Code)"]
+        E1["Regex Pattern Matching"]
+        E2["Confirmed vs Potential"]
+        E --> E1 & E2
+    end
+
     subgraph P2 ["Phase 2: Intelligence"]
         direction TB
-        C["<b>2. Analyzer</b><br/>(Fix Intelligence)"]
+        C["<b>3. Analyzer</b><br/>(Fix Intelligence)"]
         C1["Rule Mapping"]
-        C2["Surgical Selector Extraction"]
+        C2["Selector Extraction"]
         C3["Patch Generation"]
         C --> C1 & C2 & C3
     end
@@ -40,13 +48,14 @@ flowchart TD
         D["<b>3. Builder</b><br/>(Parallel Rendering)"]
         D1["AI Roadmap (MD)"]
         D2["Visual Evidence (HTML)"]
-        D3["Executive Summary (PDF)"]
+        D3["Compliance Report (PDF)"]
         D4["Internal Data (JSON)"]
         D --- D1 & D2 & D3 & D4
     end
 
     A(["Target URL / Project"]) --> P1
-    P1 --> P2
+    P1 --> P1B
+    P1B --> P2
     P2 --> P3
 
     linkStyle default stroke:#64748b,stroke-width:2px;
@@ -55,7 +64,7 @@ flowchart TD
     classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a,stroke-width:2px;
     classDef target fill:#1e293b,color:#fff,stroke:#0f172a;
 
-    class P1,P2,P3 phase;
+    class P1,P1B,P2,P3 phase;
     class B,C,D core;
     class A target;
 ```
@@ -65,18 +74,26 @@ flowchart TD
 ### 1. The Scanner (`scanner.mjs`)
 
 - **Engine**: Uses Playwright to emulate a real user environment (Light/Dark mode, Viewport).
-- **Compliance**: Injects `axe-core` 4.11.1 to run 104 accessibility rules (100% of axe-core WCAG A/AA + best-practice coverage).
+- **Compliance**: Injects `axe-core` 4.11.1 to run WCAG 2.2 A/AA rules across all discovered routes.
 - **Discovery**: If the site has a `sitemap.xml`, all listed URLs are scanned. Otherwise, BFS multi-level crawl starting from `base-url`, configurable via `--crawl-depth` (1-3, default: 2), capped at `maxRoutes` (default: 10).
 - **Parallel Scanning**: Routes are scanned across 3 concurrent browser tabs for ~2-3x faster throughput.
 - **Smart Wait**: Uses the configured Playwright load strategy (`domcontentloaded` by default, configurable via `--wait-until`) plus `waitMs` as a post-load settle delay.
 - **Project Context Detection**: Auto-detects modern frameworks from `package.json`, detects structural platforms (Shopify, WordPress, Drupal) from project directories, and detects UI component libraries from `package.json`.
 - **Output**: Generates a raw `a11y-scan-results.json` containing every violation found in the DOM plus the detected `projectContext`.
 
-### 2. The Analyzer (`analyzer.mjs`)
+### 2. The Pattern Scanner (`pattern-scanner.mjs`)
+
+- **Purpose**: Detects accessibility issues that axe-core cannot find via DOM inspection — such as suppressed focus outlines, placeholder-only form labels, or missing skip links in source code.
+- **Input**: Requires `--project-dir` pointing to the project source. If not provided, this stage is skipped.
+- **Detection**: Runs regex patterns against source files (`.tsx`, `.jsx`, `.css`, `.scss`, etc.) defined in `assets/remediation/code-patterns.json`. Each pattern targets a specific WCAG criterion.
+- **Confidence levels**: Marks each match as `confirmed` (no mitigating code found nearby) or `potential` (a context reject pattern was found within the configured context window).
+- **Output**: Appends pattern findings to `a11y-findings.json` under a `patternFindings` key, grouped by `pattern_id`.
+
+### 3. The Analyzer (`analyzer.mjs`)
 
 - **Brain**: Consumes the raw scan results and enriches them using `assets/remediation/intelligence.json`.
 - **Fix Logic**: Generates the `fixCode`, `fixDescription`, and the relevant stack-specific notes (`framework_notes` / `cms_notes`) for each finding.
-- **Precision**: Extracts the **Surgical Selector** (prioritizing ID > Short Path) and generates the "Search Hint" to help AI agents find the code in the source files.
+- **Precision**: Extracts a precise CSS selector (prioritizing ID > Short Path) and generates a search hint to help AI agents find the code in the source files.
 - **Fix Acceleration**: Uses the detected `projectContext` to generate per-finding:
   - `file_search_pattern` — stack-aware source boundary patterns (e.g., `app/**/*.tsx` for Next.js or `wp-content/themes/**/*.php` for WordPress) so agents search the right directories.
   - `managed_by_library` — warns when an ARIA rule violation may be on a component managed by a UI library (Radix, Headless UI, etc.).
@@ -110,7 +127,11 @@ flowchart LR
     Start([CLI Trigger]) --> S[Scanner]
     S --> Raw[(Raw Scan<br/>JSON)]
 
-    Raw --> A[Analyzer]
+    Patterns[(Code Pattern<br/>Rules)] --> PS[Pattern Scanner]
+    Raw --> PS
+    PS --> Raw2[(Enriched<br/>JSON)]
+
+    Raw2 --> A[Analyzer]
     A --> Logic{Enrichment<br/>Logic}
     Intel[(Intelligence<br/>Database)] --> Logic
 
@@ -119,14 +140,14 @@ flowchart LR
 
     B --> HTML([HTML Report])
     B --> MD([AI Roadmap])
-    B --> PDF([PDF Summary])
+    B --> PDF([Compliance Report])
 
     classDef default font-family:Inter,sans-serif,font-size:12px;
     classDef core fill:#3b5cd9,color:#fff,stroke:#1e308a,stroke-width:2px;
     classDef storage fill:#f1f5f9,stroke:#cbd5e1,stroke-dasharray: 5 5;
     classDef trigger fill:#1e293b,color:#fff,stroke:#0f172a;
 
-    class S,A,B core;
-    class Raw,Intel,Findings storage;
+    class S,PS,A,B core;
+    class Raw,Raw2,Intel,Findings,Patterns storage;
     class Start,HTML,MD,PDF trigger;
 ```

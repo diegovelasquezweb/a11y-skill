@@ -49,7 +49,7 @@ Each accessibility finding subtracts points from a perfect starting score of **1
 | **Critical** | `-15 pts`  | Blockers that prevent users from completing a task. |
 | **Serious**  | `-5 pts`   | Significant barriers that impair the experience.    |
 | **Moderate** | `-2 pts`   | Noticeable barriers with available workarounds.     |
-| **Minor**    | `-0.5 pts` | Best practices or minor inconsistencies.            |
+| **Minor**    | `-0.5 pts` | Low-impact issues with minimal effect on users.     |
 
 ## The Formula
 

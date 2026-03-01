@@ -82,7 +82,11 @@ Once the user provides a URL, normalize it before passing to `--base-url`:
 - `mysite.com` → `https://mysite.com`
 - Full URLs → use as-is.
 
-Once the URL is confirmed, silently fetch `<URL>/sitemap.xml`:
+Once the URL is confirmed, check if it contains a non-root path (any path other than `/` or empty — e.g. `/contact`, `/about`, `/products/shoes`):
+
+- **Non-root path present** — treat as a 1-page audit automatically. Use the full URL as `--base-url` with `--max-routes 1`. Skip the scope question and proceed to Step 2.
+
+If the URL is root-only, silently fetch `<URL>/sitemap.xml`:
 
 - **Found** — inform the user ("Found a sitemap with N pages — using it for the audit") and proceed to Step 2. No question needed.
 - **Not found** — proceed silently to the scope question below. Do not mention the sitemap attempt.
@@ -91,11 +95,12 @@ If the user mentions "sitemap" at any point, use it directly (Data-first rule) �
 
 `[QUESTION]` **How many pages should I crawl?**
 
-1. **10 pages** — covers main page types, fast
-2. **All reachable pages** — comprehensive, may take several minutes on large sites
-3. **Custom** — tell me the exact number
+1. **1 page** — audit a single specific URL (fastest)
+2. **10 pages** — covers main page types, fast
+3. **All reachable pages** — comprehensive, may take several minutes on large sites
+4. **Custom** — tell me the exact number
 
-If Custom: the user selected the option, not provided a number yet. Ask in plain text — "How many pages?" — and wait for a number. **Never use the option number (3) as the page count.** Store the number and proceed to Step 2.
+If option 1: if the user has not yet specified a path, ask in plain text — "Which page? Type the path without the leading slash (e.g. `contact`, `about`) — or press Enter for the homepage." — and wait for the answer. If the user types nothing or "home", use the base URL as-is. Otherwise append the path: `--base-url <URL>/<path> --max-routes 1`. If Custom: ask in plain text — "How many pages?" — and wait for a number. **Never use the option number (4) as the page count.** Store the number and proceed to Step 2.
 
 Store the user's choice. Proceed to Step 2.
 
@@ -106,6 +111,9 @@ Run the audit with the discovery settings from Step 1:
 ```bash
 # Default (sitemap or 10-page crawl — omit --max-routes)
 node scripts/audit.mjs --base-url <URL>
+
+# Single page
+node scripts/audit.mjs --base-url <URL> --max-routes 1
 
 # All pages or custom count
 node scripts/audit.mjs --base-url <URL> --max-routes <N>  # 999 = all
@@ -147,7 +155,7 @@ Apply consistently — same issue type = same severity across all findings.
 
 Then summarize and present:
 
-1. State the **Overall Assessment** from the report header. Follow with a count by severity (Critical → Serious → Moderate → Minor). If source code pattern findings are present in the remediation guide, include them in the total — e.g. "N axe violations + M source patterns (P confirmed, Q potential)".
+1. State the **Overall Assessment** from the report header. Then state the **full scan total** — this number must include every finding from the scan: all axe violations (all severities) plus all source patterns. Never show only Critical/Serious as the headline count. Format: "N axe violations (X Critical, Y Serious, Z Moderate, W Minor) + T source pattern types (M locations: P confirmed, Q potential) — N+M total." This total is the baseline used to compute the delta in Step 5.
 2. Propose specific fixes from the remediation guide.
 3. Group by component or page area, explaining why each fix matters.
 4. Ask how to proceed:
@@ -255,9 +263,11 @@ This step is **mandatory** — always run it after fixes, no exceptions. Do not 
 **Immediately run the script — do not output any message before running it.** Running the script IS the first action of this step:
 
 ```bash
-# Same flags as Step 2
-node scripts/audit.mjs --base-url <URL> [--max-routes <N>]
+# Exact same flags as Step 2 — do not change any values
+node scripts/audit.mjs --base-url <URL> --max-routes <N>
 ```
+
+> **Flag parity is mandatory.** Use the exact same `--base-url`, `--max-routes`, `--project-dir`, `--framework`, and any other flags from Step 2. Never reduce `--max-routes` or omit flags — a smaller crawl produces an incomplete delta and makes resolved counts unreliable.
 
 If the script fails: verify the site is reachable (`curl -s -o /dev/null -w "%{http_code}" <URL>`) before retrying. If it returns a non-200 status, stop and report the error to the user — do not retry with modified flags. If the site is reachable and the script fails a second time, stop and report the error.
 
@@ -266,7 +276,7 @@ After the script completes, immediately parse ALL findings and present results �
 - **All clear (0 issues)** → proceed to Step 6.
 - **Issues found (any kind)** → follow this sequence:
 
-  1. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. If `{new} > 0`, append inline: *"New issues are expected after fixing parent violations — axe-core evaluates child elements for the first time once the parent is resolved."* Then present all findings grouped by severity (same format as Step 3).
+  1. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. In all re-audit cycles, `{resolved}` is always **Step 2 original total minus current remaining** — cumulative, never reset to a previous cycle's count. If `{new} > 0`, append inline: *"New issues are expected after fixing parent violations — axe-core evaluates child elements for the first time once the parent is resolved. Net improvement: {resolved − new} issues eliminated since the initial scan."* Immediately after the delta line, append a one-line breakdown of what `{remaining}` contains — e.g. *"Includes: 8 axe violations (8 Serious) + 14 Moderate (not addressed) + 42 source patterns."* This prevents the user from being confused when the remaining count includes issues that were intentionally skipped or not in scope for this session. **All counts (Total, Resolved, Remaining) must be derived strictly from scan data — axe WCAG A/AA violations plus source code pattern findings. Do not apply your own classification or filter findings using your own judgment about what is or is not a WCAG requirement. If the scanner did not produce it, it does not count.** Then present all remaining findings grouped by severity: Critical first, then Serious → Moderate → Minor. For each finding show: severity label, rule name, affected route, and a one-line description of what needs to be fixed.
   2. **Always ask immediately after presenting findings** — never stop or pause here, even if all remaining issues were previously declined:
 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
@@ -302,10 +312,10 @@ If **No thanks**: skip to item 6.
 
    If **Yes**, wait for that answer, then ask which format in a new message:
 
-   `[QUESTION]` **Which format?**
+   `[QUESTION]` **Which report?**
 
-   1. **HTML Dashboard** — interactive web report with compliance score
-   2. **PDF Executive Summary** — formal document for stakeholders
+   1. **WCAG 2.2 AA Audit Dashboard** — interactive HTML with full findings, severity filters, and fix guidance
+   2. **WCAG 2.2 AA Compliance Report** — formal PDF for stakeholders, clients, and legal review
    3. **Both**
    4. **Back** — change your report preference
 

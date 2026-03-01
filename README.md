@@ -8,8 +8,8 @@ This skill runs a structured accessibility audit and remediation workflow. It sc
 
 | Capability                  | With a11y                                                                                                              | Without                                                                                          |
 | :-------------------------- | :--------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
-| **WCAG 2.2 AA Checks**      | ✅ Automated WCAG 2.2 AA coverage with classified findings and evidence per issue                                     | ❌ Basic checks without standardized finding structure or remediation context                     |
-| **Fix Intelligence**        | ✅ Stack-aware remediation guidance tied to affected routes and components                                              | ❌ Manual code search from generic scanner output                                                 |
+| **WCAG 2.2 AA Checks**      | ✅ Strict WCAG 2.2 AA coverage: axe-core runtime scan + source code pattern scanner for issues axe cannot detect    | ❌ Basic checks without standardized finding structure or remediation context                     |
+| **Fix Intelligence**        | ✅ Stack-aware remediation with code changes tailored to your codebase                                            | ❌ Manual code search from generic scanner output                                                 |
 | **Workflow Control**        | ✅ Structured flow with mandatory verification re-audit and explicit approval gates                                   | ❌ Ad-hoc fixes without controlled ordering or re-validation                                      |
 | **Token Efficiency**        | ✅ Uses structured artifacts from findings and remediation instead of raw page dumps                                    | ❌ Large raw HTML context and repeated manual interpretation                                      |
 
@@ -53,24 +53,14 @@ The agent guides the rest of the session as a conversation, running the audit, p
 | Gemini CLI | `--` | `Audit accessibility <url>` |
 | Windsurf | `@a11y <url>` | `Audit accessibility <url>` |
 
-## Headless Audit
-
-Run the audit engine directly without an AI agent. Useful for local validation and scripted workflows without consuming AI tokens.
-
-Execute the audit script directly from the skill directory. For the full technical reference of supported options, see the [CLI Handbook](docs/cli-handbook.md).
-
-```bash
-pnpm a11y --base-url https://mysite.com
-```
-
 ## Deliverables
 
-Visual reports on demand. After any audit, you can optionally generate these professional formats:
+Visual reports on demand. You can optionally generate these formats:
 
 | Deliverable           | Format  | Audience         | Key Value                                                                                                        |
 | :-------------------- | :------ | :--------------- | :--------------------------------------------------------------------------------------------------------------- |
-| **Audit Dashboard**   | `.html` | Developers       | Shareable report with severity-grouped findings, DOM evidence, and ready-to-apply fix blueprints per component.  |
-| **Executive Summary** | `.pdf`  | Stakeholders     | Formal document with compliance score, legal risk summary, and remediation roadmap for non-technical audiences.  |
+| **WCAG 2.2 AA Audit Dashboard**   | `.html` | Developers       | Interactive report with severity-grouped findings, DOM evidence, and ready-to-apply fix blueprints per component.  |
+| **WCAG 2.2 AA Compliance Report** | `.pdf`  | Stakeholders     | Formal document with compliance score, legal risk summary, and remediation roadmap for non-technical audiences.  |
 | **Manual Checklist**  | `.html` | Developers / QA  | Step-by-step guide for the WCAG criteria that automated tools cannot detect, covering all 41 manual checkpoints. |
 
 ## Technical Reference
@@ -89,8 +79,6 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 ## External Resources
 
 - [WCAG 2.2 Specification](https://www.w3.org/TR/WCAG22/)
-- [Axe-Core Rules](https://dequeuniversity.com/rules/axe/4.11)
-- [Playwright Emulation Guide](https://playwright.dev/docs/emulation)
 - [Agent Skills Standard](https://agentskills.io/)
 - [Claude Skills](https://docs.anthropic.com/en/docs/claude-code/skills)
 - [Antigravity Skills](https://antigravity.google/docs/skills)

@@ -10,19 +10,6 @@
 - [Command Categories](#command-categories)
 - [Advanced Patterns](#advanced-patterns)
 
-## Environment & Execution Paths
-
-This skill follows the [Agent Skills standard](https://agentskills.io) and is aligned with [Claude's Best Practices for Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
-
-| Agent / IDE     | Skill Install Path (Global/User)               | Verification Command           |
-| :-------------- | :--------------------------------------------- | :----------------------------- |
-| **Claude**      | `~/.claude/skills/a11y/`                       | `claude skills`                |
-| **Antigravity** | `~/.gemini/antigravity/skills/a11y/`           | `antigravity status`           |
-| **Cursor**      | `~/.cursor/skills/` (or inherits Claude/Codex) | Check "Specialized Skills" tab |
-| **Codex**       | `~/.codex/skills/a11y/`                        | `codex status`                 |
-| **Windsurf**    | `~/.codeium/windsurf/skills/a11y/`             | `windsurf status`              |
-| **Gemini CLI**  | `~/.gemini/skills/a11y/`                       | `gemini status`                |
-
 ## Basic Usage
 
 The primary command is `pnpm a11y`. It is an alias for `node scripts/audit.mjs`.
@@ -56,7 +43,7 @@ Flags used to customize _how_ the engine interprets rules.
 | `--only-rule`         | `<id>`   | `null`        | Run ONLY this specific Axe rule ID (e.g., `color-contrast`).                                         |
 | `--ignore-findings`   | `<csv>`  | `null`        | List of rule IDs to exclude from the final report.                                                   |
 | `--exclude-selectors` | `<csv>`  | `null`        | CSS selectors to ignore during the DOM scan.                                                         |
-| `--framework`         | `<name>` | `null`        | Override auto-detected framework (`react\|vue\|angular\|svelte\|astro\|shopify\|wordpress\|drupal`). |
+| `--framework`         | `<name>` | `null`        | Override auto-detected framework (`nextjs\|gatsby\|react\|nuxt\|vue\|angular\|svelte\|astro\|shopify\|wordpress\|drupal`). |
 
 ### 3. Execution & Emulation
 
@@ -64,10 +51,10 @@ Flags used to control the _browser_ and _output_.
 
 | Flag             | Argument                              | Default            | Description                                                                     |
 | :--------------- | :------------------------------------ | :----------------- | :------------------------------------------------------------------------------ |
-| `--project-dir`  | `<path>`                              | (none)             | Path to the audited project (for framework/library auto-detection).             |
+| `--project-dir`  | `<path>`                              | (none)             | Path to the audited project source. Enables the source code pattern scanner and framework auto-detection. |
 | `--color-scheme` | `light\|dark`                         | `light`            | Emulates browser `prefers-color-scheme`.                                        |
 | `--headed`       | (No arg)                              | `false`            | Runs the browser in visible mode (useful for debugging).                        |
-| `--wait-ms`      | `<num>`                               | `2000`             | Max wait for `networkidle` after page load (acts as timeout, not fixed delay).  |
+| `--wait-ms`      | `<num>`                               | `2000`             | Fixed delay (ms) after page load before running the axe scan. Useful for pages with async rendering. |
 | `--timeout-ms`   | `<num>`                               | `30000`            | Global network timeout for each page load.                                      |
 | `--wait-until`   | `domcontentloaded\|load\|networkidle` | `domcontentloaded` | Playwright page load strategy. Use `networkidle` for SPAs with async rendering. |
 | `--viewport`     | `<WxH>`                               | (none)             | Viewport dimensions (e.g., `375x812` for mobile, `1440x900` for desktop).      |
