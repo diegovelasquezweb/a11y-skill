@@ -9,6 +9,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.11.0] — 2026-03-01
+
+### Added
+
+- Source code pattern scanner (`pattern-scanner.mjs`) — static analysis of project source files for accessibility issues beyond what axe-core can detect at runtime (focus outline suppression, missing alt text patterns, etc.)
+- Source code pattern findings section in `remediation.md`, HTML, and PDF reports — unified fix flow alongside axe findings
+- Framework-aware scanning in `pattern-scanner.mjs` — scopes file search to framework-specific source boundaries (e.g. `wp-content/themes/` for WordPress), skips minified files, deduplicates overlapping glob directories
+- `## Passed WCAG 2.2 Criteria` section in `remediation.md` — dynamically generated from axe scan results, filtered to AA level only (no AAA)
+- Selector specificity scoring in `analyzer.mjs` — picks the most stable/semantic selector from multiple axe nodes: `#id` (+100) > `[data-*]` (+80) > `[aria-*]` (+60) > `[type=]` (+40), penalizes Tailwind utility classes (-40)
+- Relationship hints, check data extraction, and incomplete finding grouping with page counts in `analyzer.mjs`
+- Backend Root Cause guardrail integrated directly into `guardrails.json` shared rules — agent detects PHP warnings / WP_DEBUG output in DOM and marks findings as out-of-scope automatically
+- `placeholder-is-not-a-label` enhanced remediation pattern: 3-option fix description (sr-only, aria-label, visible label+for), tightened context window, `for=|htmlFor=` added to context_reject_regex
+- `page-has-heading-one` intelligence: instructs agent to search frontend source first, mark as out-of-scope if content is CMS/backend-managed
+- File creation approval gate in SKILL.md Constraints — agent must ask before creating any new file
+
+### Changed
+
+- `remediation.md` per-finding output significantly reduced — removed redundant fields that duplicated other sections or provided no value to the agent:
+  - **Surgical Selector** removed — Evidence from DOM HTML is sufficient for source code search
+  - **Target Area** removed — duplicated the `## [PAGE]` section header
+  - **Why Axe Flagged This** section removed — duplicated Observed Violation and Evidence from DOM
+  - **Execution Metadata** block removed — all fields were internal pipeline data or duplicates
+  - **Search in** (per finding) removed — duplicated the `## Source File Locations` table
+  - **Fallback verify** command removed — one verify command per finding is sufficient
+  - `Fix any of the following:` axe prefix stripped from Observed Violation
+  - `- **Status:** confirmed` removed from pattern findings (redundant with section header)
+- `## Recommendations` section suppressed when only one component group is present — duplicated Execution Order table
+- Emojis (`⚠️`, `ℹ️`) removed from all rendered output — zero semantic value for agent context
+- `guardrails.json`: "Surgical Selection" guardrail renamed to "Element Verification", updated to reference Evidence from DOM
+- SKILL.md Step 2 bash examples collapsed from 4 commands to 2 (sitemap/10-page and custom/all are the only variants)
+- SKILL.md Step 4 "Let me pick" flow deduplicated — was written identically in both structural and style passes
+- `references/report-standards.md`: removed TOC (7 lines), Required Finding Fields section (12 lines, duplicated template), and concrete example block (17 lines) — 128 → 77 lines
+- `references/report-standards.md`: `**Selector**` field in Finding Template replaced with `**Evidence**` pointing to DOM snippet
+- `references/quality-gates.md`: Gates 2 and 3 updated to match current `remediation.md` format — removed references to JSON internal fields (`pages_scanned`, `wcag_classification`) not visible in the rendered guide; Gate 4 phase labels updated from "4a/4b" to "structural/style"
+- `references/quality-gates.md` Gate 3: Overall Assessment derivation rule updated — agent computes from severity table, not from a header field (field was never rendered in `remediation.md`)
+- SKILL.md Step 4: "Fixes by Component" table reference marked "if present" — table is suppressed for single-component audits
+
+### Removed
+
+- `references/out-of-scope.md` — backend root cause guidance integrated into `guardrails.json` shared rules
+- Code patterns reference documentation — content consolidated into `intelligence.json` and `code-patterns.json`
+
+### Fixed
+
+- `pattern-scanner.mjs` subdirectory deduplication — overlapping globs (e.g. `src/` + `src/components/`) caused findings to be double-counted; parent directories now take precedence
+- Shell injection in `.github/workflows/pr-standards.yml` — PR title with backticks caused command expansion; title moved to step-level `env:` variable
+- `intelligence.json` `color-contrast` fix_difficulty_notes: removed stale "Surgical Selector" reference
+
+---
+
 ## [0.10.0] — 2026-02-26
 
 ### Added

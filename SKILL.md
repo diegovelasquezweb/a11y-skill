@@ -5,7 +5,7 @@ compatibility: Requires Node.js 18+, pnpm (npm as fallback), and internet access
 license: MIT
 metadata:
   author: diegovelasquezweb
-  version: "0.10.0"
+  version: "0.11.0"
 ---
 
 # Web Accessibility Audit — Agent Playbook
