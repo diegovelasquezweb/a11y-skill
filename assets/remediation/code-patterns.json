@@ -10,10 +10,10 @@
       "type": "structural",
       "fix_description": "Placeholder text is not a label — it disappears on input and is not reliably announced by screen readers. Fix using one of these approaches:\n\n**Option A — Visually hidden label (preferred when no visible label exists):**\n```jsx\n<label htmlFor=\"field-id\" className=\"sr-only\">Field name</label>\n<input id=\"field-id\" placeholder=\"...\" />\n```\n\n**Option B — aria-label (acceptable for icon-only inputs like search):**\n```jsx\n<input aria-label=\"Search\" placeholder=\"Search\" />\n```\n\n**Option C — Visible label already exists nearby (wire it up):**\n```jsx\n<label htmlFor=\"field-id\">Field name</label>\n<input id=\"field-id\" placeholder=\"...\" />\n```\n\nNever rely on `placeholder` alone as the accessible name. Always verify the label is announced correctly with a screen reader.",
       "requires_manual_verification": true,
-      "regex": "<input[^/\\n>]*\\bplaceholder=",
+      "regex": "\\bplaceholder=[\"']",
       "globs": ["**/*.tsx", "**/*.jsx", "**/*.html", "**/*.vue", "**/*.svelte", "**/*.astro"],
-      "context_reject_regex": "aria-label|aria-labelledby|for=|htmlFor=",
-      "context_window": 2
+      "context_reject_regex": "aria-label|aria-labelledby|for=|htmlFor=|<label",
+      "context_window": 6
     },
     {
       "id": "mouseover-without-focus",

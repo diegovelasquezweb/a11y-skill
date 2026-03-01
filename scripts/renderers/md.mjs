@@ -256,47 +256,65 @@ function buildPatternSection(patternPayload) {
   if (!patternPayload || !Array.isArray(patternPayload.findings) || patternPayload.findings.length === 0) return "";
 
   const { findings, project_dir } = patternPayload;
-  const confirmed = findings.filter((f) => f.status === "confirmed");
-  const potential = findings.filter((f) => f.status === "potential");
 
+  const groups = new Map();
+  for (const f of findings) {
+    if (!groups.has(f.pattern_id)) {
+      groups.set(f.pattern_id, {
+        title: f.title,
+        severity: f.severity,
+        wcag: f.wcag,
+        type: f.type,
+        fix_description: f.fix_description ?? null,
+        findings: [],
+      });
+    }
+    groups.get(f.pattern_id).findings.push(f);
+  }
+
+  const totalLocations = findings.length;
+  const confirmedCount = findings.filter((f) => f.status === "confirmed").length;
+  const potentialCount = findings.filter((f) => f.status === "potential").length;
   const badge = [
-    confirmed.length > 0 ? `${confirmed.length} confirmed` : null,
-    potential.length > 0 ? `${potential.length} potential` : null,
+    confirmedCount > 0 ? `${confirmedCount} confirmed` : null,
+    potentialCount > 0 ? `${potentialCount} potential` : null,
   ].filter(Boolean).join(", ");
 
-  function patternFindingToMd(f) {
-    return [
+  function groupToMd(group) {
+    const confirmed = group.findings.filter((f) => f.status === "confirmed");
+    const potential = group.findings.filter((f) => f.status === "potential");
+    const count = group.findings.length;
+
+    const lines = [
       `---`,
-      `### ${f.id} · ${f.severity} · ${f.title}`,
+      `### ${group.title} · ${group.severity} · ${count} location${count !== 1 ? "s" : ""}`,
       ``,
-      `- **File:** \`${f.file}:${f.line}\``,
-      `- **WCAG:** ${f.wcag}`,
-      `- **Type:** ${f.type}`,
-      ``,
-      `**Match:**`,
-      `\`\`\``,
-      f.match,
-      `\`\`\``,
-      f.context ? `` : null,
-      f.context ? `**Context:**\n\`\`\`\n${f.context}\n\`\`\`` : null,
-      f.fix_description ? `` : null,
-      f.fix_description ? `#### Recommended Fix\n${f.fix_description}` : null,
-    ].filter((line) => line !== null).join("\n");
+      `- **WCAG:** ${group.wcag}`,
+      `- **Type:** ${group.type}`,
+    ];
+
+    if (confirmed.length > 0) {
+      lines.push(``, `**Confirmed (${confirmed.length}):**`);
+      for (const f of confirmed) lines.push(`- \`${f.file}:${f.line}\` — \`${f.match}\``);
+    }
+    if (potential.length > 0) {
+      lines.push(``, `**Potential — verify before fixing (${potential.length}):**`);
+      for (const f of potential) lines.push(`- \`${f.file}:${f.line}\` — \`${f.match}\``);
+    }
+    if (group.fix_description) {
+      lines.push(``, `#### Recommended Fix`, group.fix_description);
+    }
+
+    return lines.join("\n");
   }
 
-  const parts = [];
-  if (confirmed.length > 0) {
-    parts.push(`### Confirmed (${confirmed.length})\n\n${confirmed.map(patternFindingToMd).join("\n\n")}`);
-  }
-  if (potential.length > 0) {
-    parts.push(`### Potential — Verify Before Fixing (${potential.length})\n\n> These matches require manual verification. Inspect each match in the source file before applying any fix.\n\n${potential.map(patternFindingToMd).join("\n\n")}`);
-  }
+  const parts = [...groups.values()].map(groupToMd);
 
   return `## Source Code Pattern Findings
 
-These findings were detected via static source code analysis and are not visible to the browser scanner. Do not auto-fix — inspect each match in the source file first.
+${groups.size} pattern type${groups.size !== 1 ? "s" : ""} · ${totalLocations} location${totalLocations !== 1 ? "s" : ""} (${badge}) — scanned \`${project_dir || "project"}\`
 
-**${badge}** — scanned \`${project_dir || "project"}\`
+Do not auto-fix — inspect each match in the source file before applying any fix.
 
 ${parts.join("\n\n")}`;
 }

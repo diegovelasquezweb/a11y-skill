@@ -155,7 +155,7 @@ Apply consistently — same issue type = same severity across all findings.
 
 Then summarize and present:
 
-1. State the **Overall Assessment** from the report header. Follow with a count by severity (Critical → Serious → Moderate → Minor). If source code pattern findings are present in the remediation guide, include them in the total — e.g. "N axe violations + M source patterns (P confirmed, Q potential)".
+1. State the **Overall Assessment** from the report header. Then state the **full scan total** — this number must include every finding from the scan: all axe violations (all severities) plus all source patterns. Never show only Critical/Serious as the headline count. Format: "N axe violations (X Critical, Y Serious, Z Moderate, W Minor) + T source pattern types (M locations: P confirmed, Q potential) — N+M total." This total is the baseline used to compute the delta in Step 5.
 2. Propose specific fixes from the remediation guide.
 3. Group by component or page area, explaining why each fix matters.
 4. Ask how to proceed:
@@ -274,7 +274,7 @@ After the script completes, immediately parse ALL findings and present results �
 - **All clear (0 issues)** → proceed to Step 6.
 - **Issues found (any kind)** → follow this sequence:
 
-  1. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. If `{new} > 0`, append inline: *"New issues are expected after fixing parent violations — axe-core evaluates child elements for the first time once the parent is resolved."* Then present all findings grouped by severity (same format as Step 3).
+  1. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. If `{new} > 0`, append inline: *"New issues are expected after fixing parent violations — axe-core evaluates child elements for the first time once the parent is resolved."* Immediately after the delta line, append a one-line breakdown of what `{remaining}` contains — e.g. *"Includes: 8 axe violations (8 Serious) + 14 Moderate (not addressed) + 42 source patterns."* This prevents the user from being confused when the remaining count includes issues that were intentionally skipped or not in scope for this session. Then present all findings grouped by severity (same format as Step 3).
   2. **Always ask immediately after presenting findings** — never stop or pause here, even if all remaining issues were previously declined:
 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
