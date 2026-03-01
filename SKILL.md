@@ -340,7 +340,24 @@ If **No thanks**: skip to item 6.
 
    Apply the file-open rule to each generated file. **Then immediately continue to item 6 — do not wait for user input.**
 
-6. Output the manual testing reminder and checklist offer in the same response — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 7.
+6. If `--project-dir` was provided, ask:
+
+`[QUESTION]` **Scan source code patterns?**
+
+The source scanner checks your **entire codebase** for issues axe-core cannot detect at runtime — suppressed focus outlines, autoplay attributes, missing `prefers-reduced-motion` queries, and more. Unlike the DOM scan, it always scans all project files regardless of how many pages were audited. Results appear in the remediation guide only.
+
+1. **Yes** — run source code pattern scan
+2. **No thanks** — skip
+
+If **Yes**, run in order:
+```bash
+node scripts/engine/source-scanner.mjs --project-dir <path> [--framework <val>]
+node scripts/engine/analyzer.mjs
+node scripts/reports/builders/md.mjs --output <REMEDIATION_PATH> --base-url <URL>
+```
+Then present any new findings from the "Source Code Pattern Findings" section of the updated remediation guide. **Then immediately continue to item 7 — do not wait for user input.**
+
+7. Output the manual testing reminder and checklist offer in the same response — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 8.
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
@@ -370,24 +387,7 @@ Then:
 node scripts/reports/builders/checklist.mjs --output <path>/checklist.html --base-url <URL>
 ```
 
-Apply the file-open rule. **Then immediately continue to item 7 — do not wait for user input.**
-
-7. If `--project-dir` was provided, ask:
-
-`[QUESTION]` **Scan source code patterns?**
-
-The source scanner checks your **entire codebase** for issues axe-core cannot detect at runtime — suppressed focus outlines, autoplay attributes, missing `prefers-reduced-motion` queries, and more. Note: it always scans all project files, not just the pages audited.
-
-1. **Yes** — run source code pattern scan
-2. **No thanks** — skip
-
-If **Yes**, run in order:
-```bash
-node scripts/engine/source-scanner.mjs --project-dir <path> [--framework <val>]
-node scripts/engine/analyzer.mjs
-node scripts/reports/builders/md.mjs --output <REMEDIATION_PATH> --base-url <URL>
-```
-Then present any new findings from the "Source Code Pattern Findings" section of the updated remediation guide. Apply the file-open rule if reports were already generated (re-run them to include source patterns). **Then immediately continue to item 8 — do not wait for user input.**
+Apply the file-open rule. **Then immediately continue to item 8 — do not wait for user input.**
 
 8. Output the closing message and follow-up question in the same response. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip the `[MESSAGE]` and go directly to the `[QUESTION]`.
 
