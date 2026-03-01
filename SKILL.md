@@ -30,7 +30,7 @@ These rules apply at all times, independent of any workflow step.
 - Never install, remove, or initialize packages in the user's project. The audit script handles dependency installation automatically on first run — do not run `pnpm install` manually before running scripts.
 - All pipeline files (scan results, findings, remediation guide, screenshots) stay inside the skill directory — never in the user's project.
 - Visual reports (HTML/PDF) are only created in Step 6, after the user explicitly requests them. Never generate reports in any other step.
-- Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
+- Never modify engine scripts to hardcode project-specific exclusions.
 - Never declare "100% accessible" based on a targeted audit. Only a comprehensive full-site verification can confirm that.
 - Treat scripts as black boxes: run with `--help` to discover flags. Do not read script source — it consumes context budget for no benefit.
 - If `pnpm` is not available, use `npm` as fallback.
@@ -262,7 +262,7 @@ This step is **mandatory** — always run it after fixes, no exceptions. Do not 
 
 ```bash
 # Exact same flags as Step 2 — do not change any values
-node scripts/audit.mjs --base-url <URL> --max-routes <N>
+node scripts/audit.mjs --base-url <URL> --max-routes <N> --skip-patterns
 ```
 
 > **Flag parity is mandatory.** Use the exact same `--base-url`, `--max-routes`, `--project-dir`, `--framework`, and any other flags from Step 2. Never reduce `--max-routes` or omit flags — a smaller crawl produces an incomplete delta and makes resolved counts unreliable.
@@ -350,7 +350,6 @@ The source scanner checks your **entire codebase** for issues axe-core cannot de
 If **Yes**, run in order:
 ```bash
 node scripts/engine/source-scanner.mjs --project-dir <path> [--framework <val>]
-node scripts/engine/analyzer.mjs
 node scripts/reports/builders/md.mjs --output <REMEDIATION_PATH> --base-url <URL>
 ```
 Then present any new findings from the "Source Code Pattern Findings" section of the updated remediation guide. **Then immediately continue to item 7 — do not wait for user input.**
@@ -367,7 +366,7 @@ Then present any new findings from the "Source Code Pattern Findings" section of
 
 `[QUESTION]` **Would you like to export the manual testing checklist?**
 
-1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
+1. **Yes** — generate `checklist.html` with all checks and step-by-step instructions
 2. **No thanks**
 
 If **Yes**: if a save path was already established in item 4 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 3), ask:
