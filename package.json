@@ -6,7 +6,8 @@
   "scripts": {
     "a11y": "node scripts/audit.mjs",
     "test": "vitest run",
-    "postinstall": "npx playwright install chromium"
+    "postinstall": "npx playwright install chromium",
+    "sync": "rsync -av --delete --exclude='.git/' --exclude='.github/' --exclude='.audit/' . ~/.claude/skills/a11y/ && rsync -av --delete --exclude='.git/' --exclude='.github/' --exclude='.audit/' . ~/.gemini/skills/a11y/"
   },
   "dependencies": {
     "playwright": "^1.58.2",
