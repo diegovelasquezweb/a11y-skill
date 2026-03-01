@@ -9,7 +9,7 @@ import { spawn, execSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import fs from "node:fs";
-import { log, DEFAULTS, SKILL_ROOT, getInternalPath } from "./utils.mjs";
+import { log, DEFAULTS, SKILL_ROOT, getInternalPath } from "./core/utils.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -42,6 +42,8 @@ Execution & Emulation:
   --headed                Run browser in visible mode (overrides headless).
   --with-reports          Generate HTML and PDF reports (requires --output).
   --skip-reports          Omit HTML and PDF report generation (default).
+  --skip-patterns         Skip source code pattern scanning even if --project-dir is set.
+  --affected-only         Re-scan only routes that had violations in the previous scan (faster re-audits).
   --wait-ms <num>         Time to wait after page load (default: 2000).
   --timeout-ms <num>      Network timeout (default: 30000).
   -h, --help              Show this help.
@@ -152,6 +154,8 @@ async function main() {
 
   const onlyRule = getArgValue("only-rule");
   const skipReports = argv.includes("--skip-reports") || !argv.includes("--with-reports");
+  const skipPatterns = argv.includes("--skip-patterns");
+  const affectedOnly = argv.includes("--affected-only");
   const ignoreFindings = getArgValue("ignore-findings");
   const excludeSelectors = getArgValue("exclude-selectors");
 
@@ -198,10 +202,31 @@ async function main() {
       log.success("Dependencies ready.");
     }
 
-    await runScript("toolchain.mjs");
+    await runScript("core/toolchain.mjs");
 
     const screenshotsDir = getInternalPath("screenshots");
     fs.rmSync(screenshotsDir, { recursive: true, force: true });
+
+    let effectiveRoutes = routes;
+    if (affectedOnly && !routes) {
+      const prevScanPath = getInternalPath("a11y-scan-results.json");
+      if (fs.existsSync(prevScanPath)) {
+        try {
+          const prevScan = JSON.parse(fs.readFileSync(prevScanPath, "utf-8"));
+          const affected = (prevScan.routes ?? [])
+            .filter((r) => Array.isArray(r.violations) && r.violations.length > 0)
+            .map((r) => r.path);
+          if (affected.length > 0) {
+            effectiveRoutes = affected.join(",");
+            log.info(`--affected-only: re-scanning ${affected.length} route(s) with previous violations.`);
+          } else {
+            log.info("--affected-only: no previous violations found — running full scan.");
+          }
+        } catch { /* fallback to full scan */ }
+      } else {
+        log.info("--affected-only: no previous scan found — running full scan.");
+      }
+    }
 
     const scanArgs = [
       "--base-url",
@@ -222,21 +247,21 @@ async function main() {
     if (onlyRule) scanArgs.push("--only-rule", onlyRule);
     if (excludeSelectors)
       scanArgs.push("--exclude-selectors", excludeSelectors);
-    if (routes) scanArgs.push("--routes", routes);
+    if (effectiveRoutes) scanArgs.push("--routes", effectiveRoutes);
     if (colorScheme) scanArgs.push("--color-scheme", colorScheme);
     if (waitUntil) scanArgs.push("--wait-until", waitUntil);
     if (viewport) {
       scanArgs.push("--viewport", `${viewport.width}x${viewport.height}`);
     }
 
-    await runScript("scanner.mjs", scanArgs, childEnv);
+    await runScript("engine/dom-scanner.mjs", scanArgs, childEnv);
 
     const analyzerArgs = [];
     if (ignoreFindings) analyzerArgs.push("--ignore-findings", ignoreFindings);
     if (framework) analyzerArgs.push("--framework", framework);
-    await runScript("analyzer.mjs", analyzerArgs);
+    await runScript("engine/analyzer.mjs", analyzerArgs);
 
-    if (projectDir) {
+    if (projectDir && !skipPatterns) {
       const patternArgs = ["--project-dir", path.resolve(projectDir)];
       let resolvedFramework = framework;
       if (!resolvedFramework) {
@@ -246,7 +271,7 @@ async function main() {
         } catch { /* ignore */ }
       }
       if (resolvedFramework) patternArgs.push("--framework", resolvedFramework);
-      await runScript("pattern-scanner.mjs", patternArgs);
+      await runScript("engine/source-scanner.mjs", patternArgs);
     }
 
     const mdOutput = getInternalPath("remediation.md");
@@ -254,7 +279,7 @@ async function main() {
     if (target) mdArgs.push("--target", target);
 
     if (skipReports) {
-      await runScript("report-md.mjs", mdArgs);
+      await runScript("reports/builders/md.mjs", mdArgs);
     } else {
       const output = getArgValue("output");
       if (!output) {
@@ -278,10 +303,10 @@ async function main() {
       const checklistArgs = ["--output", checklistOutput, "--base-url", baseUrl];
 
       await Promise.all([
-        runScript("report-html.mjs", buildArgs),
-        runScript("report-checklist.mjs", checklistArgs),
-        runScript("report-md.mjs", mdArgs),
-        runScript("report-pdf.mjs", pdfArgs),
+        runScript("reports/builders/html.mjs", buildArgs),
+        runScript("reports/builders/checklist.mjs", checklistArgs),
+        runScript("reports/builders/md.mjs", mdArgs),
+        runScript("reports/builders/pdf.mjs", pdfArgs),
       ]);
 
       console.log(`REPORT_PATH=${absoluteOutputPath}`);
@@ -295,7 +320,6 @@ async function main() {
   }
 }
 
-// Initialize the audit execution pipeline.
 main().catch((error) => {
   log.error(`Critical Audit Failure: ${error.message}`);
   process.exit(1);

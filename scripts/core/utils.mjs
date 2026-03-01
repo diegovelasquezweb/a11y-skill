@@ -15,7 +15,7 @@ const __dirname = path.dirname(__filename);
  * The absolute root directory of the a11y skill project.
  * @type {string}
  */
-export const SKILL_ROOT = path.join(__dirname, "..");
+export const SKILL_ROOT = path.join(__dirname, "..", "..");
 
 /**
  * Default configuration values for the accessibility audit scanner.

@@ -7,7 +7,7 @@ import {
   makeFindingId,
   isConfirmedByContext,
   scanPattern,
-} from "../scripts/pattern-scanner.mjs";
+} from "../scripts/engine/source-scanner.mjs";
 
 const BASE_PATTERN = {
   id: "placeholder-only-label",

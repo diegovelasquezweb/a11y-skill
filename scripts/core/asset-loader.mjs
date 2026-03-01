@@ -8,7 +8,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ASSET_ROOT = path.join(__dirname, "..", "assets");
+const ASSET_ROOT = path.join(__dirname, "..", "..", "assets");
 
 export const ASSET_PATHS = {
   discovery: {

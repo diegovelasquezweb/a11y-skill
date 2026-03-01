@@ -8,13 +8,13 @@
 import { chromium } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
-import { readJson, log, getInternalPath, DEFAULTS } from "./utils.mjs";
+import { readJson, log, getInternalPath, DEFAULTS } from "../../core/utils.mjs";
 import {
   normalizeFindings,
   buildSummary,
   computeComplianceScore,
   wcagOverallStatus,
-} from "./renderers/findings.mjs";
+} from "../renderers/findings.mjs";
 import {
   scoreMetrics,
   buildPdfTableOfContents,
@@ -26,7 +26,7 @@ import {
   buildPdfNextSteps,
   buildPdfAuditLimitations,
   buildPdfCoverPage,
-} from "./renderers/pdf.mjs";
+} from "../renderers/pdf.mjs";
 
 /**
  * Prints the CLI usage instructions and available options for the PDF report builder.
@@ -253,7 +253,6 @@ async function main() {
   }
 }
 
-// Execute the PDF report generator.
 main().catch((error) => {
   log.error(`Unhandled PDF Generation Error: ${error.message}`);
   process.exit(1);

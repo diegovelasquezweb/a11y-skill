@@ -76,7 +76,7 @@ The score is mapped to a letter grade for quick stakeholder communication:
 
 ## WCAG Overall Status
 
-The Compliance Score is a **continuous metric** (0–100). The **WCAG Overall Status** is a separate **binary assessment** that gates report colors in the HTML and PDF outputs (`scripts/renderers/findings.mjs → wcagOverallStatus()`).
+The Compliance Score is a **continuous metric** (0–100). The **WCAG Overall Status** is a separate **binary assessment** that gates report colors in the HTML and PDF outputs (`scripts/reports/renderers/findings.mjs → wcagOverallStatus()`).
 
 | Status | Condition |
 | :--- | :--- |
@@ -87,7 +87,7 @@ The Compliance Score is a **continuous metric** (0–100). The **WCAG Overall St
 > [!IMPORTANT]
 > Report colors are driven by WCAG Overall Status, **not** by the Compliance Score. A site with a 90/100 score that still has one Critical finding will render **red** in both the HTML and PDF reports. The score and status are independent metrics — the score measures accumulated debt; the status measures WCAG binary conformance.
 
-## Calculation Logic (`scripts/renderers/findings.mjs`)
+## Calculation Logic (`scripts/reports/renderers/findings.mjs`)
 
 1. **Grouping**: Multiple DOM instances of the same rule violation on a given route are grouped into one finding (with evidence showing up to 3 instances). Each unique rule-per-route counts as one penalty unit.
 2. **Weighting**: Each unique finding's severity is matched against the penalty table.

@@ -5,7 +5,7 @@
  * remediation roadmap, and technical methodology for the PDF report.
  */
 
-import { ASSET_PATHS, loadAssetJson } from "../assets.mjs";
+import { ASSET_PATHS, loadAssetJson } from "../../core/asset-loader.mjs";
 import { computeComplianceScore, scoreLabel, wcagOverallStatus } from "./findings.mjs";
 import { escapeHtml } from "./utils.mjs";
 

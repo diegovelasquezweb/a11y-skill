@@ -30,7 +30,7 @@ These rules apply at all times, independent of any workflow step.
 - Never install, remove, or initialize packages in the user's project. The audit script handles dependency installation automatically on first run — do not run `pnpm install` manually before running scripts.
 - All pipeline files (scan results, findings, remediation guide, screenshots) stay inside the skill directory — never in the user's project.
 - Visual reports (HTML/PDF) are only created in Step 6, after the user explicitly requests them. Never generate reports in any other step.
-- Never modify engine scripts (`scripts/*.mjs`) to hardcode project-specific exclusions.
+- Never modify engine scripts to hardcode project-specific exclusions.
 - Never declare "100% accessible" based on a targeted audit. Only a comprehensive full-site verification can confirm that.
 - Treat scripts as black boxes: run with `--help` to discover flags. Do not read script source — it consumes context budget for no benefit.
 - If `pnpm` is not available, use `npm` as fallback.
@@ -100,7 +100,7 @@ If the user mentions "sitemap" at any point, use it directly (Data-first rule) �
 3. **All reachable pages** — comprehensive, may take several minutes on large sites
 4. **Custom** — tell me the exact number
 
-If option 1: if the user has not yet specified a path, ask in plain text — "Which page? Type the path without the leading slash (e.g. `contact`, `about`) — or press Enter for the homepage." — and wait for the answer. If the user types nothing or "home", use the base URL as-is. Otherwise append the path: `--base-url <URL>/<path> --max-routes 1`. If Custom: ask in plain text — "How many pages?" — and wait for a number. **Never use the option number (4) as the page count.** Store the number and proceed to Step 2.
+If option 1: if the user has not yet specified a path, ask in plain text — "Which page? Type `home` for the root, or a path like `about` or `contact`." — and wait for the answer. If the user types "home" or the homepage URL, use `--base-url <URL> --max-routes 1`. Otherwise append the path: `--base-url <URL>/<path> --max-routes 1`. After the scan, if 0 routes were scanned or navigation failed for that URL, warn the user: "The page `/<path>` could not be reached — it may not exist. Please confirm the path and I'll re-run." Do not proceed to findings until confirmed. If Custom: ask in plain text — "How many pages?" — and wait for a number. **Never use the option number (4) as the page count.** Store the number and proceed to Step 2.
 
 Store the user's choice. Proceed to Step 2.
 
@@ -119,7 +119,7 @@ node scripts/audit.mjs --base-url <URL> --max-routes 1
 node scripts/audit.mjs --base-url <URL> --max-routes <N>  # 999 = all
 ```
 
-Always pass `--project-dir <path>` for local projects. When provided, the source code pattern scanner runs automatically alongside axe — pattern findings appear in the "Source Code Pattern Findings" section of the remediation guide and are part of the unified fix flow. If you can identify the stack from the project files, also pass `--framework <value>` (nextjs|gatsby|react|nuxt|vue|angular|astro|svelte|shopify|wordpress|drupal) — explicit detection is more reliable than auto-detection. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
+Always pass `--project-dir <path>` for local projects. Always include `--skip-patterns` — source code pattern scanning is offered separately in Step 6. If you can identify the stack from the project files, also pass `--framework <value>` (nextjs|gatsby|react|nuxt|vue|angular|astro|svelte|shopify|wordpress|drupal) — explicit detection is more reliable than auto-detection. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
 
 After completion, parse `REMEDIATION_PATH` from script output and read that file. **Fallback**: if `REMEDIATION_PATH` is absent in the output, read `.audit/remediation.md` directly. Do not share internal file paths with the user.
 
@@ -155,7 +155,7 @@ Apply consistently — same issue type = same severity across all findings.
 
 Then summarize and present:
 
-1. State the **Overall Assessment** from the report header. Then state the **full scan total** — this number must include every finding from the scan: all axe violations (all severities) plus all source patterns. Never show only Critical/Serious as the headline count. Format: "N axe violations (X Critical, Y Serious, Z Moderate, W Minor) + T source pattern types (M locations: P confirmed, Q potential) — N+M total." This total is the baseline used to compute the delta in Step 5.
+1. State the **Overall Assessment** from the report header. Then state the **full scan total** — all axe violations across all severities. Never show only Critical/Serious as the headline count. Format: "N findings (X Critical, Y Serious, Z Moderate, W Minor)." This total is the baseline used to compute the delta in Step 5.
 2. Propose specific fixes from the remediation guide.
 3. Group by component or page area, explaining why each fix matters.
 4. Ask how to proceed:
@@ -185,20 +185,18 @@ If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: retu
 
 Run structural fixes first, then style fixes. Both must run — never skip one because the user declined fixes in the other.
 
-Axe findings and source code pattern findings are treated as a **unified set**. Pattern findings tagged `type: structural` are handled in the structural pass alongside axe structural fixes. Pattern findings tagged `type: style` are handled in the style pass alongside axe style fixes. For a pattern finding, fix in the source file at `file:line` using the `match` and `fix_description` from the report — not in the DOM.
-
 - **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor.
 - **Other criteria**: follow the user's specified prioritization throughout.
 
 #### Structural fixes (Critical → Serious → Moderate → Minor)
 
-Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM order, lang, heading hierarchy). Includes both axe structural findings and source code pattern findings tagged `type: structural`.
+Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM order, lang, heading hierarchy).
 
-> **Scope boundary**: covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in the style pass — regardless of severity. If a finding (axe or pattern) involves a color or visual property, set it aside for the style pass. Do not apply it here.
+> **Scope boundary**: covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in the style pass — regardless of severity. If a finding involves a color or visual property, set it aside for the style pass. Do not apply it here.
 
-If there are no structural findings (axe or pattern) to fix, skip directly to the style pass.
+If there are no structural findings to fix, skip directly to the style pass.
 
-Use the **Source File Locations** section of the remediation guide to locate source files by detected framework. For axe findings, use `fix_description`, `fix_code`, framework notes, and evidence as the source of truth. For pattern findings, use `file:line`, `match`, and `fix_description` from the "Source Code Pattern Findings" section of the report.
+Use the **Source File Locations** section of the remediation guide to locate source files by detected framework. Use `fix_description`, `fix_code`, framework notes, and evidence as the source of truth.
 
 - Use glob patterns and the "Fixes by Component" table from the remediation guide (if present) to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
@@ -220,7 +218,7 @@ If **Looks good**: proceed to the next group or style pass. If **Something's wro
 
 #### Style fixes (color contrast, font size, spacing, focus styles)
 
-Includes axe style findings (color-contrast, font-size, spacing) and source code pattern findings tagged `type: style` (e.g. suppressed focus outlines). If there are no style-dependent findings of either kind, skip directly to Step 5.
+Includes color-contrast, font-size, spacing, and focus style findings. If there are no style findings, skip directly to Step 5.
 
 > **Hard stop before any style change**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
@@ -264,10 +262,10 @@ This step is **mandatory** — always run it after fixes, no exceptions. Do not 
 
 ```bash
 # Exact same flags as Step 2 — do not change any values
-node scripts/audit.mjs --base-url <URL> --max-routes <N>
+node scripts/audit.mjs --base-url <URL> --max-routes <N> --skip-patterns --affected-only
 ```
 
-> **Flag parity is mandatory.** Use the exact same `--base-url`, `--max-routes`, `--project-dir`, `--framework`, and any other flags from Step 2. Never reduce `--max-routes` or omit flags — a smaller crawl produces an incomplete delta and makes resolved counts unreliable.
+> **Flag parity is mandatory.** Use the exact same `--base-url`, `--max-routes`, `--project-dir`, `--framework`, and any other flags from Step 2. Never reduce `--max-routes` or omit flags — a smaller crawl produces an incomplete delta and makes resolved counts unreliable. `--affected-only` re-scans only routes that had violations in the previous scan — it does not change the scope of what is reported.
 
 If the script fails: verify the site is reachable (`curl -s -o /dev/null -w "%{http_code}" <URL>`) before retrying. If it returns a non-200 status, stop and report the error to the user — do not retry with modified flags. If the site is reachable and the script fails a second time, stop and report the error.
 
@@ -276,7 +274,7 @@ After the script completes, immediately parse ALL findings and present results �
 - **All clear (0 issues)** → proceed to Step 6.
 - **Issues found (any kind)** → follow this sequence:
 
-  1. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. In all re-audit cycles, `{resolved}` is always **Step 2 original total minus current remaining** — cumulative, never reset to a previous cycle's count. If `{new} > 0`, append inline: *"New issues are expected after fixing parent violations — axe-core evaluates child elements for the first time once the parent is resolved. Net improvement: {resolved − new} issues eliminated since the initial scan."* Immediately after the delta line, append a one-line breakdown of what `{remaining}` contains — e.g. *"Includes: 8 axe violations (8 Serious) + 14 Moderate (not addressed) + 42 source patterns."* This prevents the user from being confused when the remaining count includes issues that were intentionally skipped or not in scope for this session. **All counts (Total, Resolved, Remaining) must be derived strictly from scan data — axe WCAG A/AA violations plus source code pattern findings. Do not apply your own classification or filter findings using your own judgment about what is or is not a WCAG requirement. If the scanner did not produce it, it does not count.** Then present all remaining findings grouped by severity: Critical first, then Serious → Moderate → Minor. For each finding show: severity label, rule name, affected route, and a one-line description of what needs to be fixed.
+  1. Present the delta summary first in this fixed format: **"`{resolved}` resolved / `{remaining}` remaining / `{new}` new"** — always include all three values, even when zero. In all re-audit cycles, `{resolved}` is always **Step 2 original total minus current remaining** — cumulative, never reset to a previous cycle's count. If `{new} > 0`, append inline: *"New issues are expected after fixing parent violations — axe-core evaluates child elements for the first time once the parent is resolved. Net improvement: {resolved − new} issues eliminated since the initial scan."* Immediately after the delta line, append a one-line breakdown of what `{remaining}` contains — e.g. *"Includes: 8 Serious + 14 Moderate (not addressed)."* This prevents the user from being confused when the remaining count includes issues that were intentionally skipped or not in scope for this session. **All counts must be derived strictly from axe scan data. Do not apply your own classification or filter findings using your own judgment. If the scanner did not produce it, it does not count.** Then present all remaining findings grouped by severity: Critical first, then Serious → Moderate → Minor. For each finding show: severity label, rule name, affected route, and a one-line description of what needs to be fixed.
   2. **Always ask immediately after presenting findings** — never stop or pause here, even if all remaining issues were previously declined:
 
      `[QUESTION]` **The re-audit shows [N] issue(s) remaining. How would you like to proceed?**
@@ -285,7 +283,7 @@ After the script completes, immediately parse ALL findings and present results �
      2. **Let me pick** — show me the list, I'll choose which to fix
      3. **Move on** — accept the remaining issues and proceed to the final summary
 
-  3. If **Keep fixing**: apply fixes following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate; pattern findings included in both passes). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
+  3. If **Keep fixing**: apply fixes following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
   4. If **Let me pick**: present all remaining issues as a numbered list. Ask the user to type the numbers they want fixed (e.g. `1, 3` or `all`), or type `back` to return. Apply only the selected fixes following Step 4 procedures, then run the audit script again and return to step 1 of this sequence.
   5. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
 
@@ -295,7 +293,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 
 ### Step 6 — Deliver results
 
-**All items in this step are mandatory and must execute in order (1 → 7). Never stop after the summary — complete the full step.**
+**All items in this step are mandatory and must execute in order (1 → 8). Never stop after the summary — complete the full step.**
 
 > **File-open rule** — applies to all generated files in this step: verify the file exists on disk before reporting success. Attempt to open with `open` (macOS), `xdg-open` (Linux), or `start` (Windows) only when a GUI session is available. In headless/sandbox environments or if auto-open fails, share the absolute path so the user can open it manually.
 
@@ -332,15 +330,48 @@ If **No thanks**: skip to item 6.
 
    ```bash
    # HTML (run if HTML or Both was selected)
-   node scripts/report-html.mjs --output <path>/report.html --base-url <URL>
+   node scripts/reports/builders/html.mjs --output <path>/report.html --base-url <URL>
 
    # PDF (run if PDF or Both was selected)
-   node scripts/report-pdf.mjs --output <path>/report.pdf --base-url <URL>
+   node scripts/reports/builders/pdf.mjs --output <path>/report.pdf --base-url <URL>
    ```
 
    Apply the file-open rule to each generated file. **Then immediately continue to item 6 — do not wait for user input.**
 
-6. Output the manual testing reminder and checklist offer in the same response — **only if at least one fix was applied during this session**. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip this item entirely and proceed to item 7.
+6. If `--project-dir` was provided, ask:
+
+`[QUESTION]` **Scan source code patterns?**
+
+The source scanner checks your **entire codebase** for issues axe-core cannot detect at runtime — suppressed focus outlines, autoplay attributes, missing `prefers-reduced-motion` queries, and more. Unlike the DOM scan, it always scans all project files regardless of how many pages were audited. Results appear in the remediation guide only.
+
+1. **Yes** — run source code pattern scan
+2. **No thanks** — skip
+
+If **Yes**, run in order:
+```bash
+node scripts/engine/source-scanner.mjs --project-dir <path> [--framework <val>]
+node scripts/reports/builders/md.mjs --output <REMEDIATION_PATH> --base-url <URL>
+```
+Then present any new findings from the "Source Code Pattern Findings" section of the updated remediation guide, grouped by severity. For each pattern group show: severity label, pattern name, number of affected files, and the recommended fix.
+
+If findings were found, ask:
+
+`[QUESTION]` **Source scan found [N] pattern type(s) across [M] locations. Would you like to fix them?**
+
+1. **Fix all** — apply fixes to all pattern findings
+2. **Let me pick** — show me the list, I'll choose which to fix
+3. **Skip** — move on without fixing
+
+If **Fix all** or **Let me pick**: apply code fixes following the guidance in [references/fix-patterns.md](references/fix-patterns.md). Structural changes (e.g. adding `aria-label`, removing `focus:outline-none`) apply silently. After all fixes are applied, re-run the source scanner to verify:
+```bash
+node scripts/engine/source-scanner.mjs --project-dir <path> [--framework <val>]
+node scripts/reports/builders/md.mjs --output <REMEDIATION_PATH> --base-url <URL>
+```
+Present a brief delta: patterns resolved vs remaining. Then continue to item 7.
+
+If **Skip** or no findings: continue to item 7 immediately.
+
+7. Output the manual testing reminder and checklist offer in the same response — **only if at least one fix was applied during this session** (axe fixes in Step 4 or source pattern fixes in item 6). If the user skipped all fixes in Step 3, declined every sub-phase in Step 4, and skipped source patterns, skip this item entirely and proceed to item 8.
 
 `[MESSAGE]` Automated tools cannot catch every accessibility barrier. The following are the most critical checks that require human judgment — please verify them manually.
 
@@ -352,7 +383,7 @@ If **No thanks**: skip to item 6.
 
 `[QUESTION]` **Would you like to export the manual testing checklist?**
 
-1. **Yes** — generate `checklist.html` with all 41 checks and step-by-step instructions
+1. **Yes** — generate `checklist.html` with all checks and step-by-step instructions
 2. **No thanks**
 
 If **Yes**: if a save path was already established in item 4 above, reuse it silently — do not ask again. If no path was set yet (user declined reports in item 3), ask:
@@ -367,12 +398,12 @@ If **Yes**: if a save path was already established in item 4 above, reuse it sil
 Then:
 
 ```bash
-node scripts/report-checklist.mjs --output <path>/checklist.html --base-url <URL>
+node scripts/reports/builders/checklist.mjs --output <path>/checklist.html --base-url <URL>
 ```
 
-Apply the file-open rule. **Then immediately continue to item 7 — do not wait for user input.**
+Apply the file-open rule. **Then immediately continue to item 8 — do not wait for user input.**
 
-7. Output the closing message and follow-up question in the same response. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip the `[MESSAGE]` and go directly to the `[QUESTION]`.
+8. Output the closing message and follow-up question in the same response. If the user skipped all fixes in Step 3 or declined every sub-phase in Step 4, skip the `[MESSAGE]` and go directly to the `[QUESTION]`.
 
 `[MESSAGE]` Great work! By investing in accessibility, you're making your site usable for everyone — including people who rely on screen readers, keyboard navigation, and assistive technology. That commitment matters and sets your project apart. Accessibility isn't a one-time task, so consider scheduling periodic re-audits as your site evolves. Keep it up!
 

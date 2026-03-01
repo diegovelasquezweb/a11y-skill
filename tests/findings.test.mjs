@@ -5,7 +5,7 @@ import {
   normalizeFindings,
   buildSummary,
   buildPersonaSummary,
-} from "../scripts/renderers/findings.mjs";
+} from "../scripts/reports/renderers/findings.mjs";
 
 describe("findings logic", () => {
   describe("computeComplianceScore", () => {

@@ -16,22 +16,26 @@ The core engine is a multi-stage pipeline. For deep-dives into execution flow, s
 
 ### Core Engine
 
-- **`scripts/scanner.mjs`**: The "Eyes". Powered by Playwright and axe-core. Handles browser emulation, route discovery (Crawling/Sitemap), and parallel DOM analysis.
-- **`scripts/pattern-scanner.mjs`**: Static source code scanner. Detects WCAG issues axe-core cannot find at runtime by matching regex patterns against project source files.
-- **`scripts/analyzer.mjs`**: The "Brain". Consumes raw results and enriches them with intelligence data to generate fix roadmaps.
+- **`scripts/engine/dom-scanner.mjs`**: The "Eyes". Powered by Playwright and axe-core. Handles browser emulation, route discovery (Crawling/Sitemap), and parallel DOM analysis.
+- **`scripts/engine/source-scanner.mjs`**: Static source code scanner. Detects WCAG issues axe-core cannot find at runtime by matching regex patterns against project source files.
+- **`scripts/engine/analyzer.mjs`**: The "Brain". Consumes raw results and enriches them with intelligence data to generate fix roadmaps.
 
-### Rendering Engine
+### Report Builders
 
-- **`scripts/report-html.mjs`**: Generates the interactive audit dashboard.
-- **`scripts/report-checklist.mjs`**: Generates the standalone manual testing checklist (`checklist.html`). Reads `assets/reporting/manual-checks.json` directly — no scan input required.
-- **`scripts/report-md.mjs`**: Creates the `remediation.md` guide used by AI agents.
-- **`scripts/report-pdf.mjs`**: Produces the WCAG 2.2 AA Compliance Report.
-- **`scripts/renderers/`**: Modular rendering logic (`html.mjs`, `md.mjs`, `pdf.mjs`), core data normalization (`findings.mjs`), and shared rendering utilities (`utils.mjs`).
+- **`scripts/reports/builders/html.mjs`**: Generates the interactive audit dashboard.
+- **`scripts/reports/builders/checklist.mjs`**: Generates the standalone manual testing checklist (`checklist.html`). Reads `assets/reporting/manual-checks.json` directly — no scan input required.
+- **`scripts/reports/builders/md.mjs`**: Creates the `remediation.md` guide used by AI agents.
+- **`scripts/reports/builders/pdf.mjs`**: Produces the WCAG 2.2 AA Compliance Report.
+
+### Report Renderers
+
+- **`scripts/reports/renderers/`**: Reusable rendering primitives — data normalization (`findings.mjs`), HTML fragment generators (`html.mjs`), format-specific serializers (`md.mjs`, `pdf.mjs`), and string utilities (`utils.mjs`).
 
 ### Infrastructure
 
-- **`scripts/utils.mjs`**: Shared utilities for path resolution, logging, and JSON I/O.
-- **`scripts/toolchain.mjs`**: Environment diagnostic utility.
+- **`scripts/core/utils.mjs`**: Shared utilities for path resolution, logging, and JSON I/O.
+- **`scripts/core/asset-loader.mjs`**: Asset path definitions and JSON loader.
+- **`scripts/core/toolchain.mjs`**: Environment diagnostic utility.
 
 ---
 
@@ -100,8 +104,8 @@ flowchart TD
     F10["scripts/audit.mjs<br/>(same flags as Step 2)"] -.executes.-> S5
     F11["references/quality-gates.md<br/>Gate 5 (delta: resolved/remaining/new)"] -.used in.-> S5
     F12[".audit/a11y-findings.json<br/>passedCriteria"] -.read in.-> S6
-    F13["scripts/report-html.mjs / scripts/report-pdf.mjs<br/>(optional, user requested)"] -.optional outputs.-> S6
-    F14["scripts/report-checklist.mjs + references/out-of-scope.md<br/>(optional manual checklist)"] -.optional outputs.-> S6
+    F13["scripts/reports/builders/html.mjs / scripts/reports/builders/pdf.mjs<br/>(optional, user requested)"] -.optional outputs.-> S6
+    F14["scripts/reports/builders/checklist.mjs + references/out-of-scope.md<br/>(optional manual checklist)"] -.optional outputs.-> S6
 
     classDef step fill:#3b5cd9,color:#fff,stroke:#1e308a;
     classDef file fill:#f1f5f9,color:#0f172a,stroke:#cbd5e1,stroke-dasharray: 5 5;
@@ -120,8 +124,8 @@ flowchart LR
     A[SKILL.md] -- "1. Orchestrates" --> B[audit.mjs]
 
     subgraph Engine ["Logic Core"]
-        B --> C[scanner.mjs]
-        C --> PS[pattern-scanner.mjs]
+        B --> C[dom-scanner.mjs]
+        C --> PS[source-scanner.mjs]
         PS --> D[analyzer.mjs]
         D --> E[Builders]
     end
@@ -149,5 +153,5 @@ flowchart LR
 
     class A playbook;
     class B,C,PS,D,E core;
-    class AS1,AS2,AS3,AS4,AS5,AS6,AS7 storage;
+    class AS1,AS2,AS3,AS4,AS5,AS6 storage;
 ```
