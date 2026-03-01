@@ -41,7 +41,7 @@ These rules apply at all times, independent of any workflow step.
 
 1. **Language** — always communicate in English, regardless of the language the user writes in.
 2. **Tone** — concise and technical. State findings, propose action, ask for a decision.
-3. **Internal steps** — never expose internal step labels, phase codes, or workflow reasoning to the user. This includes codes like "4b", phase names like "Step 4b" or "structural fix phase", transition phrases like "Moving to Phase 4b" or "Now entering the style fix phase", and internal logic like "not re-offering" or "user declined in 4b". Always describe outcomes in plain language only. **Never pre-announce a sequence of steps** ("first I'll do X, then Y, then Z") — execute immediately and let the output speak for itself. Example of what NOT to say: "Moving to Phase 4b (style fixes)." Say instead: "Structural fixes done — reviewing color contrast and focus styles."
+3. **Internal steps** — never expose internal step labels, phase codes, or workflow reasoning to the user. Always describe outcomes in plain language only. **Never pre-announce a sequence of steps** ("first I'll do X, then Y, then Z") — execute immediately and let the output speak for itself. Example of what NOT to say: "Moving to the style fix phase." Say instead: "Structural fixes done — reviewing color contrast and focus styles."
 4. **Recovery** — if the user types `continue`, `resume`, or `where are we`, read the conversation history to determine the current state and resume from the next pending action. If the state cannot be determined, briefly summarize what was completed and ask where to continue from.
 5. **Message tags** — this playbook uses two tags to mark formatted messages:
    - `[QUESTION]` — a user-facing question with numbered options. Adapt tone and structure but keep the same options. **Send one `[QUESTION]` per message. Never present two questions at once. Always wait for the user's answer before showing the next question.** Format: always output the question text on its own line, followed by each option as a numbered item on its own line — never inline, never collapsed to "Yes/No". A `[QUESTION]` is the only tag that ends the agent's turn and waits for user input.
@@ -173,20 +173,20 @@ If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: retu
 
 ### Step 4 — Fix
 
-Work through each phase in order: **4a → 4b**. Both phases must run — never skip a phase because the user declined fixes in the previous one.
+Run structural fixes first, then style fixes. Both must run — never skip one because the user declined fixes in the other.
 
-Axe findings and source code pattern findings are treated as a **unified set**. Pattern findings tagged `type: structural` are handled in 4a alongside axe structural fixes. Pattern findings tagged `type: style` are handled in 4b alongside axe style fixes. For a pattern finding, fix in the source file at `file:line` using the `match` and `fix_description` from the report — not in the DOM.
+Axe findings and source code pattern findings are treated as a **unified set**. Pattern findings tagged `type: structural` are handled in the structural pass alongside axe structural fixes. Pattern findings tagged `type: style` are handled in the style pass alongside axe style fixes. For a pattern finding, fix in the source file at `file:line` using the `match` and `fix_description` from the report — not in the DOM.
 
 - **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor.
 - **Other criteria**: follow the user's specified prioritization throughout.
 
-#### 4a. Structural fixes (Critical → Serious → Moderate → Minor)
+#### Structural fixes (Critical → Serious → Moderate → Minor)
 
 Safe to apply — no visual changes (ARIA attributes, alt text, labels, DOM order, lang, heading hierarchy). Includes both axe structural findings and source code pattern findings tagged `type: structural`.
 
-> **Scope boundary**: 4a covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in 4b — regardless of severity. If a finding (axe or pattern) involves a color or visual property, set it aside for 4b. Do not apply it here.
+> **Scope boundary**: covers only non-visual fixes. Color contrast, font-size, spacing, and any CSS/style property changes are **always** handled in the style pass — regardless of severity. If a finding (axe or pattern) involves a color or visual property, set it aside for the style pass. Do not apply it here.
 
-If there are no structural findings (axe or pattern) to fix, skip directly to 4b.
+If there are no structural findings (axe or pattern) to fix, skip directly to the style pass.
 
 Use the **Source File Locations** section of the remediation guide to locate source files by detected framework. For axe findings, use `fix_description`, `fix_code`, framework notes, and evidence as the source of truth. For pattern findings, use `file:line`, `match`, and `fix_description` from the "Source Code Pattern Findings" section of the report.
 
@@ -199,7 +199,7 @@ Present one group at a time — list the findings and proposed changes, then ask
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip this group
 
-If **No**: skip to the next group (or 4b if this was the last).
+If **No**: skip to the next group (or the style pass if this was the last).
 
 If **Let me pick**: present all fixes as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the group question. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
 
@@ -210,13 +210,13 @@ If **Yes** or after **Let me pick** completes: list the files and changes made, 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
 
-If **Looks good**: proceed to the next group, or to 4b if this was the last. If **Something's wrong**: apply corrections, then proceed to the next group (or 4b if last).
+If **Looks good**: proceed to the next group, or to the style pass if this was the last. If **Something's wrong**: apply corrections, then proceed to the next group (or the style pass if last).
 
-#### 4b. Style-dependent fixes (color-contrast, font-size, spacing, focus styles)
+#### Style fixes (color contrast, font size, spacing, focus styles)
 
 Includes axe style findings (color-contrast, font-size, spacing) and source code pattern findings tagged `type: style` (e.g. suppressed focus outlines). If there are no style-dependent findings of either kind, skip directly to Step 5.
 
-> **Style-dependent protection — hard stop**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
+> **Hard stop before any style change**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
 Open with: **"Structural fixes done — reviewing color contrast, font sizes, and spacing. Changes here will affect the visual appearance of your site."** Then show all style changes using this exact format:
 
@@ -280,7 +280,7 @@ After the script completes, immediately parse ALL findings and present results �
      1. **Keep fixing** — address the remaining issues
      2. **Move on** — accept the remaining issues and proceed to the final summary
 
-  3. If **Keep fixing**: apply fixes following Step 4 procedures (4a → structural, 4b approval gate → style; pattern findings included in both phases). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
+  3. If **Keep fixing**: apply fixes following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate; pattern findings included in both passes). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
   4. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
 
 Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist after 3 cycles, list remaining issues and proceed to Step 6 without asking. Previously declined style changes do not restart the cycle.
@@ -294,12 +294,7 @@ Repeat fix+re-audit up to a maximum of **3 cycles total**. If issues persist aft
 > **File-open rule** — applies to all generated files in this step: verify the file exists on disk before reporting success. Attempt to open with `open` (macOS), `xdg-open` (Linux), or `start` (Windows) only when a GUI session is available. In headless/sandbox environments or if auto-open fails, share the absolute path so the user can open it manually.
 
 1. **Summarize**: load [references/report-standards.md](references/report-standards.md) and present the **Console Summary Template**. All metric values (`total`, `resolved`, `remaining`, `files modified`) must come from the **Step 5 re-audit results** — never recompute them manually or carry over values from the original Step 2 scan. `resolved` = Step 2 total − Step 5 remaining. `remaining` = issue count in the Step 5 re-audit output. If Step 4 was skipped entirely, use Step 2 values with `resolved = 0`. Overall Assessment values: `Pass` (0 issues remaining), `Conditional Pass` (only Minor issues remain), `Fail` (any Critical or Serious remain unresolved). Append the context note only when `remaining > 0`. If Overall Assessment is `Pass`, also confirm the site passes WCAG 2.2 AA automated checks. If any remaining issues were explicitly skipped by the user during Step 4, append: *"Note: [N] of these finding(s) were intentionally skipped in this session — the assessment reflects the current state of the site. They remain available in the remediation guide."*
-2. **Passed Criteria**: read `metadata.passedCriteria` from `.audit/a11y-findings.json` and present as a table — resolve criterion names from your knowledge of the WCAG 2.2 specification.
-
-   | Criterion | Name | Level |
-   |-----------|------|-------|
-   | 1.1.1     | Non-text Content | A |
-   | …         | …    | …     |
+2. **Passed Criteria**: read the `## Passed WCAG 2.2 Criteria` section from the remediation guide and present it as-is. Do not read `a11y-findings.json` or recompute this table manually.
 3. Ask about reports. Wait for the answer before continuing:
 
 `[QUESTION]` **Would you like a visual report?**

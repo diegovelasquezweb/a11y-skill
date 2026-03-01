@@ -172,6 +172,89 @@ ${rows.join("\n")}
 `;
 }
 
+const WCAG_CRITERIA = {
+  "1.1.1": { name: "Non-text Content", level: "A" },
+  "1.2.1": { name: "Audio-only and Video-only (Prerecorded)", level: "A" },
+  "1.2.2": { name: "Captions (Prerecorded)", level: "A" },
+  "1.2.3": { name: "Audio Description or Media Alternative", level: "A" },
+  "1.2.4": { name: "Captions (Live)", level: "AA" },
+  "1.2.5": { name: "Audio Description (Prerecorded)", level: "AA" },
+  "1.3.1": { name: "Info and Relationships", level: "A" },
+  "1.3.2": { name: "Meaningful Sequence", level: "A" },
+  "1.3.3": { name: "Sensory Characteristics", level: "A" },
+  "1.3.4": { name: "Orientation", level: "AA" },
+  "1.3.5": { name: "Identify Input Purpose", level: "AA" },
+  "1.3.6": { name: "Identify Purpose", level: "AAA" },
+  "1.4.1": { name: "Use of Color", level: "A" },
+  "1.4.2": { name: "Audio Control", level: "A" },
+  "1.4.3": { name: "Contrast (Minimum)", level: "AA" },
+  "1.4.4": { name: "Resize Text", level: "AA" },
+  "1.4.5": { name: "Images of Text", level: "AA" },
+  "1.4.6": { name: "Contrast (Enhanced)", level: "AAA" },
+  "1.4.10": { name: "Reflow", level: "AA" },
+  "1.4.11": { name: "Non-text Contrast", level: "AA" },
+  "1.4.12": { name: "Text Spacing", level: "AA" },
+  "1.4.13": { name: "Content on Hover or Focus", level: "AA" },
+  "2.1.1": { name: "Keyboard", level: "A" },
+  "2.1.2": { name: "No Keyboard Trap", level: "A" },
+  "2.1.4": { name: "Character Key Shortcuts", level: "A" },
+  "2.2.1": { name: "Timing Adjustable", level: "A" },
+  "2.2.2": { name: "Pause, Stop, Hide", level: "A" },
+  "2.3.1": { name: "Three Flashes or Below Threshold", level: "A" },
+  "2.4.1": { name: "Bypass Blocks", level: "A" },
+  "2.4.2": { name: "Page Titled", level: "A" },
+  "2.4.3": { name: "Focus Order", level: "A" },
+  "2.4.4": { name: "Link Purpose (In Context)", level: "A" },
+  "2.4.5": { name: "Multiple Ways", level: "AA" },
+  "2.4.6": { name: "Headings and Labels", level: "AA" },
+  "2.4.7": { name: "Focus Visible", level: "AA" },
+  "2.4.11": { name: "Focus Not Obscured (Minimum)", level: "AA" },
+  "2.4.12": { name: "Focus Not Obscured (Enhanced)", level: "AAA" },
+  "2.5.1": { name: "Pointer Gestures", level: "A" },
+  "2.5.2": { name: "Pointer Cancellation", level: "A" },
+  "2.5.3": { name: "Label in Name", level: "A" },
+  "2.5.4": { name: "Motion Actuation", level: "A" },
+  "2.5.7": { name: "Dragging Movements", level: "AA" },
+  "2.5.8": { name: "Target Size (Minimum)", level: "AA" },
+  "3.1.1": { name: "Language of Page", level: "A" },
+  "3.1.2": { name: "Language of Parts", level: "AA" },
+  "3.2.1": { name: "On Focus", level: "A" },
+  "3.2.2": { name: "On Input", level: "A" },
+  "3.2.3": { name: "Consistent Navigation", level: "AA" },
+  "3.2.4": { name: "Consistent Identification", level: "AA" },
+  "3.2.6": { name: "Consistent Help", level: "A" },
+  "3.3.1": { name: "Error Identification", level: "A" },
+  "3.3.2": { name: "Labels or Instructions", level: "A" },
+  "3.3.3": { name: "Error Suggestion", level: "AA" },
+  "3.3.4": { name: "Error Prevention (Legal, Financial, Data)", level: "AA" },
+  "3.3.7": { name: "Redundant Entry", level: "A" },
+  "3.3.8": { name: "Accessible Authentication (Minimum)", level: "AA" },
+  "4.1.1": { name: "Parsing", level: "A" },
+  "4.1.2": { name: "Name, Role, Value", level: "A" },
+  "4.1.3": { name: "Status Messages", level: "AA" },
+};
+
+/**
+ * Builds the Passed WCAG Criteria section from passedCriteria metadata.
+ * Filters out AAA criteria since the target compliance level is AA.
+ * @param {string[]} passedCriteria - Array of criterion IDs e.g. ["1.1.1", "1.3.1"]
+ * @returns {string}
+ */
+function buildPassedCriteriaSection(passedCriteria) {
+  if (!Array.isArray(passedCriteria) || passedCriteria.length === 0) return "";
+  const rows = passedCriteria
+    .filter((id) => WCAG_CRITERIA[id]?.level !== "AAA")
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+    .map((id) => {
+      const meta = WCAG_CRITERIA[id];
+      const name = meta?.name ?? "Unknown";
+      const level = meta?.level ?? "?";
+      return `| ${id} | ${name} | ${level} |`;
+    });
+  if (rows.length === 0) return "";
+  return `## Passed WCAG 2.2 Criteria\n\n| Criterion | Name | Level |\n|---|---|---|\n${rows.join("\n")}\n`;
+}
+
 /**
  * Builds the Source Code Pattern Findings section from pattern-scanner output.
  * @param {Object|null} patternPayload - The a11y-pattern-findings.json payload.
@@ -512,6 +595,7 @@ ${rows.join("\n")}
 
   const incompleteSection = buildIncompleteSection(metadata.incomplete_findings);
   const patternSection = buildPatternSection(metadata.pattern_findings);
+  const passedCriteriaSection = buildPassedCriteriaSection(metadata.passedCriteria);
   const sourceBoundariesSection = buildSourceBoundariesSection(framework);
 
   return (
@@ -541,6 +625,7 @@ ${blockers ? `## Priority Fixes (Critical and Serious)\n\n${blockers}` : "## Pri
 ${deferred ? `\n## Deferred Issues (Moderate and Minor)\n\n${deferred}` : ""}
 ${incompleteSection ? `\n${incompleteSection}` : ""}
 ${patternSection ? `\n${patternSection}` : ""}
+${passedCriteriaSection ? `\n${passedCriteriaSection}` : ""}
 `
   .trimEnd() + "\n"
   );
