@@ -43,6 +43,7 @@ Execution & Emulation:
   --with-reports          Generate HTML and PDF reports (requires --output).
   --skip-reports          Omit HTML and PDF report generation (default).
   --skip-patterns         Skip source code pattern scanning even if --project-dir is set.
+  --affected-only         Re-scan only routes that had violations in the previous scan (faster re-audits).
   --wait-ms <num>         Time to wait after page load (default: 2000).
   --timeout-ms <num>      Network timeout (default: 30000).
   -h, --help              Show this help.
@@ -154,6 +155,7 @@ async function main() {
   const onlyRule = getArgValue("only-rule");
   const skipReports = argv.includes("--skip-reports") || !argv.includes("--with-reports");
   const skipPatterns = argv.includes("--skip-patterns");
+  const affectedOnly = argv.includes("--affected-only");
   const ignoreFindings = getArgValue("ignore-findings");
   const excludeSelectors = getArgValue("exclude-selectors");
 
@@ -205,6 +207,27 @@ async function main() {
     const screenshotsDir = getInternalPath("screenshots");
     fs.rmSync(screenshotsDir, { recursive: true, force: true });
 
+    let effectiveRoutes = routes;
+    if (affectedOnly && !routes) {
+      const prevScanPath = getInternalPath("a11y-scan-results.json");
+      if (fs.existsSync(prevScanPath)) {
+        try {
+          const prevScan = JSON.parse(fs.readFileSync(prevScanPath, "utf-8"));
+          const affected = (prevScan.routes ?? [])
+            .filter((r) => Array.isArray(r.violations) && r.violations.length > 0)
+            .map((r) => r.path);
+          if (affected.length > 0) {
+            effectiveRoutes = affected.join(",");
+            log.info(`--affected-only: re-scanning ${affected.length} route(s) with previous violations.`);
+          } else {
+            log.info("--affected-only: no previous violations found — running full scan.");
+          }
+        } catch { /* fallback to full scan */ }
+      } else {
+        log.info("--affected-only: no previous scan found — running full scan.");
+      }
+    }
+
     const scanArgs = [
       "--base-url",
       baseUrl,
@@ -224,7 +247,7 @@ async function main() {
     if (onlyRule) scanArgs.push("--only-rule", onlyRule);
     if (excludeSelectors)
       scanArgs.push("--exclude-selectors", excludeSelectors);
-    if (routes) scanArgs.push("--routes", routes);
+    if (effectiveRoutes) scanArgs.push("--routes", effectiveRoutes);
     if (colorScheme) scanArgs.push("--color-scheme", colorScheme);
     if (waitUntil) scanArgs.push("--wait-until", waitUntil);
     if (viewport) {

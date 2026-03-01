@@ -262,10 +262,10 @@ This step is **mandatory** — always run it after fixes, no exceptions. Do not 
 
 ```bash
 # Exact same flags as Step 2 — do not change any values
-node scripts/audit.mjs --base-url <URL> --max-routes <N> --skip-patterns
+node scripts/audit.mjs --base-url <URL> --max-routes <N> --skip-patterns --affected-only
 ```
 
-> **Flag parity is mandatory.** Use the exact same `--base-url`, `--max-routes`, `--project-dir`, `--framework`, and any other flags from Step 2. Never reduce `--max-routes` or omit flags — a smaller crawl produces an incomplete delta and makes resolved counts unreliable.
+> **Flag parity is mandatory.** Use the exact same `--base-url`, `--max-routes`, `--project-dir`, `--framework`, and any other flags from Step 2. Never reduce `--max-routes` or omit flags — a smaller crawl produces an incomplete delta and makes resolved counts unreliable. `--affected-only` re-scans only routes that had violations in the previous scan — it does not change the scope of what is reported.
 
 If the script fails: verify the site is reachable (`curl -s -o /dev/null -w "%{http_code}" <URL>`) before retrying. If it returns a non-200 status, stop and report the error to the user — do not retry with modified flags. If the site is reachable and the script fails a second time, stop and report the error.
 
