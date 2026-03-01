@@ -104,17 +104,11 @@ Store the user's choice. Proceed to Step 2.
 Run the audit with the discovery settings from Step 1:
 
 ```bash
-# Sitemap detected or user mentioned sitemap
+# Default (sitemap or 10-page crawl — omit --max-routes)
 node scripts/audit.mjs --base-url <URL>
 
-# Crawler — 10 pages (default, omit flag)
-node scripts/audit.mjs --base-url <URL>
-
-# Crawler — all reachable pages
-node scripts/audit.mjs --base-url <URL> --max-routes 999
-
-# Crawler — custom count
-node scripts/audit.mjs --base-url <URL> --max-routes <N>
+# All pages or custom count
+node scripts/audit.mjs --base-url <URL> --max-routes <N>  # 999 = all
 ```
 
 Always pass `--project-dir <path>` for local projects. When provided, the source code pattern scanner runs automatically alongside axe — pattern findings appear in the "Source Code Pattern Findings" section of the remediation guide and are part of the unified fix flow. If you can identify the stack from the project files, also pass `--framework <value>` (nextjs|gatsby|react|nuxt|vue|angular|astro|svelte|shopify|wordpress|drupal) — explicit detection is more reliable than auto-detection. For non-default flags, load [references/cli-reference.md](references/cli-reference.md).
@@ -201,24 +195,20 @@ Use the **Source File Locations** section of the remediation guide to locate sou
 - Use glob patterns and the "Fixes by Component" table from the remediation guide to batch edits per file.
 - If a finding has a "Managed Component Warning", verify the element is not rendered by a UI library before applying ARIA fixes.
 
-Present one group at a time — list the findings and proposed changes, then ask. Adapt the `[QUESTION]` label to the active mode (e.g. **Apply these Critical fixes?** for severity, or the user's chosen grouping for Other criteria).
+Present one group at a time — list the findings and proposed changes, then ask. Adapt the `[QUESTION]` label to the active mode (e.g. **Apply these Critical fixes?**).
 
 1. **Yes** — apply all proposed changes
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip this group
 
-If **No**: skip to the next group (or the style pass if this was the last).
-
-If **Let me pick**: present all fixes as a numbered list. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the group question. Otherwise apply the selected fixes, list changes made, then ask the verification question below.
-
-If **Yes** or after **Let me pick** completes: list the files and changes made, then ask:
+If **No**: skip to the next group (or the style pass if this was the last). If **Let me pick**: present fixes as a numbered list, ask for numbers (e.g. `1, 3` or `all`) or `back` to return. Apply selected fixes, list changes made. If **Yes** or after **Let me pick** completes: list files changed, then ask:
 
 `[QUESTION]` **Please verify visually — does everything look correct?**
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
 
-If **Looks good**: proceed to the next group, or to the style pass if this was the last. If **Something's wrong**: apply corrections, then proceed to the next group (or the style pass if last).
+If **Looks good**: proceed to the next group or style pass. If **Something's wrong**: apply corrections, then proceed.
 
 #### Style fixes (color contrast, font size, spacing, focus styles)
 
@@ -247,13 +237,9 @@ Then ask:
 2. **Let me pick** — show me the full list, I'll choose by number
 3. **No** — skip style fixes
 
-If **No**: proceed immediately to Step 5.
+If **No**: proceed to Step 5. If **Let me pick**: present changes as a numbered list with diffs, ask for numbers or `back`. If **Yes** or after **Let me pick** completes: list files and exact values modified, then ask:
 
-If **Let me pick**: present all style changes as a numbered list with their diffs. Ask the user to type the numbers they want applied (e.g. `1, 3` or `all`), or type `back` to return. If `back`: return to the `[QUESTION]` **Apply these style changes?** prompt. Otherwise apply the selected changes, list files and exact values modified, then ask the verification question below.
-
-If **Yes** or after **Let me pick** completes: list the files and exact values modified, then ask:
-
-`[QUESTION]` **I've applied the style changes. Please verify visually — does everything look correct?**
+`[QUESTION]` **Please verify visually — does everything look correct?**
 
 1. **Looks good**
 2. **Something's wrong** — tell me what to revert or adjust
