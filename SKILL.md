@@ -239,6 +239,12 @@ Includes color-contrast, font-size, spacing, and focus style findings. If there 
 
 > **Hard stop before any style change**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
 
+**Color selection rules — mandatory for every contrast fix:**
+1. **Never change hue** — only adjust lightness. A blue stays blue, a grey stays grey. Convert the current color to HSL and shift L only until the ratio passes.
+2. **Minimum change** — find the smallest L adjustment that reaches the required ratio (4.5:1 for normal text, 3:1 for large text / UI components). Do not overshoot.
+3. **Prefer existing tokens** — before proposing a new value, check if another token already in the design system passes the ratio against the same background. If one does, propose using that token instead of a new value.
+4. **Never invent new tokens** — only modify the value of an existing token or apply a one-off inline override if no token owns that property.
+
 Open with: **"Structural fixes done — reviewing color contrast, font sizes, and spacing. Changes here will affect the visual appearance of your site."** Then show all style changes using this exact format:
 
 ```
@@ -300,7 +306,7 @@ After the script completes, immediately parse ALL findings and present results �
      2. **Let me pick** — show me the list, I'll choose which to fix
      3. **Move on** — accept the remaining issues and proceed to the final summary
 
-  3. If **Keep fixing**: apply fixes following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
+  3. If **Keep fixing**: before applying fixes, compare the remaining findings against the findings that were already attempted in a previous cycle. If a finding has the same `rule_id` and `route` as one that was fixed in a prior cycle but still appears, it means the fix did not take effect. Do not retry the same approach. Instead, flag it immediately: *"The fix for [rule] on [route] did not take effect — the violation persists after the change was applied. Likely causes: CSS specificity override, wrong file edited, or value defined in a config (e.g. Tailwind) rather than CSS. This needs manual investigation."* Then exclude it from this cycle and continue with any other remaining fixable findings. Apply fixes for non-persisting findings following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
   4. If **Let me pick**: present all remaining issues as a numbered list. Ask the user to type the numbers they want fixed (e.g. `1, 3` or `all`), or type `back` to return. Apply only the selected fixes following Step 4 procedures, then run the audit script again and return to step 1 of this sequence.
   5. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
 

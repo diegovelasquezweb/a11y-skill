@@ -638,13 +638,17 @@ function computeOverallAssessment(findings) {
  * @param {Object<string, string>} wcagCriterionMap - Map from rule_id to WCAG criterion ID.
  * @returns {string[]} Sorted unique WCAG criterion IDs that passed.
  */
-function computePassedCriteria(routes, wcagCriterionMap) {
+function computePassedCriteria(routes, wcagCriterionMap, activeFindings = []) {
   const passed = new Set();
   for (const route of routes) {
     for (const ruleId of route.passes || []) {
       const criterion = wcagCriterionMap[ruleId];
       if (criterion) passed.add(criterion);
     }
+  }
+  for (const finding of activeFindings) {
+    const criterion = wcagCriterionMap[finding.rule_id];
+    if (criterion) passed.delete(criterion);
   }
   return [...passed].sort();
 }
@@ -978,7 +982,7 @@ function main() {
   if (deduplicatedCount > 0) log.info(`Deduplicated ${deduplicatedCount} cross-page finding group(s).`);
 
   const overallAssessment = computeOverallAssessment(dedupedFindings);
-  const passedCriteria = computePassedCriteria(payload.routes || [], WCAG_CRITERION_MAP);
+  const passedCriteria = computePassedCriteria(payload.routes || [], WCAG_CRITERION_MAP, dedupedFindings);
   const outOfScope = computeOutOfScope(payload.routes || []);
   const recommendations = computeRecommendations(dedupedFindings);
   const testingMethodology = computeTestingMethodology(payload);
