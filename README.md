@@ -2,7 +2,9 @@
 
 This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. It is built following [skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
-![a11y demo](assets/demo.gif)
+<p align="center">
+  <img src="assets/demo.gif" width="800" alt="a11y demo" />
+</p>
 
 ## Why this Skill?
 
