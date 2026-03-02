@@ -245,6 +245,16 @@ Includes color-contrast, font-size, spacing, and focus style findings. If there 
 3. **Prefer existing tokens** — before proposing a new value, check if another token already in the design system passes the ratio against the same background. If one does, propose using that token instead of a new value.
 4. **Never invent new tokens** — only modify the value of an existing token or apply a one-off inline override if no token owns that property.
 
+**For each color-contrast finding, run this diagnostic before proposing any fix:**
+
+1. Read the DOM evidence from the remediation guide — extract the exact class list on the failing element.
+2. **Check for `transition-colors`** — if present, the color is state-dependent (hover, active, selected, etc.). Do not change the global token. Instead, find the parent component's state logic and locate the conditional class that sets the color in the failing state. The fix must target that specific state class, not the token globally.
+3. **Find the source of the color token** — first read `metadata.projectContext` from `a11y-findings.json` to confirm the detected stack (framework + CSS approach). Then search based on what is actually present: if Tailwind v4 was detected, look for `@theme` blocks in CSS files first; if Tailwind v3, look for `tailwind.config.ts/js`; if plain CSS, look for `--color-*` custom properties. Never assume a config file exists — confirm it before reading it.
+4. **Check for opacity interference** — if the element or any ancestor has an `opacity-*` class or `opacity` CSS, the computed color will differ from the token value. axe samples the blended color. Flag this as high false-positive risk and verify visually before applying any fix.
+5. **Check for specificity overrides** — search for inline styles or higher-specificity selectors targeting the same element that might override a token change.
+
+Only after completing this diagnostic, propose the fix targeting the correct source (state class, token, or inline override).
+
 Open with: **"Structural fixes done — reviewing color contrast, font sizes, and spacing. Changes here will affect the visual appearance of your site."** Then show all style changes using this exact format:
 
 ```
