@@ -44,6 +44,10 @@ Give your AI agent the audit prompt, or use your agent's invoke shortcut.
 
 The agent guides the rest of the session as a conversation, running the audit, presenting findings, walking you through fixes, and asking for your input at every decision point. Every action is confirmed before it runs.
 
+<p align="center">
+  <img src="assets/demo.webp" width="800" alt="a11y fix workflow" />
+</p>
+
 | Agent | Invoke shortcut | Audit command |
 | :---- | :------------- | :------------ |
 | Antigravity | `/a11y <url>` | `Audit accessibility <url>` |
