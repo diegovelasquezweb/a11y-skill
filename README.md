@@ -2,10 +2,6 @@
 
 This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with targeted remediation blueprints. It is built following [skills best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
-<p align="center">
-  <img src="assets/demo.gif" width="800" alt="a11y demo" />
-</p>
-
 ## Why this Skill?
 
 AI agents handle accessibility inconsistently without a defined workflow, often skipping fix validation or applying fixes without context. This skill takes your AI agent from scan to verified fix through structured remediation, reducing inaccuracies as much as possible.
@@ -49,7 +45,7 @@ Give your AI agent the audit prompt, or use your agent's invoke shortcut.
 The agent guides the rest of the session as a conversation, running the audit, presenting findings, walking you through fixes, and asking for your input at every decision point. Every action is confirmed before it runs.
 
 <p align="center">
-  <img src="assets/demo.png" width="800" alt="a11y fix workflow" />
+  <img src="assets/demo.webp" width="800" alt="a11y fix workflow" />
 </p>
 
 | Agent | Invoke shortcut | Audit command |
