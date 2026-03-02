@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.12.0] — 2026-03-01
+
+### Added
+
+- `--affected-only` flag in `audit.mjs` — re-scans only routes with previous violations, skipping clean pages for faster re-audits (Step 5 now uses this flag by default)
+- `--skip-patterns` added to Step 5 re-audit command in SKILL.md for flag parity with Step 2
+- Yolo mode in SKILL.md Step 3 — applies all fixes without confirmation gates, re-audits automatically up to 3 cycles; includes git uncommitted-changes guard before entering
+- Source pattern fix flow in SKILL.md Step 6 — after presenting pattern findings, agent now asks Fix all / Let me pick / Skip instead of immediately continuing
+- Unfixable findings detection in SKILL.md Step 4 — agent identifies and declares architectural blockers and false positives upfront before touching any code
+- Ineffective fix detection in SKILL.md Step 5 — if a finding with the same `rule_id` + `route` persists after being "fixed", agent flags it with diagnosis (specificity, wrong file, Tailwind config) and excludes it from further cycles
+- Color selection rules in SKILL.md style fixes — mandatory diagnostic before any contrast fix: preserve hue, minimum L adjustment, prefer existing tokens, never invent new tokens
+- Color contrast diagnostic in SKILL.md — agent reads stack from `a11y-findings.json` metadata, checks for `transition-colors`, locates token source in correct config file based on detected framework
+- Session handoff export in SKILL.md Step 6 — offered only when `remaining > 0`; exports `handoff.md` with session summary, remaining findings, and paths to `.audit/` files for continuity in a future chat
+- `docs/source-scanner.md` — new documentation page covering why the source scanner exists, how confirmed vs potential confidence works, all 7 current patterns with WCAG mapping, pattern fields reference, and how to add new patterns
+
+### Changed
+
+- SKILL.md Step 6 item count updated from 8 to 9 (handoff export added as item 8, closing moved to item 9)
+- SKILL.md Step 6 checklist question updated: removed hardcoded "41" count
+- SKILL.md Step 6 source patterns: removed unnecessary `analyzer.mjs` re-run (md builder reads pattern findings directly)
+- SKILL.md Step 7 manual checklist condition updated to include source pattern fixes
+- `docs/architecture.md` — added Conversation Flow diagram with Step 4↔5 loop; removed Script–Asset Linkage diagram
+- `docs/engine-manifest.md` — removed diagram sections (Conversation Flow + Technical Linkage Map moved to architecture.md)
+- `docs/engine-intelligence.md` — "41 checks" updated throughout
+- Navigation updated across all docs to include Source Scanner page
+- README "Why this Skill?" rewritten to answer why use this skill specifically, not why do accessibility
+- README Technical Reference table: Source Scanner entry added
+
+### Fixed
+
+- `computePassedCriteria` in `analyzer.mjs` — criteria with active violations are now excluded from the passed set; fixes `1.4.3` appearing as passed while a `color-contrast` violation remained
+
+---
+
 ## [0.11.0] — 2026-03-01
 
 ### Added
