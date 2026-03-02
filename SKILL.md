@@ -184,6 +184,13 @@ If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: retu
 
 ### Step 4 — Fix
 
+**Before starting any fix**, scan all findings and identify those that cannot be auto-fixed. A finding is unfixable if it requires an architectural change (e.g. redesigning an ARIA pattern, restructuring the DOM), involves a third-party component outside the codebase, or is a confirmed false positive (e.g. axe miscomputing color due to opacity or CSS variables). If any unfixable findings exist, state them upfront in a single block before touching any code:
+
+`[MESSAGE]` **The following issue(s) cannot be auto-fixed and will remain after this session:**
+- `[rule-id]` · [route] — [one-line explanation of why it cannot be fixed and what would be required]
+
+Then proceed with all fixable findings. Do not attempt to fix unfixable findings at any point during the fix cycles.
+
 Run structural fixes first, then style fixes. Both must run — never skip one because the user declined fixes in the other.
 
 - **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor.
