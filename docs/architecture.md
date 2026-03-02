@@ -1,6 +1,6 @@
 # Audit Engine Architecture
 
-**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Intelligence](engine-intelligence.md) • [Scoring](scoring-system.md) • [Manifest](engine-manifest.md) • [Testing](testing.md)
+**Navigation**: [Home](../README.md) • [Architecture](architecture.md) • [CLI Handbook](cli-handbook.md) • [Intelligence](engine-intelligence.md) • [Source Scanner](source-scanner.md) • [Scoring](scoring-system.md) • [Manifest](engine-manifest.md) • [Testing](testing.md)
 
 ---
 
@@ -9,6 +9,7 @@
 - [High-Level Pipeline](#high-level-pipeline)
 - [Internal Component Roles](#internal-component-roles)
 - [Data Flow Diagram](#data-flow-diagram)
+- [Conversation Flow](#conversation-flow)
 
 The a11y skill operates as a three-stage pipeline. It transforms a URL into an actionable remediation roadmap, prioritizing structured findings and targeted fix guidance over passive reporting.
 
@@ -151,3 +152,22 @@ flowchart LR
     class Raw,Raw2,Intel,Findings,Patterns storage;
     class Start,HTML,MD,PDF trigger;
 ```
+
+## Conversation Flow
+
+The 6-step agent workflow orchestrated by `SKILL.md`. Steps 4 and 5 loop until issues are resolved or 3 cycles are exhausted.
+
+```mermaid
+%%{init: { 'theme': 'base', 'themeVariables': { 'primaryColor': '#3b5cd9', 'primaryTextColor': '#fff', 'primaryBorderColor': '#1e308a', 'lineColor': '#64748b' } } }%%
+flowchart TD
+    S1["Step 1 · Page Discovery"] --> S2["Step 2 · Run Audit"]
+    S2 --> S3["Step 3 · Present Findings"]
+    S3 --> S4["Step 4 · Fix"]
+    S4 --> S5["Step 5 · Re-audit"]
+    S5 -->|issues remain| S4
+    S5 -->|clean or 3 cycles| S6["Step 6 · Deliver Results"]
+
+    classDef step fill:#3b5cd9,color:#fff,stroke:#1e308a;
+    class S1,S2,S3,S4,S5,S6 step;
+```
+

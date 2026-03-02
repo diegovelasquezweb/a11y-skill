@@ -164,11 +164,12 @@ Then summarize and present:
 
 1. **Fix by severity** — Critical first, then Serious → Moderate → Minor
 2. **Other criteria** — tell me how you'd like to prioritize the fixes
-3. **Skip fixes** — don't fix anything right now
+3. **Yolo** — apply all fixes without confirmation gates, re-audit automatically, repeat until clean or 3 cycles
+4. **Skip fixes** — don't fix anything right now
 
-Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity** or **Other criteria**, proceed immediately to Step 4.
+Default (if user says "fix" or "go ahead") is **Fix by severity**. If the user chooses **Fix by severity**, **Other criteria**, or **Yolo**, proceed immediately to Step 4.
 
-If the user chooses **Skip fixes** (option 3): present the following message, then ask the confirmation question below.
+If the user chooses **Skip fixes** (option 4): present the following message, then ask the confirmation question below.
 
 `[MESSAGE]` Understood. Keep in mind that the unresolved issues affect real users — screen reader users may not be able to navigate key sections, and keyboard-only users could get trapped. Accessibility is also a legal requirement under ADA Title II (US), Section 508 (US Federal), the European Accessibility Act (EU), the UK Equality Act, and the Accessible Canada Act, among others. These findings will remain available if you decide to revisit them later.
 
@@ -183,10 +184,26 @@ If **Yes, skip**: proceed to Step 6 immediately. If **No, let's fix them**: retu
 
 ### Step 4 — Fix
 
+**Before starting any fix**, scan all findings and identify those that cannot be auto-fixed. A finding is unfixable if it requires an architectural change (e.g. redesigning an ARIA pattern, restructuring the DOM), involves a third-party component outside the codebase, or is a confirmed false positive (e.g. axe miscomputing color due to opacity or CSS variables). If any unfixable findings exist, state them upfront in a single block before touching any code:
+
+`[MESSAGE]` **The following issue(s) cannot be auto-fixed and will remain after this session:**
+- `[rule-id]` · [route] — [one-line explanation of why it cannot be fixed and what would be required]
+
+Then proceed with all fixable findings. Do not attempt to fix unfixable findings at any point during the fix cycles.
+
 Run structural fixes first, then style fixes. Both must run — never skip one because the user declined fixes in the other.
 
 - **Fix by severity** (default): process findings Critical → Serious → Moderate → Minor.
 - **Other criteria**: follow the user's specified prioritization throughout.
+- **Yolo**: apply every fix — structural and style — without any confirmation gate or visual verification question. Do not present diffs or ask for approval. After all fixes are applied, immediately run the re-audit (Step 5) with `--affected-only`. If findings remain, repeat the fix+re-audit loop automatically up to 3 cycles total, then proceed to Step 6. The hard stop rule for style changes does not apply in yolo mode.
+
+  **Before entering yolo mode**, run `git status --porcelain` in `--project-dir`. If there are uncommitted changes, warn the user: *"Yolo mode applies style changes without review. You have uncommitted changes — if something goes wrong, reverting will be harder. Commit or stash first, or confirm you want to continue."* Ask:
+
+  `[QUESTION]` **Uncommitted changes detected. Continue anyway?**
+  1. **Yes, continue** — proceed with yolo
+  2. **Let me commit first** — pause here
+
+  If the working tree is clean, enter yolo mode immediately without any message.
 
 #### Structural fixes (Critical → Serious → Moderate → Minor)
 
@@ -221,6 +238,22 @@ If **Looks good**: proceed to the next group or style pass. If **Something's wro
 Includes color-contrast, font-size, spacing, and focus style findings. If there are no style findings, skip directly to Step 5.
 
 > **Hard stop before any style change**: these fixes change the site's appearance. **Never apply any style change before showing the exact proposed diff and receiving an explicit "yes".** This gate applies even if the user previously said "fix all" and even if the finding is Critical severity. No exceptions.
+
+**Color selection rules — mandatory for every contrast fix:**
+1. **Never change hue** — only adjust lightness. A blue stays blue, a grey stays grey. Convert the current color to HSL and shift L only until the ratio passes.
+2. **Minimum change** — find the smallest L adjustment that reaches the required ratio (4.5:1 for normal text, 3:1 for large text / UI components). Do not overshoot.
+3. **Prefer existing tokens** — before proposing a new value, check if another token already in the design system passes the ratio against the same background. If one does, propose using that token instead of a new value.
+4. **Never invent new tokens** — only modify the value of an existing token or apply a one-off inline override if no token owns that property.
+
+**For each color-contrast finding, run this diagnostic before proposing any fix:**
+
+1. Read the DOM evidence from the remediation guide — extract the exact class list on the failing element.
+2. **Check for `transition-colors`** — if present, the color is state-dependent (hover, active, selected, etc.). Do not change the global token. Instead, find the parent component's state logic and locate the conditional class that sets the color in the failing state. The fix must target that specific state class, not the token globally.
+3. **Find the source of the color token** — first read `metadata.projectContext` from `a11y-findings.json` to confirm the detected stack (framework + CSS approach). Then search based on what is actually present: if Tailwind v4 was detected, look for `@theme` blocks in CSS files first; if Tailwind v3, look for `tailwind.config.ts/js`; if plain CSS, look for `--color-*` custom properties. Never assume a config file exists — confirm it before reading it.
+4. **Check for opacity interference** — if the element or any ancestor has an `opacity-*` class or `opacity` CSS, the computed color will differ from the token value. axe samples the blended color. Flag this as high false-positive risk and verify visually before applying any fix.
+5. **Check for specificity overrides** — search for inline styles or higher-specificity selectors targeting the same element that might override a token change.
+
+Only after completing this diagnostic, propose the fix targeting the correct source (state class, token, or inline override).
 
 Open with: **"Structural fixes done — reviewing color contrast, font sizes, and spacing. Changes here will affect the visual appearance of your site."** Then show all style changes using this exact format:
 
@@ -283,7 +316,7 @@ After the script completes, immediately parse ALL findings and present results �
      2. **Let me pick** — show me the list, I'll choose which to fix
      3. **Move on** — accept the remaining issues and proceed to the final summary
 
-  3. If **Keep fixing**: apply fixes following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
+  3. If **Keep fixing**: before applying fixes, compare the remaining findings against the findings that were already attempted in a previous cycle. If a finding has the same `rule_id` and `route` as one that was fixed in a prior cycle but still appears, it means the fix did not take effect. Do not retry the same approach. Instead, flag it immediately: *"The fix for [rule] on [route] did not take effect — the violation persists after the change was applied. Likely causes: CSS specificity override, wrong file edited, or value defined in a config (e.g. Tailwind) rather than CSS. This needs manual investigation."* Then exclude it from this cycle and continue with any other remaining fixable findings. Apply fixes for non-persisting findings following Step 4 procedures (structural fixes first, then style fixes with explicit approval gate). When Step 4 is complete, your very next action is running the audit script again — no text before it. Then return to step 1 of this sequence with the new results.
   4. If **Let me pick**: present all remaining issues as a numbered list. Ask the user to type the numbers they want fixed (e.g. `1, 3` or `all`), or type `back` to return. Apply only the selected fixes following Step 4 procedures, then run the audit script again and return to step 1 of this sequence.
   5. If **Move on**: proceed to Step 6 immediately. Do not stop or wait for user input.
 
