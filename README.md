@@ -4,13 +4,13 @@ This skill executes comprehensive WCAG 2.2 AA audits and provides AI agents with
 
 ## Why this Skill?
 
-This skill runs a structured accessibility audit and remediation workflow. It scans routes, produces classified findings with evidence, generates a remediation guide, applies fixes with explicit user approval gates, validates outcomes through mandatory re-audits, and generates reports.
+AI agents handle accessibility inconsistently without a defined workflow, often skipping fix validation or applying fixes without context. This skill takes your AI agent from scan to verified fix through structured remediation, reducing inaccuracies as much as possible.
 
 | Capability                  | With a11y                                                                                                              | Without                                                                                          |
 | :-------------------------- | :--------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
-| **WCAG 2.2 AA Checks**      | ✅ Strict WCAG 2.2 AA coverage: axe-core runtime scan + source code pattern scanner for issues axe cannot detect    | ❌ Basic checks without standardized finding structure or remediation context                     |
-| **Fix Intelligence**        | ✅ Stack-aware remediation with code changes tailored to your codebase                                            | ❌ Manual code search from generic scanner output                                                 |
-| **Workflow Control**        | ✅ Structured flow with mandatory verification re-audit, explicit approval gates, and structured artifacts that minimize token usage | ❌ Ad-hoc fixes without controlled ordering, re-validation, or reusable context                  |
+| **WCAG 2.2 AA Checks**      | ✅ axe-core runtime scan combined with a source code pattern scanner for issues axe cannot detect at runtime    | ❌ Basic checks without standardized finding structure.                     |
+| **Fix Intelligence**        | ✅ Stack-aware remediation with code changes tailored to your codebase                                            | ❌ Code search from raw accessibility findings without remediation context                                                 |
+| **Workflow Control**        | ✅ Structured flow with mandatory verification re-audit, explicit approval gates, and structured artifacts that minimize token usage | ❌ Unstructured fixes without controlled ordering, re-validation, or reusable context                  |
 | **Audit Evidence**          | ✅ Produces formal deliverables (HTML dashboard, PDF compliance report, remediation guide) ready to share with stakeholders | ❌ No structured output, findings exist only within the chat session                             |
 
 ## Installation
@@ -72,6 +72,7 @@ For a comprehensive understanding of the a11y engine, explore the following tech
 | [Architecture](docs/architecture.md)               | How the three-stage pipeline transforms a URL into a surgical code fix roadmap.                     |
 | [CLI Handbook](docs/cli-handbook.md)               | Every flag, execution path, and agent integration option for running the audit directly.            |
 | [Engine Intelligence](docs/engine-intelligence.md) | How violations become actionable patches using the curated framework-aware knowledge base.          |
+| [Source Scanner](docs/source-scanner.md)           | The code patterns that detect WCAG issues axe-core cannot find in the rendered DOM.                |
 | [Scoring System](docs/scoring-system.md)           | The Weighted Debt Model that calculates compliance scores based on severity and frequency.          |
 | [Engine Manifest](docs/engine-manifest.md)         | Complete inventory of every script, asset, and configuration file in the engine.                   |
 | [Testing Strategy](docs/testing.md)                | Test suite structure and coverage across the scanner, analyzer, and intelligence mapping layers.    |
