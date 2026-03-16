@@ -1,0 +1,20 @@
+{
+  "name": "a11y-skill",
+  "version": "0.1.0",
+  "description": "WCAG 2.2 AA accessibility audit skill for AI coding agents — powered by @diegovelasquezweb/a11y-engine",
+  "type": "module",
+  "scripts": {
+    "a11y": "a11y-audit",
+    "test": "vitest run",
+    "postinstall": "npx playwright install chromium",
+    "sync": "rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.claude/skills/a11y-skill/ && rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.gemini/skills/a11y-skill/ && rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.cursor/skills/a11y-skill/ && rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.codex/skills/a11y-skill/ && rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.codeium/windsurf/skills/a11y-skill/ && rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.gemini/antigravity/skills/a11y-skill/"
+  },
+  "dependencies": {
+    "@diegovelasquezweb/a11y-engine": "0.9.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  },
+  "packageManager": "pnpm@10.22.0+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
+  "license": "MIT"
+}

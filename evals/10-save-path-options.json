@@ -1,0 +1,19 @@
+{
+  "id": "10-save-path-options",
+  "title": "Report saving — save path options",
+  "skills": [
+    "a11y"
+  ],
+  "query": "Audit https://example.com and save the HTML report",
+  "expected_behavior": [
+    "Completes the audit and presents findings",
+    "Asks for save location with exactly 3 options: Desktop (~/Desktop/), Documents (~/Documents/), and Custom path",
+    "Does NOT offer './audit/' or any project-relative path as an option",
+    "Does NOT ask about .gitignore at any point",
+    "If user selects a path, generates the report to that path without further questions",
+    "If user requests checklist later, reuses the previously given save path silently"
+  ],
+  "model_notes": {
+    "all_agents": "Verifies the simplified save path flow: only Desktop, Documents, and Custom are offered. The .gitignore question must never appear. Path reuse (no second prompt for checklist if path already set) is also tested."
+  }
+}

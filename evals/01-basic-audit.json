@@ -1,0 +1,19 @@
+{
+  "id": "01-basic-audit",
+  "title": "Basic audit — run and present findings",
+  "skills": ["a11y"],
+  "query": "Run an accessibility audit on https://example.com",
+  "expected_behavior": [
+    "Asks how to discover pages (Crawler or Sitemap) before running the audit",
+    "If user picks Sitemap, fetches `<URL>/sitemap.xml` and confirms page count before proceeding",
+    "Runs `a11y-audit --base-url https://example.com` without modification",
+    "Parses `REMEDIATION_PATH` from script output and reads the remediation guide",
+    "Summarizes findings grouped by severity (Critical → Serious → Moderate → Minor)",
+    "Groups findings by component or page area with explanations",
+    "Presents findings inline in the conversation (not as file paths)",
+    "Asks for permission before applying any fixes",
+    "Does NOT modify any source files before receiving permission",
+    "Does NOT create files in the user's project without explicit request"
+  ],
+  "model_notes": {}
+}
