@@ -10,7 +10,7 @@
     "sync": "rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.claude/skills/a11y-skill/ && rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.gemini/skills/a11y-skill/ && rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.cursor/skills/a11y-skill/ && rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.codex/skills/a11y-skill/ && rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.codeium/windsurf/skills/a11y-skill/ && rsync -av --exclude='node_modules' --exclude='.git' --exclude='.DS_Store' --exclude='.audit' ./ ~/.gemini/antigravity/skills/a11y-skill/"
   },
   "dependencies": {
-    "@diegovelasquezweb/a11y-engine": "0.9.0"
+    "@diegovelasquezweb/a11y-engine": "1.0.0"
   },
   "devDependencies": {
     "vitest": "^4.0.18"
