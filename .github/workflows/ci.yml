@@ -18,6 +18,9 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      - run: pnpm install --frozen-lockfile
+      # --ignore-scripts: the package's postinstall runs `npx playwright install
+      # chromium`, which fails in a clean CI install (playwright is not a direct
+      # dependency). Unit tests do not need a browser, so we skip lifecycle scripts.
+      - run: pnpm install --frozen-lockfile --ignore-scripts
 
       - run: pnpm test
